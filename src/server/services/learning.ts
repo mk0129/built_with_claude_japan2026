@@ -3,6 +3,7 @@ import { getDb, type Db } from "@/server/db/client";
 import { learningProgress, prescriptionItems, prescriptionSets, quizAnswers, quizAttempts, quizQuestions } from "@/server/db/schema";
 import { badRequest, conflict, forbidden, notFound } from "@/server/authz/errors";
 import { getVersionContent } from "./materials";
+import { listApprovedFiguresForVersion } from "./figures";
 
 /** 患者はこの版を処方されているか（患者保有データへの唯一の入口） */
 export async function assertPatientHasVersion(patientId: string, versionId: string, db: Db = getDb()) {
@@ -24,6 +25,8 @@ export async function getLearningView(patientId: string, versionId: string, db: 
     .from(learningProgress)
     .where(and(eq(learningProgress.patientId, patientId), eq(learningProgress.materialVersionId, versionId)))
     .limit(1);
+  // 図解は承認済み（approved）かつ画像ファイルがあるものだけ。未承認は URL も渡さない
+  const figures = await listApprovedFiguresForVersion(versionId, db);
   return {
     versionId: c.versionId,
     materialId: c.materialId,
@@ -33,7 +36,15 @@ export async function getLearningView(patientId: string, versionId: string, db: 
     learningObjectives: c.learningObjectives,
     isCurrentVersion: c.currentPublishedVersionId === c.versionId,
     retiredForSafety: c.retireReason === "safety",
-    slides: c.slides.map((s) => ({ seq: s.seq, title: s.title, bodyMd: s.bodyMd, imageRef: s.imageRef, voiceText: s.voiceText ?? s.bodyMd })),
+    slides: c.slides.map((s) => ({
+      seq: s.seq,
+      title: s.title,
+      proposition: s.proposition,
+      bodyMd: s.bodyMd,
+      detailMd: s.detailMd,
+      voiceText: s.voiceText ?? s.bodyMd,
+      figures: figures[s.seq] ?? [],
+    })),
     questionCount: c.questions.length,
     progress: { phase: p?.phase ?? "not_started", lastSlideSeq: p?.lastSlideSeq ?? 0 },
   };

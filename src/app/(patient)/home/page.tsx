@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { requirePageUser } from "@/server/auth/session";
-import { listHomeworkForPatient, type HomeworkItem } from "@/server/services/prescription";
+import { listHomeworkForPatient, type HomeworkItem, type HomeworkSet } from "@/server/services/prescription";
+import { getApprovedAsset } from "@/server/services/figures";
 import { SignOutButton } from "@/components/SignOutButton";
+import { EditorialIllustration } from "@/components/patient/EditorialIllustration";
 import { DOMAIN_LABEL, PHASE_LABEL, estimateMinutes, fmtDate } from "@/lib/labels";
 
 function hrefFor(i: HomeworkItem) {
   return i.phase === "quiz" ? `/quiz/${i.versionId}` : `/learn/${i.versionId}`;
 }
-
 function actionLabel(i: HomeworkItem) {
   if (i.phase === "quiz") return "確認問題の続きから";
   if (i.phase === "reading") return "続きから読む";
@@ -18,93 +19,95 @@ function actionLabel(i: HomeworkItem) {
 export default async function PatientHome() {
   const u = await requirePageUser("patient");
   const sets = await listHomeworkForPatient(u.id);
+  const edi = await getApprovedAsset("EDI-001");
   const allItems = sets.flatMap((s) => s.items);
   const inProgress = allItems.find((i) => i.phase === "reading" || i.phase === "quiz");
   const next = inProgress ?? allItems.find((i) => i.phase === "not_started") ?? null;
+  const nextSet: HomeworkSet | undefined = next ? sets.find((s) => s.items.some((i) => i.itemId === next.itemId)) : sets[0];
   const doneCount = allItems.filter((i) => i.phase === "completed").length;
   const allDone = allItems.length > 0 && doneCount === allItems.length;
 
   return (
-    <main className="relative space-y-5">
-      <div className="blob bg-wakakusa w-56 h-56 -top-16 -right-20" />
-      <header className="relative flex items-start justify-between">
-        <div>
-          <p className="text-ink-soft">こんにちは、</p>
-          <h1 className="text-2xl font-bold">{u.name} さん</h1>
+    <main className="space-y-6">
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-ink-soft">こんにちは</p>
+          <h1 className="text-2xl font-bold leading-snug">{u.name} さん</h1>
+          <p className="text-ink-soft mt-2">今日の分は 1 つだけ。読まない日があっても大丈夫です。</p>
         </div>
-        <SignOutButton to="/login" />
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <SignOutButton to="/login" />
+          {edi && <EditorialIllustration src={edi.src} alt={edi.altText} />}
+        </div>
       </header>
 
-      {/* 最上部の主導線: 次に読む教材 */}
       {next ? (
-        <section className="card border-2 border-sakura-deep space-y-3 relative" aria-labelledby="next-title">
-          <p className="text-sm text-ink-soft">{inProgress ? "途中の教材があります" : "次に読む教材"}</p>
-          <h2 id="next-title" className="text-xl font-bold leading-snug">
-            {next.title}
-          </h2>
-          <p className="text-sm text-ink-muted">
-            {DOMAIN_LABEL[next.primaryDomain] ?? next.primaryDomain} ・ {next.slideCount}画面と確認問題{next.questionCount}問 ・ 目安 約{estimateMinutes(next.slideCount, next.questionCount)}分
-          </p>
-          {next.phase !== "not_started" && (
-            <div>
-              <div className="flex justify-between text-xs text-ink-soft">
-                <span>{PHASE_LABEL[next.phase]}</span>
-                <span>
-                  {next.phase === "quiz" ? "説明は読み終えました" : `${Math.min(next.lastSlideSeq, next.slideCount)} / ${next.slideCount} 画面`}
+        <section className="card space-y-3" aria-labelledby="next-title">
+          {nextSet && (
+            <>
+              <div className="flex items-baseline justify-between gap-3 flex-wrap">
+                <span className="text-sm text-ink-soft">{fmtDate(nextSet.createdAt)} の診察で届いた説明</span>
+                <span className="text-sm font-bold text-accent whitespace-nowrap">
+                  {nextSet.items.filter((i) => i.phase === "completed").length} / {nextSet.items.length} 読み終えた
                 </span>
               </div>
-              <div className="h-2 rounded-full bg-line overflow-hidden" aria-hidden>
-                <div
-                  className="h-full bg-accent"
-                  style={{ width: `${next.phase === "quiz" ? 100 : Math.round((100 * Math.min(next.lastSlideSeq, next.slideCount)) / Math.max(next.slideCount, 1))}%` }}
-                />
+              <div className="prog" aria-hidden>
+                {nextSet.items.map((i) => (
+                  <i key={i.itemId} className={i.phase === "completed" ? "on" : ""} />
+                ))}
               </div>
-            </div>
+            </>
           )}
-          <Link href={hrefFor(next)} className="btn btn-primary btn-block text-lg">
-            {actionLabel(next)}
-          </Link>
-          {allItems.length > 1 && (
+          <p className="text-sm text-ink-soft pt-1">
+            {inProgress ? "途中の教材" : "次に読むもの"} ・ {next.slideCount} 画面と確認問題 {next.questionCount} 問 ・ 約 {estimateMinutes(next.slideCount, next.questionCount)} 分
+          </p>
+          <h2 id="next-title" className="text-2xl font-bold leading-snug">
+            {next.title}
+          </h2>
+          {next.summary && <p className="text-ink-soft">{next.summary}</p>}
+          {next.phase === "reading" && (
             <p className="text-sm text-ink-soft">
-              届いた {allItems.length} 件のうち {doneCount} 件を読み終えました。あなたのペースで大丈夫です。
+              {Math.min(next.lastSlideSeq, next.slideCount)} / {next.slideCount} 画面まで読みました
             </p>
           )}
+          <Link href={hrefFor(next)} className="btn btn-primary btn-block">
+            <span aria-hidden>▶</span> {actionLabel(next)}
+          </Link>
         </section>
       ) : allDone ? (
-        <section className="card border-2 border-wakakusa space-y-2">
-          <h2 className="text-lg font-bold">届いた教材はすべて読み終えました</h2>
+        <section className="card space-y-2">
+          <h2 className="text-xl font-bold">届いた説明はすべて読み終えました</h2>
           <p className="text-ink-soft">気になるところは何度でも読み直せます。「きろく」で確認問題の結果や質問を見られます。</p>
           <Link href="/scores" className="btn btn-block">
             きろくを見る
           </Link>
         </section>
       ) : (
-        <section className="card space-y-2 relative">
-          <h2 className="font-bold">先生から届いた教材</h2>
+        <section className="card space-y-2">
+          <h2 className="text-xl font-bold">先生から届いた説明</h2>
           <p className="text-ink-soft">まだ届いていません。診察のときに医療者から届きます。</p>
-          <p className="text-sm text-ink-muted">診察では下の「共有」から QR コードを表示して、医療者に見せてください。</p>
+          <p className="text-sm text-ink-soft">診察では下の「共有」から QR コードを表示して、医療者に見せてください。</p>
         </section>
       )}
 
       {sets.map((set) => (
-        <section key={set.setId} className="card space-y-3">
-          <div>
-            <h2 className="font-bold">{fmtDate(set.createdAt)} の診察で届いた教材</h2>
-            <p className="text-sm text-ink-muted">
-              {set.orgName} ・ {set.clinicianName}
-            </p>
-          </div>
-          <ul className="space-y-2">
-            {set.items.map((i) => (
+        <section key={set.setId} aria-label={`${fmtDate(set.createdAt)} の診察で届いた説明`}>
+          <p className="text-sm text-ink-soft">
+            {fmtDate(set.createdAt)} ・ {set.orgName} ・ {set.clinicianName}から
+          </p>
+          <ul className="mt-1">
+            {set.items.map((i, idx) => (
               <li key={i.itemId}>
-                <Link href={hrefFor(i)} className="flex items-center justify-between gap-3 rounded-xl border border-line px-3 py-3 min-h-[var(--tap)]">
-                  <div className="min-w-0">
-                    <p className="font-bold leading-snug">{i.title}</p>
-                    <p className="text-xs text-ink-muted">
-                      {DOMAIN_LABEL[i.primaryDomain] ?? i.primaryDomain} ・ 約{estimateMinutes(i.slideCount, i.questionCount)}分
-                    </p>
-                  </div>
-                  <span className={`pill shrink-0 ${i.phase === "completed" ? "bg-wakakusa" : i.phase === "not_started" ? "" : "bg-sora"}`}>{PHASE_LABEL[i.phase]}</span>
+                <Link href={hrefFor(i)} className="flex items-center gap-3.5 min-h-[64px] py-1.5">
+                  <span className={`ring ${i.phase === "completed" ? "done" : i.phase === "not_started" ? "todo" : ""}`} aria-hidden>
+                    {i.phase === "completed" ? "✓" : i.phase === "not_started" ? idx + 1 : "…"}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-bold leading-snug">{i.title}</span>
+                    <span className="block text-sm text-ink-soft">
+                      {PHASE_LABEL[i.phase]} ・ {DOMAIN_LABEL[i.primaryDomain] ?? i.primaryDomain} ・ 約 {estimateMinutes(i.slideCount, i.questionCount)} 分
+                    </span>
+                  </span>
                 </Link>
               </li>
             ))}
@@ -112,18 +115,7 @@ export default async function PatientHome() {
         </section>
       ))}
 
-      <section className="card space-y-2">
-        <h2 className="font-bold">診察のときは</h2>
-        <p className="text-sm text-ink-soft">下の「共有」から QR コードを表示し、医療者に見せてください。あなたが許可した 60 分だけ、記録が共有されます。</p>
-        <Link href="/share" className="btn btn-block">
-          共有画面を開く
-        </Link>
-      </section>
-
-      <section className="card space-y-1">
-        <h2 className="font-bold">このアプリについて</h2>
-        <p className="text-sm text-ink-soft">ここに届く情報は医療者が確認したものです。質問は次の診察で確認されます。緊急のときは病院の連絡先へご連絡ください。</p>
-      </section>
+      <p className="text-sm text-ink-soft">診察のときは「共有」から QR コードを見せてください。あなたが許可した 60 分だけ共有されます。緊急のときは病院の連絡先へご連絡ください。</p>
     </main>
   );
 }

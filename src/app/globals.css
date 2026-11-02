@@ -216,6 +216,104 @@ body {
   }
 }
 
+/* ---- 患者画面のテーマ（C2: 静かなウェルネス）。医療者画面には適用しない ---- */
+.patient-shell {
+  --bg: #f4f1ec;
+  --surface: #fbfaf7;
+  --ink: #343a36;
+  --ink-soft: #5c645e;
+  --ink-muted: #6c746e;
+  --line: #ddd7cd;
+  --line-strong: #5f7461;
+  --accent: #5f7461;
+  --accent-ink: #ffffff;
+  --sakura: #f1e1e3; /* ちがう答え（面） */
+  --sakura-deep: #c9a3aa;
+  --wakakusa: #e2e8df; /* 確認できた（面） */
+  --sora: #e6e9ee;
+  --suna: #f0e3da; /* わからない（面） */
+  --danger: #9a5a66;
+  --ok: #5f7461;
+  --radius: 24px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.patient-shell .card {
+  border: 0;
+  padding: 1.2rem 1.25rem;
+  box-shadow: none;
+}
+.patient-shell .btn {
+  min-height: 58px;
+  border-radius: 29px;
+  font-size: 1.05rem;
+}
+.patient-shell .btn-option {
+  border-radius: 18px;
+}
+.patient-shell .pill {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+}
+/* 進捗セグメント */
+.prog {
+  display: flex;
+  gap: 5px;
+}
+.prog i {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+}
+.prog i.on {
+  background: var(--accent);
+}
+/* 状態リング（読み終えた / 途中 / これから） */
+.ring {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  color: var(--accent);
+  font-weight: 700;
+}
+.ring.done {
+  background: var(--accent);
+  color: #fff;
+}
+.ring.todo {
+  border-color: var(--line);
+  color: var(--ink-soft);
+}
+/* 図解コンポーネント: ラベルレイヤー */
+.fig-label {
+  position: absolute;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transform: translate(-50%, 0);
+  max-width: 60%;
+}
+.fig-anchor {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid var(--accent);
+  transform: translate(-50%, -50%);
+}
+
 /* 患者画面: 下部タブの分だけ本文に余白を取り、タブが無い画面（学習・クイズ）は小さい余白にする */
 .patient-content {
   padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));

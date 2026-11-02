@@ -117,28 +117,53 @@ export function QuizClient({ versionId, title }: { versionId: string; title: str
             </Link>
             <FontSizeToggle />
           </div>
-          <h1 className="text-xl font-bold leading-snug">{title}</h1>
-          <p className="text-ink-soft">確認問題を終えました。おつかれさまでした。</p>
+          <p className="text-sm text-ink-soft">{title} ・ 確認問題</p>
+          <h1 className="text-2xl font-bold leading-snug">
+            確認を終えました。
+            <br />
+            おつかれさまでした。
+          </h1>
+          <div className="flex flex-wrap items-center gap-2 pt-2">
+            <span className="pill font-bold text-ink">
+              <span aria-hidden className="inline-flex w-4.5 h-4.5 rounded-full bg-ok text-white text-[11px] items-center justify-center mr-1.5">✓</span>確認できた {correct.length}
+            </span>
+            <span className="pill font-bold text-ink">
+              <span aria-hidden className="inline-flex w-4.5 h-4.5 rounded-full bg-danger text-white text-[11px] items-center justify-center mr-1.5">！</span>
+              {missed.filter((x) => !x.answer!.isUnknown).length}
+            </span>
+            <span className="pill font-bold text-ink">
+              <span aria-hidden className="inline-flex w-4.5 h-4.5 rounded-full bg-[#a67a5e] text-white text-[11px] items-center justify-center mr-1.5">?</span>
+              {missed.filter((x) => x.answer!.isUnknown).length}
+            </span>
+          </div>
         </header>
 
         <section className="card space-y-3 border-2 border-suna" aria-labelledby="review-title">
           <h2 id="review-title" className="font-bold text-lg">
-            {missed.length > 0 ? "もう一度見ておきたいところ" : "すべて正解でした"}
+            {missed.length > 0 ? "もう一度確認できるところ" : "すべて正解でした"}
           </h2>
           {missed.length === 0 ? (
             <p className="text-ink-soft">気になるところがあれば、いつでも説明を読み直せます。</p>
           ) : (
             <ul className="space-y-3">
               {missed.map((x) => (
-                <li key={x.questionId} className="rounded-xl bg-suna p-3 space-y-1">
-                  <p className="text-sm text-ink-soft">{x.answer!.isUnknown ? "「わからない」と答えた問題" : "まちがえた問題"}</p>
+                <li key={x.questionId} className="pt-3 border-t border-line first:border-t-0 first:pt-0 space-y-1">
+                  <p className="text-sm text-ink-soft flex items-center gap-2">
+                    <span aria-hidden className={`inline-flex w-5 h-5 rounded-full text-white text-[11px] items-center justify-center ${x.answer!.isUnknown ? "bg-[#a67a5e]" : "bg-danger"}`}>
+                      {x.answer!.isUnknown ? "?" : "！"}
+                    </span>
+                    {x.answer!.isUnknown ? "「わからない」と答えました" : "ちがう答えを選びました"}
+                  </p>
                   <p className="font-bold leading-snug">{x.stem}</p>
-                  <p className="text-sm">
+                  <p className="text-sm text-ink-soft">
                     正解: {LETTERS[x.answer!.correctIndex]} {x.options[x.answer!.correctIndex]}
                   </p>
-                  <p className="text-sm leading-relaxed">{x.answer!.explanation}</p>
-                  <Link href={`/learn/${versionId}${x.relatedSlideSeq ? `?slide=${x.relatedSlideSeq}` : ""}`} className="btn btn-block min-h-12 text-sm mt-1">
-                    この説明を読み直す
+                  <details className="text-sm text-ink-soft">
+                    <summary className="cursor-pointer min-h-11 flex items-center">解説を読む</summary>
+                    <p className="leading-relaxed">{x.answer!.explanation}</p>
+                  </details>
+                  <Link href={`/learn/${versionId}${x.relatedSlideSeq ? `?slide=${x.relatedSlideSeq}` : ""}`} className="tap-link text-accent font-bold">
+                    {x.relatedSlideSeq ? `${x.relatedSlideSeq} 画面目を読み直す →` : "説明を読み直す →"}
                   </Link>
                 </li>
               ))}
@@ -146,25 +171,10 @@ export function QuizClient({ versionId, title }: { versionId: string; title: str
           )}
         </section>
 
-        {correct.length > 0 && (
-          <section className="card space-y-2">
-            <h2 className="font-bold">できたこと</h2>
-            <ul className="space-y-1 text-sm">
-              {correct.map((x) => (
-                <li key={x.questionId} className="flex gap-2">
-                  <span aria-hidden className="text-ok">
-                    ✓
-                  </span>
-                  <span>{x.stem}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
 
         <section className="card space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="font-bold">次にできること</h2>
+            <h2 className="font-bold text-lg">次にできること</h2>
             <details className="text-sm">
               <summary className="pill cursor-pointer">
                 正解 {attempt.nCorrect} / {total} 問
@@ -300,7 +310,7 @@ function FeedbackForm({ versionId, onDone }: { versionId: string; onDone: () => 
   }
   return (
     <section className="card space-y-3">
-      <h2 className="font-bold">先生に伝える（ふりかえり）</h2>
+      <h2 className="font-bold text-lg">次の診察で聞きたいこと</h2>
       <p className="text-sm text-ink-soft">読んでみて、いまの気持ちに近いものを選んでください。質問があれば次の診察で先生が確認します。</p>
       <div className="grid gap-2">
         {Object.entries(SELECTION_LABEL).map(([k, label]) => (

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { ensureMigrated, getDb, type Db } from "./client";
-import { materialSlides, materialVersions, materials, organizationMembers, organizations, prescriptionTemplates, quizQuestions, user } from "./schema";
+import { figureAssets, figurePlacements, materialSlides, materialVersions, materials, organizationMembers, organizations, prescriptionTemplates, quizQuestions, user } from "./schema";
 import { DEMO_ACCOUNTS, DEMO_MATERIALS, DEMO_ORGS } from "./seed-data";
 import { SEED_CONTENT, SEED_TEMPLATES } from "./seed-content";
 import { seedDemoHistory } from "./seed-history";
@@ -96,7 +96,7 @@ export async function seed(db: Db = getDb()) {
     if (hasSlide) continue;
     await db.update(materialVersions).set({ learningObjectives: c.objectives }).where(eq(materialVersions.id, mat.versionId));
     await db.insert(materialSlides).values(
-      c.slides.map((sl, i) => ({ materialVersionId: mat.versionId!, seq: i + 1, title: sl.title, bodyMd: sl.body, imageRef: sl.image ?? null, voiceText: sl.body })),
+      c.slides.map((sl, i) => ({ materialVersionId: mat.versionId!, seq: i + 1, title: sl.title, bodyMd: sl.body, imageRef: sl.image ?? null, voiceText: sl.body, proposition: sl.proposition ?? null, detailMd: sl.detail ?? null })),
     );
     await db.insert(quizQuestions).values(
       c.questions.map((q, i) => ({
@@ -109,6 +109,24 @@ export async function seed(db: Db = getDb()) {
         relatedSlideSeq: q.relatedSlide,
       })),
     );
+  }
+
+  // 図解アセット（仕様のみ・未納品・監修待ち）。患者には配信されない
+  const { SEED_FIGURES } = await import("./seed-figures");
+  for (const f of SEED_FIGURES) {
+    await db
+      .insert(figureAssets)
+      .values({ assetId: f.assetId, type: f.type, altText: f.altText, longDescription: f.longDescription, learningObjective: f.learningObjective, reviewStatus: "pending_review", copyrightStatus: "internal_ai_generated", generatorNote: "ChatGPT で制作予定（VISUAL_ASSET_SPECS_5.md）。未納品" })
+      .onConflictDoNothing();
+    for (const pl of f.placements) {
+      const materialId = materialIdByTitle.get(pl.materialTitle);
+      if (!materialId) continue;
+      const [mat] = await db.select({ versionId: materials.currentPublishedVersionId }).from(materials).where(eq(materials.id, materialId)).limit(1);
+      if (!mat?.versionId) continue;
+      const [exists] = await db.select({ id: figurePlacements.id }).from(figurePlacements).where(eq(figurePlacements.assetId, f.assetId)).limit(1);
+      if (exists) continue;
+      await db.insert(figurePlacements).values({ assetId: f.assetId, materialVersionId: mat.versionId, slideSeq: pl.slideSeq, labels: pl.labels, caption: pl.caption, sourceNote: "院内原稿（架空）" });
+    }
   }
 
   // 処方テンプレート

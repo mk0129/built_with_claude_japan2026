@@ -29,6 +29,13 @@
       "when": 1793624616848,
       "tag": "0003_quiz_attempt_in_progress_unique",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793629523617,
+      "tag": "0004_figures_and_slide_proposition",
+      "breakpoints": true
     }
   ]
 }

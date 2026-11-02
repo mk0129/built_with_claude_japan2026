@@ -3,11 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import { DOMAIN_LABEL } from "@/lib/labels";
 import { SpeakButton } from "@/components/SpeakButton";
-import { Illustration } from "@/components/Illustration";
 import { FontSizeToggle } from "@/components/FontSizeToggle";
+import { MedicalFigure } from "@/components/patient/MedicalFigure";
+import type { FigureView } from "@/server/services/figures";
 
+type Slide = { seq: number; title: string; proposition: string | null; bodyMd: string; detailMd: string | null; voiceText: string; figures: FigureView[] };
 type View = {
   versionId: string;
   title: string;
@@ -15,11 +16,12 @@ type View = {
   primaryDomain: string;
   learningObjectives: string[];
   isCurrentVersion: boolean;
-  slides: { seq: number; title: string; bodyMd: string; imageRef: string | null; voiceText: string }[];
+  slides: Slide[];
   questionCount: number;
   progress: { phase: string; lastSlideSeq: number };
 };
 
+/** 教材（C2）: 見出し → 命題 → 図解（承認済みのみ） → 短い本文 → くわしく → 読み上げ → 固定の前へ/次へ */
 export function LearnClient({ view, initialSeq }: { view: View; initialSeq: number }) {
   const router = useRouter();
   const [seq, setSeq] = useState(initialSeq);
@@ -40,75 +42,101 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
     window.scrollTo({ top: 0 });
   }
 
+  const voice = `${slide.title}。${slide.proposition ? slide.proposition + "。" : ""}${slide.voiceText}`;
+
   return (
-    <main className="space-y-4">
-      <header className="space-y-1">
-        <div className="flex items-center justify-between">
-          <Link href="/home" className="tap-link">
-            ← ホームへ
-          </Link>
-          <FontSizeToggle />
-        </div>
-        <h1 className="text-xl font-bold leading-snug">{view.title}</h1>
-        <div className="flex items-center gap-2 text-sm text-ink-soft">
-          <span className="pill">{DOMAIN_LABEL[view.primaryDomain] ?? view.primaryDomain}</span>
-          <button className="btn btn-ghost min-h-11 px-3 text-sm" onClick={() => setShowToc((v) => !v)} aria-expanded={showToc}>
-            ☰ 目次
-          </button>
-        </div>
-        {!view.isCurrentVersion && <p className="text-sm text-ink-soft">この教材には新しい版があります。内容は処方時の版です。</p>}
-      </header>
-
-      {showToc && (
-        <nav className="card" aria-label="目次">
-          <ol className="space-y-1">
+    <>
+      <main className="space-y-4 pb-28">
+        <header className="space-y-1">
+          <div className="flex items-center justify-between">
+            <Link href="/home" className="tap-link">
+              ← ホームへ
+            </Link>
+            <FontSizeToggle />
+          </div>
+          <p className="text-sm text-ink-soft">{view.title}</p>
+          <div className="prog" aria-label={`${total} 画面中 ${seq} 画面目`}>
             {view.slides.map((s) => (
-              <li key={s.seq}>
-                <button className={`text-left w-full min-h-11 py-1 ${s.seq === seq ? "font-bold text-accent" : ""}`} onClick={() => { go(s.seq); setShowToc(false); }}>
-                  {s.seq}. {s.title}
-                </button>
-              </li>
+              <i key={s.seq} className={s.seq <= seq ? "on" : ""} />
             ))}
-          </ol>
-        </nav>
-      )}
+          </div>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-ink-soft">
+              {seq} / {total}
+            </p>
+            <button className="btn btn-ghost min-h-11 px-3 text-sm" onClick={() => setShowToc((v) => !v)} aria-expanded={showToc}>
+              ☰ 目次
+            </button>
+          </div>
+          {!view.isCurrentVersion && <p className="text-sm text-ink-soft">この教材には新しい版があります。内容は処方時の版です。</p>}
+        </header>
 
-      <div className="flex gap-1" aria-label={`${total} 画面中 ${seq} 画面目`}>
-        {view.slides.map((s) => (
-          <span key={s.seq} className={`h-1.5 flex-1 rounded-full ${s.seq <= seq ? "bg-accent" : "bg-line"}`} />
-        ))}
-      </div>
-
-      <article className="card space-y-4" aria-live="polite">
-        <Illustration name={slide.imageRef} />
-        <h2 className="text-lg font-bold">{slide.title}</h2>
-        <p className="whitespace-pre-wrap leading-relaxed">{slide.bodyMd}</p>
-        <SpeakButton text={`${slide.title}。${slide.voiceText}`} />
-      </article>
-
-      <div className="grid grid-cols-2 gap-2">
-        <button className="btn" disabled={seq <= 1} onClick={() => go(seq - 1)}>
-          前へ
-        </button>
-        {seq < total ? (
-          <button className="btn btn-primary" onClick={() => go(seq + 1)}>
-            次へ
-          </button>
-        ) : (
-          <button
-            className="btn btn-primary"
-            onClick={async () => {
-              await api(`/api/v1/learn/${view.versionId}/progress`, { json: { lastSlideSeq: seq, phase: "quiz" } }).catch(() => {});
-              router.push(`/quiz/${view.versionId}`);
-            }}
-          >
-            確認問題へ（{view.questionCount}問）
-          </button>
+        {showToc && (
+          <nav className="card" aria-label="目次">
+            <ol className="space-y-1">
+              {view.slides.map((s) => (
+                <li key={s.seq}>
+                  <button
+                    className={`text-left w-full min-h-11 py-1 ${s.seq === seq ? "font-bold text-accent" : ""}`}
+                    onClick={() => {
+                      go(s.seq);
+                      setShowToc(false);
+                    }}
+                  >
+                    {s.seq}. {s.title}
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </nav>
         )}
+
+        <article className="space-y-4" aria-live="polite">
+          <h1 className="text-2xl font-bold leading-snug">{slide.title}</h1>
+          {slide.proposition && <p className="text-xl font-bold leading-relaxed">{slide.proposition}</p>}
+
+          {/* 承認済みの図解だけが描画される。無い場合はこの領域は空になり、本文が続く */}
+          {slide.figures.map((f) => (
+            <MedicalFigure key={f.placementId} figure={f} mode="patient" />
+          ))}
+
+          <p className="whitespace-pre-wrap leading-[1.8] text-[1.05rem]">{slide.bodyMd}</p>
+          {slide.detailMd && (
+            <details className="group">
+              <summary className="cursor-pointer min-h-12 flex items-center gap-2 font-bold text-accent">
+                <span aria-hidden className="group-open:hidden">＋</span>
+                <span aria-hidden className="hidden group-open:inline">－</span>
+                くわしく読む
+              </summary>
+              <p className="whitespace-pre-wrap leading-[1.8] text-ink-soft mt-1">{slide.detailMd}</p>
+            </details>
+          )}
+          <SpeakButton text={voice} />
+        </article>
+      </main>
+
+      <div className="fixed inset-x-0 bottom-0 bg-bg border-t border-line" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+        <div className="max-w-md mx-auto grid grid-cols-[1fr_1.5fr] gap-2.5 px-4 py-3">
+          <button className="btn" disabled={seq <= 1} onClick={() => go(seq - 1)}>
+            前へ
+          </button>
+          {seq < total ? (
+            <button className="btn btn-primary" onClick={() => go(seq + 1)}>
+              次へ ・ {seq + 1} / {total}
+            </button>
+          ) : (
+            <button
+              className="btn btn-primary"
+              onClick={async () => {
+                await api(`/api/v1/learn/${view.versionId}/progress`, { json: { lastSlideSeq: seq, phase: "quiz" } }).catch(() => {});
+                router.push(`/quiz/${view.versionId}`);
+              }}
+            >
+              確認問題へ（{view.questionCount}問）
+            </button>
+          )}
+        </div>
       </div>
-      <p className="text-center text-sm text-ink-muted">
-        {seq} / {total}
-      </p>
-    </main>
+    </>
   );
 }

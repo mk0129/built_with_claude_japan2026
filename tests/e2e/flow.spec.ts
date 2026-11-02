@@ -52,14 +52,14 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
 
   // 5. 患者ホームに届く
   await p.goto("/home");
-  await expect(p.getByText(/の診察で届いた教材/).first()).toBeVisible();
+  await expect(p.getByText(/の診察で届いた説明/).first()).toBeVisible();
   await shot(p, "10_patient_home_homework");
 
   // 6. 説明を読む・音声再生
   await p.getByRole("link", { name: /乳がんの診断と病期の考え方/ }).first().click();
   await p.waitForURL(/\/learn\//);
   const learnUrl = p.url();
-  await expect(p.getByRole("heading", { level: 2 })).toBeVisible();
+  await expect(p.getByRole("heading", { level: 1 })).toBeVisible();
   await p.getByRole("button", { name: /読み上げる/ }).click();
   await shot(p, "11_patient_learn_slide1");
   await p.getByRole("button", { name: "目次" }).click();
@@ -90,8 +90,8 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
   await expect(p.getByText(/確認問題 3 \/ 3/)).toBeVisible();
   await p.getByRole("button", { name: /^イ/ }).click();
   await p.getByRole("button", { name: /結果を見る/ }).click();
-  await expect(p.getByText(/確認問題を終えました/)).toBeVisible();
-  await expect(p.getByText(/もう一度見ておきたいところ/)).toBeVisible();
+  await expect(p.getByText(/確認を終えました/)).toBeVisible();
+  await expect(p.getByText(/もう一度確認できるところ/)).toBeVisible();
   await shot(p, "18_patient_quiz_result");
   // 復習に戻る導線 → 再挑戦
   await p.getByRole("button", { name: /もう一度挑戦する/ }).click();
@@ -100,7 +100,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
     await p.getByRole("button", { name: /^ア/ }).click();
     await p.getByRole("button", { name: /次の問題へ|結果を見る/ }).click();
   }
-  await expect(p.getByText(/確認問題を終えました/)).toBeVisible();
+  await expect(p.getByText(/確認を終えました/)).toBeVisible();
   await p.getByRole("button", { name: "質問がある" }).click();
   await p.getByLabel(/質問や気になったこと/).fill("再発の心配について次に聞きたいです");
   await p.getByRole("button", { name: "送る" }).click();

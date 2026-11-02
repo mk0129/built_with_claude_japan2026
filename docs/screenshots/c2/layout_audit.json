@@ -1,0 +1,352 @@
+[
+  {
+    "role": "patient",
+    "viewport": "phone390",
+    "width": 390,
+    "path": "/home",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "phone390",
+    "width": 390,
+    "path": "/share",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "phone390",
+    "width": 390,
+    "path": "/scores",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "phone390",
+    "width": 390,
+    "path": "/quiz/6ae5e821-496b-4f7f-a867-d72969ddace7",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "phone390",
+    "width": 390,
+    "path": "/quiz/6ae5e821-496b-4f7f-a867-d72969ddace7",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "phone430",
+    "width": 430,
+    "path": "/home",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "phone430",
+    "width": 430,
+    "path": "/share",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "phone430",
+    "width": 430,
+    "path": "/scores",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "phone430",
+    "width": 430,
+    "path": "/quiz/6ae5e821-496b-4f7f-a867-d72969ddace7",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "phone430",
+    "width": 430,
+    "path": "/quiz/6ae5e821-496b-4f7f-a867-d72969ddace7",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "ipadPortrait",
+    "width": 820,
+    "path": "/home",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "ipadPortrait",
+    "width": 820,
+    "path": "/share",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "ipadPortrait",
+    "width": 820,
+    "path": "/scores",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "ipadPortrait",
+    "width": 820,
+    "path": "/quiz/6ae5e821-496b-4f7f-a867-d72969ddace7",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "ipadPortrait",
+    "width": 820,
+    "path": "/quiz/6ae5e821-496b-4f7f-a867-d72969ddace7",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "ipadLandscape",
+    "width": 1180,
+    "path": "/home",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "ipadLandscape",
+    "width": 1180,
+    "path": "/share",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "ipadLandscape",
+    "width": 1180,
+    "path": "/scores",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "ipadLandscape",
+    "width": 1180,
+    "path": "/quiz/6ae5e821-496b-4f7f-a867-d72969ddace7",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "ipadLandscape",
+    "width": 1180,
+    "path": "/quiz/6ae5e821-496b-4f7f-a867-d72969ddace7",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "pc",
+    "width": 1440,
+    "path": "/home",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "pc",
+    "width": 1440,
+    "path": "/share",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "pc",
+    "width": 1440,
+    "path": "/scores",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "pc",
+    "width": 1440,
+    "path": "/quiz/6ae5e821-496b-4f7f-a867-d72969ddace7",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "patient",
+    "viewport": "pc",
+    "width": 1440,
+    "path": "/quiz/6ae5e821-496b-4f7f-a867-d72969ddace7",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "staff",
+    "viewport": "phone390",
+    "width": 390,
+    "path": "/staff",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "staff",
+    "viewport": "phone390",
+    "width": 390,
+    "path": "/staff/scan",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "staff",
+    "viewport": "phone430",
+    "width": 430,
+    "path": "/staff",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "staff",
+    "viewport": "phone430",
+    "width": 430,
+    "path": "/staff/scan",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "staff",
+    "viewport": "ipadPortrait",
+    "width": 820,
+    "path": "/staff",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "staff",
+    "viewport": "ipadPortrait",
+    "width": 820,
+    "path": "/staff/scan",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "staff",
+    "viewport": "ipadLandscape",
+    "width": 1180,
+    "path": "/staff",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "staff",
+    "viewport": "ipadLandscape",
+    "width": 1180,
+    "path": "/staff/scan",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "staff",
+    "viewport": "pc",
+    "width": 1440,
+    "path": "/staff",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  {
+    "role": "staff",
+    "viewport": "pc",
+    "width": 1440,
+    "path": "/staff/scan",
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  }
+]

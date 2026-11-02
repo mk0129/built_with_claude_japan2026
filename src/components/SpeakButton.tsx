@@ -35,9 +35,16 @@ export function SpeakButton({ text }: { text: string }) {
     setSpeaking(true);
   }
 
+  const seconds = Math.max(10, Math.round(text.length / 5));
   return (
-    <button className={`btn ${speaking ? "btn-soft" : ""}`} onClick={toggle} aria-pressed={speaking}>
-      <span aria-hidden>{speaking ? "■" : "▶"}</span> {speaking ? "読み上げを止める" : "読み上げる"}
+    <button className="w-full flex items-center gap-3.5 rounded-[22px] bg-wakakusa px-3.5 py-3 text-left min-h-[72px]" onClick={toggle} aria-pressed={speaking}>
+      <span aria-hidden className="w-13 h-13 min-w-[52px] min-h-[52px] rounded-full bg-accent text-white flex items-center justify-center text-lg">
+        {speaking ? "■" : "▶"}
+      </span>
+      <span className="flex-1">
+        <span className="block font-bold">{speaking ? "読み上げを止める" : "この画面を読み上げる"}</span>
+        <span className="block text-sm text-ink-soft">{speaking ? "再生中" : `約 ${seconds} 秒`}</span>
+      </span>
     </button>
   );
 }

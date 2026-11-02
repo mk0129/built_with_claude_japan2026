@@ -3,10 +3,15 @@ import { requirePageUser } from "@/server/auth/session";
 import { listMemberships } from "@/server/authz/principal";
 import { SignOutButton } from "@/components/SignOutButton";
 import { OrgPicker } from "./OrgPicker";
+import { listVisibleMaterials } from "@/server/services/materials";
 
 export default async function StaffHome() {
   const u = await requirePageUser("staff");
   const memberships = await listMemberships(u.id);
+  const editorOrgs = memberships.filter((m) => m.roles.includes("material_editor") || m.roles.includes("material_approver"));
+  const previewMaterials = editorOrgs.length ? await listVisibleMaterials({ orgId: editorOrgs[0].orgId }) : [];
+  const isOperator = editorOrgs.some((m) => m.orgKind === "operator");
+  const previewable = previewMaterials.filter((m) => (isOperator ? m.scope === "common" : m.scope === "org"));
   return (
     <main className="space-y-6">
       <header className="flex items-start justify-between">
@@ -26,10 +31,23 @@ export default async function StaffHome() {
       <section className="grid md:grid-cols-2 gap-3">
         <div className="card space-y-2">
           <h2 className="font-bold">教材管理</h2>
-          <p className="text-sm text-ink-soft">原資料のアップロード、AI 下書き、承認・公開（Day 4 で実装）</p>
-          <Link href="#" className="btn" aria-disabled>
-            準備中
-          </Link>
+          <p className="text-sm text-ink-soft">原資料のアップロード、AI 下書き、承認・公開は Day 4 で実装します。</p>
+          {previewable.length > 0 ? (
+            <>
+              <p className="text-sm text-ink-soft">監修プレビュー（編集者・承認者のみ。未承認の図解は患者に表示されません）</p>
+              <ul className="text-sm space-y-1">
+                {previewable.map((m) => (
+                  <li key={m.materialId}>
+                    <Link href={`/staff/materials/${m.versionId}/preview`} className="tap-link underline">
+                      {m.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className="text-sm text-ink-muted">教材の編集・監修権限がある場合、ここにプレビュー一覧が表示されます。</p>
+          )}
         </div>
         <div className="card space-y-2">
           <h2 className="font-bold">アクセスの原則</h2>

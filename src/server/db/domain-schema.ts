@@ -228,8 +228,56 @@ export const materialSlides = pgTable(
     imageRef: text("image_ref"),
     voiceText: text("voice_text"),
     sourceRefs: jsonb("source_refs").$type<SourceRef[]>().notNull().default([]),
+    proposition: text("proposition"), // 命題（ひとこと要約）。null 可
+    detailMd: text("detail_md"), // 「くわしく」に入れる補足。null 可
   },
   (t) => [uniqueIndex("material_slides_seq_uq").on(t.materialVersionId, t.seq)],
+);
+
+// ---------- 図解アセット（医学的図解・情緒的イラスト） ----------
+export const figureType = pgEnum("figure_type", ["medical", "editorial"]);
+export const figureReviewStatus = pgEnum("figure_review_status", ["draft", "pending_review", "approved", "rejected"]);
+export const copyrightStatus = pgEnum("copyright_status", ["internal_ai_generated", "licensed", "unknown"]);
+
+/** 画像アセット本体のメタデータ。ラベル・注釈は画像に埋め込まず placements 側で持つ */
+export const figureAssets = pgTable("figure_assets", {
+  assetId: text("asset_id").primaryKey(), // 例: MED-001
+  version: integer("version").notNull().default(1),
+  type: figureType("type").notNull(),
+  filename: text("filename"), // public/assets/{medical|editorial}/ 配下。null = 未納品
+  width: integer("width"),
+  height: integer("height"),
+  altText: text("alt_text").notNull(),
+  longDescription: text("long_description"),
+  learningObjective: text("learning_objective"),
+  sourceRefs: jsonb("source_refs").$type<SourceRef[]>().notNull().default([]),
+  reviewStatus: figureReviewStatus("review_status").notNull().default("draft"),
+  reviewerUserId: userRef("reviewer_user_id"),
+  reviewedAt: ts("reviewed_at"),
+  reviewNote: text("review_note"),
+  copyrightStatus: copyrightStatus("copyright_status").notNull().default("unknown"),
+  generatorNote: text("generator_note"),
+  createdAt: ts("created_at").notNull().defaultNow(),
+  updatedAt: ts("updated_at").notNull().defaultNow(),
+});
+
+export type FigureLabel = { id: string; text: string; anchor: { x: number; y: number }; offset?: { x: number; y: number } };
+
+/** 教材の版・画面へのアセット配置。ラベル（％座標）と監修済みの短い補足を持つ */
+export const figurePlacements = pgTable(
+  "figure_placements",
+  {
+    id: id(),
+    assetId: text("asset_id").notNull().references(() => figureAssets.assetId, { onDelete: "cascade" }),
+    materialVersionId: uuid("material_version_id").notNull().references(() => materialVersions.id, { onDelete: "cascade" }),
+    slideSeq: integer("slide_seq").notNull(),
+    labels: jsonb("labels").$type<FigureLabel[]>().notNull().default([]),
+    caption: text("caption"),
+    sourceNote: text("source_note"),
+    displayOrder: integer("display_order").notNull().default(0),
+    createdAt: ts("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("figure_placements_version_idx").on(t.materialVersionId, t.slideSeq)],
 );
 
 export const quizQuestions = pgTable(
