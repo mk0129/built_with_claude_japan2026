@@ -13,23 +13,55 @@ export const SEED_FIGURES: {
   placements: { materialTitle: string; slideSeq: number; labels: FigureLabel[]; caption: string | null }[];
   /** 納品済みの配信ファイル（public/assets/<type>/ に存在すれば登録し、editorial は公開可として approved にする） */
   delivered?: { filename: string; width: number; height: number };
+  /** 根拠資料（監修プレビューに表示） */
+  sourceRefs?: { sourceId: string; section?: string; quote?: string }[];
 }[] = [
+  // 病期の考え方: 3 枚は「順番に進行する段階」ではなく、病期を考えるときに参照する別々の情報
   {
-    assetId: "MED-001",
+    assetId: "MED-001-01",
     type: "medical",
-    altText: "乳房周囲とわきの下の位置関係を示す乳がんの模式図",
-    longDescription: "成人女性の上半身の模式図。片側の乳房の位置と、わきの下のリンパ節の位置が読み取れる。小さな全身の輪郭で、離れた臓器との位置関係を控えめに示す。",
-    learningObjective: "病期を考えるには、乳房内の病変だけでなく、近くのリンパ節や離れた場所への広がりを確認すると知る",
+    altText: "乳房のなかにある原発病変の位置を示す模式図",
+    longDescription: "成人女性の片側の乳房を正面から見た端正な模式図。乳房のなかに病変の位置が控えめに示されている。病変は誇張しない。",
+    learningObjective: "病期を考える情報のひとつとして、乳房のなかの病変（原発病変）の大きさや位置を確認すると知る",
+    placements: [
+      {
+        materialTitle: "乳がんの診断と病期の考え方",
+        slideSeq: 1,
+        labels: [{ id: "primary", text: "乳房内の病変", anchor: { x: 50, y: 52 }, offset: { x: 0, y: 26 } }],
+        caption: "乳房のなかの病変（原発病変）。大きさや位置を確認します。",
+      },
+    ],
+  },
+  {
+    assetId: "MED-001-02",
+    type: "medical",
+    altText: "乳房とわきの下の領域リンパ節の位置関係を示す模式図",
+    longDescription: "成人女性の上半身の模式図。片側の乳房と、わきの下（腋窩）のリンパ節の位置関係が自然に読み取れる。",
+    learningObjective: "病期を考える情報のひとつとして、乳房に近いリンパ節（領域リンパ節）への広がりを確認すると知る",
     placements: [
       {
         materialTitle: "乳がんの診断と病期の考え方",
         slideSeq: 1,
         labels: [
-          { id: "breast", text: "乳房内の病変", anchor: { x: 38, y: 58 }, offset: { x: -14, y: 22 } },
-          { id: "node", text: "近くのリンパ節", anchor: { x: 52, y: 40 }, offset: { x: 10, y: -30 } },
-          { id: "distant", text: "離れた場所への広がり", anchor: { x: 84, y: 62 }, offset: { x: -4, y: 20 } },
+          { id: "breast", text: "乳房", anchor: { x: 40, y: 58 }, offset: { x: -10, y: 24 } },
+          { id: "node", text: "近くのリンパ節（わきの下）", anchor: { x: 60, y: 38 }, offset: { x: 10, y: -24 } },
         ],
-        caption: "病期を考えるときは、乳房のなかの病変だけでなく、近くのリンパ節や、離れた場所への広がりも確認します。",
+        caption: "乳房に近いリンパ節（わきの下など）への広がりを確認します。",
+      },
+    ],
+  },
+  {
+    assetId: "MED-001-03",
+    type: "medical",
+    altText: "全身の輪郭のなかで離れた臓器の位置を示す模式図",
+    longDescription: "成人女性の全身シルエットの模式図。乳房から離れた臓器（骨・肺・肝臓など）の位置関係を控えめに示す。病変の有無を断定しない。",
+    learningObjective: "病期を考える情報のひとつとして、離れた臓器への広がり（転移）の有無を確認すると知る",
+    placements: [
+      {
+        materialTitle: "乳がんの診断と病期の考え方",
+        slideSeq: 1,
+        labels: [{ id: "distant", text: "離れた臓器への広がり", anchor: { x: 50, y: 45 }, offset: { x: 0, y: 30 } }],
+        caption: "離れた臓器への広がり（転移）の有無を確認します。",
       },
     ],
   },

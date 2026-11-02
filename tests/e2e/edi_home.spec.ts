@@ -34,5 +34,31 @@ test("EDI-001 患者ホーム", async ({ browser }) => {
     await page.screenshot({ path: `${SHOT_DIR}/after_home_${vp.name}_full.png`, fullPage: true });
     await ctx.close();
   }
+  // 文字拡大（21px）時の 390 / 430
+  for (const vp of WIDTHS.filter((w) => w.width <= 430)) {
+    const { ctx, page } = await newPage(browser, { width: vp.width, height: vp.height });
+    await ctx.addInitScript(() => {
+      try {
+        localStorage.setItem("shiori.textsize", "large");
+      } catch {}
+    });
+    await demoLogin(page, "patient", "佐藤 花子");
+    await page.waitForLoadState("networkidle");
+    const r = await page.evaluate(() => {
+      const img = document.querySelector('img[alt="窓辺で静かに過ごす女性のイラスト"]')!.getBoundingClientRect();
+      const h1 = document.querySelector("h1")!.getBoundingClientRect();
+      const cta = document.querySelector("main a.btn-primary")!.getBoundingClientRect();
+      const inter = (a: DOMRect, b: DOMRect) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+      return { fontSize: getComputedStyle(document.documentElement).fontSize, overlapsH1: inter(img, h1), overlapsCta: inter(img, cta), ctaTop: Math.round(cta.top), vh: window.innerHeight };
+    });
+    const audit = await layoutAudit(page);
+    report.push({ viewport: `${vp.name}-large`, ...r, overflowX: audit.overflowX });
+    expect(r.fontSize).toBe("21px");
+    expect(r.overlapsH1).toBe(false);
+    expect(r.overlapsCta).toBe(false);
+    expect(audit.overflowX).toBeLessThanOrEqual(0);
+    await page.screenshot({ path: `${SHOT_DIR}/after_home_${vp.name}_large.png`, fullPage: false });
+    await ctx.close();
+  }
   writeFileSync(`${SHOT_DIR}/edi_audit.json`, JSON.stringify(report, null, 2));
 });

@@ -9,7 +9,7 @@
     },
     "overlapsH1": false,
     "overlapsCta": false,
-    "ctaTop": 524,
+    "ctaTop": 396,
     "vh": 844,
     "overflowX": 0
   },
@@ -23,7 +23,7 @@
     },
     "overlapsH1": false,
     "overlapsCta": false,
-    "ctaTop": 471,
+    "ctaTop": 396,
     "vh": 932,
     "overflowX": 0
   },
@@ -37,7 +37,7 @@
     },
     "overlapsH1": false,
     "overlapsCta": false,
-    "ctaTop": 471,
+    "ctaTop": 396,
     "vh": 1180,
     "overflowX": 0
   },
@@ -51,8 +51,26 @@
     },
     "overlapsH1": false,
     "overlapsCta": false,
-    "ctaTop": 471,
+    "ctaTop": 396,
     "vh": 820,
+    "overflowX": 0
+  },
+  {
+    "viewport": "390-large",
+    "fontSize": "21px",
+    "overlapsH1": false,
+    "overlapsCta": false,
+    "ctaTop": 531,
+    "vh": 844,
+    "overflowX": 0
+  },
+  {
+    "viewport": "430-large",
+    "fontSize": "21px",
+    "overlapsH1": false,
+    "overlapsCta": false,
+    "ctaTop": 461,
+    "vh": 932,
     "overflowX": 0
   }
 ]

@@ -71,6 +71,32 @@ export function MedicalFigure({ figure, mode }: { figure: FigureView; mode: "pat
           <p className="leading-relaxed">{figure.longDescription}</p>
         </details>
       )}
+      {mode === "admin" && (
+        <div className="rounded-xl bg-bg p-3 text-sm space-y-1">
+          <p>
+            <span className="font-bold">学習目標:</span> {figure.learningObjective ?? "（未設定）"}
+          </p>
+          <p className="font-bold">根拠資料:</p>
+          {figure.sourceRefs.length === 0 ? (
+            <p className="text-ink-soft">（未登録）</p>
+          ) : (
+            <ul className="list-disc ml-5 text-ink-soft">
+              {figure.sourceRefs.map((r, i) => (
+                <li key={i}>
+                  {r.sourceId}
+                  {r.section ? ` ・ ${r.section}` : ""}
+                  {r.quote ? `「${r.quote}」` : ""}
+                </li>
+              ))}
+            </ul>
+          )}
+          {figure.reviewNote && (
+            <p>
+              <span className="font-bold">監修メモ:</span> {figure.reviewNote}
+            </p>
+          )}
+        </div>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-ink-soft">
         {mode === "admin" ? (
           <span className={`pill ${figure.reviewStatus === "approved" ? "bg-wakakusa" : "bg-suna"}`}>

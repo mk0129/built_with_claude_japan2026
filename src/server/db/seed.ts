@@ -126,6 +126,7 @@ export async function seed(db: Db = getDb()) {
         altText: f.altText,
         longDescription: f.longDescription,
         learningObjective: f.learningObjective,
+        sourceRefs: f.sourceRefs ?? [{ sourceId: "internal-draft-stage", section: "病期とは（架空の院内原稿）", quote: "病期は、しこりの大きさ、近くのリンパ節への広がり、離れた臓器への広がりを基本に判断します。" }],
         filename: delivered?.filename ?? null,
         width: delivered?.width ?? null,
         height: delivered?.height ?? null,
@@ -134,14 +135,15 @@ export async function seed(db: Db = getDb()) {
         generatorNote: delivered ? "ChatGPT 画像生成。原画は docs/design/handoff_visual_v1/assets/" : "ChatGPT で制作予定（VISUAL_ASSET_SPECS_5.md）。未納品",
       })
       .onConflictDoNothing();
-    for (const pl of f.placements) {
+    for (const [order, pl] of f.placements.entries()) {
+      void order;
       const materialId = materialIdByTitle.get(pl.materialTitle);
       if (!materialId) continue;
       const [mat] = await db.select({ versionId: materials.currentPublishedVersionId }).from(materials).where(eq(materials.id, materialId)).limit(1);
       if (!mat?.versionId) continue;
       const [exists] = await db.select({ id: figurePlacements.id }).from(figurePlacements).where(eq(figurePlacements.assetId, f.assetId)).limit(1);
       if (exists) continue;
-      await db.insert(figurePlacements).values({ assetId: f.assetId, materialVersionId: mat.versionId, slideSeq: pl.slideSeq, labels: pl.labels, caption: pl.caption, sourceNote: "院内原稿（架空）" });
+      await db.insert(figurePlacements).values({ assetId: f.assetId, materialVersionId: mat.versionId, slideSeq: pl.slideSeq, labels: pl.labels, caption: pl.caption, sourceNote: "院内原稿（架空）", displayOrder: SEED_FIGURES.indexOf(f) });
     }
   }
 

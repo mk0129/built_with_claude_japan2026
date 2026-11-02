@@ -33,7 +33,7 @@ export default async function PatientHome() {
         <div className="min-w-0 pt-1">
           <p className="text-ink-soft">こんにちは</p>
           <h1 className="text-2xl font-bold leading-snug">{u.name} さん</h1>
-          <p className="text-ink-soft mt-2">今日の分は 1 つだけ。読まない日があっても大丈夫です。</p>
+          <p className="text-ink-soft mt-2">今日は、ひとつずつ。あなたのペースで。</p>
         </div>
         {/* 挿絵は見出しの右。ログアウトは最下部に移し、ファーストビューを挨拶・挿絵・主役カードだけにする */}
         {edi && <EditorialIllustration src={edi.src} alt={edi.altText} className="shrink-0 -mt-1 -mr-1" />}
@@ -56,21 +56,19 @@ export default async function PatientHome() {
               </div>
             </>
           )}
-          <p className="text-sm text-ink-soft pt-1">
-            {inProgress ? "途中の教材" : "次に読むもの"} ・ {next.slideCount} 画面と確認問題 {next.questionCount} 問 ・ 約 {estimateMinutes(next.slideCount, next.questionCount)} 分
-          </p>
+          <p className="text-sm font-bold text-accent pt-1">{inProgress ? "途中の教材" : "次に読むもの"}</p>
           <h2 id="next-title" className="text-2xl font-bold leading-snug">
             {next.title}
           </h2>
-          {next.summary && <p className="text-ink-soft">{next.summary}</p>}
-          {next.phase === "reading" && (
-            <p className="text-sm text-ink-soft">
-              {Math.min(next.lastSlideSeq, next.slideCount)} / {next.slideCount} 画面まで読みました
-            </p>
-          )}
           <Link href={hrefFor(next)} className="btn btn-primary btn-block">
             <span aria-hidden>▶</span> {actionLabel(next)}
           </Link>
+          <p className="text-sm text-ink-soft">
+            {next.phase === "reading"
+              ? `${Math.min(next.lastSlideSeq, next.slideCount)} / ${next.slideCount} 画面まで読みました`
+              : `${next.slideCount} 画面と確認問題 ${next.questionCount} 問`}
+            {" ・ "}目安 約 {estimateMinutes(next.slideCount, next.questionCount)} 分
+          </p>
         </section>
       ) : allDone ? (
         <section className="card space-y-2">

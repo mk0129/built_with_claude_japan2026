@@ -26,6 +26,9 @@ export type FigureView = {
   sourceNote: string | null;
   reviewStatus: "draft" | "pending_review" | "approved" | "rejected";
   reviewedAt: Date | null;
+  learningObjective: string | null;
+  sourceRefs: { sourceId: string; section?: string; quote?: string }[];
+  reviewNote: string | null;
 };
 
 function toSrc(a: { type: "medical" | "editorial"; filename: string | null }): string | null {
@@ -62,6 +65,9 @@ export async function listApprovedFiguresForVersion(versionId: string, db: Db = 
       sourceNote: p.sourceNote,
       reviewStatus: a.reviewStatus,
       reviewedAt: a.reviewedAt,
+      learningObjective: a.learningObjective,
+      sourceRefs: a.sourceRefs,
+      reviewNote: a.reviewNote,
     });
   }
   return out;
@@ -110,6 +116,9 @@ export async function listAllFiguresForVersion(versionId: string, db: Db = getDb
       sourceNote: p.sourceNote,
       reviewStatus: a.reviewStatus,
       reviewedAt: a.reviewedAt,
+      learningObjective: a.learningObjective,
+      sourceRefs: a.sourceRefs,
+      reviewNote: a.reviewNote,
     });
   }
   return out;

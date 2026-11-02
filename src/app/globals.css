@@ -291,6 +291,10 @@ body {
   border-color: var(--line);
   color: var(--ink-soft);
 }
+/* 挿絵: 文字拡大時は 118px に縮めて見出しの幅を確保する */
+html[data-textsize="large"] .edi-illustration {
+  width: clamp(96px, 30vw, 118px) !important;
+}
 /* 図解コンポーネント: ラベルレイヤー */
 .fig-label {
   position: absolute;

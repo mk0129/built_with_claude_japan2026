@@ -8,6 +8,6 @@ export function EditorialIllustration({ src, alt, className = "", size = "defaul
   const width = size === "compact" ? "clamp(96px, 30vw, 118px)" : "clamp(118px, 38vw, 160px)";
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} className={`pointer-events-none select-none object-contain ${className}`} style={{ width, height: "auto" }} />
+    <img src={src} alt={alt} className={`edi-illustration pointer-events-none select-none object-contain ${className}`} style={{ width, height: "auto" }} />
   );
 }

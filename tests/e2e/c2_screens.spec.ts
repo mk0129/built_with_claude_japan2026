@@ -65,7 +65,8 @@ test("C2 医療者ダッシュボードと監修プレビュー（820 / 1180）"
   await op.page.getByRole("link", { name: /乳がんの診断と病期の考え方/ }).first().click();
   await op.page.waitForURL(/\/staff\/materials\/.+\/preview/);
   await expect(op.page.getByText(/管理者プレビュー/).first()).toBeVisible();
-  await expect(op.page.getByText(/監修待ち（MED-001/)).toBeVisible();
+  await expect(op.page.getByText(/監修待ち（MED-001-01/).first()).toBeVisible();
+  await expect(op.page.getByText(/監修待ち（MED-001-03/).first()).toBeVisible();
   await op.page.screenshot({ path: `${SHOT_DIR}/c2_admin_preview_1180.png`, fullPage: true });
   await op.ctx.close();
   await patient.ctx.close();

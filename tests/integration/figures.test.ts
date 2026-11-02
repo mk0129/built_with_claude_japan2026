@@ -37,7 +37,7 @@ describe("図解の配信ゲート（未承認は患者に出ない）", () => {
     const versionId = m.v!;
     // 配置はあるが pending_review（MED-001）
     const all = await listAllFiguresForVersion(versionId);
-    expect(all[1]?.[0]?.assetId).toBe("MED-001");
+    expect(all[1]?.map((f) => f.assetId)).toEqual(["MED-001-01", "MED-001-02", "MED-001-03"]);
     expect(all[1][0].reviewStatus).toBe("pending_review");
     const approved = await listApprovedFiguresForVersion(versionId);
     expect(approved[1] ?? []).toHaveLength(0);
@@ -55,15 +55,15 @@ describe("図解の配信ゲート（未承認は患者に出ない）", () => {
 
     // 画像ファイルが無いままでは承認できない。ファイルを登録すると承認でき、患者ビューに現れる
     const approver = principal("op.approver@example.com");
-    await expectAppError(reviewFigure(approver, "MED-001", "approved", null), 403, "ASSET_FILE_MISSING");
-    await getDb().update(figureAssets).set({ filename: "med_001_breast_stage_anatomy.png", width: 1536, height: 1024 }).where(eq(figureAssets.assetId, "MED-001"));
-    await reviewFigure(approver, "MED-001", "approved", "デモ用に承認");
+    await expectAppError(reviewFigure(approver, "MED-001-02", "approved", null), 403, "ASSET_FILE_MISSING");
+    await getDb().update(figureAssets).set({ filename: "med_001_02_regional_nodes.png", width: 1536, height: 1024 }).where(eq(figureAssets.assetId, "MED-001-02"));
+    await reviewFigure(approver, "MED-001-02", "approved", "デモ用に承認");
     const after = await getLearningView(uid(PATIENT_B), versionId);
     expect(after.slides[0].figures).toHaveLength(1);
-    expect(after.slides[0].figures[0].src).toBe("/assets/medical/med_001_breast_stage_anatomy.png");
-    expect(after.slides[0].figures[0].labels.map((l) => l.text)).toContain("近くのリンパ節");
+    expect(after.slides[0].figures[0].src).toBe("/assets/medical/med_001_02_regional_nodes.png");
+    expect(after.slides[0].figures[0].labels.map((l) => l.text)).toContain("近くのリンパ節（わきの下）");
     // 差し戻すと再び非表示
-    await reviewFigure(approver, "MED-001", "rejected", "位置関係を要確認");
+    await reviewFigure(approver, "MED-001-02", "rejected", "位置関係を要確認");
     expect((await getLearningView(uid(PATIENT_B), versionId)).slides[0].figures).toHaveLength(0);
   });
 
@@ -75,7 +75,7 @@ describe("図解の配信ゲート（未承認は患者に出ない）", () => {
     await expectAppError(requireMaterialRole(principal("nurse.tanaka@example.com"), versionId), 403, "NOT_MATERIAL_ORG_MEMBER");
     const editor = await requireMaterialRole(principal("op.editor@example.com"), versionId);
     expect(editor.canApprove).toBe(false);
-    await expectAppError(reviewFigure(principal("op.editor@example.com"), "MED-001", "pending_review", null), 403, "APPROVER_REQUIRED");
+    await expectAppError(reviewFigure(principal("op.editor@example.com"), "MED-001-01", "pending_review", null), 403, "APPROVER_REQUIRED");
     const approver = await requireMaterialRole(principal("op.approver@example.com"), versionId);
     expect(approver.canApprove).toBe(true);
     // 患者は不可
