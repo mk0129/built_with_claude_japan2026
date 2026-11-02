@@ -8,6 +8,20 @@
       "when": 1793612033674,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793616526326,
+      "tag": "0001_day2_templates_retire_reason",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793617111444,
+      "tag": "0002_score_numeric_unrounded",
+      "breakpoints": true
     }
   ]
 }

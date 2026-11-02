@@ -1,10 +1,14 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { getDb, type Db } from "@/server/db/client";
-import { consultationExtensions, consultationSessions, organizationMembers, organizations, user } from "@/server/db/schema";
+import { consultationExtensions, consultationSessions, homeworkSnapshots, organizationMembers, organizations, user } from "@/server/db/schema";
 import { conflict, forbidden, notFound } from "@/server/authz/errors";
 import { isSessionActive, type ConsultationContext } from "@/server/authz/consultation";
 import { audit } from "./audit";
 import { CONSULTATION_TTL_MS } from "./qr";
+import { listHomeworkForPatient, getSetForSession } from "./prescription";
+import { computeHomeworkScore, computeScoreSummary } from "./scoring";
+import { listMissedQuestions } from "./learning";
+import { listQuestionsForClinician } from "./questions";
 
 export type ConsultationView = {
   id: string;
@@ -69,11 +73,12 @@ export async function getConsultationForParty(sessionId: string, userId: string,
   return view;
 }
 
-/** 患者の現在有効なセッション一覧（共有画面・履歴用） */
+/** 患者のセッション一覧（共有画面・履歴用） */
 export async function listPatientSessions(patientId: string, db: Db = getDb()) {
   const rows = await db
     .select({
       id: consultationSessions.id,
+      orgId: consultationSessions.orgId,
       orgName: organizations.name,
       startedAt: consultationSessions.startedAt,
       expiresAt: consultationSessions.expiresAt,
@@ -149,22 +154,73 @@ export async function decideExtension(sessionId: string, patientId: string, appr
 }
 
 /**
- * 医療者が診察セッション内で見る患者サマリ。
+ * 医療者ダッシュボード（C-03, QNA-05, T17）。
  * ConsultationContext を要求するので、有効セッションなしには呼べない。
- * Day2 で質問・誤答・未完了教材を追加する。
+ * 優先順: 未確認の質問 → 誤答・わからない → 未完了教材 → スコア / スナップショット
  */
 export async function getPatientSummary(ctx: ConsultationContext, db: Db = getDb()) {
   const [u] = await db.select({ id: user.id, name: user.name }).from(user).where(eq(user.id, ctx.patientId)).limit(1);
   if (!u) throw notFound("PATIENT_NOT_FOUND");
   const sessions = await listPatientSessions(ctx.patientId, db);
+  const questions = await listQuestionsForClinician(ctx, db);
+  const summary = await computeScoreSummary(ctx.patientId, db);
+  const homework = await listHomeworkForPatient(ctx.patientId, db);
+
+  const missed = [];
+  for (const m of summary.materials) {
+    if (!m.attemptId || m.nWrong + m.nUnknown === 0) continue;
+    missed.push({
+      materialId: m.materialId,
+      title: m.title,
+      attemptId: m.attemptId,
+      completedAt: m.completedAt,
+      isOldVersion: m.isOldVersion,
+      nWrong: m.nWrong,
+      nUnknown: m.nUnknown,
+      questions: await listMissedQuestions(m.attemptId, db),
+    });
+  }
+
+  const seen = new Set<string>();
+  const incompleteMaterials = homework
+    .flatMap((set) => set.items.map((i) => ({ ...i, setId: set.setId, orgName: set.orgName, setCreatedAt: set.createdAt })))
+    .filter((i) => i.phase !== "completed" && !seen.has(i.materialId) && seen.add(i.materialId))
+    .map((i) => ({ materialId: i.materialId, versionId: i.versionId, title: i.title, phase: i.phase, lastSlideSeq: i.lastSlideSeq, orgName: i.orgName, setCreatedAt: i.setCreatedAt }));
+
+  const snaps = await db.select().from(homeworkSnapshots).where(eq(homeworkSnapshots.consultationSessionId, ctx.sessionId)).limit(1);
+  const homeworkScores = [];
+  for (const set of homework) {
+    const hs = await computeHomeworkScore(set.setId, ctx.patientId, db);
+    const [snap] = await db.select().from(homeworkSnapshots).where(eq(homeworkSnapshots.prescriptionSetId, set.setId)).limit(1);
+    homeworkScores.push({
+      setId: set.setId,
+      orgName: set.orgName,
+      createdAt: set.createdAt,
+      score: hs.score,
+      completedCount: hs.completedCount,
+      assignedCount: hs.assignedCount,
+      snapshot: snap
+        ? { capturedAt: snap.capturedAt, score: snap.homeworkScore === null ? null : Number(snap.homeworkScore), completedCount: snap.completedCount, assignedCount: snap.assignedCount, items: snap.itemDetails }
+        : null,
+    });
+  }
+
   await audit({ actorUserId: ctx.clinician.userId, orgId: ctx.orgId, action: "patient.summary.read", resourceType: "patient", resourceId: ctx.patientId, consultationSessionId: ctx.sessionId, outcome: "ok" }, db);
   return {
     patient: { id: u.id, displayName: u.name },
     consultationCount: sessions.length,
     previousConsultations: sessions.filter((s) => s.id !== ctx.sessionId).slice(0, 5),
-    // Day2: unreadQuestions, wrongAnswers, incompleteMaterials, scores
-    unreadQuestions: [] as unknown[],
-    wrongAnswers: [] as unknown[],
-    incompleteMaterials: [] as unknown[],
+    unreadQuestions: questions.filter((q) => q.status === "unread"),
+    questions,
+    missed,
+    incompleteMaterials,
+    scores: { overall: summary.overall, byDomain: summary.byDomain, materials: summary.materials },
+    homework: homeworkScores,
+    snapshotForThisSession: snaps[0]
+      ? { capturedAt: snaps[0].capturedAt, score: snaps[0].homeworkScore === null ? null : Number(snaps[0].homeworkScore), completedCount: snaps[0].completedCount, assignedCount: snaps[0].assignedCount, items: snaps[0].itemDetails, setId: snaps[0].prescriptionSetId }
+      : null,
+    currentSet: await getSetForSession(ctx, db),
   };
 }
+
+export type PatientSummary = Awaited<ReturnType<typeof getPatientSummary>>;

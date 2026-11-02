@@ -29,3 +29,15 @@ export const PATIENT_B = "patient2@example.com";
 export const DR_YAMADA = "dr.yamada@example.com"; // さくら総合病院
 export const DR_KOBAYASHI = "dr.kobayashi@example.com"; // ひだまり医療センター
 export const OP_EDITOR = "op.editor@example.com"; // 運営（clinician 役割なし）
+
+import { approveGrant, claimGrant, createGrant } from "@/server/services/qr";
+
+/** 患者が QR を出し、医療者が読み取り、患者が承認するまで */
+export async function startSession(seeded: Seeded, patientEmail: string, staffEmail: string, orgSlug: string) {
+  const g = await createGrant(seeded.users.get(patientEmail)!);
+  await claimGrant({ token: g.token, staffUserId: seeded.users.get(staffEmail)!, orgId: seeded.orgs.get(orgSlug)! });
+  const { consultationSessionId } = await approveGrant(g.grantId, seeded.users.get(patientEmail)!);
+  return { grant: g, sessionId: consultationSessionId };
+}
+
+export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

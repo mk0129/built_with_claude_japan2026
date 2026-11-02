@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
 import { ensureMigrated, getDb, type Db } from "./client";
-import { materialVersions, materials, organizationMembers, organizations, user } from "./schema";
+import { materialSlides, materialVersions, materials, organizationMembers, organizations, prescriptionTemplates, quizQuestions, user } from "./schema";
 import { DEMO_ACCOUNTS, DEMO_MATERIALS, DEMO_ORGS } from "./seed-data";
+import { SEED_CONTENT, SEED_TEMPLATES } from "./seed-content";
 
 /**
  * 架空データの投入（冪等）。
@@ -52,9 +53,13 @@ export async function seed(db: Db = getDb()) {
   const approverId = userIdByEmail.get("op.approver@example.com")!;
   const hospitalEditorId = userIdByEmail.get("nurse.tanaka@example.com")!;
   const hospitalApproverId = userIdByEmail.get("approver.sato@example.com")!;
+  const materialIdByTitle = new Map<string, string>();
   for (const m of DEMO_MATERIALS) {
     const [existing] = await db.select({ id: materials.id }).from(materials).where(eq(materials.title, m.title)).limit(1);
-    if (existing) continue;
+    if (existing) {
+      materialIdByTitle.set(m.title, existing.id);
+      continue;
+    }
     const ownerOrgId = m.ownerOrgSlug ? orgIdBySlug.get(m.ownerOrgSlug)! : null;
     const [mat] = await db
       .insert(materials)
@@ -77,9 +82,49 @@ export async function seed(db: Db = getDb()) {
       })
       .returning({ id: materialVersions.id });
     await db.update(materials).set({ currentPublishedVersionId: ver.id }).where(eq(materials.id, mat.id));
+    materialIdByTitle.set(m.title, mat.id);
   }
 
-  return { orgs: orgIdBySlug, users: userIdByEmail };
+  // 本文・クイズ（版にスライドが無い場合のみ投入）
+  for (const c of SEED_CONTENT) {
+    const materialId = materialIdByTitle.get(c.title);
+    if (!materialId) continue;
+    const [mat] = await db.select({ versionId: materials.currentPublishedVersionId }).from(materials).where(eq(materials.id, materialId)).limit(1);
+    if (!mat?.versionId) continue;
+    const [hasSlide] = await db.select({ id: materialSlides.id }).from(materialSlides).where(eq(materialSlides.materialVersionId, mat.versionId)).limit(1);
+    if (hasSlide) continue;
+    await db.update(materialVersions).set({ learningObjectives: c.objectives }).where(eq(materialVersions.id, mat.versionId));
+    await db.insert(materialSlides).values(
+      c.slides.map((sl, i) => ({ materialVersionId: mat.versionId!, seq: i + 1, title: sl.title, bodyMd: sl.body, imageRef: sl.image ?? null, voiceText: sl.body })),
+    );
+    await db.insert(quizQuestions).values(
+      c.questions.map((q, i) => ({
+        materialVersionId: mat.versionId!,
+        seq: i + 1,
+        stem: q.stem,
+        options: q.options,
+        correctIndex: q.correct,
+        explanation: q.explanation,
+        relatedSlideSeq: q.relatedSlide,
+      })),
+    );
+  }
+
+  // 処方テンプレート
+  for (const t of SEED_TEMPLATES) {
+    const [existing] = await db.select({ id: prescriptionTemplates.id }).from(prescriptionTemplates).where(eq(prescriptionTemplates.name, t.name)).limit(1);
+    if (existing) continue;
+    const ids = t.titles.map((title) => materialIdByTitle.get(title)).filter((x): x is string => !!x);
+    await db.insert(prescriptionTemplates).values({
+      scope: t.scope,
+      ownerOrgId: t.ownerOrgSlug ? orgIdBySlug.get(t.ownerOrgSlug)! : null,
+      name: t.name,
+      description: t.description,
+      materialIds: ids,
+    });
+  }
+
+  return { orgs: orgIdBySlug, users: userIdByEmail, materials: materialIdByTitle };
 }
 
 if (process.argv[1]?.endsWith("seed.ts")) {

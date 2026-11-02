@@ -33,7 +33,8 @@ export function getDb(): Db {
     const client = postgres(process.env.DATABASE_URL, { prepare: false, max: 5 });
     holder.db = drizzlePostgres(client, { schema }) as unknown as Db;
   } else {
-    const target = process.env.PGLITE_DATA || ".data/shiori";
+    // `next build` のページデータ収集時は DB に触らないよう、インメモリにする（ローカルの PGlite とロック競合しない）
+    const target = process.env.NEXT_PHASE === "phase-production-build" ? "memory://" : process.env.PGLITE_DATA || ".data/shiori";
     if (!target.startsWith("memory://")) {
       // PGlite は親ディレクトリを作らないので先に作る
       mkdirSync(dirname(target), { recursive: true });

@@ -1,0 +1,46 @@
+export const DOMAIN_LABEL: Record<string, string> = {
+  diagnosis_staging: "診断と病期",
+  surgery: "手術",
+  drug_therapy: "薬物療法",
+  radiation: "放射線",
+  side_effects_daily_life: "副作用と生活",
+  mental_care_support: "心のケア・制度",
+};
+
+export const DOMAIN_ORDER = Object.keys(DOMAIN_LABEL);
+
+export const PHASE_LABEL: Record<string, string> = {
+  not_started: "まだ",
+  reading: "読んでいる途中",
+  quiz: "確認問題の途中",
+  completed: "読み終えた",
+};
+
+export const SELECTION_LABEL: Record<string, string> = {
+  mostly_understood: "だいたい理解できた",
+  explain_again: "もう一度説明してほしい",
+  have_question: "質問がある",
+  stop_for_today: "今日はここまで",
+};
+
+export const STATUS_LABEL: Record<string, string> = {
+  unread: "未確認",
+  reviewed: "確認済み",
+  resolved: "対応済み",
+};
+
+export const RESPONSE_LABEL: Record<string, string> = {
+  verbal_explanation: "口頭で説明",
+  additional_prescription: "追加の情報処方",
+  referral: "他職種・窓口を案内",
+  other: "その他",
+};
+
+/** 表示時のみ四捨五入（D26） */
+export function fmtScore(v: number | null | undefined): string {
+  return v === null || v === undefined ? "未評価" : `${Math.round(v)} 点`;
+}
+
+export function fmtDate(d: string | Date): string {
+  return new Date(d).toLocaleDateString("ja-JP", { year: "numeric", month: "short", day: "numeric" });
+}

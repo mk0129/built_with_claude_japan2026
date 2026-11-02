@@ -153,6 +153,7 @@ export const sourcePermissions = pgTable("source_permissions", {
 export const materialScope = pgEnum("material_scope", ["common", "org"]);
 export const materialVersionStatus = pgEnum("material_version_status", ["draft", "in_review", "published", "retired"]);
 export const revisionClass = pgEnum("revision_class", ["initial", "minor", "substantive"]);
+export const retireReason = pgEnum("retire_reason", ["safety", "superseded", "other"]);
 
 /** 領域タグ（初期6領域。将来追加可能なので DB 制約にはしない） */
 export const DOMAIN_TAGS = [
@@ -199,10 +200,22 @@ export const materialVersions = pgTable(
     approvedAt: ts("approved_at"),
     publishedAt: ts("published_at"),
     retiredAt: ts("retired_at"),
+    retireReason: retireReason("retire_reason"), // safety の旧版スコアは集計から除外（D27）
     changeNote: text("change_note"),
   },
   (t) => [uniqueIndex("material_versions_no_uq").on(t.materialId, t.versionNo)],
 );
+
+/** 情報処方テンプレート（例: 初回診断時セット）。共通 or 病院独自 */
+export const prescriptionTemplates = pgTable("prescription_templates", {
+  id: id(),
+  scope: materialScope("scope").notNull(),
+  ownerOrgId: uuid("owner_org_id").references(() => organizations.id),
+  name: text("name").notNull(),
+  description: text("description"),
+  materialIds: uuid("material_ids").array().notNull().default(sql`'{}'::uuid[]`),
+  createdAt: ts("created_at").notNull().defaultNow(),
+});
 
 export const materialSlides = pgTable(
   "material_slides",
@@ -310,7 +323,7 @@ export const quizAttempts = pgTable(
     nCorrect: integer("n_correct").notNull().default(0),
     nWrong: integer("n_wrong").notNull().default(0),
     nUnknown: integer("n_unknown").notNull().default(0),
-    scorePct: numeric("score_pct", { precision: 5, scale: 2 }),
+    scorePct: numeric("score_pct"), // 丸めない（D26）。採点は n_correct / n_questions から再計算可能
   },
   (t) => [index("quiz_attempts_patient_idx").on(t.patientId, t.materialVersionId, t.completedAt)],
 );
@@ -334,7 +347,7 @@ export const homeworkSnapshots = pgTable("homework_snapshots", {
   prescriptionSetId: uuid("prescription_set_id").notNull().references(() => prescriptionSets.id).unique(),
   consultationSessionId: uuid("consultation_session_id").notNull().references(() => consultationSessions.id).unique(),
   capturedAt: ts("captured_at").notNull().defaultNow(),
-  homeworkScore: numeric("homework_score", { precision: 5, scale: 2 }),
+  homeworkScore: numeric("homework_score"), // 丸めない（D26）
   completedCount: integer("completed_count").notNull(),
   assignedCount: integer("assigned_count").notNull(),
   itemDetails: jsonb("item_details").$type<SnapshotItem[]>().notNull(),
