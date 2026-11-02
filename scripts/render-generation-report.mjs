@@ -15,7 +15,6 @@ const load = (n) => (existsSync(`${dir}/${n}.json`) ? JSON.parse(readFileSync(`$
 const src = load("source");
 const outlineJob = load("b_outline_job");
 const jobs = { B: load("b_generate_job"), C: load("c_freeform_job") };
-const generated = { B: load("b_material_generated"), C: load("c_material_generated") };
 const published = { B: load("b_material_published"), C: load("c_material_published") };
 
 // 料金（USD / 100 万トークン）。2026-11 時点の公開価格。モデルが変わったら更新する

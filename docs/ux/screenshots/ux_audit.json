@@ -1,0 +1,172 @@
+{
+  "studio_top_390": {
+    "overflowX": 80,
+    "small": [
+      "input:@23x23",
+      "input:@23x23",
+      "input:@23x23",
+      "input:@23x23",
+      "input:@23x23",
+      "input:@14x23"
+    ],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "studio_source_390": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "studio_editor_390": {
+    "overflowX": 0,
+    "small": [
+      "a:操作へ移動@78x16",
+      "button:「ホルモン療法を続けるために（患者さん向@271x36",
+      "button:「さくら総合病院（架空） 乳腺外科・薬剤@263x36",
+      "button:「この資料はハッカソンのデモ用に作成した@275x36",
+      "input:選択肢 1 を正答にする@20x23",
+      "input:選択肢 2 を正答にする@20x23",
+      "input:選択肢 3 を正答にする@20x23",
+      "button:「ホルモン療法を続けるために（患者さん向@271x36",
+      "input:選択肢 1 を正答にする@20x23",
+      "input:選択肢 2 を正答にする@20x23",
+      "input:選択肢 3 を正答にする@20x23",
+      "button:「さくら総合病院（架空） 乳腺外科・薬剤@263x36"
+    ],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "studio_editor_390_viewport": {
+    "overflowX": 0,
+    "small": [
+      "a:操作へ移動@78x16",
+      "button:「ホルモン療法を続けるために（患者さん向@271x36",
+      "button:「さくら総合病院（架空） 乳腺外科・薬剤@263x36",
+      "button:「この資料はハッカソンのデモ用に作成した@275x36",
+      "input:選択肢 1 を正答にする@20x23",
+      "input:選択肢 2 を正答にする@20x23",
+      "input:選択肢 3 を正答にする@20x23",
+      "button:「ホルモン療法を続けるために（患者さん向@271x36",
+      "input:選択肢 1 を正答にする@20x23",
+      "input:選択肢 2 を正答にする@20x23",
+      "input:選択肢 3 を正答にする@20x23",
+      "button:「さくら総合病院（架空） 乳腺外科・薬剤@263x36"
+    ],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "studio_top_820": {
+    "overflowX": 0,
+    "small": [
+      "input:@23x23",
+      "input:@23x23",
+      "input:@23x23",
+      "input:@23x23",
+      "input:@23x23",
+      "input:@23x23"
+    ],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "studio_source_820": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "studio_editor_820": {
+    "overflowX": 0,
+    "small": [
+      "a:操作へ移動@78x16",
+      "button:「ホルモン療法を続けるために（患者さん向@364x18",
+      "button:「さくら総合病院（架空） 乳腺外科・薬剤@290x18",
+      "button:「この資料はハッカソンのデモ用に作成した@423x18",
+      "input:選択肢 1 を正答にする@22x23",
+      "input:選択肢 2 を正答にする@22x23",
+      "input:選択肢 3 を正答にする@22x23",
+      "button:「ホルモン療法を続けるために（患者さん向@364x18",
+      "input:選択肢 1 を正答にする@22x23",
+      "input:選択肢 2 を正答にする@22x23",
+      "input:選択肢 3 を正答にする@22x23",
+      "button:「さくら総合病院（架空） 乳腺外科・薬剤@290x18"
+    ],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "studio_editor_820_viewport": {
+    "overflowX": 0,
+    "small": [
+      "a:操作へ移動@78x16",
+      "button:「ホルモン療法を続けるために（患者さん向@364x18",
+      "button:「さくら総合病院（架空） 乳腺外科・薬剤@290x18",
+      "button:「この資料はハッカソンのデモ用に作成した@423x18",
+      "input:選択肢 1 を正答にする@22x23",
+      "input:選択肢 2 を正答にする@22x23",
+      "input:選択肢 3 を正答にする@22x23",
+      "button:「ホルモン療法を続けるために（患者さん向@364x18",
+      "input:選択肢 1 を正答にする@22x23",
+      "input:選択肢 2 を正答にする@22x23",
+      "input:選択肢 3 を正答にする@22x23",
+      "button:「さくら総合病院（架空） 乳腺外科・薬剤@290x18"
+    ],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "patient_home_390_viewport": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "patient_learn_390_viewport": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "patient_quiz_result_390": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "patient_quiz_q_390": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "patient_quiz_feedback_390": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "patient_home_820_viewport": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "patient_learn_820_viewport": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "patient_quiz_q_820": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "patient_quiz_feedback_820": {
+    "overflowX": 0,
+    "small": [
+      "a:この説明を読み直す@139x16"
+    ],
+    "clipped": [],
+    "fontSize": "18px"
+  }
+}

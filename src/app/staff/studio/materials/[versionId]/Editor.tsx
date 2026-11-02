@@ -87,6 +87,12 @@ export function Editor({ data }: { data: EditorData }) {
             ))}
           </div>
         )}
+        <p className="text-sm text-ink-soft">
+          全画面と確認問題を原資料と見比べたうえで、末尾で{editable ? "保存・承認依頼" : data.canApprove && data.status === "in_review" ? "承認または差し戻し" : "操作"}を行います。{" "}
+          <a href="#actions" className="underline">
+            操作へ移動
+          </a>
+        </p>
         <section className="card space-y-2">
           <label className="block text-sm font-bold">
             タイトル
@@ -163,7 +169,7 @@ export function Editor({ data }: { data: EditorData }) {
           </section>
         ))}
 
-        <section className="card space-y-3 sticky bottom-2 shadow-lg" aria-label="操作">
+        <section id="actions" className="card space-y-3 scroll-mt-4" aria-label="操作">
           {msg && <p className={`text-sm ${msg.ok ? "text-accent font-bold" : "text-danger"}`} role="status">{msg.text}</p>}
           {editable && (
             <div className="grid sm:grid-cols-2 gap-2">
