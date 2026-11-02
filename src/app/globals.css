@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+/* ---- デザイントークン（淡い水彩 + 細いネイビー線画。暫定。UI は改善前提） ---- */
+:root {
+  --bg: #fbf7f2;
+  --surface: #ffffff;
+  --ink: #2f3a56;
+  --ink-soft: #5b6480;
+  --ink-muted: #8a91a6;
+  --line: #d9d2c7;
+  --line-strong: #2f3a56;
+  --sakura: #f3d8d8;
+  --sakura-deep: #e4b9bf;
+  --wakakusa: #dde7d9;
+  --sora: #d9e3f0;
+  --suna: #f0e6d6;
+  --accent: #b9566b;
+  --accent-ink: #ffffff;
+  --danger: #a33a3a;
+  --ok: #4f7d5b;
+  --radius: 18px;
+  --tap: 56px;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-sakura: var(--sakura);
+  --color-sakura-deep: var(--sakura-deep);
+  --color-wakakusa: var(--wakakusa);
+  --color-sora: var(--sora);
+  --color-suna: var(--suna);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+  --font-sans: var(--font-ud), "BIZ UDPGothic", "Hiragino Sans", system-ui, sans-serif;
+}
+
+html {
+  font-size: 18px; /* 高齢患者配慮: 本文 18px 以上 */
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 水彩ブロブ（装飾） */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(28px);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.2rem;
+  box-shadow: 0 1px 0 rgba(47, 58, 86, 0.04);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--tap);
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.05s ease, background 0.15s ease;
+  text-decoration: none;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.btn-soft {
+  background: var(--sakura);
+  border-color: transparent;
+}
+.btn-ghost {
+  border-color: transparent;
+  background: transparent;
+}
+.btn-danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.btn-block {
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  min-height: var(--tap);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  padding: 0 1rem;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+.input:focus {
+  outline: 3px solid var(--sora);
+  border-color: var(--ink);
+}
+
+.label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin-bottom: 0.35rem;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  background: var(--suna);
+  color: var(--ink-soft);
+}
+
+.code-display {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.35em;
+  font-size: 2.4rem;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
