@@ -117,7 +117,8 @@ export async function seed(db: Db = getDb()) {
   for (const f of SEED_FIGURES) {
     // 納品済みファイルが public にあれば登録。装飾（editorial）は医学的監修の対象外なので公開可 = approved とする。
     // 医学的図解（medical）は納品済みでも pending_review のまま（監修プレビューから承認する）
-    const delivered = f.delivered && existsSync(`${process.cwd()}/public/assets/${f.type}/${f.delivered.filename}`) ? f.delivered : null;
+    const deliveredDir = f.type === "medical" ? "private_assets" : "public/assets";
+    const delivered = f.delivered && existsSync(`${process.cwd()}/${deliveredDir}/${f.type}/${f.delivered.filename}`) ? f.delivered : null;
     await db
       .insert(figureAssets)
       .values({
@@ -132,7 +133,7 @@ export async function seed(db: Db = getDb()) {
         height: delivered?.height ?? null,
         reviewStatus: delivered && f.type === "editorial" ? "approved" : "pending_review",
         copyrightStatus: "internal_ai_generated",
-        generatorNote: delivered ? "ChatGPT 画像生成。原画は docs/design/handoff_visual_v1/assets/" : "ChatGPT で制作予定（VISUAL_ASSET_SPECS_5.md）。未納品",
+        generatorNote: delivered ? (f.type === "medical" ? "ChatGPT 画像生成（2026-11-03 納品、1200px 原画を 900px に縮小）。監修前のため private_assets に保管" : "ChatGPT 画像生成。原画は docs/design/handoff_visual_v1/assets/") : "ChatGPT で制作予定（VISUAL_ASSET_SPECS_5.md）。未納品",
       })
       .onConflictDoNothing();
     for (const [order, pl] of f.placements.entries()) {

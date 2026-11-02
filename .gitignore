@@ -49,3 +49,6 @@ clinical_info_rx_ClaudeCode_spec_20261102/DESIGN_REFERENCE.png
 
 # iCloud 同期が生成する重複ファイル
 **/* [0-9].*
+
+# 監修前の医学的図解（公開リポジトリに入れない。承認時に public/assets へ複製）
+/private_assets/

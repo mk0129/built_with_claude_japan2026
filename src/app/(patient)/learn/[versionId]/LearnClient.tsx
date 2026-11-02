@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { SpeakButton } from "@/components/SpeakButton";
 import { FontSizeToggle } from "@/components/FontSizeToggle";
-import { MedicalFigure } from "@/components/patient/MedicalFigure";
+import { FigureSet } from "@/components/patient/FigureSet";
 import type { FigureView } from "@/server/services/figures";
 
 type Slide = { seq: number; title: string; proposition: string | null; bodyMd: string; detailMd: string | null; voiceText: string; figures: FigureView[] };
@@ -96,9 +96,7 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
           {slide.proposition && <p className="text-xl font-bold leading-relaxed">{slide.proposition}</p>}
 
           {/* 承認済みの図解だけが描画される。無い場合はこの領域は空になり、本文が続く */}
-          {slide.figures.map((f) => (
-            <MedicalFigure key={f.placementId} figure={f} mode="patient" />
-          ))}
+          <FigureSet figures={slide.figures} mode="patient" layout="tabs" />
 
           <p className="whitespace-pre-wrap leading-[1.8] text-[1.05rem]">{slide.bodyMd}</p>
           {slide.detailMd && (

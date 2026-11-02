@@ -105,9 +105,10 @@ for (const w of warnings) console.warn("警告:", w);
 const sql = postgres(url, { prepare: process.env.SHIORI_LOCAL_DB === "1", max: 1 });
 const [asset] = await sql`select asset_id, type, review_status from figure_assets where asset_id = ${assetId}`;
 if (!asset) fail(`figure_assets に ${assetId} がありません（db:setup 済みか確認）`);
-const dir = path.join("public", "assets", asset.type);
+// 医学的図解は監修前は非公開（git 管理外の private_assets）。承認時にアプリが public へ複製する
+const dir = asset.type === "medical" ? path.join("private_assets", "medical") : path.join("public", "assets", asset.type);
 mkdirSync(dir, { recursive: true });
-const filename = `${assetId.toLowerCase().replace(/-/g, "_")}_${path.basename(file).replace(/^.*?_/, "").replace(/[^a-z0-9_.-]/gi, "_").toLowerCase()}`;
+const filename = path.basename(file);
 const dest = path.join(dir, filename);
 copyFileSync(file, dest);
 let status = asset.review_status;

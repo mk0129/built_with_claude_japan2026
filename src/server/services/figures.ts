@@ -26,13 +26,38 @@ export type FigureView = {
   sourceNote: string | null;
   reviewStatus: "draft" | "pending_review" | "approved" | "rejected";
   reviewedAt: Date | null;
+  /** 切り替えタブの見出し（caption の最初の句） */
+  tabLabel: string | null;
   learningObjective: string | null;
   sourceRefs: { sourceId: string; section?: string; quote?: string }[];
   reviewNote: string | null;
 };
 
-function toSrc(a: { type: "medical" | "editorial"; filename: string | null }): string | null {
-  return a.filename ? `/assets/${a.type}/${a.filename}` : null;
+/**
+ * 画像 URL。
+ * - approved: public/assets/<type>/<filename>（承認時に private_assets から複製される）
+ * - それ以外の medical: 認証付きルート /api/v1/admin/figures/<id>/image（編集者・承認者のみ）。患者 API はこの URL を返さない
+ */
+function toSrc(a: { assetId?: string; type: "medical" | "editorial"; filename: string | null; reviewStatus?: string }): string | null {
+  if (!a.filename) return null;
+  if (a.type === "medical" && a.reviewStatus !== "approved" && a.assetId) return `/api/v1/admin/figures/${a.assetId}/image`;
+  return `/assets/${a.type}/${a.filename}`;
+}
+
+function tabLabelOf(caption: string | null): string | null {
+  if (!caption) return null;
+  if (caption.startsWith("乳房のなかの病変")) return "乳房のなかの病変";
+  if (caption.startsWith("乳房に近いリンパ節")) return "近くのリンパ節";
+  if (caption.startsWith("離れた臓器")) return "離れた臓器";
+  return caption.split(/[。（(]/)[0].slice(0, 12);
+}
+
+/** 監修前の医学的図解の保管場所（git 管理外）と公開場所 */
+export function privatePath(type: string, filename: string) {
+  return `${process.cwd()}/private_assets/${type}/${filename}`;
+}
+export function publicPath(type: string, filename: string) {
+  return `${process.cwd()}/public/assets/${type}/${filename}`;
 }
 
 async function loadPlacements(versionId: string, db: Db) {
@@ -62,6 +87,7 @@ export async function listApprovedFiguresForVersion(versionId: string, db: Db = 
       longDescription: a.longDescription,
       labels: p.labels,
       caption: p.caption,
+      tabLabel: tabLabelOf(p.caption),
       sourceNote: p.sourceNote,
       reviewStatus: a.reviewStatus,
       reviewedAt: a.reviewedAt,
@@ -113,6 +139,7 @@ export async function listAllFiguresForVersion(versionId: string, db: Db = getDb
       longDescription: a.longDescription,
       labels: p.labels,
       caption: p.caption,
+      tabLabel: tabLabelOf(p.caption),
       sourceNote: p.sourceNote,
       reviewStatus: a.reviewStatus,
       reviewedAt: a.reviewedAt,
@@ -144,6 +171,20 @@ export async function reviewFigure(
   }
   if (!canApprove) throw forbidden("APPROVER_REQUIRED");
   if (status === "approved" && !a.filename) throw forbidden("ASSET_FILE_MISSING");
+  // 公開ファイルの出し入れ（medical のみ）。承認で public に複製、承認取り消し・差し戻しで public から削除
+  if (a.type === "medical" && a.filename) {
+    const fs = await import("node:fs");
+    const pub = publicPath(a.type, a.filename);
+    if (status === "approved") {
+      const src = privatePath(a.type, a.filename);
+      if (fs.existsSync(src)) {
+        fs.mkdirSync(`${process.cwd()}/public/assets/${a.type}`, { recursive: true });
+        fs.copyFileSync(src, pub);
+      }
+    } else if (fs.existsSync(pub)) {
+      fs.rmSync(pub);
+    }
+  }
   await db
     .update(figureAssets)
     .set({ reviewStatus: status, reviewerUserId: principal.userId, reviewedAt: new Date(), reviewNote: note, updatedAt: new Date() })

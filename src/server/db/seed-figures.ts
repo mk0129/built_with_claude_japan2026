@@ -27,10 +27,14 @@ export const SEED_FIGURES: {
       {
         materialTitle: "乳がんの診断と病期の考え方",
         slideSeq: 1,
-        labels: [{ id: "primary", text: "乳房内の病変", anchor: { x: 50, y: 52 }, offset: { x: 0, y: 26 } }],
-        caption: "乳房のなかの病変（原発病変）。大きさや位置を確認します。",
+        labels: [
+          { id: "primary", text: "乳房内の病変", anchor: { x: 55, y: 70 }, offset: { x: 22, y: 12 } },
+          { id: "breast", text: "乳房", anchor: { x: 40, y: 58 }, offset: { x: -18, y: -14 } },
+        ],
+        caption: "乳房のなかの病変（原発病変）。しこりの大きさや、まわりへの広がりを確認します。",
       },
     ],
+    delivered: { filename: "med_001_01_primary_lesion.png", width: 900, height: 900 },
   },
   {
     assetId: "MED-001-02",
@@ -43,12 +47,14 @@ export const SEED_FIGURES: {
         materialTitle: "乳がんの診断と病期の考え方",
         slideSeq: 1,
         labels: [
-          { id: "breast", text: "乳房", anchor: { x: 40, y: 58 }, offset: { x: -10, y: 24 } },
-          { id: "node", text: "近くのリンパ節（わきの下）", anchor: { x: 60, y: 38 }, offset: { x: 10, y: -24 } },
+          { id: "breast", text: "乳房内の病変", anchor: { x: 56, y: 70 }, offset: { x: 20, y: 12 } },
+          { id: "node", text: "わきの下のリンパ節", anchor: { x: 31, y: 56 }, offset: { x: 0, y: 30 } },
+          { id: "clav", text: "鎖骨のあたりのリンパ節", anchor: { x: 45, y: 47 }, offset: { x: 18, y: -16 } },
         ],
-        caption: "乳房に近いリンパ節（わきの下など）への広がりを確認します。",
+        caption: "乳房に近いリンパ節（わきの下や鎖骨のあたりなど）への広がりを確認します。",
       },
     ],
+    delivered: { filename: "med_001_02_regional_nodes.png", width: 900, height: 900 },
   },
   {
     assetId: "MED-001-03",
@@ -60,10 +66,15 @@ export const SEED_FIGURES: {
       {
         materialTitle: "乳がんの診断と病期の考え方",
         slideSeq: 1,
-        labels: [{ id: "distant", text: "離れた臓器への広がり", anchor: { x: 50, y: 45 }, offset: { x: 0, y: 30 } }],
-        caption: "離れた臓器への広がり（転移）の有無を確認します。",
+        labels: [
+          { id: "lung", text: "肺", anchor: { x: 62, y: 40 }, offset: { x: 20, y: -12 } },
+          { id: "liver", text: "肝臓", anchor: { x: 42, y: 58 }, offset: { x: -24, y: 2 } },
+          { id: "bone", text: "骨", anchor: { x: 62, y: 84 }, offset: { x: 20, y: 0 } },
+        ],
+        caption: "離れた臓器への広がり（転移）の有無を確認します。図の肺・肝臓・骨は例で、これらすべてに広がるという意味ではありません。",
       },
     ],
+    delivered: { filename: "med_001_03_distant_spread.png", width: 900, height: 900 },
   },
   {
     assetId: "MED-002",

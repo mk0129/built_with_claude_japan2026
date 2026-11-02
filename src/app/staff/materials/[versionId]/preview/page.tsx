@@ -2,16 +2,17 @@ import Link from "next/link";
 import { requirePageUser } from "@/server/auth/session";
 import { getVersionContent } from "@/server/services/materials";
 import { listAllFiguresForVersion, requireMaterialRole } from "@/server/services/figures";
-import { MedicalFigure } from "@/components/patient/MedicalFigure";
+import { FigureSet } from "@/components/patient/FigureSet";
 import { FigureReviewActions } from "./FigureReviewActions";
 
 /**
  * 管理者プレビュー（教材編集者・承認者のみ）。
  * 患者画面と同じ構成で、未承認の図解を「監修待ち」バッジ付きで表示し、承認者は監修状態を変更できる。
  */
-export default async function MaterialPreviewPage({ params }: { params: Promise<{ versionId: string }> }) {
+export default async function MaterialPreviewPage({ params, searchParams }: { params: Promise<{ versionId: string }>; searchParams: Promise<{ layout?: string }> }) {
   const u = await requirePageUser("staff");
   const { versionId } = await params;
+  const layout = (await searchParams).layout === "stack" ? "stack" : "tabs";
   const role = await requireMaterialRole({ userId: u.id, kind: "staff", name: u.name, email: u.email }, versionId);
   const c = await getVersionContent(versionId);
   const figures = await listAllFiguresForVersion(versionId);
@@ -30,6 +31,16 @@ export default async function MaterialPreviewPage({ params }: { params: Promise<
         <p className="text-sm text-ink-soft">
           版 {c.versionNo} ・ {c.status} ・ {c.slides.length} 画面 ・ 確認問題 {c.questions.length} 問
         </p>
+        <p className="text-sm mt-1">
+          図解の表示方式:{" "}
+          <Link href="?layout=tabs" className={`tap-link ${layout === "tabs" ? "font-bold text-accent" : "underline"}`}>
+            1 枚ずつ切り替え
+          </Link>
+          {" ／ "}
+          <Link href="?layout=stack" className={`tap-link ${layout === "stack" ? "font-bold text-accent" : "underline"}`}>
+            縦に並べる
+          </Link>
+        </p>
       </header>
 
       <div className="patient-shell rounded-3xl p-5 space-y-8">
@@ -40,12 +51,9 @@ export default async function MaterialPreviewPage({ params }: { params: Promise<
             </p>
             <h2 className="text-2xl font-bold leading-snug">{s.title}</h2>
             {s.proposition ? <p className="text-xl font-bold leading-relaxed">{s.proposition}</p> : <p className="text-sm text-ink-soft">（命題なし）</p>}
-            {(figures[s.seq] ?? []).map((f) => (
-              <div key={f.placementId} className="space-y-2">
-                <MedicalFigure figure={f} mode="admin" />
-                {role.canApprove && <FigureReviewActions assetId={f.assetId} status={f.reviewStatus} hasFile={!!f.src} />}
-              </div>
-            ))}
+            <FigureSet figures={figures[s.seq] ?? []} mode="admin" layout={layout} />
+            {role.canApprove &&
+              (figures[s.seq] ?? []).map((f) => <FigureReviewActions key={f.placementId} assetId={f.assetId} status={f.reviewStatus} hasFile={!!f.src} />)}
             <p className="whitespace-pre-wrap leading-[1.8]">{s.bodyMd}</p>
             {s.detailMd && (
               <details>
