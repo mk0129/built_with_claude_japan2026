@@ -48,4 +48,4 @@ clinical_info_rx_ClaudeCode_spec_20261102/DESIGN_REFERENCE.png
 /playwright-report/
 
 # iCloud 同期が生成する重複ファイル
-**/* 2.*
+**/* [0-9].*

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Concept A 温かなエディトリアル</title>
+<style>
+  :root{
+    --paper:#FAF6F0; --ink:#2B3350; --ink2:#4E5670; --rule:#D8CFC3; --accent:#8E3F52; --accent-soft:#F1DADF;
+    --sage:#DCE5D8; --sky:#DCE4EE; --ok:#3F6B4F; --warn:#8A6A2E;
+    --serif:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+    --sans:"Hiragino Sans","BIZ UDPGothic","Noto Sans JP",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#e9e4dc;font-family:var(--sans);color:var(--ink);padding:24px;display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+  .frame{width:390px;min-height:844px;background:var(--paper);position:relative;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+  .status{height:44px}
+  .page{padding:0 22px 110px}
+  h1,h2,.serif{font-family:var(--serif);font-weight:600;letter-spacing:.02em}
+  .eyebrow{font-size:13px;color:var(--ink2);letter-spacing:.12em;text-transform:uppercase}
+  .rule{border:0;border-top:1px solid var(--rule);margin:14px 0}
+  .btn{display:flex;align-items:center;justify-content:center;min-height:56px;border-radius:999px;font-weight:700;font-size:18px;border:1.5px solid var(--ink);color:var(--ink);background:transparent;text-decoration:none}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.ghost{border-color:transparent;color:var(--ink2);font-weight:600}
+  .tabs{position:absolute;left:0;right:0;bottom:0;height:78px;border-top:1px solid var(--rule);background:var(--paper);display:grid;grid-template-columns:repeat(3,1fr);padding-bottom:14px}
+  .tabs div{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;color:var(--ink2);gap:2px}
+  .tabs div.on{color:var(--accent);font-weight:700}
+  .tabs span{font-size:20px}
+  .wash{position:absolute;border-radius:50%;filter:blur(26px);opacity:.55;pointer-events:none}
+  .small{font-size:14px;color:var(--ink2)}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-top:1px solid var(--rule)}
+  .row:last-child{border-bottom:1px solid var(--rule)}
+  .state{font-size:14px;color:var(--ink2);white-space:nowrap;display:flex;align-items:center;gap:6px}
+  .dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink2);display:inline-block}
+  .dot.done{background:var(--ok);border-color:var(--ok)}
+  .dot.half{background:linear-gradient(90deg,var(--ok) 50%,transparent 50%);border-color:var(--ok)}
+  .lead{font-size:19px;line-height:1.6}
+  .body{font-size:18px;line-height:1.75}
+  .caption{font-size:13px;color:var(--ink2)}
+  .badge{display:inline-block;font-size:12px;padding:2px 8px;border:1px solid var(--rule);border-radius:4px;color:var(--ink2);background:#fff}
+  .fixedbar{position:absolute;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--rule);padding:12px 22px 26px;display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+  .audio{display:flex;align-items:center;gap:12px;border:1px solid var(--rule);border-radius:12px;padding:10px 12px;background:#fff}
+  .audio .play{width:44px;height:44px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .audio .bar{height:4px;background:var(--rule);border-radius:2px;position:relative;margin-top:6px}
+  .audio .bar i{position:absolute;left:0;top:0;bottom:0;width:35%;background:var(--ink);border-radius:2px}
+  details summary{list-style:none;cursor:pointer;color:var(--accent);font-weight:700;font-size:16px;padding:8px 0}
+  details summary::before{content:"＋ ";}
+  details[open] summary::before{content:"－ ";}
+  .sec{margin-top:22px}
+  .sec h2{font-size:20px;margin-bottom:8px}
+  .item{padding:12px 0;border-top:1px solid var(--rule)}
+  .item .q{font-size:17px;line-height:1.5;font-weight:600}
+  .item .pt{font-size:15px;color:var(--ink2);margin-top:4px}
+  .mark{font-family:var(--sans);font-size:12px;color:var(--ink2);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .link{color:var(--accent);font-weight:700;font-size:15px;margin-top:6px;display:inline-flex;min-height:44px;align-items:center}
+  .label{position:absolute;top:8px;left:8px;font-size:11px;background:#fff;padding:2px 6px;border-radius:4px;color:#666;z-index:2}
+</style>
+</head>
+<body>
+
+<!-- ============ HOME ============ -->
+<section class="frame" id="home">
+  <div class="label">A / ホーム</div>
+  <div class="wash" style="width:220px;height:220px;background:var(--sage);top:-70px;right:-80px"></div>
+  <div class="status"></div>
+  <div class="page" style="position:relative">
+    <p class="eyebrow">こんにちは</p>
+    <h1 style="font-size:28px;line-height:1.35;margin-top:4px">佐藤 花子 さん</h1>
+    <p class="small" style="margin-top:6px">今日は 1 つだけでも、読まなくても大丈夫です。</p>
+
+    <hr class="rule" style="margin-top:22px" />
+    <p class="eyebrow">先生から届いた説明</p>
+    <h2 style="font-size:22px;line-height:1.4;margin-top:4px">10月19日の診察で届いた 3 つの説明</h2>
+    <p class="small">さくら総合病院 ・ 山田 医師 ・ 2 / 3 を読み終えました</p>
+
+    <div style="margin-top:18px;padding:18px 18px 16px;border:1px solid var(--rule);background:#fff;position:relative">
+      <p class="eyebrow" style="color:var(--accent)">次に読むもの</p>
+      <h2 style="font-size:23px;line-height:1.4;margin-top:6px">こころのケアと相談先</h2>
+      <p class="small" style="margin-top:6px">4 画面と確認問題 2 問 ・ 目安 約 6 分 ・ 未着手</p>
+      <a class="btn primary" href="#" style="margin-top:16px">読む・聞く</a>
+    </div>
+
+    <div style="margin-top:22px">
+      <div class="row"><div><div style="font-size:17px;font-weight:600">乳がんの診断と病期の考え方</div><div class="caption">診断と病期 ・ 約 7 分</div></div><div class="state"><i class="dot done"></i>読み終えた</div></div>
+      <div class="row"><div><div style="font-size:17px;font-weight:600">サブタイプと治療方針のつながり</div><div class="caption">診断と病期 ・ 約 6 分</div></div><div class="state"><i class="dot done"></i>読み終えた</div></div>
+      <div class="row"><div><div style="font-size:17px;font-weight:600">こころのケアと相談先</div><div class="caption">心のケア・制度 ・ 約 6 分</div></div><div class="state"><i class="dot"></i>未着手</div></div>
+    </div>
+
+    <details style="margin-top:14px"><summary>診察のときの共有について</summary><p class="small" style="padding-bottom:8px">下の「共有」から QR コードを表示して医療者に見せます。あなたが許可した 60 分だけ記録が共有されます。</p></details>
+  </div>
+  <div class="tabs"><div class="on"><span>⌂</span>ホーム</div><div><span>✎</span>きろく</div><div><span>⇄</span>共有</div></div>
+</section>
+
+<!-- ============ LEARN ============ -->
+<section class="frame" id="learn">
+  <div class="label">A / 教材 1/4</div>
+  <div class="status"></div>
+  <div class="page" style="padding-bottom:140px">
+    <div style="display:flex;justify-content:space-between;align-items:center;min-height:44px"><span class="small">← ホームへ</span><span class="small">あ 文字を大きく</span></div>
+    <p class="eyebrow" style="margin-top:6px">乳がんの診断と病期の考え方 ・ 1 / 4</p>
+    <h1 style="font-size:26px;line-height:1.35;margin-top:6px">病期（ステージ）とは</h1>
+    <p class="lead serif" style="margin-top:10px;font-weight:600">病期は、がんが「どこまで広がっているか」の目安です。</p>
+
+    <!-- diagram: line drawing with light wash -->
+    <div style="position:relative;margin:18px -4px 0;padding:14px 10px 10px;background:#fff;border:1px solid var(--rule)">
+      <div class="wash" style="width:200px;height:120px;background:var(--sky);left:20px;top:20px;border-radius:40%"></div>
+      <svg viewBox="0 0 340 170" width="100%" style="position:relative" role="img" aria-label="病期は3つの要素の組み合わせで決まる模式図">
+        <g fill="none" stroke="#2B3350" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <!-- T: tumor size -->
+          <circle cx="52" cy="52" r="24"/><circle cx="52" cy="52" r="9" fill="#F1DADF"/>
+          <!-- N: lymph nodes -->
+          <path d="M138 36c-8 0-12 6-12 12s6 12 12 12 12-6 12-12-4-12-12-12zM165 56c-6 0-9 5-9 9s4 9 9 9 9-4 9-9-3-9-9-9zM150 74c-5 0-8 4-8 8s3 8 8 8 8-4 8-8-3-8-8-8z"/>
+          <path d="M126 48h-12M166 56h12"/>
+          <!-- M: body outline -->
+          <path d="M258 30c0 0-10 4-10 14 0 7 5 10 5 10v18c0 6-7 9-7 18v16h24V90c0-9-7-12-7-18V54s5-3 5-10c0-10-10-14-10-14z"/>
+          <circle cx="262" cy="60" r="3" fill="#2B3350"/><circle cx="252" cy="80" r="3" fill="#2B3350"/>
+          <!-- arrows to band -->
+          <path d="M52 86v26M150 100v12M258 110v2"/>
+          <path d="M52 112h206" /><path d="M170 112v14"/>
+          <!-- stage band -->
+          <rect x="40" y="128" width="260" height="22" rx="4"/>
+          <path d="M92 128v22M144 128v22M196 128v22M248 128v22"/>
+        </g>
+        <g font-family="Hiragino Sans, sans-serif" font-size="11" fill="#2B3350" text-anchor="middle">
+          <text x="52" y="100">しこりの大きさ</text><text x="150" y="100">リンパ節</text><text x="258" y="24">遠くへの広がり</text>
+          <text x="66" y="143">0</text><text x="118" y="143">I</text><text x="170" y="143">II</text><text x="222" y="143">III</text><text x="274" y="143">IV</text>
+          <text x="170" y="165" font-size="10" fill="#4E5670">数字が大きいほど広がりが大きい</text>
+        </g>
+      </svg>
+      <div style="display:flex;justify-content:space-between;margin-top:6px"><span class="badge">模式図 ・ 監修待ち</span><span class="caption">出典: 院内原稿（架空）</span></div>
+    </div>
+
+    <p class="body" style="margin-top:16px">病期は、しこりの大きさ、リンパ節への広がり、ほかの臓器への広がりの 3 つを組み合わせて決めます。0 期から IV 期まであり、数字が大きいほど広がりが大きいことを表します。</p>
+    <details style="margin-top:6px"><summary>くわしく</summary><p class="body" style="font-size:16px;padding-bottom:8px">同じ病期でも、がんの性質（サブタイプ）や体の状態によって治療は変わります。病期だけで治療が決まるわけではありません。</p></details>
+
+    <div class="audio" style="margin-top:14px">
+      <div class="play">▶</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:700">この画面を読み上げる</div><div class="caption">約 40 秒</div><div class="bar"><i></i></div></div>
+    </div>
+  </div>
+  <div class="fixedbar"><a class="btn ghost" href="#">前へ</a><a class="btn primary" href="#">次へ ・ 2 / 4</a></div>
+</section>
+
+<!-- ============ RESULT ============ -->
+<section class="frame" id="result">
+  <div class="label">A / 結果</div>
+  <div class="status"></div>
+  <div class="page" style="padding-bottom:40px">
+    <div style="display:flex;justify-content:space-between;align-items:center;min-height:44px"><span class="small">← ホームへ</span><span class="small">あ 文字を大きく</span></div>
+    <p class="eyebrow" style="margin-top:6px">乳がんの診断と病期の考え方 ・ 確認問題</p>
+    <h1 style="font-size:26px;line-height:1.35;margin-top:6px">確認を終えました</h1>
+    <p class="small" style="margin-top:6px">3 問のうち 1 問を確認できました。残りはいつでも読み直せます。<span class="link" style="min-height:auto;margin-left:6px">点数をみる</span></p>
+
+    <div class="sec">
+      <h2>今回確認できたこと</h2>
+      <div class="item"><div class="mark"><i class="dot done"></i>確認できた</div><div class="q">病期を決める要素</div><div class="pt">しこりの大きさ・リンパ節・遠くへの広がりの 3 つ。年齢は含みません。</div></div>
+    </div>
+
+    <div class="sec">
+      <h2>もう一度確認できるところ</h2>
+      <div class="item"><div class="mark"><i class="dot half"></i>ちがう答えを選びました</div><div class="q">同じ病期なら、同じ治療になる？</div><div class="pt">ポイント: 病期は目安のひとつ。がんの性質や体の状態で治療は変わります。</div><a class="link" href="#">2 画面目を読み直す →</a></div>
+        <div class="item"><div class="mark"><i class="dot"></i>「わからない」と答えました</div><div class="q">検査結果にわからない言葉があったら</div><div class="pt">ポイント: 全部を一度に理解しなくて大丈夫。印をつけて次の診察で聞きましょう。</div><a class="link" href="#">3 画面目を読み直す →</a></div>
+    </div>
+
+    <div class="sec">
+      <h2>次の診察で聞きたいこと</h2>
+      <p class="small">読んでみて、いまの気持ちに近いものを選んでください。質問は次の診察で先生が確認します（すぐの返信はありません）。</p>
+      <div style="display:grid;gap:8px;margin-top:10px">
+        <a class="btn" href="#">だいたい理解できた</a>
+        <a class="btn" href="#">もう一度説明してほしい</a>
+        <a class="btn" href="#" style="background:var(--accent-soft);border-color:transparent">質問がある</a>
+        <a class="btn" href="#">今日はここまで</a>
+      </div>
+      <div style="margin-top:10px;border:1px solid var(--rule);background:#fff;padding:12px;min-height:76px;color:var(--ink2);font-size:16px">質問や気になったこと（任意）</div>
+      <a class="btn primary" href="#" style="margin-top:12px">送る</a>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px"><a class="btn ghost" href="#">もう一度挑戦</a><a class="btn ghost" href="#">はじめから読む</a></div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

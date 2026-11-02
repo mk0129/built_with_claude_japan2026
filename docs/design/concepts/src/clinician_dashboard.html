@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<title>医療者ダッシュボード改善案（今日の確認事項）</title>
+<style>
+  :root{--bg:#F6F7F8;--panel:#FFFFFF;--ink:#172028;--ink2:#4A5560;--line:#D9DEE3;--navy:#1E3A5F;--navy-soft:#E6EDF5;--rose:#B23A48;--rose-soft:#F8E3E6;--amber:#8A5A0A;--amber-soft:#F7ECD3;--teal:#0F6E6E;--teal-soft:#DCEEEC;--ok:#2E7D4F;
+    --sans:"Hiragino Sans","BIZ UDPGothic",sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);color:var(--ink);background:#cfd4d9;padding:20px}
+  .frame{width:1180px;min-height:820px;background:var(--bg);margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.1);position:relative}
+  .top{height:56px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:14px}
+  .top b{font-size:16px}
+  .wrap{display:grid;grid-template-columns:1fr 360px;gap:16px;padding:16px 20px}
+  .head{display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:12px;grid-column:1/3}
+  .head h1{font-size:20px}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap}
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border-radius:8px;border:1.5px solid var(--ink);font-weight:700;font-size:14px;background:#fff;white-space:nowrap}
+  .btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+  .btn.danger{border-color:var(--rose);color:var(--rose)}
+  .btn.soft{background:var(--navy-soft);border-color:transparent;color:var(--navy)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px}
+  .triage{padding:0}
+  .triage .hd{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .triage .hd h2{font-size:17px}
+  .grp{padding:8px 16px 4px;font-size:12px;font-weight:700;color:var(--ink2);letter-spacing:.06em;display:flex;align-items:center;gap:8px}
+  .grp i{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .row{display:grid;grid-template-columns:28px 1fr auto;gap:12px;align-items:start;padding:10px 16px;border-top:1px solid var(--line)}
+  .row .n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+  .row .t{font-size:15px;font-weight:700;line-height:1.4}
+  .row .s{font-size:13px;color:var(--ink2);margin-top:2px;line-height:1.45}
+  .row .quote{margin-top:6px;background:var(--bg);border-left:3px solid var(--rose);padding:6px 10px;font-size:14px;line-height:1.5}
+  .row .acts{display:flex;gap:6px;flex-direction:column;align-items:stretch}
+  .scores{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 16px}
+  .sc{background:var(--bg);border-radius:10px;padding:10px 12px}
+  .sc small{display:block;font-size:12px;color:var(--ink2)}
+  .sc b{font-size:22px}
+  .side .hd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .basket{padding:12px 14px}
+  .basket .it{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .tag{font-size:11px;font-weight:700;color:var(--teal);background:var(--teal-soft);padding:2px 6px;border-radius:4px;margin-left:6px}
+  .tabs{display:flex;gap:4px;padding:10px 14px 0}
+  .tabs span{padding:8px 10px;font-size:13px;font-weight:700;border-bottom:2px solid transparent;color:var(--ink2)}
+  .tabs span.on{color:var(--navy);border-color:var(--navy)}
+  .tpl{margin:10px 14px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px}
+  .tpl b{font-size:14px}
+  .label{position:absolute;top:8px;left:8px;font-size:11px;background:#fff;padding:2px 6px;border-radius:4px;color:#666;border:1px solid #ddd;z-index:2}
+  details summary{font-size:13px;color:var(--ink2);cursor:pointer;padding:8px 16px}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="label" style="top:auto;bottom:8px;left:8px">医療者 / 今日の確認事項（1180）</div>
+  <div class="top"><b>しおり（仮）<span style="font-weight:400;color:var(--ink2);font-size:13px;margin-left:6px">医療者用</span></b><span class="pill" style="background:var(--amber-soft);color:var(--amber)">架空データ・デモ</span></div>
+  <div class="wrap">
+    <div class="head">
+      <div><div style="font-size:13px;color:var(--ink2)">さくら総合病院 ・ 山田 医師 ・ 前回 10/19（14 日前）</div><h1>佐藤 花子 さん</h1></div>
+      <div style="display:flex;gap:8px;align-items:center"><span class="pill" style="background:#E3F1E8;color:var(--ok);font-size:14px">残り 59:58</span><span class="btn">延長を要求</span><span class="btn danger">終了</span></div>
+    </div>
+
+    <div>
+      <div class="card triage">
+        <div class="hd"><h2>今日の確認事項 <span style="font-size:13px;color:var(--ink2);font-weight:400;margin-left:6px">3 件 ・ 上から順に</span></h2>
+          <div style="display:flex;gap:6px"><span class="pill" style="background:var(--rose-soft);color:var(--rose)">質問 1</span><span class="pill" style="background:var(--amber-soft);color:var(--amber)">誤答・わからない 2</span><span class="pill" style="background:var(--navy-soft);color:var(--navy)">未完了 1</span></div>
+        </div>
+
+        <div class="grp"><i style="background:var(--rose)"></i>未確認の質問</div>
+        <div class="row"><div class="n" style="background:var(--rose-soft);color:var(--rose)">1</div>
+          <div><div class="t">「私の場合はどういう理由で今の治療になったのか」</div><div class="s">10/22 ・ 乳がんの診断と病期の考え方 ・ 「質問がある」</div>
+            <div class="quote">ステージが同じでも治療が違うことがあると読みました。私の場合はどういう理由で今の治療になったのか、次に教えてください。</div></div>
+          <div class="acts"><span class="btn primary">対応を記録</span><span class="btn soft">関連教材を候補へ</span></div></div>
+
+        <div class="grp"><i style="background:var(--amber)"></i>誤答・わからない（最新の確認問題）</div>
+        <div class="row"><div class="n" style="background:var(--amber-soft);color:var(--amber)">2</div>
+          <div><div class="t">乳がんの診断と病期の考え方 <span style="font-weight:400;color:var(--ink2);font-size:13px">まちがい 1 ・ わからない 1 ・ 10/22</span></div>
+            <div class="s">誤答: 同じ病期の人は必ず同じ治療を受けますか → 患者「病期だけで薬が決まる」／正解「性質や体の状態で変わる」</div>
+            <div class="s">わからない: 検査結果でわからない言葉があったときの対応</div></div>
+          <div class="acts"><span class="btn soft">再処方を候補へ</span><span class="btn" style="border-color:var(--line);color:var(--ink2)">設問を見る</span></div></div>
+
+        <div class="grp"><i style="background:var(--navy)"></i>未完了の教材</div>
+        <div class="row"><div class="n" style="background:var(--navy-soft);color:var(--navy)">3</div>
+          <div><div class="t">こころのケアと相談先</div><div class="s">未着手 ・ 10/19 処方 ・ 約 6 分の教材</div></div>
+          <div class="acts"><span class="btn soft">再処方を候補へ</span></div></div>
+        <details><summary>対応済みの質問（0） ・ これまでの診察（2）</summary></details>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="hd" style="display:flex;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--line)"><b style="font-size:15px">理解確認スコア</b><span style="font-size:12px;color:var(--ink2)">点数は表示時のみ四捨五入 ・ 評価は最新の完了結果</span></div>
+        <div class="scores">
+          <div class="sc"><small>全体（教材 2 / 3 評価済み）</small><b>67 点</b></div>
+          <div class="sc"><small>前回の宿題（10/19 処方・本日確定）</small><b>67 点</b><small>完了 2 / 3</small></div>
+          <div class="sc"><small>領域別</small><div style="font-size:13px;margin-top:4px">診断と病期 <b style="font-size:14px">67</b> ・ 心のケア <b style="font-size:14px">—</b></div></div>
+        </div>
+        <details><summary>教材ごと ・ 宿題セットごと ・ 旧版の扱い</summary></details>
+      </div>
+    </div>
+
+    <div class="card side">
+      <div class="hd"><b style="font-size:15px">情報処方 <span class="tag">候補 2</span></b><span class="btn" style="min-height:34px;padding:0 10px;font-size:13px">閉じる</span></div>
+      <div class="basket">
+        <div class="it"><span>乳がんの診断と病期の考え方<span class="tag">確認事項 2 から</span></span><span style="color:var(--ink2);font-size:13px">外す</span></div>
+        <div class="it"><span>こころのケアと相談先<span class="tag">確認事項 3 から</span></span><span style="color:var(--ink2);font-size:13px">外す</span></div>
+        <span class="btn primary" style="width:100%;margin-top:12px;min-height:48px;font-size:16px">2 件を処方する</span>
+        <p style="font-size:12px;color:var(--ink2);margin-top:8px">同じ診察の処方は 1 つの宿題セットにまとまります。既に処方済みの教材は統合されます。</p>
+      </div>
+      <div class="tabs"><span class="on">テンプレート</span><span>検索</span></div>
+      <div class="tpl"><b>初回診断時セット</b> <span style="float:right;color:var(--navy);font-weight:700">まとめて追加</span><div style="color:var(--ink2);margin-top:4px">診断と病期 ・ サブタイプ ・ こころのケア</div></div>
+      <div class="tpl"><b>化学療法開始時セット</b> <span style="float:right;color:var(--navy);font-weight:700">まとめて追加</span><div style="color:var(--ink2);margin-top:4px">薬物療法の種類 ・ 副作用とセルフケア</div></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
