@@ -160,7 +160,6 @@ export function PrescriptionPanel({
             })}
             {materials.length === 0 && <li className="text-sm text-ink-muted">該当する教材がありません</li>}
           </ul>
-          <p className="text-xs text-ink-muted">AI 検索（患者情報を送らない自然言語検索）は後続フェーズで追加します。</p>
         </div>
       )}
     </div>

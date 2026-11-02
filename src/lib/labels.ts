@@ -9,6 +9,14 @@ export const DOMAIN_LABEL: Record<string, string> = {
 
 export const DOMAIN_ORDER = Object.keys(DOMAIN_LABEL);
 
+/** 組織内の役割（内部コードを UI に出さない） */
+export const ROLE_LABEL: Record<string, string> = {
+  clinician: "診療担当",
+  material_editor: "教材編集",
+  material_approver: "教材承認",
+  org_admin: "組織管理",
+};
+
 export const PHASE_LABEL: Record<string, string> = {
   not_started: "未着手",
   reading: "読んでいる途中",

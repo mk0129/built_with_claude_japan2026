@@ -68,7 +68,7 @@ export default async function SourcePage({ params }: { params: Promise<{ id: str
       </header>
 
       <section className="grid lg:grid-cols-2 gap-4 items-start">
-        <div className="card space-y-3">
+        <div className="card space-y-3 min-w-0">
           <h2 className="font-bold text-lg">許諾の記録</h2>
           {d.permission ? (
             <>
@@ -109,7 +109,7 @@ export default async function SourcePage({ params }: { params: Promise<{ id: str
           </div>
         </div>
 
-        <div className="card space-y-2">
+        <div className="card space-y-2 min-w-0">
           <h2 className="font-bold text-lg">抽出したテキスト</h2>
           <p className="text-xs text-ink-soft">
             {meta.charCount ?? 0} 文字{meta.pages ? ` ・ ${meta.pages} ページ` : ""}

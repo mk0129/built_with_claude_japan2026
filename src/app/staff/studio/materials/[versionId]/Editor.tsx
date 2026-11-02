@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, errorText } from "@/lib/api";
+import { DOMAIN_LABEL } from "@/lib/labels";
 
 type Ref = { sourceId: string; section?: string; quote?: string };
 type Slide = { title: string; proposition: string; body: string; detail: string; sourceRefs: Ref[] };
@@ -106,7 +107,9 @@ export function Editor({ data }: { data: EditorData }) {
             領域
             <select className="input min-h-11 mt-1" value={d.primaryDomain} disabled={!editable} onChange={(e) => set({ ...d, primaryDomain: e.target.value })}>
               {data.domains.map((x) => (
-                <option key={x}>{x}</option>
+                <option key={x} value={x}>
+                  {DOMAIN_LABEL[x] ?? x}
+                </option>
               ))}
             </select>
           </label>
@@ -171,6 +174,14 @@ export function Editor({ data }: { data: EditorData }) {
 
         <section id="actions" className="card space-y-3 scroll-mt-4" aria-label="操作">
           {msg && <p className={`text-sm ${msg.ok ? "text-accent font-bold" : "text-danger"}`} role="status">{msg.text}</p>}
+          {data.status !== "published" && (
+            <div className="flex flex-wrap gap-2 items-center">
+              <Link href={`/staff/materials/${data.versionId}/preview`} className="btn min-h-11 text-sm inline-flex items-center">
+                患者画面でプレビュー
+              </Link>
+              <p className="text-xs text-ink-soft">承認前でも、患者さんに見える形で確認できます（患者さんには公開されません）。</p>
+            </div>
+          )}
           {editable && (
             <div className="grid sm:grid-cols-2 gap-2">
               <button className="btn min-h-11" disabled={busy || !dirty} onClick={save}>

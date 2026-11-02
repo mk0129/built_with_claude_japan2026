@@ -44,6 +44,17 @@ test("画面幅ごとのレイアウト検査", async ({ browser }) => {
     await ctx.close();
   }
 
+  // 教材スタジオ（編集者・承認者）: UX-01 の回帰。375〜1440 で横スクロールなし
+  for (const [name, vp] of Object.entries(VIEWPORTS)) {
+    const { ctx, page } = await newPage(browser, vp);
+    await demoLogin(page, "staff", "佐藤 一郎");
+    await page.goto("/staff/studio");
+    await page.waitForLoadState("networkidle");
+    const audit = await layoutAudit(page);
+    report.push({ role: "staff", viewport: name, width: vp.width, path: "/staff/studio", ...audit });
+    await ctx.close();
+  }
+
   writeFileSync(`${SHOT_DIR}/layout_audit.json`, JSON.stringify(report, null, 2));
   const overflowing = report.filter((r) => (r.overflowX as number) > 0).map((r) => `${r.viewport} ${r.path} (+${r.overflowX}px)`);
   expect(overflowing, "横スクロールが発生した画面").toEqual([]);

@@ -50,7 +50,7 @@ export function UploadForm({ orgId }: { orgId: string }) {
     <form onSubmit={submit} className="space-y-3">
       <label className="block text-sm font-bold">
         ファイル（PDF・Word・PowerPoint、15MB まで）
-        <input type="file" className="block mt-1 min-h-11" accept=".pdf,.docx,.pptx,.txt" onChange={(e) => setFile(e.target.files?.[0] ?? null)} aria-label="原資料ファイル" />
+        <input type="file" className="block mt-1 min-h-11 w-full max-w-full" accept=".pdf,.docx,.pptx,.txt" onChange={(e) => setFile(e.target.files?.[0] ?? null)} aria-label="原資料ファイル" />
       </label>
       <label className="block text-sm font-bold">
         資料名
@@ -78,7 +78,7 @@ export function UploadForm({ orgId }: { orgId: string }) {
         <span>
           <b>患者さんの個人情報（氏名・ID・生年月日・画像など）を含まないことを確認しました。</b>
           <br />
-          含む資料はこの MVP では AI 処理しません。
+          個人情報を含む資料は AI 処理の対象外です。
         </span>
       </label>
       <p className="text-xs text-ink-soft">確認者（あなた）と確認日時は自動で記録されます。資料は非公開の領域に保存され、患者さんには表示されません。</p>

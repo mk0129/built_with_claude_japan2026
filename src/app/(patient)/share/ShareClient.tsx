@@ -2,7 +2,7 @@
 import { useCallback, useState } from "react";
 import { useNow } from "@/lib/use-now";
 import QRCode from "qrcode";
-import { api, errorText } from "@/lib/api";
+import { ApiError, api, errorText } from "@/lib/api";
 import { usePoll } from "@/lib/use-poll";
 
 type Grant = {
@@ -43,6 +43,7 @@ export function ShareClient() {
   const [manualSessionId, setManualSessionId] = useState<string | null>(null);
   const [closedSessionIds, setClosedSessionIds] = useState<string[]>([]);
   const [err, setErr] = useState<string | null>(null);
+  const [ending, setEnding] = useState(false);
   const now = useNow();
 
   // 有効なセッションがあればそれを優先表示（承認直後・一覧・手動の順に導出。effect での setState は避ける）
@@ -90,11 +91,27 @@ export function ShareClient() {
     }
   }
 
+  /**
+   * 共有の終了（UX-10）。二度押しを防ぎ、医療者側が先に終了していた場合（SESSION_NOT_ACTIVE）も終了扱いにする。
+   * 一覧を null に戻すと次のポーリングまで「確認しています…」になるため、該当セッションだけを終了済みに書き換えて QR ボタンを即時に出す。
+   */
   async function endSession() {
-    if (!sessionId) return;
-    await api(`/api/v1/consultations/${sessionId}/end`, { json: {} });
+    if (!sessionId || ending) return;
+    const id = sessionId;
+    setEnding(true);
+    setErr(null);
+    try {
+      await api(`/api/v1/consultations/${id}/end`, { json: {} });
+    } catch (e) {
+      if (!(e instanceof ApiError && e.code === "SESSION_NOT_ACTIVE")) {
+        setErr(errorText(e));
+        setEnding(false);
+        return;
+      }
+    }
+    sessions.setData((d) => (d ? { sessions: d.sessions.map((s) => (s.id === id ? { ...s, active: false, endedAt: new Date().toISOString() } : s)) } : d));
     closeSession();
-    sessions.setData(null);
+    setEnding(false);
   }
 
   async function decideExtension(approve: boolean) {
@@ -141,9 +158,10 @@ export function ShareClient() {
             </div>
           </div>
         )}
-        <button className="btn btn-danger btn-block" onClick={endSession}>
-          共有を終了する
+        <button className="btn btn-danger btn-block" onClick={endSession} disabled={ending} aria-busy={ending}>
+          {ending ? "終了しています…" : "共有を終了する"}
         </button>
+        {err && <p className="text-danger text-sm">{err}</p>}
         <p className="text-sm text-ink-muted">終了すると医療者はそれ以上あなたの記録を見られません。次の診察ではもう一度 QR を見せてください。</p>
       </section>
     );

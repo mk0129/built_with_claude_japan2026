@@ -15,7 +15,12 @@ export const STATUS_LABEL: Record<string, string> = {
   failed: "失敗",
 };
 
-export const JOB_MODE_LABEL: Record<string, string> = { outline: "構成案（B）", generate: "教材生成（B）", freeform: "自由入力で生成（C）" };
+export const JOB_MODE_LABEL: Record<string, string> = { outline: "構成案の提案", generate: "下書き作成（構成案から）", freeform: "下書き作成（テーマ指定）" };
+
+/** 開発用の擬似生成（fake:）はモデル名を表示しない。実 API のときだけモデル名を出す */
+export function modelLabel(generator: string, model: string): string | null {
+  return generator === "claude" && !model.startsWith("fake:") ? model : null;
+}
 
 export function fmt(d: Date | string | null | undefined) {
   if (!d) return "—";

@@ -4,7 +4,8 @@ import { POST as endRoute } from "@/app/api/v1/consultations/[id]/end/route";
 import { POST as createQr } from "@/app/api/v1/qr/route";
 import { POST as claimRoute } from "@/app/api/v1/qr/claim/route";
 import { POST as approveRoute } from "@/app/api/v1/qr/[id]/approve/route";
-import { DR_KOBAYASHI, DR_YAMADA, PATIENT_A, loginHeaders, setupDb, type Seeded } from "../helpers";
+import { GET as consultationRoute } from "@/app/api/v1/consultations/[id]/route";
+import { DR_KOBAYASHI, DR_YAMADA, PATIENT_A, loginHeaders, setupDb, startSession, type Seeded } from "../helpers";
 
 let seeded: Seeded;
 const ctx = (id: string) => ({ params: Promise.resolve({ id }) });
@@ -66,5 +67,44 @@ describe("HTTP 層: 認証・認可が毎回検証される", () => {
     const staff = await loginHeaders(DR_YAMADA);
     const r = await claimRoute(req("/api/v1/qr/claim", staff, { orgId: "not-a-uuid", code: "12" }));
     expect(r.status).toBe(400);
+  });
+});
+
+describe("共有の終了（UX-10 回帰）", () => {
+  it("患者が終了 → 医療者の閲覧は即時 403。二重送信は 200（終了済み）で返り、状態 API は終了者を返す", async () => {
+    const patient = await loginHeaders(PATIENT_A);
+    const staff = await loginHeaders(DR_YAMADA);
+    const { sessionId } = await startSession(seeded, PATIENT_A, DR_YAMADA, "sakura-general");
+    expect((await patientSummary(req("/x", staff), ctx(sessionId))).status).toBe(200);
+
+    const first = await endRoute(req("/x", patient, {}), ctx(sessionId));
+    expect(first.status).toBe(200);
+    // 共有終了後は、終了直後の同一秒でもサーバー側でアクセスが無効化される
+    const denied = await patientSummary(req("/x", staff), ctx(sessionId));
+    expect(denied.status).toBe(403);
+    expect((await denied.json()).error).toBe("NO_ACTIVE_CONSULTATION");
+    // 二度押し・通信の再送は失敗にせず、終了済みとして受け付ける（画面が固まらない）
+    const second = await endRoute(req("/x", patient, {}), ctx(sessionId));
+    expect(second.status).toBe(200);
+    expect((await second.json()).alreadyEnded).toBe(true);
+    // 患者・医療者どちらから見ても active=false, endedBy=patient
+    for (const h of [patient, staff]) {
+      const c = await (await consultationRoute(req("/x", h), ctx(sessionId))).json();
+      expect(c.active).toBe(false);
+      expect(c.endedBy).toBe("patient");
+    }
+  });
+
+  it("医療者が先に終了した後に患者が終了を押しても 200（終了済み）", async () => {
+    const patient = await loginHeaders(PATIENT_A);
+    const staff = await loginHeaders(DR_YAMADA);
+    const { sessionId } = await startSession(seeded, PATIENT_A, DR_YAMADA, "sakura-general");
+    expect((await endRoute(req("/x", staff, {}), ctx(sessionId))).status).toBe(200);
+    const r = await endRoute(req("/x", patient, {}), ctx(sessionId));
+    expect(r.status).toBe(200);
+    expect((await r.json()).alreadyEnded).toBe(true);
+    const c = await (await consultationRoute(req("/x", patient), ctx(sessionId))).json();
+    expect(c.endedBy).toBe("clinician");
+    expect((await patientSummary(req("/x", staff), ctx(sessionId))).status).toBe(403);
   });
 });

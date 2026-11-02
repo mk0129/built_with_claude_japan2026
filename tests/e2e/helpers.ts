@@ -5,6 +5,7 @@ export const SHOT_DIR = process.env.E2E_SHOT_DIR ?? "docs/screenshots/day3";
 mkdirSync(SHOT_DIR, { recursive: true });
 
 export const VIEWPORTS = {
+  phone375: { width: 375, height: 667 },
   phone390: { width: 390, height: 844 },
   phone430: { width: 430, height: 932 },
   ipadPortrait: { width: 820, height: 1180 },
@@ -51,16 +52,24 @@ export async function layoutAudit(page: Page) {
 
 export { expect };
 
-/** 共有画面で QR を出し、6 桁コードを返す。共有中のセッションが残っていれば終了する */
+/**
+ * 共有画面で QR を出し、6 桁コードを返す。共有中のセッションが残っていれば終了する。
+ * 医療者側が直前に終了していると、患者画面は「共有中」→「共有は終了しました（閉じる）」へ切り替わるため、その状態も扱う（UX-10）。
+ */
 export async function showQrCode(page: Page): Promise<string> {
   await page.goto("/share");
   const endBtn = page.getByRole("button", { name: /共有を終了する/ });
+  const closeBtn = page.getByRole("button", { name: /^閉じる$/ });
   const qrBtn = page.getByRole("button", { name: /QR コードを表示する/ });
-  await expect(endBtn.or(qrBtn)).toBeVisible({ timeout: 10_000 });
-  if (await endBtn.isVisible()) {
-    await endBtn.click();
-    await expect(qrBtn).toBeVisible({ timeout: 10_000 });
+  await expect(endBtn.or(qrBtn).or(closeBtn)).toBeVisible({ timeout: 10_000 });
+  if (await closeBtn.isVisible()) {
+    await closeBtn.click();
+  } else if (await endBtn.isVisible()) {
+    // 押す直前に医療者側が終了した場合、ボタンは「閉じる」に変わる
+    await endBtn.click({ timeout: 5_000 }).catch(() => {});
+    if (await closeBtn.isVisible().catch(() => false)) await closeBtn.click();
   }
+  await expect(qrBtn).toBeVisible({ timeout: 10_000 });
   await qrBtn.click();
   const codeEl = page.locator(".code-display");
   await expect(codeEl).toBeVisible();

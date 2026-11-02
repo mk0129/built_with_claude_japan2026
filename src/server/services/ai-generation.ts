@@ -348,7 +348,7 @@ async function saveDraft(db: Db, job: typeof aiGenerationJobs.$inferSelect, out:
         sourceDocumentIds: sourceIds,
         aiGenerationJobId: job.id,
         createdByUserId: job.createdByUserId,
-        changeNote: model.startsWith("fake:") ? `開発用の擬似生成（${model}）。Claude による生成ではありません。` : `Claude（${model}）による下書き。医療者の監修前。`,
+        changeNote: model.startsWith("fake:") ? "開発用の擬似生成。Claude による生成ではありません。" : `Claude（${model}）による下書き。医療者の監修前。`,
       })
       .returning({ id: materialVersions.id });
     await tx.insert(materialSlides).values(

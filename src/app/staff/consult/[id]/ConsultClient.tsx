@@ -361,10 +361,7 @@ function ScoresCard({ s }: { s: Summary | null }) {
   const latestSet = s.homework[0];
   return (
     <section className="card space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-bold">理解確認スコア</h2>
-        <p className="text-xs text-ink-muted">点数は表示時のみ四捨五入</p>
-      </div>
+      <h2 className="font-bold">理解確認スコア</h2>
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-xl bg-suna p-3">
           <p className="text-xs text-ink-soft">全体</p>

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { setStoredOrgId, useStoredOrgId } from "@/lib/use-stored-org";
+import { ROLE_LABEL } from "@/lib/labels";
 
 type M = { orgId: string; orgName: string; roles: string[]; displayName: string };
 
@@ -28,7 +29,7 @@ export function OrgPicker({ memberships }: { memberships: M[] }) {
             onClick={() => choose(m.orgId)}
           >
             <span>{m.orgName}</span>
-            <span className="text-sm font-normal text-ink-soft">{m.displayName} / {m.roles.join(", ")}</span>
+            <span className="text-sm font-normal text-ink-soft">{m.displayName} ・ {m.roles.map((r) => ROLE_LABEL[r] ?? r).join("・")}</span>
           </button>
         ))}
       </div>

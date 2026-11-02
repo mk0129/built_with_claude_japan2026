@@ -67,11 +67,11 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
       )}
 
       <section className="grid lg:grid-cols-2 gap-4 items-start">
-        <div className="card space-y-3">
+        <div className="card space-y-3 min-w-0">
           <h2 className="font-bold text-lg">原資料を登録する</h2>
           <UploadForm orgId={m.orgId} />
         </div>
-        <div className="card space-y-3">
+        <div className="card space-y-3 min-w-0">
           <h2 className="font-bold text-lg">原資料（{sources.length}）</h2>
           {sources.length === 0 && <p className="text-sm text-ink-muted">まだ登録がありません。</p>}
           <ul className="divide-y divide-line">

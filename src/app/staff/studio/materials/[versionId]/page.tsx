@@ -7,7 +7,7 @@ import { getDb } from "@/server/db/client";
 import { aiGenerationJobs } from "@/server/db/schema";
 import { GeneratorBadge } from "../../GeneratorBadge";
 import { Editor, type EditorData } from "./Editor";
-import { STATUS_LABEL, fmt, staffPrincipal } from "../../shared";
+import { STATUS_LABEL, fmt, modelLabel, staffPrincipal } from "../../shared";
 
 /** 教材の編集・承認画面（原資料と並べて確認） */
 export default async function MaterialEditorPage({ params }: { params: Promise<{ versionId: string }> }) {
@@ -49,7 +49,7 @@ export default async function MaterialEditorPage({ params }: { params: Promise<{
           {job ? (
             <>
               {" ・ "}
-              <GeneratorBadge generator={job.generator} /> {job.model}
+              <GeneratorBadge generator={job.generator} /> {modelLabel(job.generator, job.model)}
             </>
           ) : (
             ""
@@ -57,6 +57,12 @@ export default async function MaterialEditorPage({ params }: { params: Promise<{
           {d.version.approvedAt ? ` ・ 承認 ${fmt(d.version.approvedAt)}` : ""}
         </p>
         {d.version.changeNote && <p className="text-xs text-ink-muted">{d.version.changeNote}</p>}
+        <div className="flex flex-wrap gap-2 items-center pt-1">
+          <Link href={`/staff/materials/${versionId}/preview`} className="btn min-h-11 text-sm inline-flex items-center">
+            患者画面でプレビュー
+          </Link>
+          <span className="text-xs text-ink-soft">{d.version.status === "published" ? "患者さんに届いている表示です。" : "承認前でも確認できます。患者さんには公開されません。"}</span>
+        </div>
       </header>
       <Editor data={data} />
     </main>

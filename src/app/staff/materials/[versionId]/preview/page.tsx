@@ -4,6 +4,7 @@ import { getVersionContent } from "@/server/services/materials";
 import { listAllFiguresForVersion, requireMaterialRole } from "@/server/services/figures";
 import { FigureSet } from "@/components/patient/FigureSet";
 import { FigureReviewActions } from "./FigureReviewActions";
+import { STATUS_LABEL } from "@/app/staff/studio/shared";
 
 /**
  * 管理者プレビュー（教材編集者・承認者のみ）。
@@ -20,16 +21,24 @@ export default async function MaterialPreviewPage({ params, searchParams }: { pa
 
   return (
     <main className="max-w-2xl mx-auto space-y-5">
-      <div className="rounded-xl bg-suna text-[#8a5a0a] text-sm font-bold px-4 py-3">
-        管理者プレビュー ・ 未承認の図解 {pending} 件は患者には表示されません。{role.canApprove ? "承認者として監修状態を変更できます。" : "監修状態の変更は承認者のみ行えます。"}
+      <div className="rounded-xl bg-suna text-[#8a5a0a] text-sm font-bold px-4 py-3" role="status">
+        患者画面プレビュー（医療者のみ）
+        {c.status !== "published" ? ` ・ この教材は「${STATUS_LABEL[c.status] ?? c.status}」のため、患者さんには表示されません。` : ""}
+        {pending > 0 ? ` ・ 未承認の図解 ${pending} 件は患者には表示されません。` : ""}
+        {role.canApprove ? " 承認者として図解の監修状態を変更できます。" : ""}
       </div>
       <header>
-        <Link href="/staff" className="tap-link">
-          ← 医療者ホーム
-        </Link>
+        <div className="flex flex-wrap gap-x-3">
+          <Link href={`/staff/studio/materials/${versionId}`} className="tap-link">
+            ← 編集・承認画面へ
+          </Link>
+          <Link href="/staff" className="tap-link">
+            医療者ホーム
+          </Link>
+        </div>
         <h1 className="text-2xl font-bold">{c.title}</h1>
         <p className="text-sm text-ink-soft">
-          版 {c.versionNo} ・ {c.status} ・ {c.slides.length} 画面 ・ 確認問題 {c.questions.length} 問
+          版 {c.versionNo} ・ {STATUS_LABEL[c.status] ?? c.status} ・ {c.slides.length} 画面 ・ 確認問題 {c.questions.length} 問
         </p>
         <p className="text-sm mt-1">
           図解の表示方式:{" "}
