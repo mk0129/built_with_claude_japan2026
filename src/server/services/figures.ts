@@ -58,8 +58,12 @@ function tabLabelOf(caption: string | null): string | null {
 export function privatePath(type: string, filename: string) {
   return `${process.cwd()}/private_assets/${type}/${filename}`;
 }
+/** 公開ディレクトリ（テストでは PUBLIC_ASSETS_ROOT で一時ディレクトリに切り替え、実ファイルに触れない） */
+export function publicAssetsRoot() {
+  return process.env.PUBLIC_ASSETS_ROOT ?? `${process.cwd()}/public/assets`;
+}
 export function publicPath(type: string, filename: string) {
-  return `${process.cwd()}/public/assets/${type}/${filename}`;
+  return `${publicAssetsRoot()}/${type}/${filename}`;
 }
 
 async function loadPlacements(versionId: string, db: Db) {
@@ -185,7 +189,7 @@ export async function reviewFigure(
     if (status === "approved") {
       const src = privatePath(a.type, a.filename);
       if (fs.existsSync(src)) {
-        fs.mkdirSync(`${process.cwd()}/public/assets/${a.type}`, { recursive: true });
+        fs.mkdirSync(`${publicAssetsRoot()}/${a.type}`, { recursive: true });
         fs.copyFileSync(src, pub);
       }
     } else if (fs.existsSync(pub)) {

@@ -70,11 +70,11 @@ describe("図解の配信ゲート（未承認は患者に出ない）", () => {
     expect(after.slides[0].figures[0].labels.map((l) => l.text)).toContain("わきの下のリンパ節");
     // 差し戻すと再び非表示
     const { existsSync } = await import("node:fs");
-    expect(existsSync(`${process.cwd()}/public/assets/medical/med_001_02_regional_nodes.png`)).toBe(true);
+    expect(existsSync(`${process.env.PUBLIC_ASSETS_ROOT}/medical/med_001_02_regional_nodes.png`)).toBe(true);
     await reviewFigure(approver, "MED-001-02", "rejected", "位置関係を要確認");
     expect((await getLearningView(uid(PATIENT_B), versionId)).slides[0].figures).toHaveLength(0);
     // 差し戻しで public から削除される
-    expect(existsSync(`${process.cwd()}/public/assets/medical/med_001_02_regional_nodes.png`)).toBe(false);
+    expect(existsSync(`${process.env.PUBLIC_ASSETS_ROOT}/medical/med_001_02_regional_nodes.png`)).toBe(false);
   });
 
   it("共通教材の監修プレビューは運営の編集者・承認者のみ。病院の一般医療者や編集者は不可。承認は承認者のみ", async () => {
