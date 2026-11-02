@@ -1,0 +1,6 @@
+asset_id,filename,type,priority,material_or_screen,learning_objective_or_purpose,target_size,background,medical_review,asset_status,alt_text
+MED-001,med_001_breast_stage_anatomy.png,medical,P0,病期とは,病期の検討に関わる乳房内病変・リンパ節・離れた部位への広がりを知る,1536x1024,transparent,required,spec_only,乳房周囲とわきの下の位置関係を示す乳がんの模式図
+MED-002,med_002_treatment_journey.png,medical,P0,治療の流れ,治療法の組み合わせと順序には個人差があると知る,1536x1024,transparent,required,spec_only,薬物療法や医療者との相談など治療に関連する場面のイラスト
+MED-003,med_003_symptom_contact.png,medical,P0,副作用と病院への連絡,気になる症状を医療機関へ相談する経路を知る,1536x1024,transparent,required,spec_only,自宅で気になる症状について病院に電話で相談する女性のイラスト
+MED-004,med_004_support_conversation.png,medical,P0,こころのケアと相談先,困りごとを医療者や相談員へ話せることを知る,1536x1024,transparent,required,spec_only,患者が医療者や相談員と落ち着いて話をするイラスト
+EDI-001,edi_001_home_window.png,editorial,P0,患者ホーム,アプリに戻りやすい落ち着きと安心感をつくる,1024x1280,transparent,not_applicable,spec_only,窓辺でマグカップと本を手に静かに過ごす成人女性
