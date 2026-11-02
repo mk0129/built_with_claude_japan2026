@@ -17,6 +17,8 @@ const Body = z.discriminatedUnion("mode", [
 ]);
 
 /** 生成ジョブの登録（B: outline → generate、C: freeform）。送信前に許諾をサーバーで確認 */
+export const maxDuration = 300;
+
 export const POST = route(async (req: Request) => {
   const p = await requireStaff(req.headers);
   const url = new URL(req.url);

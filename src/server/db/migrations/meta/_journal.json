@@ -50,6 +50,13 @@
       "when": 1793635320242,
       "tag": "0006_day4_authoring",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793638704405,
+      "tag": "0007_day5_durable_jobs",
+      "breakpoints": true
     }
   ]
 }

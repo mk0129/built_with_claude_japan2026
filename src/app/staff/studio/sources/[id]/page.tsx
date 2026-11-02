@@ -5,7 +5,7 @@ import { getDb } from "@/server/db/client";
 import { aiGenerationJobs } from "@/server/db/schema";
 import { getSourceDetail } from "@/server/services/sources";
 import { claudeConfigured } from "@/server/services/claude";
-import type { OutlineOutput } from "@/server/services/ai-generation";
+import { nudgeJob, type OutlineOutput } from "@/server/services/ai-generation";
 import { JobWatcher } from "../../JobWatcher";
 import { GeneratePanel, type JobView } from "./GeneratePanel";
 import { fmt, staffPrincipal } from "../../shared";
@@ -31,6 +31,8 @@ export default async function SourcePage({ params }: { params: Promise<{ id: str
     .where(and(eq(aiGenerationJobs.orgId, d.membership.orgId), arrayContains(aiGenerationJobs.sourceDocumentIds, [id])))
     .orderBy(desc(aiGenerationJobs.createdAt))
     .limit(20);
+  // 取り残されたジョブ（関数の打ち切り等）があれば、ここで実行を予約し直す
+  await Promise.all(jobs.filter((j) => j.status === "queued" || j.status === "running").map((j) => nudgeJob(j)));
   const views: JobView[] = jobs.map((j) => ({
     id: j.id,
     mode: j.mode,
@@ -40,6 +42,11 @@ export default async function SourcePage({ params }: { params: Promise<{ id: str
     attempt: j.attempt,
     createdAt: fmt(j.createdAt),
     model: j.model,
+    generator: j.generator,
+    errorCode: j.errorCode,
+    durationMs: j.durationMs,
+    inputTokens: j.inputTokenCount,
+    outputTokens: j.outputTokenCount,
     outputVersionId: j.outputVersionId,
     outlines: j.mode === "outline" && j.status === "succeeded" ? ((j.outputPayload as OutlineOutput).outlines ?? []) : [],
     notCovered: ((j.outputPayload as { notCoveredBySource?: string[] } | null)?.notCoveredBySource ?? []) as string[],

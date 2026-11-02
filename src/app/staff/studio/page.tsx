@@ -2,11 +2,12 @@ import Link from "next/link";
 import { requirePageUser } from "@/server/auth/session";
 import { listMemberships } from "@/server/authz/principal";
 import { listSources } from "@/server/services/sources";
-import { listJobs } from "@/server/services/ai-generation";
+import { listJobs, nudgeJob } from "@/server/services/ai-generation";
 import { listStudioMaterials } from "@/server/services/authoring";
-import { claudeConfigured } from "@/server/services/claude";
+import { claudeConfigured, claudeMode } from "@/server/services/claude";
 import { UploadForm } from "./UploadForm";
 import { JobWatcher } from "./JobWatcher";
+import { GeneratorBadge } from "./GeneratorBadge";
 import { JOB_MODE_LABEL, STATUS_LABEL, fmt, staffPrincipal } from "./shared";
 
 /** 教材スタジオ: 原資料の登録・許諾、AI 下書きジョブ、教材の承認状況 */
@@ -26,8 +27,10 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
   const want = (await searchParams).org;
   const m = ms.find((x) => x.orgId === want) ?? ms[0];
   const [sources, jobs, mats] = await Promise.all([listSources(p, m.orgId), listJobs(p, m.orgId), listStudioMaterials(p, m.orgId)]);
+  await Promise.all(jobs.filter((j) => j.status === "queued" || j.status === "running").map((j) => nudgeJob(j)));
   const active = jobs.some((j) => j.status === "queued" || j.status === "running");
   const aiReady = claudeConfigured();
+  const mode = claudeMode();
 
   return (
     <main className="space-y-6">
@@ -55,6 +58,11 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
       {!aiReady && (
         <div className="rounded-xl bg-suna text-[#8a5a0a] text-sm px-4 py-3" role="status">
           Claude API が未設定です（ANTHROPIC_API_KEY）。原資料の登録はできますが、AI 下書きは作成できません。
+        </div>
+      )}
+      {mode === "fake" && (
+        <div className="rounded-xl border-2 border-dashed border-danger text-danger text-sm font-bold px-4 py-3" role="status">
+          開発用の擬似生成モードです。作成される下書きは Claude による生成ではありません（API キー未設定・CLAUDE_FAKE=1）。
         </div>
       )}
 
@@ -90,6 +98,7 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
           {jobs.map((j) => (
             <li key={j.id} className="py-2 flex flex-wrap gap-x-3 gap-y-1 items-center">
               <span className="pill">{STATUS_LABEL[j.status] ?? j.status}</span>
+              <GeneratorBadge generator={j.generator} />
               <span className="font-bold">{JOB_MODE_LABEL[j.mode] ?? j.mode}</span>
               <span className="text-ink-soft">{j.progress}</span>
               <span className="text-ink-muted">{fmt(j.createdAt)}</span>

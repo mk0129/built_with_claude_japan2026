@@ -333,6 +333,16 @@ export const aiGenerationJobs = pgTable("ai_generation_jobs", {
   finishedAt: ts("finished_at"),
   outputVersionId: uuid("output_version_id"),
   outputPayload: jsonb("output_payload"),
+  // Day 5: 実 API / 擬似生成 / モックの区別、障害分類、永続ジョブ（リース・自動再試行）、使用量
+  generator: text("generator").notNull().default("unknown"),
+  errorCode: text("error_code"),
+  leaseExpiresAt: ts("lease_expires_at"),
+  nextAttemptAt: ts("next_attempt_at"),
+  maxAttempts: integer("max_attempts").notNull().default(3),
+  durationMs: integer("duration_ms"),
+  cacheReadTokenCount: integer("cache_read_token_count"),
+  requestId: text("request_id"),
+  fallbackUsed: boolean("fallback_used").notNull().default(false),
 });
 
 // ---------- 処方・学習・採点 ----------

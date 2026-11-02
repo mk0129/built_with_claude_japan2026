@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, errorText } from "@/lib/api";
+import { GeneratorBadge } from "../../GeneratorBadge";
 
 export type JobView = {
   id: string;
@@ -13,6 +14,11 @@ export type JobView = {
   attempt: number;
   createdAt: string;
   model: string;
+  generator: string;
+  errorCode: string | null;
+  durationMs: number | null;
+  inputTokens: number | null;
+  outputTokens: number | null;
   outputVersionId: string | null;
   outlines: { title: string; targetReader: string; learningObjectives: string[]; slideTitles: string[]; rationale: string }[];
   notCovered: string[];
@@ -90,17 +96,24 @@ export function GeneratePanel({ sourceId, orgId, canGenerate, aiConfigured, jobs
           <article key={j.id} className="rounded-xl border border-line p-3 space-y-2" aria-label={`ジョブ ${MODE[j.mode]}`}>
             <p className="text-sm flex flex-wrap gap-x-3 items-center">
               <span className="pill">{STATUS[j.status] ?? j.status}</span>
+              <GeneratorBadge generator={j.generator} />
               <b>{MODE[j.mode] ?? j.mode}</b>
               <span className="text-ink-soft">{j.progress}</span>
               <span className="text-ink-muted">
                 {j.createdAt} ・ {j.model}
                 {j.attempt > 1 ? ` ・ ${j.attempt} 回目` : ""}
+                {j.durationMs != null ? ` ・ ${(j.durationMs / 1000).toFixed(1)} 秒` : ""}
+                {j.inputTokens != null ? ` ・ 入力 ${j.inputTokens.toLocaleString()} / 出力 ${(j.outputTokens ?? 0).toLocaleString()} トークン` : ""}
               </span>
             </p>
+            {j.status === "queued" && j.errorMessage && <p className="text-xs text-[#8a5a0a]">前回の失敗: {j.errorMessage}</p>}
             {(j.status === "queued" || j.status === "running") && <div className="h-1.5 rounded-full bg-line overflow-hidden"><div className="h-full w-1/3 bg-accent animate-pulse" /></div>}
             {j.status === "failed" && (
               <div className="space-y-2">
-                <p className="text-sm text-danger">{j.errorMessage}</p>
+                <p className="text-sm text-danger">
+                  {j.errorMessage}
+                  {j.errorCode ? `（${j.errorCode}）` : ""}
+                </p>
                 <button className="btn min-h-11 text-sm" disabled={busy} onClick={() => post(`/api/v1/studio/jobs/${j.id}/retry`, {})}>
                   再試行する
                 </button>

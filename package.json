@@ -16,7 +16,8 @@
     "db:local": "node scripts/with-local-db.mjs node -e \"setInterval(()=>{},1e9)\"",
     "db:setup:remote": "tsx --env-file-if-exists=.env.local src/server/db/setup.ts",
     "e2e": "playwright test",
-    "e2e:fresh": "rm -rf .data && npm run db:setup && playwright test"
+    "e2e:fresh": "playwright test",
+    "e2e:real": "E2E_CLAUDE=real E2E_SHOT_DIR=docs/screenshots/day5_real playwright test real_generation"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",
