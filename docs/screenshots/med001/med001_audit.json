@@ -3,47 +3,48 @@
     "viewport": "390",
     "layout": "tabs",
     "images": 1,
-    "slide1Height": 2109,
+    "slide1Height": 2499,
     "labelsOutside": []
   },
   {
     "viewport": "390",
     "layout": "stack",
     "images": 3,
-    "slide1Height": 3823,
+    "slide1Height": 4703,
     "labelsOutside": []
   },
   {
     "viewport": "430",
     "layout": "tabs",
     "images": 1,
-    "slide1Height": 2046,
+    "slide1Height": 2413,
     "labelsOutside": []
   },
   {
     "viewport": "430",
     "layout": "stack",
     "images": 3,
-    "slide1Height": 3721,
+    "slide1Height": 4467,
     "labelsOutside": []
   },
   {
     "viewport": "1180",
     "layout": "tabs",
     "images": 1,
-    "slide1Height": 2006,
+    "slide1Height": 2306,
     "labelsOutside": []
   },
   {
     "viewport": "1180",
     "layout": "stack",
     "images": 3,
-    "slide1Height": 4112,
+    "slide1Height": 4655,
     "labelsOutside": []
   },
   {
     "patientImageRoute": 403,
-    "publicPath": 404,
+    "publicPath": 200,
+    "approved": true,
     "clinicianImageRoute": 403
   }
 ]

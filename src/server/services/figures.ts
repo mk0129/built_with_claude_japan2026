@@ -28,6 +28,8 @@ export type FigureView = {
   reviewedAt: Date | null;
   /** 切り替えタブの見出し（caption の最初の句） */
   tabLabel: string | null;
+  reviewScopeNote: string | null;
+  revisionCandidates: string[];
   learningObjective: string | null;
   sourceRefs: { sourceId: string; section?: string; quote?: string }[];
   reviewNote: string | null;
@@ -91,6 +93,8 @@ export async function listApprovedFiguresForVersion(versionId: string, db: Db = 
       sourceNote: p.sourceNote,
       reviewStatus: a.reviewStatus,
       reviewedAt: a.reviewedAt,
+      reviewScopeNote: a.reviewScopeNote,
+      revisionCandidates: a.revisionCandidates,
       learningObjective: a.learningObjective,
       sourceRefs: a.sourceRefs,
       reviewNote: a.reviewNote,
@@ -143,6 +147,8 @@ export async function listAllFiguresForVersion(versionId: string, db: Db = getDb
       sourceNote: p.sourceNote,
       reviewStatus: a.reviewStatus,
       reviewedAt: a.reviewedAt,
+      reviewScopeNote: a.reviewScopeNote,
+      revisionCandidates: a.revisionCandidates,
       learningObjective: a.learningObjective,
       sourceRefs: a.sourceRefs,
       reviewNote: a.reviewNote,
@@ -158,6 +164,7 @@ export async function reviewFigure(
   status: "approved" | "rejected" | "pending_review",
   note: string | null,
   db: Db = getDb(),
+  extra: { scopeNote?: string | null; revisionCandidates?: string[]; reviewedAt?: Date } = {},
 ) {
   const [a] = await db.select().from(figureAssets).where(eq(figureAssets.assetId, assetId)).limit(1);
   if (!a) throw notFound("ASSET_NOT_FOUND");
@@ -187,7 +194,15 @@ export async function reviewFigure(
   }
   await db
     .update(figureAssets)
-    .set({ reviewStatus: status, reviewerUserId: principal.userId, reviewedAt: new Date(), reviewNote: note, updatedAt: new Date() })
+    .set({
+      reviewStatus: status,
+      reviewerUserId: principal.userId,
+      reviewedAt: extra.reviewedAt ?? new Date(),
+      reviewNote: note,
+      ...(extra.scopeNote !== undefined ? { reviewScopeNote: extra.scopeNote } : {}),
+      ...(extra.revisionCandidates !== undefined ? { revisionCandidates: extra.revisionCandidates } : {}),
+      updatedAt: new Date(),
+    })
     .where(eq(figureAssets.assetId, assetId));
   await audit({ actorUserId: principal.userId, action: `figure.${status}`, resourceType: "figure_asset", resourceId: assetId, outcome: "ok" }, db);
   return { assetId, reviewStatus: status };

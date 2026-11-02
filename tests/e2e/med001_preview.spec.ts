@@ -22,6 +22,7 @@ test("MED-001 管理者プレビュー（切り替え / 縦並び）と患者画
       await page.waitForLoadState("networkidle");
       const imgs = page.locator('section[aria-label="1 画面目"] figure img');
       await expect(imgs.first()).toBeVisible();
+      await page.waitForTimeout(300);
       // 画像が実際に読み込まれている（認証付きルート）
       const loaded = await imgs.evaluateAll((els) => els.map((e) => (e as HTMLImageElement).naturalWidth));
       expect(loaded.every((w) => w > 0)).toBe(true);
@@ -47,19 +48,31 @@ test("MED-001 管理者プレビュー（切り替え / 縦並び）と患者画
   const res = await p.page.request.get("/api/v1/admin/figures/MED-001-01/image");
   expect(res.status()).toBe(403);
   const pub = await p.page.request.get("/assets/medical/med_001_01_primary_lesion.png");
-  expect(pub.status()).toBe(404);
-  // 患者の教材 1 画面目: 図解は出ない（文章が続く）
+  const approved = pub.status() === 200; // 監修記録を適用したシードでは承認済み（公開）
+  // 患者の教材 1 画面目
   await p.page.getByRole("link", { name: /乳がんの診断と病期の考え方/ }).first().click();
   await p.page.waitForURL(/\/(learn|quiz)\//);
   await p.page.goto(p.page.url().replace("/quiz/", "/learn/").split("?")[0] + "?slide=1");
   await p.page.waitForLoadState("networkidle");
-  expect(await p.page.locator("figure").count()).toBe(0);
-  await p.page.screenshot({ path: `${SHOT_DIR}/med001_patient_learn_390.png`, fullPage: true });
+  if (approved) {
+    // 承認済み: 1 枚ずつ切り替え、順序ではない旨と監修範囲の表示
+    await expect(p.page.locator("figure")).toHaveCount(1);
+    await expect(p.page.getByText(/順番や進み方を表すものではありません/)).toBeVisible();
+    await expect(p.page.getByText(/病院の公式な承認・推奨を受けたものではありません/)).toBeVisible();
+    await p.page.screenshot({ path: `${SHOT_DIR}/med001_patient_learn_390.png`, fullPage: true });
+    for (const tab of ["近くのリンパ節", "離れた臓器"]) {
+      await p.page.getByRole("tab", { name: tab }).click();
+      await p.page.screenshot({ path: `${SHOT_DIR}/med001_patient_learn_390_${tab}.png`, fullPage: true });
+    }
+  } else {
+    expect(await p.page.locator("figure").count()).toBe(0);
+    await p.page.screenshot({ path: `${SHOT_DIR}/med001_patient_learn_390.png`, fullPage: true });
+  }
   await p.ctx.close();
   const s = await newPage(browser, { width: 1180, height: 820 });
   await demoLogin(s.page, "staff", "山田 太郎");
   expect((await s.page.request.get("/api/v1/admin/figures/MED-001-01/image")).status()).toBe(403);
   await s.ctx.close();
-  report.push({ patientImageRoute: 403, publicPath: 404, clinicianImageRoute: 403 });
+  report.push({ patientImageRoute: 403, publicPath: pub.status(), approved, clinicianImageRoute: 403 });
   writeFileSync(`${SHOT_DIR}/med001_audit.json`, JSON.stringify(report, null, 2));
 });

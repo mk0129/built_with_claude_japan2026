@@ -7,6 +7,14 @@ import { reviewFigure } from "@/server/services/figures";
 export const POST = route(async (req: Request, { params }: { params: Promise<{ assetId: string }> }) => {
   const p = await requireStaff(req.headers);
   const { assetId } = await params;
-  const body = await parseBody(req, z.object({ status: z.enum(["approved", "rejected", "pending_review"]), note: z.string().max(500).nullable().optional() }));
-  return ok(await reviewFigure(p, assetId, body.status, body.note ?? null));
+  const body = await parseBody(
+    req,
+    z.object({
+      status: z.enum(["approved", "rejected", "pending_review"]),
+      note: z.string().max(500).nullable().optional(),
+      scopeNote: z.string().max(300).nullable().optional(),
+      revisionCandidates: z.array(z.string().max(200)).max(10).optional(),
+    }),
+  );
+  return ok(await reviewFigure(p, assetId, body.status, body.note ?? null, undefined, { scopeNote: body.scopeNote, revisionCandidates: body.revisionCandidates }));
 });

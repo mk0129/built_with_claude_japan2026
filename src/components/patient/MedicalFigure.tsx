@@ -90,6 +90,16 @@ export function MedicalFigure({ figure, mode }: { figure: FigureView; mode: "pat
               ))}
             </ul>
           )}
+          {figure.revisionCandidates.length > 0 && (
+            <div>
+              <p className="font-bold">将来の改訂候補:</p>
+              <ul className="list-disc ml-5 text-ink-soft">
+                {figure.revisionCandidates.map((r, i) => (
+                  <li key={i}>{r}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           {figure.reviewNote && (
             <p>
               <span className="font-bold">監修メモ:</span> {figure.reviewNote}
@@ -104,7 +114,7 @@ export function MedicalFigure({ figure, mode }: { figure: FigureView; mode: "pat
             {STATUS_LABEL[figure.reviewStatus]}（{figure.assetId} v{figure.version}）
           </span>
         ) : (
-          <span>{figure.type === "medical" ? "模式図" : ""}</span>
+          <span>{figure.type === "medical" ? (figure.reviewScopeNote ?? "模式図") : ""}</span>
         )}
         {figure.sourceNote && <span>出典: {figure.sourceNote}</span>}
       </div>

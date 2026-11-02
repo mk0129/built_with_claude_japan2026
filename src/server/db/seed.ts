@@ -148,6 +148,29 @@ export async function seed(db: Db = getDb()) {
     }
   }
 
+  // 監修記録の再適用（docs/design/reviews/figure_reviews.json）。既存の承認フロー reviewFigure（承認者権限・監査ログ）を通す
+  if (process.env.SEED_FIGURE_REVIEWS !== "0") {
+    const { readFileSync, existsSync: ex } = await import("node:fs");
+    const file = `${process.cwd()}/docs/design/reviews/figure_reviews.json`;
+    if (ex(file)) {
+      const { reviewFigure } = await import("@/server/services/figures");
+      const { reviews } = JSON.parse(readFileSync(file, "utf8")) as {
+        reviews: { assetId: string; status: "approved" | "rejected" | "pending_review"; approverEmail: string; reviewedBy: string; reviewedAt: string; note: string; scopeNote: string; revisionCandidates: string[] }[];
+      };
+      for (const r of reviews) {
+        const [a] = await db.select({ status: figureAssets.reviewStatus, filename: figureAssets.filename }).from(figureAssets).where(eq(figureAssets.assetId, r.assetId)).limit(1);
+        if (!a || !a.filename || a.status === r.status) continue;
+        const approverId = userIdByEmail.get(r.approverEmail);
+        if (!approverId) continue;
+        await reviewFigure({ userId: approverId, kind: "staff", name: r.reviewedBy, email: r.approverEmail }, r.assetId, r.status, `${r.note}（監修者: ${r.reviewedBy}）`, db, {
+          scopeNote: r.scopeNote,
+          revisionCandidates: r.revisionCandidates,
+          reviewedAt: new Date(r.reviewedAt),
+        });
+      }
+    }
+  }
+
   // 処方テンプレート
   for (const t of SEED_TEMPLATES) {
     const [existing] = await db.select({ id: prescriptionTemplates.id }).from(prescriptionTemplates).where(eq(prescriptionTemplates.name, t.name)).limit(1);

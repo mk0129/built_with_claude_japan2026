@@ -255,6 +255,10 @@ export const figureAssets = pgTable("figure_assets", {
   reviewerUserId: userRef("reviewer_user_id"),
   reviewedAt: ts("reviewed_at"),
   reviewNote: text("review_note"),
+  /** 患者画面に図と一緒に表示する監修の範囲（例: 開発者による医学的確認・病院の公式承認ではない） */
+  reviewScopeNote: text("review_scope_note"),
+  /** 将来の改訂候補（監修で指摘されたが今回の版では許容した点） */
+  revisionCandidates: jsonb("revision_candidates").$type<string[]>().notNull().default([]),
   copyrightStatus: copyrightStatus("copyright_status").notNull().default("unknown"),
   generatorNote: text("generator_note"),
   createdAt: ts("created_at").notNull().defaultNow(),

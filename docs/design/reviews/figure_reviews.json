@@ -1,0 +1,38 @@
+{
+  "description": "医学的図解の監修記録。シード時に既存の承認フロー（reviewFigure、承認者権限・監査ログあり）で再適用される。",
+  "reviews": [
+    {
+      "assetId": "MED-001-01",
+      "version": 1,
+      "status": "approved",
+      "approverEmail": "op.approver@example.com",
+      "reviewedBy": "開発者（医師）",
+      "reviewedAt": "2026-11-03T10:00:00+09:00",
+      "note": "開発者である医師による医学的確認（デモ教材用）。T 分類の定義は図だけでは示せないため本文・くわしくで説明する。",
+      "scopeNote": "開発者（医師）による医学的確認を経たデモ教材の模式図です。病院の公式な承認・推奨を受けたものではありません。",
+      "revisionCandidates": ["T 分類（大きさ・皮膚や胸壁への進展）を補う図の追加を検討"]
+    },
+    {
+      "assetId": "MED-001-02",
+      "version": 1,
+      "status": "approved",
+      "approverEmail": "op.approver@example.com",
+      "reviewedBy": "開発者（医師）",
+      "reviewedAt": "2026-11-03T10:00:00+09:00",
+      "note": "開発者である医師による医学的確認（デモ教材用）。ラベルは腋窩・鎖骨周囲のリンパ節に限定する。",
+      "scopeNote": "開発者（医師）による医学的確認を経たデモ教材の模式図です。病院の公式な承認・推奨を受けたものではありません。",
+      "revisionCandidates": ["頸部の高い位置まで伸びるリンパ路の表現を鎖骨上レベルまでに修正", "内胸リンパ節の表現の追加を検討"]
+    },
+    {
+      "assetId": "MED-001-03",
+      "version": 1,
+      "status": "approved",
+      "approverEmail": "op.approver@example.com",
+      "reviewedBy": "開発者（医師）",
+      "reviewedAt": "2026-11-03T10:00:00+09:00",
+      "note": "開発者である医師による医学的確認（デモ教材用）。肺・肝臓・骨は例示であることを caption で明示。",
+      "scopeNote": "開発者（医師）による医学的確認を経たデモ教材の模式図です。病院の公式な承認・推奨を受けたものではありません。",
+      "revisionCandidates": ["骨盤・大腿骨近位部の形状と股関節の表現を修正", "胸椎・横隔膜の表現の追加を検討"]
+    }
+  ]
+}

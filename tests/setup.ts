@@ -8,3 +8,4 @@ process.env.DEMO_AUTH = "true";
 process.env.DEMO_PASSWORD = "test-demo-password";
 process.env.SEED_MODE = "1"; // テストではシードが先に走るため
 process.env.SEED_DEMO_HISTORY = "0"; // 統合テストは履歴なしの初期状態を前提とする
+process.env.SEED_FIGURE_REVIEWS = "0"; // 図解の承認状態は各テストで制御する

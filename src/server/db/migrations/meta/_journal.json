@@ -36,6 +36,13 @@
       "when": 1793629523617,
       "tag": "0004_figures_and_slide_proposition",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793634901167,
+      "tag": "0005_figure_review_scope",
+      "breakpoints": true
     }
   ]
 }
