@@ -125,12 +125,24 @@ export async function startOrResumeAttempt(patientId: string, versionId: string,
   }
   const qs = await db.select({ id: quizQuestions.id }).from(quizQuestions).where(eq(quizQuestions.materialVersionId, versionId)).orderBy(asc(quizQuestions.seq));
   if (qs.length === 0) throw badRequest("NO_QUESTIONS");
-  const [a] = await db
+  // 同時に 2 回呼ばれても進行中の挑戦は 1 件（部分一意インデックス）。衝突したら既存を返す
+  const inserted = await db
     .insert(quizAttempts)
     .values({ patientId, materialVersionId: versionId, questionIds: qs.map((q) => q.id), nQuestions: qs.length })
+    .onConflictDoNothing()
     .returning({ id: quizAttempts.id });
+  let attemptId = inserted[0]?.id;
+  if (!attemptId) {
+    const [existing] = await db
+      .select({ id: quizAttempts.id })
+      .from(quizAttempts)
+      .where(and(eq(quizAttempts.patientId, patientId), eq(quizAttempts.materialVersionId, versionId), isNull(quizAttempts.completedAt)))
+      .limit(1);
+    if (!existing) throw conflict("ATTEMPT_RACE");
+    attemptId = existing.id;
+  }
   await saveProgress(patientId, versionId, 0, "quiz", db).catch(() => {});
-  return buildAttemptView(a.id, db);
+  return buildAttemptView(attemptId, db);
 }
 
 export async function getAttempt(patientId: string, attemptId: string, db: Db = getDb()): Promise<AttemptView> {

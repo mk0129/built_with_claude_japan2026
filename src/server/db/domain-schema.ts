@@ -325,7 +325,11 @@ export const quizAttempts = pgTable(
     nUnknown: integer("n_unknown").notNull().default(0),
     scorePct: numeric("score_pct"), // 丸めない（D26）。採点は n_correct / n_questions から再計算可能
   },
-  (t) => [index("quiz_attempts_patient_idx").on(t.patientId, t.materialVersionId, t.completedAt)],
+  (t) => [
+    index("quiz_attempts_patient_idx").on(t.patientId, t.materialVersionId, t.completedAt),
+    // 進行中の挑戦は患者×版につき 1 件（同時リクエストや二重タップで重複させない）
+    uniqueIndex("quiz_attempts_in_progress_uq").on(t.patientId, t.materialVersionId).where(sql`completed_at IS NULL`),
+  ],
 );
 
 export const quizAnswers = pgTable(

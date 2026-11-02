@@ -144,6 +144,16 @@ describe("情報処方 → 学習 → クイズ → 医療者の確認（縦断�
     expect(score.scorePct).toBe(50); // 前回の完了スコアのまま
   });
 
+  it("クイズ開始が同時に 2 回呼ばれても進行中の挑戦は 1 件になる", async () => {
+    const hw = await listHomeworkForPatient(uid(PATIENT_A));
+    const item = hw[0].items.find((i) => i.materialId === mat(M_SURGERY))!;
+    const [a, b] = await Promise.all([startOrResumeAttempt(uid(PATIENT_A), item.versionId), startOrResumeAttempt(uid(PATIENT_A), item.versionId)]);
+    expect(a.attemptId).toBe(b.attemptId);
+    const { quizAttempts } = await import("@/server/db/schema");
+    const rows = await getDb().select().from(quizAttempts).where(eq(quizAttempts.materialVersionId, item.versionId));
+    expect(rows).toHaveLength(1);
+  });
+
   it("同一挑戦内で確定済みの回答は変更できない", async () => {
     const hw = await listHomeworkForPatient(uid(PATIENT_A));
     const item = hw[0].items.find((i) => i.materialId === mat(M_SELFCARE))!;

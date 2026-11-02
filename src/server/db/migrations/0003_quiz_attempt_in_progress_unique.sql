@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "quiz_attempts_in_progress_uq" ON "quiz_attempts" USING btree ("patient_id","material_version_id") WHERE completed_at IS NULL;

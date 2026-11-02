@@ -1,6 +1,6 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { getDb, type Db } from "@/server/db/client";
-import { consultationExtensions, consultationSessions, homeworkSnapshots, organizationMembers, organizations, user } from "@/server/db/schema";
+import { consultationExtensions, consultationSessions, homeworkSnapshots, organizationMembers, organizations, prescriptionSets, user } from "@/server/db/schema";
 import { conflict, forbidden, notFound } from "@/server/authz/errors";
 import { isSessionActive, type ConsultationContext } from "@/server/authz/consultation";
 import { audit } from "./audit";
@@ -187,7 +187,19 @@ export async function getPatientSummary(ctx: ConsultationContext, db: Db = getDb
     .filter((i) => i.phase !== "completed" && !seen.has(i.materialId) && seen.add(i.materialId))
     .map((i) => ({ materialId: i.materialId, versionId: i.versionId, title: i.title, phase: i.phase, lastSlideSeq: i.lastSlideSeq, orgName: i.orgName, setCreatedAt: i.setCreatedAt }));
 
-  const snaps = await db.select().from(homeworkSnapshots).where(eq(homeworkSnapshots.consultationSessionId, ctx.sessionId)).limit(1);
+  // この診察で確定したスナップショットがあればそれを、なければ当院の宿題で最後に確定したものを「前回の宿題」として表示する
+  // （確定は処方元病院の次回診察で一度だけ。表示だけのフォールバックで、値は不変）
+  let snaps = await db.select().from(homeworkSnapshots).where(eq(homeworkSnapshots.consultationSessionId, ctx.sessionId)).limit(1);
+  if (snaps.length === 0) {
+    snaps = await db
+      .select({ hs: homeworkSnapshots })
+      .from(homeworkSnapshots)
+      .innerJoin(prescriptionSets, eq(prescriptionSets.id, homeworkSnapshots.prescriptionSetId))
+      .where(and(eq(prescriptionSets.patientId, ctx.patientId), eq(prescriptionSets.orgId, ctx.orgId)))
+      .orderBy(desc(homeworkSnapshots.capturedAt))
+      .limit(1)
+      .then((rows) => rows.map((r) => r.hs));
+  }
   const homeworkScores = [];
   for (const set of homework) {
     const hs = await computeHomeworkScore(set.setId, ctx.patientId, db);
@@ -217,7 +229,15 @@ export async function getPatientSummary(ctx: ConsultationContext, db: Db = getDb
     scores: { overall: summary.overall, byDomain: summary.byDomain, materials: summary.materials },
     homework: homeworkScores,
     snapshotForThisSession: snaps[0]
-      ? { capturedAt: snaps[0].capturedAt, score: snaps[0].homeworkScore === null ? null : Number(snaps[0].homeworkScore), completedCount: snaps[0].completedCount, assignedCount: snaps[0].assignedCount, items: snaps[0].itemDetails, setId: snaps[0].prescriptionSetId }
+      ? {
+          capturedAt: snaps[0].capturedAt,
+          capturedInThisSession: snaps[0].consultationSessionId === ctx.sessionId,
+          score: snaps[0].homeworkScore === null ? null : Number(snaps[0].homeworkScore),
+          completedCount: snaps[0].completedCount,
+          assignedCount: snaps[0].assignedCount,
+          items: snaps[0].itemDetails,
+          setId: snaps[0].prescriptionSetId,
+        }
       : null,
     currentSet: await getSetForSession(ctx, db),
   };

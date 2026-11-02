@@ -1,10 +1,13 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { getDb, type Db } from "@/server/db/client";
+import { sql } from "drizzle-orm";
 import {
   homeworkSnapshots,
   learningProgress,
+  materialSlides,
   materialVersions,
   materials,
+  quizQuestions,
   notifications,
   organizationMembers,
   organizations,
@@ -77,6 +80,8 @@ export type HomeworkItem = {
   title: string;
   primaryDomain: string;
   summary: string | null;
+  slideCount: number;
+  questionCount: number;
   phase: "not_started" | "reading" | "quiz" | "completed";
   lastSlideSeq: number;
   scorePct: number | null;
@@ -118,6 +123,8 @@ export async function listHomeworkForPatient(patientId: string, db: Db = getDb()
       title: materials.title,
       primaryDomain: materials.primaryDomain,
       summary: materialVersions.summary,
+      slideCount: sql<number>`(select count(*) from ${materialSlides} where ${materialSlides.materialVersionId} = ${materialVersions.id})`,
+      questionCount: sql<number>`(select count(*) from ${quizQuestions} where ${quizQuestions.materialVersionId} = ${materialVersions.id})`,
       prescribedBy: prescriptionItems.prescribedByUserId,
       prescribedAt: prescriptionItems.prescribedAt,
     })
@@ -165,6 +172,8 @@ export async function listHomeworkForPatient(patientId: string, db: Db = getDb()
           title: i.title,
           primaryDomain: i.primaryDomain,
           summary: i.summary,
+          slideCount: Number(i.slideCount),
+          questionCount: Number(i.questionCount),
           phase: sc?.attemptId && sc.attemptVersionId === i.versionId ? "completed" : (p?.phase ?? "not_started"),
           lastSlideSeq: p?.lastSlideSeq ?? 0,
           scorePct: sc?.scorePct ?? null,

@@ -216,6 +216,21 @@ body {
   }
 }
 
+/* 患者画面: 下部タブの分だけ本文に余白を取り、タブが無い画面（学習・クイズ）は小さい余白にする */
+.patient-content {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+html:not(:has(nav[data-patient-tabs])) .patient-content {
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+}
+.patient-tabs {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+/* プログラム的なスクロール（scrollIntoView）でも固定タブの下に要素が入らないようにする */
+html:has(nav[data-patient-tabs]) {
+  scroll-padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;

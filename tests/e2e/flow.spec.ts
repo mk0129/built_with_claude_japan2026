@@ -12,7 +12,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
   const s = staff.page;
 
   // 1. 患者ログイン → 共有 QR
-  await demoLogin(p, "patient", "佐藤 花子");
+  await demoLogin(p, "patient", "鈴木 美咲");
   await shot(p, "01_patient_home_empty");
   const code = await showQrCode(p);
   expect(code).toHaveLength(6);
@@ -36,7 +36,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
   await shot(p, "06_patient_sharing");
   await s.waitForURL(/\/staff\/consult\//, { timeout: 15_000 });
   const consultUrl1 = s.url();
-  await expect(s.getByText(/佐藤 花子 さん/)).toBeVisible({ timeout: 20_000 });
+  await expect(s.getByText(/鈴木 美咲 さん/)).toBeVisible({ timeout: 20_000 });
   await shot(s, "07_staff_dashboard_first_visit");
 
   // 4. サイドパネルから処方（テンプレート + 検索）
@@ -52,7 +52,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
 
   // 5. 患者ホームに届く
   await p.goto("/home");
-  await expect(p.getByText(/のしおり/)).toBeVisible();
+  await expect(p.getByText(/の診察で届いた教材/).first()).toBeVisible();
   await shot(p, "10_patient_home_homework");
 
   // 6. 説明を読む・音声再生
@@ -84,13 +84,14 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
   await shot(p, "16_patient_quiz_unknown");
   // 中断: ホームへ戻って再開
   await p.goto("/home");
-  await expect(p.getByText(/確認問題の途中/).first()).toBeVisible();
+  await expect(p.getByRole("link", { name: /確認問題の続きから/ })).toBeVisible();
   await shot(p, "17_patient_home_resume");
   await p.goto(quizUrl);
   await expect(p.getByText(/確認問題 3 \/ 3/)).toBeVisible();
   await p.getByRole("button", { name: /^イ/ }).click();
   await p.getByRole("button", { name: /結果を見る/ }).click();
   await expect(p.getByText(/確認問題を終えました/)).toBeVisible();
+  await expect(p.getByText(/もう一度見ておきたいところ/)).toBeVisible();
   await shot(p, "18_patient_quiz_result");
   // 復習に戻る導線 → 再挑戦
   await p.getByRole("button", { name: /もう一度挑戦する/ }).click();
@@ -120,12 +121,13 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
   await s.waitForURL(/\/staff\/consult\//, { timeout: 15_000 });
 
   // 8. 次回診察: 宿題結果（スナップショット）と質問を確認
-  await expect(s.getByText(/未確認 1 件/)).toBeVisible({ timeout: 15_000 });
+  await expect(s.getByText(/未確認の質問 1/)).toBeVisible({ timeout: 15_000 });
   await expect(s.getByText(/前回の宿題/)).toBeVisible();
   await shot(s, "21_staff_dashboard_second_visit");
-  await s.getByRole("button", { name: /対応済みにする/ }).first().click();
-  await s.getByRole("button", { name: /記録して対応済みにする/ }).click();
-  await expect(s.getByText(/未確認 0 件/)).toBeVisible({ timeout: 15_000 });
+  await s.getByRole("button", { name: "対応を記録" }).first().click();
+  await shot(s, "21b_staff_question_record_form");
+  await s.getByRole("button", { name: /対応済みとして記録する/ }).click();
+  await expect(s.getByText(/未確認の質問 0/)).toBeVisible({ timeout: 15_000 });
 
   // 9. 誤答・未完了から再処方
   await s.getByRole("button", { name: "再処方" }).first().click();

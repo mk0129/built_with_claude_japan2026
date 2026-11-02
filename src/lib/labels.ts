@@ -10,7 +10,7 @@ export const DOMAIN_LABEL: Record<string, string> = {
 export const DOMAIN_ORDER = Object.keys(DOMAIN_LABEL);
 
 export const PHASE_LABEL: Record<string, string> = {
-  not_started: "まだ",
+  not_started: "未着手",
   reading: "読んでいる途中",
   quiz: "確認問題の途中",
   completed: "読み終えた",
@@ -39,6 +39,11 @@ export const RESPONSE_LABEL: Record<string, string> = {
 /** 表示時のみ四捨五入（D26） */
 export function fmtScore(v: number | null | undefined): string {
   return v === null || v === undefined ? "未評価" : `${Math.round(v)} 点`;
+}
+
+/** 教材の所要時間の目安（閲覧実績ではない） */
+export function estimateMinutes(slideCount: number, questionCount: number): number {
+  return Math.max(2, Math.round(slideCount * 1.2 + questionCount * 0.7));
 }
 
 export function fmtDate(d: string | Date): string {

@@ -1,7 +1,7 @@
 import { expect, type Browser, type BrowserContext, type Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 
-export const SHOT_DIR = "docs/screenshots/day3";
+export const SHOT_DIR = process.env.E2E_SHOT_DIR ?? "docs/screenshots/day3";
 mkdirSync(SHOT_DIR, { recursive: true });
 
 export const VIEWPORTS = {

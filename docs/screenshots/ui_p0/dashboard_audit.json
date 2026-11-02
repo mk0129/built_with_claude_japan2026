@@ -1,0 +1,66 @@
+[
+  {
+    "viewport": "phone430",
+    "width": 430,
+    "closed": {
+      "overflowX": 0,
+      "small": [],
+      "clipped": [],
+      "fontSize": "18px"
+    },
+    "open": {
+      "overflowX": 0,
+      "small": [],
+      "clipped": [],
+      "fontSize": "18px"
+    }
+  },
+  {
+    "viewport": "ipadPortrait",
+    "width": 820,
+    "closed": {
+      "overflowX": 0,
+      "small": [],
+      "clipped": [],
+      "fontSize": "18px"
+    },
+    "open": {
+      "overflowX": 0,
+      "small": [],
+      "clipped": [],
+      "fontSize": "18px"
+    }
+  },
+  {
+    "viewport": "ipadLandscape",
+    "width": 1180,
+    "closed": {
+      "overflowX": 0,
+      "small": [],
+      "clipped": [],
+      "fontSize": "18px"
+    },
+    "open": {
+      "overflowX": 0,
+      "small": [],
+      "clipped": [],
+      "fontSize": "18px"
+    }
+  },
+  {
+    "viewport": "pc",
+    "width": 1440,
+    "closed": {
+      "overflowX": 0,
+      "small": [],
+      "clipped": [],
+      "fontSize": "18px"
+    },
+    "open": {
+      "overflowX": 0,
+      "small": [],
+      "clipped": [],
+      "fontSize": "18px"
+    }
+  }
+]

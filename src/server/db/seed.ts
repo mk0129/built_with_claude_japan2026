@@ -3,6 +3,7 @@ import { ensureMigrated, getDb, type Db } from "./client";
 import { materialSlides, materialVersions, materials, organizationMembers, organizations, prescriptionTemplates, quizQuestions, user } from "./schema";
 import { DEMO_ACCOUNTS, DEMO_MATERIALS, DEMO_ORGS } from "./seed-data";
 import { SEED_CONTENT, SEED_TEMPLATES } from "./seed-content";
+import { seedDemoHistory } from "./seed-history";
 
 /**
  * 架空データの投入（冪等）。
@@ -121,6 +122,16 @@ export async function seed(db: Db = getDb()) {
       name: t.name,
       description: t.description,
       materialIds: ids,
+    });
+  }
+
+  // 患者A の自然な診察履歴（初回診察 14 日前）。テスト用の患者B には入れない
+  if (process.env.SEED_DEMO_HISTORY !== "0") {
+    await seedDemoHistory(db, {
+      patientId: userIdByEmail.get("patient1@example.com")!,
+      clinicianId: userIdByEmail.get("dr.yamada@example.com")!,
+      orgId: orgIdBySlug.get("sakura-general")!,
+      materialIdByTitle,
     });
   }
 

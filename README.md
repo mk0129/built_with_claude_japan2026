@@ -6,6 +6,7 @@ Built with Claude: Japan 2026（2026-11-02〜11-08）で開発するハッカソ
 - 要件の正本: `clinical_info_rx_ClaudeCode_spec_20261102/REQUIREMENTS.md`（+ `DECISIONS.md`, `ACCEPTANCE_TESTS.md`, `CLAUDE.md`）
 - 設計・実装計画（承認済み）: `docs/DESIGN_PROPOSAL_20261102.md`
 - Day 3 UI/UX 検証: `docs/UX_REVIEW_DAY3_20261102.md`（スクリーンショット: `docs/screenshots/day3/`）
+- UI P0 改善レポート: `docs/UI_P0_REPORT_20261102.md`（修正前後: `docs/screenshots/ui_p0/`）
 
 ## 実装ステータス
 
@@ -40,6 +41,7 @@ npm run dev                  # http://localhost:3000
 - ローカル開発では Docker 不要。`scripts/with-local-db.mjs` が PGlite を Postgres 互換ソケット（127.0.0.1:5433）として起動し、`DATABASE_URL` を注入する。
 - 本番 / 共有環境は Supabase Postgres。`.env.local` に `DATABASE_URL` を設定し `npm run db:setup:remote`。
 - デモログイン（`DEMO_AUTH=true` のときのみ）: ログイン画面に架空アカウント一覧が出る。本番環境では起動時に拒否される。
+- 架空データ: 患者A（佐藤 花子）には 14 日前の初回診察・処方・学習・質問の履歴が入っている。患者B（鈴木 美咲）は履歴なし。
 
 ### 検証
 
@@ -47,7 +49,7 @@ npm run dev                  # http://localhost:3000
 npm run typecheck   # tsc
 npm run lint        # eslint（React Compiler ルール含む）
 npm test            # vitest（インメモリ PGlite。T01-T05, T10-T17, T22 相当を含む 33 テスト）
-npm run e2e:fresh   # Playwright: DB を初期化して通し操作 + 幅別レイアウト検査（docs/screenshots/day3/ に保存）
+npm run e2e:fresh   # Playwright: DB を初期化して通し操作 + 幅別レイアウト + 主要ボタン到達性（E2E_SHOT_DIR で保存先指定）
 ```
 
 UI/UX 検証の記録: `docs/UX_REVIEW_DAY3_20261102.md`

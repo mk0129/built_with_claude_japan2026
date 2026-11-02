@@ -8,11 +8,14 @@ const TABS = [
   { href: "/share", label: "共有", icon: "⇄" },
 ];
 
+/** 学習・クイズ中は非表示（主要ボタンと重ならないように）。上部の「← ホームへ」で戻る */
+const HIDDEN_PREFIXES = ["/login", "/learn/", "/quiz/"];
+
 export function PatientTabs() {
   const path = usePathname();
-  if (path === "/login") return null;
+  if (HIDDEN_PREFIXES.some((p) => path.startsWith(p))) return null;
   return (
-    <nav aria-label="メインメニュー" className="fixed bottom-0 inset-x-0 bg-surface border-t border-line">
+    <nav aria-label="メインメニュー" data-patient-tabs className="patient-tabs fixed bottom-0 inset-x-0 bg-surface border-t border-line z-10">
       <ul className="max-w-md mx-auto grid grid-cols-3">
         {TABS.map((t) => {
           const active = path.startsWith(t.href);
