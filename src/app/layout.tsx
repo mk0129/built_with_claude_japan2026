@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { BIZ_UDPGothic } from "next/font/google";
 import "./globals.css";
+import { FONT_SIZE_INIT_SCRIPT } from "@/components/FontSizeToggle";
 
 const ud = BIZ_UDPGothic({
   weight: ["400", "700"],
@@ -22,7 +23,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja" className={`${ud.variable} h-full`}>
+    <html lang="ja" className={`${ud.variable} h-full`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: FONT_SIZE_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

@@ -26,12 +26,14 @@ if (existsSync(stalePid)) rmSync(stalePid);
 
 const db = new PGlite(DATA_DIR);
 await db.waitReady;
-const server = new PGLiteSocketServer({ db, host: "127.0.0.1", port: PORT, maxConnections: 8 });
+// PGlite は単一セッションなので、接続の並行実行は不可（unnamed prepared statement が混線する）。
+// サーバー側は 1 接続、クライアント側（postgres.js）も SHIORI_LOCAL_DB=1 のとき max:1 で直列化する。
+const server = new PGLiteSocketServer({ db, host: "127.0.0.1", port: PORT, maxConnections: 1 });
 await server.start();
 const url = `postgres://postgres:postgres@127.0.0.1:${PORT}/postgres`;
 console.log(`[local-db] PGlite listening on ${url} (data: ${DATA_DIR})`);
 
-const child = spawn(cmd, args, { stdio: "inherit", env: { ...process.env, DATABASE_URL: url }, shell: process.platform === "win32" });
+const child = spawn(cmd, args, { stdio: "inherit", env: { ...process.env, DATABASE_URL: url, SHIORI_LOCAL_DB: "1" }, shell: process.platform === "win32" });
 let shuttingDown = false;
 async function shutdown(code) {
   if (shuttingDown) return;

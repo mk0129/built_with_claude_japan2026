@@ -155,11 +155,11 @@ export function ShareClient() {
     return (
       <section className="card space-y-4 border-2 border-sakura-deep" role="alertdialog" aria-labelledby="approve-title">
         <h2 id="approve-title" className="font-bold text-lg">記録の共有を許可しますか？</h2>
-        <dl className="space-y-1">
-          <div className="flex justify-between gap-3"><dt className="text-ink-soft">医療機関</dt><dd className="font-bold text-right">{c.orgName}</dd></div>
-          <div className="flex justify-between gap-3"><dt className="text-ink-soft">医療者</dt><dd className="font-bold text-right">{c.clinicianName}</dd></div>
-          <div className="flex justify-between gap-3"><dt className="text-ink-soft">共有する内容</dt><dd className="text-right">学習の記録・質問・これまでの処方（他の病院分を含む）</dd></div>
-          <div className="flex justify-between gap-3"><dt className="text-ink-soft">共有する時間</dt><dd className="text-right">60分（いつでも終了できます）</dd></div>
+        <dl className="space-y-2">
+          <div><dt className="text-sm text-ink-soft">医療機関</dt><dd className="font-bold text-lg">{c.orgName}</dd></div>
+          <div><dt className="text-sm text-ink-soft">医療者</dt><dd className="font-bold text-lg">{c.clinicianName}</dd></div>
+          <div><dt className="text-sm text-ink-soft">共有する内容</dt><dd>学習の記録・質問・これまでの処方（他の病院の分も含みます）</dd></div>
+          <div><dt className="text-sm text-ink-soft">共有する時間</dt><dd>60分（いつでも終了できます）</dd></div>
         </dl>
         <div className="grid gap-2">
           <button className="btn btn-primary btn-block" onClick={() => decide(true)}>
@@ -170,6 +170,15 @@ export function ShareClient() {
           </button>
         </div>
         {err && <p className="text-danger text-sm">{err}</p>}
+      </section>
+    );
+  }
+
+  // ---- 読み込み中（共有中のセッションがあるか確認するまで QR ボタンを出さない） ----
+  if (!sessions.data && !sessions.error && !grant) {
+    return (
+      <section className="card text-center text-ink-soft" aria-busy>
+        確認しています…
       </section>
     );
   }

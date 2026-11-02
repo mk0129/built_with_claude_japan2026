@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, errorText } from "@/lib/api";
 import { SELECTION_LABEL, fmtScore } from "@/lib/labels";
+import { FontSizeToggle } from "@/components/FontSizeToggle";
 
 type Attempt = {
   attemptId: string;
@@ -87,9 +88,8 @@ export function QuizClient({ versionId, title }: { versionId: string; title: str
   if (!attempt) return <main className="card">{err ?? "読み込み中…"}</main>;
 
   const total = attempt.questions.length;
-  const finished = idx >= total || attempt.completedAt !== null;
-
-  if (finished && attempt.completedAt) {
+  // 最後の問題の解説を見てから「結果を見る」で結果画面へ（完了直後に飛ばさない）
+  if (idx >= total && attempt.completedAt) {
     const summary = attempt.questions.reduce(
       (acc, q) => ({ c: acc.c + (q.answer?.isCorrect ? 1 : 0), u: acc.u + (q.answer?.isUnknown ? 1 : 0), w: acc.w + (q.answer && !q.answer.isCorrect && !q.answer.isUnknown ? 1 : 0) }),
       { c: 0, u: 0, w: 0 },
@@ -97,7 +97,7 @@ export function QuizClient({ versionId, title }: { versionId: string; title: str
     return (
       <main className="space-y-4">
         <header>
-          <Link href="/home" className="text-sm text-ink-muted">← ホームへ</Link>
+          <Link href="/home" className="tap-link">← ホームへ</Link>
           <h1 className="text-xl font-bold">{title}</h1>
         </header>
         <section className="card space-y-3 text-center">
@@ -134,9 +134,17 @@ export function QuizClient({ versionId, title }: { versionId: string; title: str
   return (
     <main className="space-y-4">
       <header className="space-y-1">
-        <Link href={`/learn/${versionId}`} className="text-sm text-ink-muted">← 説明に戻る</Link>
+        <div className="flex items-center justify-between">
+          <Link href={`/learn/${versionId}`} className="tap-link">← 説明に戻る</Link>
+          <FontSizeToggle />
+        </div>
         <h1 className="text-lg font-bold leading-snug">{title}</h1>
         <p className="text-sm text-ink-soft">確認問題 {idx + 1} / {total}</p>
+        <div className="flex gap-1" aria-hidden>
+          {attempt.questions.map((x, i) => (
+            <span key={x.questionId} className={`h-1.5 flex-1 rounded-full ${i <= idx ? "bg-accent" : "bg-line"}`} />
+          ))}
+        </div>
       </header>
 
       <section className="card space-y-4" aria-live="polite">
@@ -144,16 +152,17 @@ export function QuizClient({ versionId, title }: { versionId: string; title: str
         <div className="grid gap-2">
           {q.options.map((opt, i) => {
             const chosen = answered?.selectedIndex === i;
-            const isCorrect = answered && i === answered.correctIndex;
-            const cls = answered ? (isCorrect ? "bg-wakakusa border-ok" : chosen ? "bg-sakura border-danger" : "opacity-60") : "";
+            const state = !answered ? undefined : i === answered.correctIndex ? "correct" : chosen ? "wrong" : "dim";
             return (
-              <button key={i} className={`btn justify-start text-left min-h-[64px] ${cls}`} disabled={!!answered || busy} onClick={() => answer(i)}>
-                <span className="font-bold mr-2">{LETTERS[i]}</span>
-                <span className="font-normal">{opt}</span>
+              <button key={i} className="btn btn-option" data-state={state} disabled={!!answered || busy} onClick={() => answer(i)}>
+                <span className="font-bold mr-2 shrink-0">{LETTERS[i]}</span>
+                <span>{opt}</span>
+                {state === "correct" && <span className="ml-auto pill bg-wakakusa text-xs shrink-0">正解</span>}
+                {state === "wrong" && <span className="ml-auto pill bg-sakura text-xs shrink-0">あなたの答え</span>}
               </button>
             );
           })}
-          <button className={`btn btn-ghost border border-dashed border-line ${answered?.isUnknown ? "bg-suna" : ""}`} disabled={!!answered || busy} onClick={() => answer(null)}>
+          <button className="btn btn-unknown" data-state={answered?.isUnknown ? "chosen" : undefined} disabled={!!answered || busy} onClick={() => answer(null)}>
             わからない
           </button>
         </div>

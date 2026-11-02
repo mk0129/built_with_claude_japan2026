@@ -30,7 +30,11 @@ export function isPglite(): boolean {
 export function getDb(): Db {
   if (holder.db) return holder.db;
   if (process.env.DATABASE_URL) {
-    const client = postgres(process.env.DATABASE_URL, { prepare: false, max: 5 });
+    // ローカル PGlite ソケットは並行クエリ不可のため 1 接続に直列化し、
+    // 無名 prepared statement の混線を避けるため名前付き（prepare: true）にする。
+    // Supabase のプーラー（transaction mode）では prepare: false が必要。
+    const local = process.env.SHIORI_LOCAL_DB === "1";
+    const client = postgres(process.env.DATABASE_URL, { prepare: local, max: local ? 1 : 5 });
     holder.db = drizzlePostgres(client, { schema }) as unknown as Db;
   } else {
     // `next build` のページデータ収集時は DB に触らないよう、インメモリにする（ローカルの PGlite とロック競合しない）

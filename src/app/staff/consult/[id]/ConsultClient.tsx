@@ -101,21 +101,21 @@ export function ConsultClient({ sessionId }: { sessionId: string }) {
   }
 
   return (
-    <main className="space-y-4">
+    <main className="space-y-4 pb-32 lg:pb-0">
       <header className="card flex flex-wrap items-center gap-3 justify-between">
         <div>
           <p className="text-sm text-ink-soft">{c?.orgName} ・ {c?.clinicianName}</p>
           <h1 className="text-xl font-bold">{s ? `${s.patient.displayName} さん` : "読み込み中…"}</h1>
         </div>
-        <div className="flex items-center gap-2">
-          <span className={`pill ${remainMs < 5 * 60_000 ? "bg-sakura" : "bg-wakakusa"}`} aria-live="polite">残り {c ? fmtRemain(remainMs) : "--:--"}</span>
-          {c?.pendingExtension ? <span className="pill">延長の承認待ち</span> : <button className="btn text-sm" onClick={extend}>延長を要求</button>}
-          <button className="btn btn-danger text-sm" onClick={end}>終了</button>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={`pill text-base ${remainMs < 5 * 60_000 ? "bg-sakura" : "bg-wakakusa"}`} aria-live="polite">残り {c ? fmtRemain(remainMs) : "--:--"}</span>
+          {c?.pendingExtension ? <span className="pill">延長の承認待ち</span> : <button className="btn text-sm min-h-11" onClick={extend}>延長を要求</button>}
+          <button className="btn btn-danger text-sm min-h-11" onClick={end}>終了</button>
         </div>
       </header>
       {err && <p className="text-sm text-ink-soft">{err}</p>}
 
-      <div className="grid lg:grid-cols-[1fr_minmax(300px,380px)] gap-4 items-start">
+      <div className="grid lg:grid-cols-[1fr_minmax(320px,400px)] gap-4 items-start">
         <section className="space-y-4">
           <QuestionsCard sessionId={sessionId} questions={s?.questions ?? []} onChanged={refresh} onPrescribe={prescribeRelated} />
           <MissedCard missed={s?.missed ?? []} onPrescribe={prescribeRelated} />
@@ -170,9 +170,9 @@ function QuestionsCard({ sessionId, questions, onChanged, onPrescribe }: { sessi
                 <p key={i} className="text-xs text-ink-soft">{fmtDate(a.createdAt)} {a.orgName}: {a.responseType ? RESPONSE_LABEL[a.responseType] : ""}{a.note ? `（${a.note}）` : ""}</p>
               ))}
               <div className="flex flex-wrap gap-2">
-                {q.status === "unread" && <button className="btn text-sm min-h-10" onClick={() => setStatus(q, "reviewed")}>確認済みにする</button>}
-                {q.status !== "resolved" && <button className="btn btn-soft text-sm min-h-10" onClick={() => setEditing(editing === q.feedbackId ? null : q.feedbackId)}>対応済みにする</button>}
-                <button className="btn btn-ghost text-sm min-h-10" onClick={() => onPrescribe(q.materialId)}>関連教材を処方</button>
+                {q.status === "unread" && <button className="btn text-sm min-h-11 whitespace-nowrap" onClick={() => setStatus(q, "reviewed")}>確認済みにする</button>}
+                {q.status !== "resolved" && <button className="btn btn-soft text-sm min-h-11 whitespace-nowrap" onClick={() => setEditing(editing === q.feedbackId ? null : q.feedbackId)}>対応済みにする</button>}
+                <button className="btn btn-ghost text-sm min-h-11 whitespace-nowrap" onClick={() => onPrescribe(q.materialId)}>関連教材を処方</button>
               </div>
               {editing === q.feedbackId && (
                 <div className="grid gap-2 bg-surface rounded-lg p-2">
@@ -206,7 +206,7 @@ function MissedCard({ missed, onPrescribe }: { missed: Summary["missed"]; onPres
             <li key={m.materialId} className="space-y-1">
               <div className="flex items-center justify-between gap-2">
                 <p className="font-bold">{m.title}{m.isOldVersion && <span className="pill ml-1">旧版</span>}</p>
-                <button className="btn btn-ghost text-sm min-h-10" onClick={() => onPrescribe(m.materialId)}>再処方</button>
+                <button className="btn btn-ghost text-sm min-h-11 shrink-0 whitespace-nowrap" onClick={() => onPrescribe(m.materialId)}>再処方</button>
               </div>
               <p className="text-xs text-ink-muted">まちがい {m.nWrong} ・ わからない {m.nUnknown} ・ {fmtDate(m.completedAt)}</p>
               <ul className="text-sm space-y-1">
@@ -236,8 +236,11 @@ function IncompleteCard({ items, onPrescribe }: { items: Summary["incompleteMate
         <ul className="space-y-1 text-sm">
           {items.map((i) => (
             <li key={i.materialId} className="flex items-center justify-between gap-2">
-              <span>{i.title} <span className="text-ink-muted">（{PHASE_LABEL[i.phase]} ・ {fmtDate(i.setCreatedAt)} {i.orgName}）</span></span>
-              <button className="btn btn-ghost text-sm min-h-10" onClick={() => onPrescribe(i.materialId)}>再処方</button>
+              <span className="min-w-0">
+                <span className="font-bold">{i.title}</span>
+                <span className="block text-xs text-ink-muted">{PHASE_LABEL[i.phase]} ・ {fmtDate(i.setCreatedAt)} {i.orgName}</span>
+              </span>
+              <button className="btn btn-ghost text-sm min-h-11 shrink-0 whitespace-nowrap" onClick={() => onPrescribe(i.materialId)}>再処方</button>
             </li>
           ))}
         </ul>

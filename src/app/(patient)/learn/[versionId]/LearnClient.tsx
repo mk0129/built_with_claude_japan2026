@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { DOMAIN_LABEL } from "@/lib/labels";
 import { SpeakButton } from "@/components/SpeakButton";
 import { Illustration } from "@/components/Illustration";
+import { FontSizeToggle } from "@/components/FontSizeToggle";
 
 type View = {
   versionId: string;
@@ -42,14 +43,17 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
   return (
     <main className="space-y-4">
       <header className="space-y-1">
-        <Link href="/home" className="text-sm text-ink-muted">
-          ← ホームへ
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link href="/home" className="tap-link">
+            ← ホームへ
+          </Link>
+          <FontSizeToggle />
+        </div>
         <h1 className="text-xl font-bold leading-snug">{view.title}</h1>
         <div className="flex items-center gap-2 text-sm text-ink-soft">
           <span className="pill">{DOMAIN_LABEL[view.primaryDomain] ?? view.primaryDomain}</span>
-          <button className="underline" onClick={() => setShowToc((v) => !v)} aria-expanded={showToc}>
-            目次
+          <button className="btn btn-ghost min-h-11 px-3 text-sm" onClick={() => setShowToc((v) => !v)} aria-expanded={showToc}>
+            ☰ 目次
           </button>
         </div>
         {!view.isCurrentVersion && <p className="text-sm text-ink-soft">この教材には新しい版があります。内容は処方時の版です。</p>}
@@ -60,7 +64,7 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
           <ol className="space-y-1">
             {view.slides.map((s) => (
               <li key={s.seq}>
-                <button className={`text-left w-full py-1 ${s.seq === seq ? "font-bold text-accent" : ""}`} onClick={() => { go(s.seq); setShowToc(false); }}>
+                <button className={`text-left w-full min-h-11 py-1 ${s.seq === seq ? "font-bold text-accent" : ""}`} onClick={() => { go(s.seq); setShowToc(false); }}>
                   {s.seq}. {s.title}
                 </button>
               </li>

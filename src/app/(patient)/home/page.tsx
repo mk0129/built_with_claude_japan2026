@@ -44,9 +44,9 @@ export default async function PatientHome() {
       ) : (
         sets.map((set) => (
           <section key={set.setId} className="card space-y-3">
-            <div className="flex items-baseline justify-between gap-2">
+            <div>
               <h2 className="font-bold">{fmtDate(set.createdAt)} のしおり</h2>
-              <span className="text-sm text-ink-muted">{set.orgName}</span>
+              <p className="text-sm text-ink-muted">{set.orgName} ・ {set.clinicianName}</p>
             </div>
             <ul className="space-y-2">
               {set.items.map((i) => (

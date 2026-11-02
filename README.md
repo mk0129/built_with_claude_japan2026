@@ -5,6 +5,7 @@ Built with Claude: Japan 2026（2026-11-02〜11-08）で開発するハッカソ
 
 - 要件の正本: `clinical_info_rx_ClaudeCode_spec_20261102/REQUIREMENTS.md`（+ `DECISIONS.md`, `ACCEPTANCE_TESTS.md`, `CLAUDE.md`）
 - 設計・実装計画（承認済み）: `docs/DESIGN_PROPOSAL_20261102.md`
+- Day 3 UI/UX 検証: `docs/UX_REVIEW_DAY3_20261102.md`（スクリーンショット: `docs/screenshots/day3/`）
 
 ## 実装ステータス
 
@@ -46,7 +47,10 @@ npm run dev                  # http://localhost:3000
 npm run typecheck   # tsc
 npm run lint        # eslint（React Compiler ルール含む）
 npm test            # vitest（インメモリ PGlite。T01-T05, T10-T17, T22 相当を含む 33 テスト）
+npm run e2e:fresh   # Playwright: DB を初期化して通し操作 + 幅別レイアウト検査（docs/screenshots/day3/ に保存）
 ```
+
+UI/UX 検証の記録: `docs/UX_REVIEW_DAY3_20261102.md`
 
 ## 構成
 

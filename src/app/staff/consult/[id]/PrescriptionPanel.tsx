@@ -2,13 +2,18 @@
 import { useEffect, useState } from "react";
 import { api, errorText } from "@/lib/api";
 import { DOMAIN_LABEL, DOMAIN_ORDER } from "@/lib/labels";
+import { useMediaQuery } from "@/lib/use-media-query";
 
 type Material = { materialId: string; versionId: string; title: string; summary: string | null; primaryDomain: string; scope: "common" | "org"; slideCount: number; questionCount: number };
 type Template = { id: string; name: string; description: string | null; scope: string; materials: { id: string; title: string; primaryDomain: string }[] };
 type CurrentSet = { setId: string; items: { materialId: string; title: string }[] } | null;
-
 export type BasketItem = { materialId: string; title: string };
 
+/**
+ * 情報処方パネル。
+ * - lg 以上: 右カラムに sticky。ヘッダ / スクロールする本文 / 常に見える候補・確定の 3 段
+ * - lg 未満: 画面下部のドロワー。閉じていてもバーとして残り、患者情報の閲覧を妨げない
+ */
 export function PrescriptionPanel({
   sessionId,
   open,
@@ -33,6 +38,7 @@ export function PrescriptionPanel({
   const [templates, setTemplates] = useState<Template[]>([]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   useEffect(() => {
     api<{ templates: Template[] }>(`/api/v1/consultations/${sessionId}/templates`).then((r) => setTemplates(r.templates)).catch(() => {});
@@ -73,18 +79,24 @@ export function PrescriptionPanel({
     }
   }
 
-  return (
-    <aside className="card space-y-3 lg:sticky lg:top-4 max-h-[calc(100vh-2rem)] overflow-auto">
-      <div className="flex items-center justify-between">
-        <h2 className="font-bold">情報処方</h2>
-        <button className="btn btn-ghost text-sm" onClick={onToggle} aria-expanded={open}>
-          {open ? "閉じる" : "開く"}
-        </button>
-      </div>
+  const header = (
+    <div className="flex items-center justify-between gap-2">
+      <h2 className="font-bold">
+        情報処方
+        {basket.length > 0 && <span className="pill bg-sakura ml-2">候補 {basket.length}</span>}
+        {currentSet && currentSet.items.length > 0 && <span className="pill bg-wakakusa ml-1">処方済 {currentSet.items.length}</span>}
+      </h2>
+      <button className="btn text-sm min-h-11 px-4" onClick={onToggle} aria-expanded={open}>
+        {open ? "閉じる" : "開く"}
+      </button>
+    </div>
+  );
 
+  const body = (
+    <div className="space-y-3">
       {currentSet && currentSet.items.length > 0 && (
         <div className="rounded-xl bg-wakakusa p-3 text-sm">
-          <p className="font-bold">この診察で処方済み（{currentSet.items.length}）</p>
+          <p className="font-bold">この診察で処方済み</p>
           <ul className="list-disc ml-5">
             {currentSet.items.map((i) => (
               <li key={i.materialId}>{i.title}</li>
@@ -92,92 +104,120 @@ export function PrescriptionPanel({
           </ul>
         </div>
       )}
+      <div className="flex gap-1 border-b border-line">
+        {(["template", "search"] as const).map((t) => (
+          <button key={t} className={`px-3 min-h-11 text-sm ${tab === t ? "font-bold border-b-2 border-accent" : "text-ink-soft"}`} onClick={() => setTab(t)}>
+            {t === "template" ? "テンプレート" : "検索"}
+          </button>
+        ))}
+      </div>
+      {tab === "template" ? (
+        <ul className="space-y-2">
+          {templates.map((t) => (
+            <li key={t.id} className="rounded-xl border border-line p-3 space-y-1">
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-bold">{t.name}</p>
+                <button className="btn btn-soft text-sm min-h-11 shrink-0" onClick={() => addTemplate(t)}>
+                  まとめて追加
+                </button>
+              </div>
+              <p className="text-xs text-ink-muted">{t.description}</p>
+              <ul className="text-sm text-ink-soft list-disc ml-5">
+                {t.materials.map((m) => (
+                  <li key={m.id}>{m.title}</li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="space-y-2">
+          <input className="input" placeholder="キーワード（例: 副作用）" value={q} onChange={(e) => setQ(e.target.value)} aria-label="キーワード検索" />
+          <select className="input" value={domain} onChange={(e) => setDomain(e.target.value)} aria-label="領域">
+            <option value="">すべての領域</option>
+            {DOMAIN_ORDER.map((d) => (
+              <option key={d} value={d}>{DOMAIN_LABEL[d]}</option>
+            ))}
+          </select>
+          <ul className="space-y-2">
+            {materials.map((m) => {
+              const inBasket = basket.some((b) => b.materialId === m.materialId);
+              const done = alreadyIds.has(m.materialId);
+              return (
+                <li key={m.materialId} className="rounded-xl border border-line p-3 flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-bold leading-snug">{m.title}</p>
+                    <p className="text-xs text-ink-muted">
+                      {DOMAIN_LABEL[m.primaryDomain]} ・ {m.slideCount}画面 ・ {m.questionCount}問{m.scope === "org" ? " ・ 当院" : ""}
+                    </p>
+                    {m.summary && <p className="text-sm text-ink-soft">{m.summary}</p>}
+                  </div>
+                  <button className="btn text-sm min-h-11 shrink-0 whitespace-nowrap" disabled={inBasket || done} onClick={() => add(m)}>
+                    {done ? "処方済" : inBasket ? "追加済" : "追加"}
+                  </button>
+                </li>
+              );
+            })}
+            {materials.length === 0 && <li className="text-sm text-ink-muted">該当する教材がありません</li>}
+          </ul>
+          <p className="text-xs text-ink-muted">AI 検索（患者情報を送らない自然言語検索）は後続フェーズで追加します。</p>
+        </div>
+      )}
+    </div>
+  );
 
+  const footer = (
+    <div className="rounded-xl border-2 border-sakura-deep bg-surface p-3 space-y-2">
+      <p className="font-bold">候補（{basket.length}）</p>
+      {basket.length === 0 ? (
+        <p className="text-sm text-ink-muted">「関連教材を処方」「再処方」や検索・テンプレートから追加します。</p>
+      ) : (
+        <ul className="space-y-1 max-h-40 overflow-auto">
+          {basket.map((b) => (
+            <li key={b.materialId} className="flex items-center justify-between gap-2 text-sm">
+              <span className="min-w-0">{b.title}</span>
+              <button className="btn btn-ghost text-xs min-h-9 px-2 shrink-0 whitespace-nowrap" onClick={() => setBasket((x) => x.filter((y) => y.materialId !== b.materialId))} aria-label={`${b.title} を候補から外す`}>
+                外す
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <button className="btn btn-primary btn-block" disabled={basket.length === 0 || busy} onClick={confirm}>
+        処方を確定する
+      </button>
+      {msg && <p className="text-sm text-ink-soft" role="status">{msg}</p>}
+    </div>
+  );
+
+  if (isDesktop) {
+    // lg 以上: 右カラム（sticky, ヘッダ / スクロール本文 / 常に見える候補・確定）
+    return (
+      <aside className="card flex flex-col gap-3 sticky top-4 max-h-[calc(100vh-2rem)]">
+        {header}
+        {open && <div className="flex-1 min-h-0 overflow-auto pr-1">{body}</div>}
+        {footer}
+      </aside>
+    );
+  }
+
+  // lg 未満: 画面下のドロワー。閉じていてもバーとして残り、患者情報の閲覧を妨げない
+  return (
+    <div className={`fixed inset-x-0 bottom-0 z-20 bg-surface border-t border-line shadow-[0_-8px_24px_rgba(47,58,86,0.12)] rounded-t-2xl flex flex-col ${open ? "h-[72vh]" : ""}`} role="region" aria-label="情報処方パネル">
+      <div className="px-4 py-2">{header}</div>
       {open && (
         <>
-          <div className="flex gap-1 border-b border-line">
-            {(["template", "search"] as const).map((t) => (
-              <button key={t} className={`px-3 py-2 text-sm ${tab === t ? "font-bold border-b-2 border-accent" : "text-ink-soft"}`} onClick={() => setTab(t)}>
-                {t === "template" ? "テンプレート" : "検索"}
-              </button>
-            ))}
-          </div>
-
-          {tab === "template" ? (
-            <ul className="space-y-2">
-              {templates.map((t) => (
-                <li key={t.id} className="rounded-xl border border-line p-3 space-y-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="font-bold">{t.name}</p>
-                    <button className="btn btn-soft text-sm min-h-10" onClick={() => addTemplate(t)}>
-                      まとめて追加
-                    </button>
-                  </div>
-                  <p className="text-xs text-ink-muted">{t.description}</p>
-                  <ul className="text-sm text-ink-soft list-disc ml-5">
-                    {t.materials.map((m) => (
-                      <li key={m.id}>{m.title}</li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="space-y-2">
-              <input className="input" placeholder="キーワード（例: 副作用）" value={q} onChange={(e) => setQ(e.target.value)} aria-label="キーワード検索" />
-              <select className="input" value={domain} onChange={(e) => setDomain(e.target.value)} aria-label="領域">
-                <option value="">すべての領域</option>
-                {DOMAIN_ORDER.map((d) => (
-                  <option key={d} value={d}>{DOMAIN_LABEL[d]}</option>
-                ))}
-              </select>
-              <p className="text-xs text-ink-muted">AI 検索（患者情報を送らない自然言語検索）は後続フェーズで追加します。</p>
-              <ul className="space-y-2">
-                {materials.map((m) => {
-                  const inBasket = basket.some((b) => b.materialId === m.materialId);
-                  const done = alreadyIds.has(m.materialId);
-                  return (
-                    <li key={m.materialId} className="rounded-xl border border-line p-3 flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="font-bold leading-snug">{m.title}</p>
-                        <p className="text-xs text-ink-muted">
-                          {DOMAIN_LABEL[m.primaryDomain]} ・ {m.slideCount}画面 ・ {m.questionCount}問{m.scope === "org" ? " ・ 当院" : ""}
-                        </p>
-                        {m.summary && <p className="text-sm text-ink-soft">{m.summary}</p>}
-                      </div>
-                      <button className="btn text-sm min-h-10 shrink-0" disabled={inBasket || done} onClick={() => add(m)}>
-                        {done ? "処方済" : inBasket ? "追加済" : "追加"}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
+          <div className="flex-1 min-h-0 overflow-auto px-4">{body}</div>
+          <div className="px-4 py-3 border-t border-line bg-bg">{footer}</div>
         </>
       )}
-
-      <div className="rounded-xl border-2 border-sakura-deep p-3 space-y-2">
-        <p className="font-bold">候補（{basket.length}）</p>
-        {basket.length === 0 ? (
-          <p className="text-sm text-ink-muted">ダッシュボードの「関連教材を処方」や検索から追加します。</p>
-        ) : (
-          <ul className="space-y-1">
-            {basket.map((b) => (
-              <li key={b.materialId} className="flex items-center justify-between gap-2 text-sm">
-                <span>{b.title}</span>
-                <button className="btn btn-ghost text-xs min-h-8" onClick={() => setBasket((x) => x.filter((y) => y.materialId !== b.materialId))} aria-label={`${b.title} を候補から外す`}>
-                  外す
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        <button className="btn btn-primary btn-block" disabled={basket.length === 0 || busy} onClick={confirm}>
-          処方を確定する
-        </button>
-        {msg && <p className="text-sm text-ink-soft">{msg}</p>}
-      </div>
-    </aside>
+      {!open && basket.length > 0 && (
+        <div className="px-4 pb-3">
+          <button className="btn btn-primary btn-block" disabled={busy} onClick={confirm}>
+            候補 {basket.length} 件を処方する
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

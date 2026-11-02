@@ -43,8 +43,12 @@
 html {
   font-size: 18px; /* 高齢患者配慮: 本文 18px 以上 */
 }
+html[data-textsize="large"] {
+  font-size: 21px; /* 「文字を大きく」切替 */
+}
 
 body {
+  overflow-x: clip; /* 装飾ブロブが画面外へはみ出しても横スクロールさせない */
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
@@ -52,105 +56,164 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 水彩ブロブ（装飾） */
-.blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(28px);
-  opacity: 0.7;
-  pointer-events: none;
-}
+/*
+ * コンポーネント用クラスは @layer components に置く。
+ * Tailwind v4 ではレイヤー外のスタイルがユーティリティより強くなるため、
+ * ここに入れないと `bg-*` などの上書きが効かない。
+ */
+@layer components {
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(28px);
+    opacity: 0.7;
+    pointer-events: none;
+  }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 1.1rem 1.2rem;
-  box-shadow: 0 1px 0 rgba(47, 58, 86, 0.04);
-}
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.2rem;
+    box-shadow: 0 1px 0 rgba(47, 58, 86, 0.04);
+  }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: var(--tap);
-  padding: 0 1.25rem;
-  border-radius: 999px;
-  border: 1.5px solid var(--line-strong);
-  background: var(--surface);
-  color: var(--ink);
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: transform 0.05s ease, background 0.15s ease;
-  text-decoration: none;
-}
-.btn:active {
-  transform: translateY(1px);
-}
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.btn-primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-ink);
-}
-.btn-soft {
-  background: var(--sakura);
-  border-color: transparent;
-}
-.btn-ghost {
-  border-color: transparent;
-  background: transparent;
-}
-.btn-danger {
-  border-color: var(--danger);
-  color: var(--danger);
-}
-.btn-block {
-  width: 100%;
-}
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: var(--tap);
+    padding: 0.5rem 1.25rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.4;
+    cursor: pointer;
+    transition:
+      transform 0.05s ease,
+      background 0.15s ease;
+    text-decoration: none;
+  }
+  .btn:active {
+    transform: translateY(1px);
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+  .btn-soft {
+    background: var(--sakura);
+    border-color: transparent;
+  }
+  .btn-ghost {
+    border-color: transparent;
+    background: transparent;
+  }
+  .btn-danger {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+  .btn-block {
+    width: 100%;
+  }
 
-.input {
-  width: 100%;
-  min-height: var(--tap);
-  border: 1.5px solid var(--line);
-  border-radius: 14px;
-  padding: 0 1rem;
-  background: var(--surface);
-  color: var(--ink);
-  font-size: 1.05rem;
-}
-.input:focus {
-  outline: 3px solid var(--sora);
-  border-color: var(--ink);
-}
+  /* クイズの選択肢。回答後は disabled でも色で状態を示す（薄くしない） */
+  .btn-option {
+    justify-content: flex-start;
+    text-align: left;
+    min-height: 64px;
+    border-radius: 16px;
+    border-color: var(--line);
+    font-weight: 400;
+  }
+  .btn-option:disabled {
+    opacity: 1;
+    cursor: default;
+  }
+  .btn-option[data-state="correct"] {
+    background: var(--wakakusa);
+    border-color: var(--ok);
+    font-weight: 700;
+  }
+  .btn-option[data-state="wrong"] {
+    background: var(--sakura);
+    border-color: var(--danger);
+  }
+  .btn-option[data-state="dim"] {
+    color: var(--ink-muted);
+  }
+  .btn-unknown {
+    border: 1.5px dashed var(--line);
+    background: transparent;
+    color: var(--ink-soft);
+    font-weight: 400;
+  }
+  .btn-unknown[data-state="chosen"] {
+    background: var(--suna);
+    border-style: solid;
+    color: var(--ink);
+    font-weight: 700;
+    opacity: 1;
+  }
 
-.label {
-  display: block;
-  font-size: 0.9rem;
-  color: var(--ink-soft);
-  margin-bottom: 0.35rem;
-}
+  /* 小さなテキストリンクでもタップ領域を確保する */
+  .tap-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 0.25rem;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
 
-.pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.15rem 0.7rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  background: var(--suna);
-  color: var(--ink-soft);
-}
+  .input {
+    width: 100%;
+    min-height: var(--tap);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 0 1rem;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 1.05rem;
+  }
+  .input:focus {
+    outline: 3px solid var(--sora);
+    border-color: var(--ink);
+  }
 
-.code-display {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.35em;
-  font-size: 2.4rem;
-  font-weight: 700;
+  .label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.35rem;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding: 0.15rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    background: var(--suna);
+    color: var(--ink-soft);
+  }
+
+  .code-display {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.35em;
+    font-size: 2.4rem;
+    font-weight: 700;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
