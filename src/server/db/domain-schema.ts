@@ -129,6 +129,11 @@ export const sourceDocuments = pgTable("source_documents", {
   textSource: sourceTextSource("text_source").notNull().default("none"),
   extractedText: text("extracted_text"),
   extractionWarning: text("extraction_warning"), // 図表欠落など手動確認が必要な旨
+  extractionMeta: jsonb("extraction_meta").$type<{ pages?: number; lowTextPages?: number[]; imageCount?: number; charCount?: number }>().notNull().default({}),
+  /** アップロード者が「患者個人情報を含まない」ことを確認したか */
+  piiAttestedNone: boolean("pii_attested_none").notNull().default(false),
+  /** 自動検出した個人情報らしき記載（あれば AI 処理を止める） */
+  piiFlags: jsonb("pii_flags").$type<string[]>().notNull().default([]),
   uploadedByUserId: userRef("uploaded_by_user_id").notNull(),
   createdAt: ts("created_at").notNull().defaultNow(),
   lastUsedAt: ts("last_used_at"),
@@ -201,6 +206,9 @@ export const materialVersions = pgTable(
     publishedAt: ts("published_at"),
     retiredAt: ts("retired_at"),
     retireReason: retireReason("retire_reason"), // safety の旧版スコアは集計から除外（D27）
+    submittedByUserId: userRef("submitted_by_user_id"),
+    submittedAt: ts("submitted_at"),
+    reviewComment: text("review_comment"),
     changeNote: text("change_note"),
   },
   (t) => [uniqueIndex("material_versions_no_uq").on(t.materialId, t.versionNo)],
@@ -316,6 +324,9 @@ export const aiGenerationJobs = pgTable("ai_generation_jobs", {
   outputTokenCount: integer("output_token_count"),
   errorMessage: text("error_message"),
   idempotencyKey: text("idempotency_key").unique(),
+  progress: text("progress"),
+  attempt: integer("attempt").notNull().default(1),
+  inputPayload: jsonb("input_payload"),
   createdByUserId: userRef("created_by_user_id").notNull(),
   createdAt: ts("created_at").notNull().defaultNow(),
   startedAt: ts("started_at"),

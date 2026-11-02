@@ -31,7 +31,12 @@ export default async function StaffHome() {
       <section className="grid md:grid-cols-2 gap-3">
         <div className="card space-y-2">
           <h2 className="font-bold">教材管理</h2>
-          <p className="text-sm text-ink-soft">原資料のアップロード、AI 下書き、承認・公開は Day 4 で実装します。</p>
+          <p className="text-sm text-ink-soft">原資料の登録と許諾の記録、Claude による下書き、編集・承認・公開を行います。</p>
+          {editorOrgs.length > 0 && (
+            <Link href="/staff/studio" className="btn btn-primary min-h-11 inline-flex items-center">
+              教材スタジオを開く
+            </Link>
+          )}
           {previewable.length > 0 ? (
             <>
               <p className="text-sm text-ink-soft">監修プレビュー（編集者・承認者のみ。未承認の図解は患者に表示されません）</p>

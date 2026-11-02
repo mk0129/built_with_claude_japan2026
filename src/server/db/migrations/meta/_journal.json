@@ -43,6 +43,13 @@
       "when": 1793634901167,
       "tag": "0005_figure_review_scope",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793635320242,
+      "tag": "0006_day4_authoring",
+      "breakpoints": true
     }
   ]
 }
