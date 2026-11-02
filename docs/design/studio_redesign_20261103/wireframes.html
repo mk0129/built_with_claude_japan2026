@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>教材スタジオ 再設計ワイヤーフレーム（2026-11-03）</title>
+<style>
+  :root{--bg:#fbf7f2;--surface:#fff;--ink:#2f3a56;--ink-soft:#5b6480;--ink-muted:#8a91a6;--line:#d9d2c7;--accent:#b9566b;--wakakusa:#dde7d9;--sora:#d9e3f0;--suna:#f0e6d6;--sakura:#f3d8d8;--danger:#a33a3a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"BIZ UDPGothic","Hiragino Sans",system-ui,sans-serif;font-size:15px;line-height:1.6}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--line);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-weight:700}
+  .topbar .pill{font-weight:400}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+  .pill{display:inline-flex;align-items:center;border-radius:999px;background:var(--suna);color:var(--ink-soft);padding:1px 10px;font-size:12px;white-space:nowrap}
+  .pill.ok{background:var(--wakakusa);color:var(--ink)} .pill.warn{background:var(--sakura);color:var(--danger)} .pill.ai{border:1px solid var(--accent);background:#fff;color:var(--accent)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:6px 18px;border-radius:999px;border:1.5px solid var(--ink);background:#fff;font-weight:700;font-size:14px}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff} .btn.ghost{border-color:transparent} .btn.block{width:100%}
+  h1{font-size:22px;margin:0} h2{font-size:17px;margin:0 0 8px} h3{font-size:15px;margin:0 0 6px}
+  .muted{color:var(--ink-soft);font-size:13px} .small{font-size:12px;color:var(--ink-muted)}
+  .steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0 14px}
+  .step{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px}
+  .step b{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--line);align-items:center;justify-content:center;font-size:12px}
+  .step.on{border-color:var(--accent);background:var(--sakura)} .step.on b{background:var(--accent);color:#fff} .step.done b{background:var(--wakakusa)}
+  .grid{display:grid;gap:14px} .g2{grid-template-columns:1fr 1fr} .g3{grid-template-columns:repeat(3,1fr)} .g21{grid-template-columns:2fr 1fr}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .list>div{padding:8px 0;border-top:1px solid var(--line)} .list>div:first-child{border-top:0}
+  .hero{border:2px solid var(--accent);border-radius:20px;background:linear-gradient(180deg,#fff,#fbf4f5);padding:18px}
+  .outline{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px;display:flex;flex-direction:column;gap:6px}
+  .outline.pick{border:2px solid var(--accent);box-shadow:0 6px 18px rgba(185,86,107,.15)}
+  .outline ol,.outline ul{margin:0;padding-left:18px;font-size:13px}
+  .annot{position:absolute;background:#2f3a56;color:#fff;font-size:11px;padding:2px 8px;border-radius:6px}
+  .frame{position:relative;border:1px dashed var(--ink-muted);border-radius:8px;margin:0 0 28px;overflow:hidden}
+  .frame>.title{position:absolute;top:-1px;left:12px;background:var(--ink);color:#fff;font-size:12px;padding:2px 8px;border-radius:0 0 6px 6px;z-index:2}
+  .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden} .bar i{display:block;height:100%;width:40%;background:var(--accent)}
+  .check{display:flex;gap:8px;align-items:flex-start;padding:6px 0} .check i{width:20px;height:20px;border:2px solid var(--ink);border-radius:5px;flex:none;margin-top:2px} .check i.on{background:var(--accent);border-color:var(--accent)}
+  .phone{width:390px} .tablet{width:820px} .pc{width:1180px}
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px} .cmp pre{white-space:pre-wrap;font-size:12px;background:#f6f3ee;border-radius:10px;padding:10px;margin:0}
+  .srcline{font-size:13px;padding:4px 8px;border-left:3px solid var(--line)} .srcline.hit{border-color:var(--accent);background:#fdf3f5}
+  .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px} .kpi div{border-radius:12px;padding:8px 10px;background:var(--suna)} .kpi b{font-size:20px;display:block}
+  @media (max-width:860px){.g2,.g3,.g21,.cmp{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ========== 画面 1: スタジオホーム（PC 1180） ========== -->
+<section id="s1" class="frame pc">
+  <span class="title">画面 1 ・ スタジオホーム（1180）: 「あなたの対応が必要」を最上段、登録フォームはボタンに格納</span>
+  <div class="topbar"><span>しおり <span class="muted">医療者用</span></span><span class="pill">架空データ・デモ</span></div>
+  <div class="wrap">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <div><h1>教材スタジオ</h1><div class="muted">さくら総合病院 ・ 病院独自教材 ・ あなたの権限: 編集者・承認者</div></div>
+      <div class="row"><a class="btn primary">＋ 原資料を登録して作り始める</a></div>
+    </div>
+    <div class="grid g3" style="margin-bottom:14px">
+      <div class="card"><h3>承認待ち <span class="pill warn">2</span></h3><div class="list">
+        <div><b>ホルモン療法とは？目的・薬の種類・続ける期間</b><div class="small">田中 看護師 ・ 11/3 ・ <span class="pill ai">Claude 下書き</span></div><div class="row" style="margin-top:6px"><a class="btn" style="min-height:36px;font-size:13px">原資料と照合して承認</a></div></div>
+        <div><b>ホルモン療法の副作用と連絡してほしい症状</b><div class="small">田中 看護師 ・ 11/3</div></div>
+      </div></div>
+      <div class="card"><h3>下書き（編集中） <span class="pill">1</span></h3><div class="list">
+        <div><b>毎日の服薬で気をつけること</b><div class="small">あなた ・ 11/2 ・ 必須事項 2/4 未網羅</div><div class="row" style="margin-top:6px"><a class="btn" style="min-height:36px;font-size:13px">編集を続ける</a></div></div>
+      </div></div>
+      <div class="card"><h3>作成中のジョブ <span class="pill">1</span></h3>
+        <div><b>構成案の提案</b> <span class="pill ai">Claude API</span><div class="small">ホルモン療法を受ける方へ ・ 12 秒経過（通常 15〜20 秒）</div><div class="bar" style="margin-top:6px"><i></i></div></div>
+      </div>
+    </div>
+    <div class="grid g21">
+      <div class="card"><h2>原資料 <span class="muted">(3)</span></h2><div class="list">
+        <div class="row" style="justify-content:space-between"><div><b>乳がんのホルモン療法を受ける方へ</b><div class="small">docx ・ 5 KB ・ 11/2 ・ <span class="pill ok">AI 処理可</span> 教材 2</div></div><a class="btn ghost">開く →</a></div>
+        <div class="row" style="justify-content:space-between"><div><b>外来化学療法室のご案内</b><div class="small">pdf ・ 2 MB ・ 10/30 ・ <span class="pill warn">AI 処理不可（個人情報未確認）</span></div></div><a class="btn ghost">開く →</a></div>
+        <div class="row" style="justify-content:space-between"><div><b>術後の生活について</b><div class="small">pptx ・ 画像多め・文字少なめ ・ <span class="pill ok">AI 処理可</span></div></div><a class="btn ghost">開く →</a></div>
+      </div></div>
+      <div class="card"><h2>公開中の教材 <span class="muted">(14)</span></h2><div class="list">
+        <div><b>乳がんの診断と病期の考え方</b> <span class="pill ok">公開中</span> <span class="small">版 2</span></div>
+        <div><b>ホルモン療法とは？（院内版）</b> <span class="pill ok">公開中</span> <span class="small">版 1 ・ Claude 下書き由来</span></div>
+        <div class="small">すべて見る →</div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 画面 2: 原資料 → 構成案（見せ場） PC 1180 ========== -->
+<section id="s2" class="frame pc">
+  <span class="title">画面 2 ・ 構成案の提示（1180）: 製品の見せ場。原資料（左）と Claude の提案（右）を同じ画面で照合</span>
+  <div class="topbar"><span>しおり <span class="muted">医療者用</span></span><span class="pill">架空データ・デモ</span></div>
+  <div class="wrap">
+    <div class="muted">← 教材スタジオ</div>
+    <h1>乳がんのホルモン療法を受ける方へ</h1>
+    <div class="steps">
+      <span class="step done"><b>1</b>原資料を選ぶ</span><span class="step on"><b>2</b>Claude の構成案</span><span class="step"><b>3</b>必須事項を確認</span><span class="step"><b>4</b>教材とクイズを生成</span><span class="step"><b>5</b>患者画面で確認</span><span class="step"><b>6</b>照合・編集・承認</span>
+    </div>
+    <div class="grid g21" style="grid-template-columns:1fr 1.6fr">
+      <div class="card" style="position:sticky;top:8px">
+        <h2>原資料 <span class="pill ok">AI 処理可</span> <span class="pill ok">改変可</span> <span class="pill ok">Web 公開可</span></h2>
+        <div class="small" style="margin-bottom:8px">あおば記念病院 乳腺センター ・ 1,701 文字 ・ 30 段落</div>
+        <div class="srcline">¶3 1. ホルモン療法の目的</div>
+        <div class="srcline hit">¶4 乳がんの多くは、女性ホルモン（エストロゲン）の刺激を受けて増える性質を…</div>
+        <div class="srcline hit">¶5 手術のあとに行うホルモン療法の目的は、目に見えないがん細胞が…</div>
+        <div class="srcline">¶6 2. 主な薬の種類</div>
+        <div class="srcline hit">¶7 抗エストロゲン薬（タモキシフェンなど）は…</div>
+        <div class="srcline">¶8 アロマターゼ阻害薬は…</div>
+        <div class="srcline">¶9 LH-RHアゴニストは…</div>
+        <div class="srcline">¶11 3. 治療の期間</div>
+        <div class="srcline hit">¶12 手術のあとのホルモン療法は、5年間続けることが基本です…</div>
+        <div class="srcline hit">¶13 自己判断で薬をやめたり…</div>
+        <div class="small" style="margin-top:8px">案にカーソルを合わせると、根拠となる段落が強調されます。</div>
+      </div>
+      <div class="hero">
+        <div class="row" style="justify-content:space-between">
+          <div><span class="pill ok">構成案ができました</span> <span class="pill ai">Claude API ・ claude-sonnet-5-5 ・ 15.1 秒</span></div>
+          <a class="btn ghost" style="min-height:36px;font-size:13px">別の案をもう一度提案</a>
+        </div>
+        <h2 style="font-size:20px;margin:10px 0 2px">Claude の構成案（3 案）</h2>
+        <div class="muted" style="margin-bottom:10px">原資料の章立てに沿って、重ならないように分けました。<b>1 つ選ぶと、次に「必須事項の確認」へ進みます。</b></div>
+        <div class="grid g3">
+          <div class="outline pick"><div><span class="pill">案 1</span> <span class="pill ok">おすすめ</span></div><b>ホルモン療法とは？目的・薬・続ける期間</b><div class="small">対象: 術後にホルモン療法を始める方 ・ 領域: 薬物療法</div>
+            <div class="small"><b>学習目標</b></div><ul><li>目的を知る</li><li>薬の種類と違いを知る</li><li>期間と「自己判断でやめない」</li></ul>
+            <div class="small"><b>画面構成（5）</b></div><ol><li>なぜ行うの？</li><li>主な薬の種類</li><li>続ける期間</li><li>自己判断でやめない</li><li>担当医の説明が優先</li></ol>
+            <div class="small">根拠: ¶3〜¶13、¶30</div><a class="btn primary block" style="margin-top:auto">この案で進む →</a></div>
+          <div class="outline"><div><span class="pill">案 2</span></div><b>副作用と、すぐに連絡してほしい症状</b><div class="small">対象: 治療中・開始前の方 ・ 領域: 副作用と生活</div>
+            <div class="small"><b>学習目標</b></div><ul><li>起こりやすい副作用</li><li>すぐ連絡する症状</li><li>気持ちの変化も相談</li></ul>
+            <div class="small"><b>画面構成（5）</b></div><ol><li>ほてり・発汗</li><li>薬ごとの注意</li><li>気持ちの変化</li><li>すぐ連絡する症状</li><li>担当医の説明が優先</li></ol>
+            <div class="small">根拠: ¶14〜¶21、¶30</div><a class="btn block" style="margin-top:auto">この案で進む →</a></div>
+          <div class="outline"><div><span class="pill">案 3</span></div><b>毎日の服薬で気をつけること</b><div class="small">対象: 飲み薬を続ける方 ・ 領域: 副作用と生活</div>
+            <div class="small"><b>学習目標</b></div><ul><li>飲み忘れの考え方</li><li>妊娠・避妊の相談</li><li>他の薬・サプリの相談</li></ul>
+            <div class="small"><b>画面構成（5）</b></div><ol><li>飲み忘れたら</li><li>防ぐ工夫</li><li>妊娠・避妊</li><li>他の薬・サプリ</li><li>担当医の説明が優先</li></ol>
+            <div class="small">根拠: ¶22〜¶28、¶30</div><a class="btn block" style="margin-top:auto">この案で進む →</a></div>
+        </div>
+        <div class="small" style="margin-top:10px">原資料に記載がなく扱わない内容: 副作用の頻度・数値 ／ 用量 ／ 費用・制度 ／ 再発率</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 画面 3: 必須事項の確認（GEN-05 最小構成） 1180 ========== -->
+<section id="s3" class="frame pc">
+  <span class="title">画面 3 ・ 必須事項の確認（1180）: 生成前に医療者が「落としてはいけない内容」を確定する（GEN-05 最小構成）</span>
+  <div class="topbar"><span>しおり <span class="muted">医療者用</span></span><span class="pill">架空データ・デモ</span></div>
+  <div class="wrap">
+    <h1>案 1: ホルモン療法とは？目的・薬・続ける期間</h1>
+    <div class="steps"><span class="step done"><b>1</b>原資料</span><span class="step done"><b>2</b>構成案</span><span class="step on"><b>3</b>必須事項を確認</span><span class="step"><b>4</b>生成</span><span class="step"><b>5</b>患者画面</span><span class="step"><b>6</b>照合・承認</span></div>
+    <div class="grid g21">
+      <div class="card">
+        <h2>必須事項（Must-cover）</h2>
+        <div class="muted">Claude が原資料から抽出した候補です。<b>教材に必ず入れる項目にチェック</b>し、足りなければ追加してください。生成時にプロンプトへ含め、生成後に網羅を照合します。</div>
+        <div class="check"><i class="on"></i><div><b>自己判断で薬をやめない・減らさない</b><div class="small">¶13 ・ 種別: 行動（してはいけない）</div></div></div>
+        <div class="check"><i class="on"></i><div><b>足の腫れ・息苦しさ・胸痛は次の診察を待たず連絡</b><div class="small">¶20 ・ 種別: 緊急連絡</div></div></div>
+        <div class="check"><i class="on"></i><div><b>タモキシフェン中の不正出血は早めに連絡・婦人科受診</b><div class="small">¶17, ¶21 ・ 種別: 受診の目安</div></div></div>
+        <div class="check"><i></i><div><b>治療中は妊娠を避ける（ホルモンを含まない避妊）</b><div class="small">¶26 ・ 種別: 注意 ・ <span class="muted">案 1 の範囲外（案 3 向け）</span></div></div></div>
+        <div class="check"><i class="on"></i><div><b>期間は 5 年が基本・延長あり・担当医と決める</b><div class="small">¶12 ・ 種別: 事実</div></div></div>
+        <div class="row" style="margin-top:8px"><input placeholder="＋ 必須事項を追加（原資料の段落番号を選ぶ）" style="flex:1;min-height:40px;border:1.5px solid var(--line);border-radius:12px;padding:0 12px"><a class="btn" style="min-height:40px">追加</a></div>
+      </div>
+      <div class="card">
+        <h2>生成の設定</h2>
+        <div class="small">画面数 3〜5 ・ 確認問題 2〜5 ・ 1 画面 1 主題（GEN-02）・ 誤答は「患者が誤解しやすい内容」から作る（GEN-03）・ 受診・連絡の行動は省略しない（GEN-01）</div>
+        <div style="margin:12px 0"><div class="small">生成元</div><span class="pill ai">Claude API ・ claude-sonnet-5-5</span></div>
+        <a class="btn primary block">必須事項 4 件を含めて教材とクイズを生成する</a>
+        <div class="small" style="margin-top:8px">通常 20〜40 秒。生成後、必須事項ごとに「どの画面・設問で扱ったか」を表示します。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 画面 4: 照合・編集・承認（1180） ========== -->
+<section id="s4" class="frame pc">
+  <span class="title">画面 4 ・ 照合・編集・承認（1180）: 点検サマリーが上、患者画面プレビューが常に横に。承認前に必須事項の網羅を確認</span>
+  <div class="topbar"><span>しおり <span class="muted">医療者用</span></span><span class="pill">架空データ・デモ</span></div>
+  <div class="wrap">
+    <div class="row" style="justify-content:space-between"><div><h1>ホルモン療法とは？目的・薬・続ける期間</h1><div class="muted"><span class="pill">承認待ち</span> 版 1 ・ 作成 田中 看護師 ・ <span class="pill ai">Claude API</span></div></div><div class="row"><a class="btn">患者画面でプレビュー</a><a class="btn primary">承認して公開</a></div></div>
+    <div class="steps"><span class="step done"><b>1</b>原資料</span><span class="step done"><b>2</b>構成案</span><span class="step done"><b>3</b>必須事項</span><span class="step done"><b>4</b>生成</span><span class="step done"><b>5</b>患者画面</span><span class="step on"><b>6</b>照合・編集・承認</span></div>
+    <div class="card" style="margin-bottom:12px"><h2>承認前の点検</h2>
+      <div class="kpi"><div><b>14 / 14</b>引用が原資料に一致</div><div><b>3 / 4</b>必須事項を網羅 <span class="pill warn">1 件未網羅</span></div><div><b>0</b>原資料にない語</div></div>
+      <div class="row" style="margin-top:8px"><span class="pill warn">未網羅: 不正出血は婦人科受診（¶17）</span><a class="btn ghost" style="min-height:36px;font-size:13px">画面 4 に追記する</a><a class="btn ghost" style="min-height:36px;font-size:13px">理由を記録して承認する</a></div>
+      <div class="small" style="margin-top:4px">自動判定は候補の抽出です。医学的妥当性は医療者が原資料と照合して判断します。</div>
+    </div>
+    <div class="grid g3" style="grid-template-columns:1.2fr 1fr 1fr">
+      <div class="card"><h2>教材（画面 1 / 5）</h2><div class="muted">ホルモン療法はなぜ行うの？</div><div style="margin:6px 0 10px"><b>要点:</b> 残っているかもしれないがん細胞が増えるのを抑え、再発のリスクを下げるために行います。</div><div class="small">本文: 乳がんの多くは、女性ホルモン（エストロゲン）の刺激を受けて…</div><div class="small" style="color:var(--accent)">✓ 出典 ¶4 ／ ✓ 出典 ¶5</div><div class="row" style="margin-top:8px"><a class="btn ghost" style="min-height:36px">← 前の画面</a><a class="btn ghost" style="min-height:36px">次の画面 →</a></div></div>
+      <div class="card"><h2>原資料（該当箇所）</h2><div class="srcline hit">¶4 乳がんの多くは、女性ホルモン（エストロゲン）の刺激を受けて増える性質を持っています。…</div><div class="srcline hit">¶5 手術のあとに行うホルモン療法の目的は、目に見えないがん細胞が残っていた場合に…</div><div class="srcline">¶6 2. 主な薬の種類</div></div>
+      <div class="card" style="background:#f4f1ec"><h2>患者画面（同期）</h2><div style="background:#fbfaf7;border-radius:16px;padding:12px"><div class="small">1 / 5</div><b style="font-size:17px">ホルモン療法はなぜ行うの？</b><div style="font-weight:700;margin:6px 0">残っているかもしれないがん細胞が増えるのを抑え…</div><div class="small">▶ 読み上げる 約 25 秒</div><div class="small" style="margin-top:6px">乳がんの多くは、女性ホルモンの刺激を受けて…</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 画面 5: タブレット 820 ・ 構成案 ========== -->
+<section id="s5" class="frame tablet">
+  <span class="title">画面 5 ・ 構成案（820 タブレット）: 原資料は折りたたみ、案は 2 列</span>
+  <div class="topbar"><span>しおり <span class="muted">医療者用</span></span><span class="pill">架空データ・デモ</span></div>
+  <div class="wrap">
+    <h1 style="font-size:20px">乳がんのホルモン療法を受ける方へ</h1>
+    <div class="steps"><span class="step done"><b>1</b>原資料</span><span class="step on"><b>2</b>構成案</span><span class="step"><b>3</b>必須事項</span><span class="step"><b>4</b>生成</span><span class="step"><b>5</b>患者画面</span><span class="step"><b>6</b>承認</span></div>
+    <div class="card" style="margin-bottom:12px"><div class="row" style="justify-content:space-between"><b>原資料 <span class="pill ok">AI 処理可</span></b><span class="muted">▸ 本文を見る</span></div></div>
+    <div class="hero"><div><span class="pill ok">構成案ができました</span> <span class="pill ai">Claude API</span></div><h2 style="font-size:19px;margin:8px 0 4px">Claude の構成案（3 案）</h2><div class="muted" style="margin-bottom:10px"><b>1 つ選ぶと「必須事項の確認」へ進みます。</b></div>
+      <div class="grid g2">
+        <div class="outline pick"><div><span class="pill">案 1</span> <span class="pill ok">おすすめ</span></div><b>目的・薬・続ける期間</b><ol><li>なぜ行うの？</li><li>薬の種類</li><li>期間</li><li>自己判断でやめない</li><li>担当医が優先</li></ol><a class="btn primary block">この案で進む →</a></div>
+        <div class="outline"><div><span class="pill">案 2</span></div><b>副作用と連絡してほしい症状</b><ol><li>ほてり・発汗</li><li>薬ごとの注意</li><li>気持ちの変化</li><li>すぐ連絡する症状</li><li>担当医が優先</li></ol><a class="btn block">この案で進む →</a></div>
+        <div class="outline"><div><span class="pill">案 3</span></div><b>毎日の服薬で気をつけること</b><ol><li>飲み忘れたら</li><li>防ぐ工夫</li><li>妊娠・避妊</li><li>他の薬・サプリ</li><li>担当医が優先</li></ol><a class="btn block">この案で進む →</a></div>
+      </div></div>
+  </div>
+</section>
+
+<!-- ========== 画面 6: スマホ 390 ・ 作成中〜構成案（破綻しないことを優先） ========== -->
+<section id="s6" class="frame phone">
+  <span class="title">画面 6 ・ 390: 1 列。作成中はボタン直下に進捗、案は縦に並ぶ</span>
+  <div class="topbar"><span>しおり</span><span class="pill">デモ</span></div>
+  <div class="wrap" style="padding:12px">
+    <div class="muted">← 教材スタジオ</div>
+    <h1 style="font-size:19px">ホルモン療法を受ける方へ</h1>
+    <div class="steps"><span class="step done"><b>1</b></span><span class="step on"><b>2</b>構成案</span><span class="step"><b>3</b></span><span class="step"><b>4</b></span><span class="step"><b>5</b></span><span class="step"><b>6</b></span></div>
+    <div class="card" style="margin-bottom:10px"><a class="btn primary block">構成案を作る</a><div class="small" style="margin-top:6px">通常 15〜20 秒。結果はこの下に出ます。</div></div>
+    <div class="card" style="border:2px solid var(--accent);margin-bottom:10px"><b>Claude が構成案を考えています…</b><div class="small">12 秒経過 ・ 通常 15〜20 秒</div><div class="bar" style="margin-top:6px"><i></i></div></div>
+    <div class="outline pick" style="margin-bottom:10px"><div><span class="pill">案 1</span> <span class="pill ok">おすすめ</span></div><b>目的・薬・続ける期間</b><ol><li>なぜ行うの？</li><li>薬の種類</li><li>期間</li><li>自己判断でやめない</li><li>担当医が優先</li></ol><a class="btn primary block">この案で進む →</a></div>
+    <div class="outline"><div><span class="pill">案 2</span></div><b>副作用と連絡してほしい症状</b><a class="btn block">この案で進む →</a></div>
+  </div>
+</section>
+
+</body>
+</html>

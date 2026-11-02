@@ -1,0 +1,134 @@
+[
+  {
+    "variant": "A",
+    "width": 390,
+    "large": false,
+    "viewportH": 844,
+    "bodyTop": null,
+    "speakTop": 285,
+    "figureTop": 541,
+    "scrollToBody": 514,
+    "docHeight": 1642
+  },
+  {
+    "variant": "A",
+    "width": 390,
+    "large": true,
+    "viewportH": 844,
+    "bodyTop": null,
+    "speakTop": 314,
+    "figureTop": 681,
+    "scrollToBody": 734,
+    "docHeight": 1929
+  },
+  {
+    "variant": "B",
+    "width": 390,
+    "large": false,
+    "viewportH": 844,
+    "bodyTop": null,
+    "speakTop": 376,
+    "figureTop": 633,
+    "scrollToBody": 514,
+    "docHeight": 1642
+  },
+  {
+    "variant": "B",
+    "width": 390,
+    "large": true,
+    "viewportH": 844,
+    "bodyTop": null,
+    "speakTop": 441,
+    "figureTop": 809,
+    "scrollToBody": 755,
+    "docHeight": 1950
+  },
+  {
+    "variant": "C",
+    "width": 390,
+    "large": false,
+    "viewportH": 844,
+    "bodyTop": 470,
+    "speakTop": 394,
+    "figureTop": null,
+    "scrollToBody": 0,
+    "docHeight": 1660
+  },
+  {
+    "variant": "C",
+    "width": 390,
+    "large": true,
+    "viewportH": 844,
+    "bodyTop": 531,
+    "speakTop": 441,
+    "figureTop": null,
+    "scrollToBody": 0,
+    "docHeight": 1950
+  },
+  {
+    "variant": "A",
+    "width": 430,
+    "large": false,
+    "viewportH": 932,
+    "bodyTop": null,
+    "speakTop": 285,
+    "figureTop": 541,
+    "scrollToBody": 466,
+    "docHeight": 1648
+  },
+  {
+    "variant": "A",
+    "width": 430,
+    "large": true,
+    "viewportH": 932,
+    "bodyTop": null,
+    "speakTop": 314,
+    "figureTop": 594,
+    "scrollToBody": 569,
+    "docHeight": 1853
+  },
+  {
+    "variant": "B",
+    "width": 430,
+    "large": false,
+    "viewportH": 932,
+    "bodyTop": null,
+    "speakTop": 376,
+    "figureTop": 633,
+    "scrollToBody": 466,
+    "docHeight": 1648
+  },
+  {
+    "variant": "B",
+    "width": 430,
+    "large": true,
+    "viewportH": 932,
+    "bodyTop": null,
+    "speakTop": 420,
+    "figureTop": 701,
+    "scrollToBody": 569,
+    "docHeight": 1853
+  },
+  {
+    "variant": "C",
+    "width": 430,
+    "large": false,
+    "viewportH": 932,
+    "bodyTop": 452,
+    "speakTop": 376,
+    "figureTop": 787,
+    "scrollToBody": 0,
+    "docHeight": 1648
+  },
+  {
+    "variant": "C",
+    "width": 430,
+    "large": true,
+    "viewportH": 932,
+    "bodyTop": 531,
+    "speakTop": 441,
+    "figureTop": null,
+    "scrollToBody": 0,
+    "docHeight": 1874
+  }
+]
