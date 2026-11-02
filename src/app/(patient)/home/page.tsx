@@ -29,16 +29,14 @@ export default async function PatientHome() {
 
   return (
     <main className="space-y-6">
-      <header className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+      <header className="flex items-start justify-between gap-2">
+        <div className="min-w-0 pt-1">
           <p className="text-ink-soft">こんにちは</p>
           <h1 className="text-2xl font-bold leading-snug">{u.name} さん</h1>
           <p className="text-ink-soft mt-2">今日の分は 1 つだけ。読まない日があっても大丈夫です。</p>
         </div>
-        <div className="flex flex-col items-end gap-2 shrink-0">
-          <SignOutButton to="/login" />
-          {edi && <EditorialIllustration src={edi.src} alt={edi.altText} />}
-        </div>
+        {/* 挿絵は見出しの右。ログアウトは最下部に移し、ファーストビューを挨拶・挿絵・主役カードだけにする */}
+        {edi && <EditorialIllustration src={edi.src} alt={edi.altText} className="shrink-0 -mt-1 -mr-1" />}
       </header>
 
       {next ? (
@@ -116,6 +114,9 @@ export default async function PatientHome() {
       ))}
 
       <p className="text-sm text-ink-soft">診察のときは「共有」から QR コードを見せてください。あなたが許可した 60 分だけ共有されます。緊急のときは病院の連絡先へご連絡ください。</p>
+      <div className="flex justify-end">
+        <SignOutButton to="/login" />
+      </div>
     </main>
   );
 }

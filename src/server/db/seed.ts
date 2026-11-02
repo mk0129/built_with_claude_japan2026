@@ -113,10 +113,26 @@ export async function seed(db: Db = getDb()) {
 
   // 図解アセット（仕様のみ・未納品・監修待ち）。患者には配信されない
   const { SEED_FIGURES } = await import("./seed-figures");
+  const { existsSync } = await import("node:fs");
   for (const f of SEED_FIGURES) {
+    // 納品済みファイルが public にあれば登録。装飾（editorial）は医学的監修の対象外なので公開可 = approved とする。
+    // 医学的図解（medical）は納品済みでも pending_review のまま（監修プレビューから承認する）
+    const delivered = f.delivered && existsSync(`${process.cwd()}/public/assets/${f.type}/${f.delivered.filename}`) ? f.delivered : null;
     await db
       .insert(figureAssets)
-      .values({ assetId: f.assetId, type: f.type, altText: f.altText, longDescription: f.longDescription, learningObjective: f.learningObjective, reviewStatus: "pending_review", copyrightStatus: "internal_ai_generated", generatorNote: "ChatGPT で制作予定（VISUAL_ASSET_SPECS_5.md）。未納品" })
+      .values({
+        assetId: f.assetId,
+        type: f.type,
+        altText: f.altText,
+        longDescription: f.longDescription,
+        learningObjective: f.learningObjective,
+        filename: delivered?.filename ?? null,
+        width: delivered?.width ?? null,
+        height: delivered?.height ?? null,
+        reviewStatus: delivered && f.type === "editorial" ? "approved" : "pending_review",
+        copyrightStatus: "internal_ai_generated",
+        generatorNote: delivered ? "ChatGPT 画像生成。原画は docs/design/handoff_visual_v1/assets/" : "ChatGPT で制作予定（VISUAL_ASSET_SPECS_5.md）。未納品",
+      })
       .onConflictDoNothing();
     for (const pl of f.placements) {
       const materialId = materialIdByTitle.get(pl.materialTitle);

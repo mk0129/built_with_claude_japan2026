@@ -11,6 +11,8 @@ export const SEED_FIGURES: {
   longDescription: string;
   learningObjective: string;
   placements: { materialTitle: string; slideSeq: number; labels: FigureLabel[]; caption: string | null }[];
+  /** 納品済みの配信ファイル（public/assets/<type>/ に存在すれば登録し、editorial は公開可として approved にする） */
+  delivered?: { filename: string; width: number; height: number };
 }[] = [
   {
     assetId: "MED-001",
@@ -73,5 +75,6 @@ export const SEED_FIGURES: {
     longDescription: "穏やかな住まいの窓辺で、成人女性が椅子に座りマグカップと本を手にしている。",
     learningObjective: "医学的知識は説明しない。アプリに戻る心理的な抵抗を下げる",
     placements: [],
+    delivered: { filename: "EDI-001.png", width: 600, height: 541 },
   },
 ];

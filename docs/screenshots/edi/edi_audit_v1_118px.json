@@ -1,0 +1,58 @@
+[
+  {
+    "viewport": "390",
+    "img": {
+      "w": 117,
+      "h": 105,
+      "top": 90,
+      "right": 18
+    },
+    "overlapsH1": false,
+    "overlapsCta": false,
+    "ctaTop": 523,
+    "vh": 844,
+    "overflowX": 0
+  },
+  {
+    "viewport": "430",
+    "img": {
+      "w": 118,
+      "h": 106,
+      "top": 90,
+      "right": 18
+    },
+    "overlapsH1": false,
+    "overlapsCta": false,
+    "ctaTop": 502,
+    "vh": 932,
+    "overflowX": 0
+  },
+  {
+    "viewport": "820",
+    "img": {
+      "w": 118,
+      "h": 106,
+      "top": 90,
+      "right": 176
+    },
+    "overlapsH1": false,
+    "overlapsCta": false,
+    "ctaTop": 502,
+    "vh": 1180,
+    "overflowX": 0
+  },
+  {
+    "viewport": "1180",
+    "img": {
+      "w": 118,
+      "h": 106,
+      "top": 90,
+      "right": 356
+    },
+    "overlapsH1": false,
+    "overlapsCta": false,
+    "ctaTop": 502,
+    "vh": 820,
+    "overflowX": 0
+  }
+]
