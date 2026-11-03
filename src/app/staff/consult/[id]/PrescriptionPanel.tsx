@@ -83,6 +83,7 @@ export function PrescriptionPanel({
   const header = (
     <div className="flex items-center justify-between gap-2">
       <h2 className="font-bold" style={{ fontSize: 18, letterSpacing: "-0.05em", margin: 0 }}>
+        <span className="rsd-stepnum" style={{ display: "block" }}>3 次の処方</span>
         次の情報処方
         {basket.length > 0 && <span className="rsd-tag coral ml-2">候補 {basket.length}</span>}
         {currentSet && currentSet.items.length > 0 && <span className="rsd-tag sage ml-1">処方済 {currentSet.items.length}</span>}

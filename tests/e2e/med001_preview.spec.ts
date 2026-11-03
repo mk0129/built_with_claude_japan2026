@@ -50,6 +50,7 @@ test("MED-001 管理者プレビュー（切り替え / 縦並び）と患者画
   const pub = await p.page.request.get("/assets/medical/med_001_01_primary_lesion.png");
   const approved = pub.status() === 200; // 監修記録を適用したシードでは承認済み（公開）
   // 患者の教材 1 画面目
+  await p.page.goto("/library"); // Phase E: 前回までの処方はホームでは折りたたみ。教材は「まなぶ」から開く
   await p.page.getByRole("link", { name: /乳がんの診断と病期の考え方/ }).first().click();
   await p.page.waitForURL(/\/(learn|quiz)\//);
   await p.page.goto(p.page.url().replace("/quiz/", "/learn/").split("?")[0] + "?slide=1");

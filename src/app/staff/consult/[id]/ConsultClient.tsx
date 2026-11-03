@@ -8,6 +8,7 @@ import { DOMAIN_LABEL, PHASE_LABEL, RESPONSE_LABEL, SELECTION_LABEL, STATUS_LABE
 import { PrescriptionPanel, type BasketItem } from "./PrescriptionPanel";
 import { Icon } from "@/components/reset/Icons";
 import { createPortal } from "react-dom";
+import { LEVEL_LABEL, domainMap, domainNote, type Level, type Phase } from "@/lib/understanding";
 
 type Consultation = { id: string; orgName: string; clinicianName: string; expiresAt: string; active: boolean; endedBy: string | null; pendingExtension: { id: string } | null };
 type Question = {
@@ -45,6 +46,22 @@ type Summary = {
   homework: { setId: string; orgName: string; createdAt: string; score: number | null; completedCount: number; assignedCount: number; snapshot: null | { capturedAt: string; score: number | null; completedCount: number; assignedCount: number } }[];
   snapshotForThisSession: null | { capturedAt: string; capturedInThisSession: boolean; score: number | null; completedCount: number; assignedCount: number; setId: string; items: { title: string; phase: string; scorePct: number | null; nWrong: number; nUnknown: number }[] };
   currentSet: { setId: string; items: { materialId: string; title: string }[] } | null;
+  learning: Learned[];
+};
+type Learned = {
+  materialId: string;
+  title: string;
+  primaryDomain: string;
+  phase: Phase;
+  lastSlideSeq: number;
+  slideCount: number;
+  level: Level;
+  prescribed: boolean;
+  prescribedAt: string | null;
+  prescribedOrgName: string | null;
+  selfLearning: boolean;
+  nWrong: number;
+  nUnknown: number;
 };
 
 const LETTERS = ["ア", "イ", "ウ"];
@@ -59,6 +76,7 @@ export function ConsultClient({ sessionId }: { sessionId: string }) {
   const [err, setErr] = useState<string | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [basket, setBasket] = useState<BasketItem[]>([]);
+  const [domainFilter, setDomainFilter] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
 
   const consult = usePoll<Consultation>(() => api(`/api/v1/consultations/${sessionId}`), 10_000, [sessionId]);
@@ -150,9 +168,11 @@ export function ConsultClient({ sessionId }: { sessionId: string }) {
       </BarStatus>
       {err && <p className="rsd-muted">{err}</p>}
 
+      {s && <OverviewStrip s={s} />}
+      {s && <DomainMapCard s={s} filter={domainFilter} onFilter={setDomainFilter} />}
       <div className="rsd-grid">
         <section className="space-y-4">
-          {s ? <TodayCard sessionId={sessionId} s={s} onChanged={refresh} onPrescribe={prescribeRelated} /> : <section className="rsd-card rsd-muted">患者さんの記録を読み込んでいます…</section>}
+          {s ? <TodayCard sessionId={sessionId} s={s} onChanged={refresh} onPrescribe={prescribeRelated} domainFilter={domainFilter} onClearFilter={() => setDomainFilter(null)} /> : <section className="rsd-card rsd-muted">患者さんの記録を読み込んでいます…</section>}
           {s && s.previousConsultations.length > 0 && (
             <details className="rsd-card">
               <summary className="font-bold cursor-pointer">これまでの診察セッション（{s.previousConsultations.length}）</summary>
@@ -178,7 +198,25 @@ export function ConsultClient({ sessionId }: { sessionId: string }) {
 }
 
 /** 前回の学びから（参照 .dcard / .infoline）: 患者からの質問 → もう一度説明したいこと（誤答・わからない） → 学習途中の教材。各行に主アクション */
-function TodayCard({ sessionId, s, onChanged, onPrescribe }: { sessionId: string; s: Summary; onChanged: () => void; onPrescribe: (id: string) => void }) {
+function TodayCard({
+  sessionId,
+  s: all,
+  onChanged,
+  onPrescribe,
+  domainFilter,
+  onClearFilter,
+}: {
+  sessionId: string;
+  s: Summary;
+  onChanged: () => void;
+  onPrescribe: (id: string) => void;
+  domainFilter: string | null;
+  onClearFilter: () => void;
+}) {
+  // 理解の地図で領域を選んだときは、その領域の教材に関する行だけを表示する
+  const domainOf = new Map(all.learning.map((l) => [l.materialId, l.primaryDomain]));
+  const inDomain = (materialId: string) => !domainFilter || domainOf.get(materialId) === domainFilter;
+  const s = { ...all, questions: all.questions.filter((q) => inDomain(q.materialId)), missed: all.missed.filter((m) => inDomain(m.materialId)), incompleteMaterials: all.incompleteMaterials.filter((i) => inDomain(i.materialId)) };
   const unread = s.questions.filter((q) => q.status === "unread").length;
   const missedCount = s.missed.reduce((a, m) => a + m.nWrong + m.nUnknown, 0);
   const openQuestions = s.questions.filter((q) => q.status !== "resolved");
@@ -188,6 +226,15 @@ function TodayCard({ sessionId, s, onChanged, onPrescribe }: { sessionId: string
 
   return (
     <section className="rsd-card" aria-labelledby="today-title">
+      <div className="rsd-stepnum">2 確認・説明する</div>
+      {domainFilter && (
+        <p className="rsd-filterbar" role="status">
+          「{DOMAIN_LABEL[domainFilter] ?? domainFilter}」に絞り込み中
+          <button className="btn btn-ghost" onClick={onClearFilter}>
+            すべて表示
+          </button>
+        </p>
+      )}
       <div className="rsd-row" style={{ justifyContent: "space-between" }}>
         <h2 id="today-title" style={{ marginBottom: 0 }}>
           前回の学びから
@@ -550,4 +597,92 @@ function BarStatus({ warn, children }: { warn: boolean; children: React.ReactNod
     </span>
   );
   return slot ? createPortal(el, slot) : <div>{el}</div>;
+}
+
+/** 見出し下の要約帯: 今回確認する処方の進み具合・要確認の領域・未確認の質問・自主学習（Phase E） */
+function OverviewStrip({ s }: { s: Summary }) {
+  const hw = s.homework[0];
+  const map = domainMap(s.learning.map((l) => ({ primaryDomain: l.primaryDomain, level: l.level, phase: l.phase, prescribed: l.prescribed })));
+  const reviewDomains = map.filter((c) => c.total > 0 && c.level === "review");
+  const unread = s.questions.filter((q) => q.status === "unread").length;
+  const self = s.learning.filter((l) => l.selfLearning);
+  return (
+    <dl className="rsd-overview" aria-label="この患者さんの要約">
+      <div>
+        <dt>前回の処方</dt>
+        <dd className="num">{hw ? `${hw.completedCount} / ${hw.assignedCount}` : "—"}</dd>
+        <dd>{hw ? `${fmtDate(hw.createdAt)}の処方のうち完了` : "処方なし"}</dd>
+      </div>
+      <div className={reviewDomains.length ? "warn" : ""}>
+        <dt>もう一度の領域</dt>
+        <dd className="num">{reviewDomains.length}</dd>
+        <dd>{reviewDomains.length ? reviewDomains.map((c) => c.label).join("・") : "なし"}</dd>
+      </div>
+      <div className={unread ? "warn" : ""}>
+        <dt>未確認の質問</dt>
+        <dd className="num">{unread}</dd>
+        <dd>{unread ? "下の「対応する」から記録" : "なし"}</dd>
+      </div>
+      <div>
+        <dt>自分で学んだ教材</dt>
+        <dd className="num">{self.length}</dd>
+        <dd>{self.length ? self.map((l) => l.title).join("・") : "なし"}</dd>
+      </div>
+    </dl>
+  );
+}
+
+/** 理解の地図（Phase E）: 6 領域 × 3 段階。押すと「前回の学びから」をその領域に絞り込む */
+function DomainMapCard({ s, filter, onFilter }: { s: Summary; filter: string | null; onFilter: (d: string | null) => void }) {
+  const map = domainMap(s.learning.map((l) => ({ primaryDomain: l.primaryDomain, level: l.level, phase: l.phase, prescribed: l.prescribed })));
+  return (
+    <section className="rsd-card" aria-labelledby="map-title" data-testid="domain-map">
+      <div className="rsd-row" style={{ justifyContent: "space-between", alignItems: "flex-end" }}>
+        <div>
+          <div className="rsd-stepnum">1 全体を見る</div>
+          <h2 id="map-title" style={{ marginBottom: 0 }}>
+            理解の地図
+          </h2>
+        </div>
+        <p className="rsd-legend">
+          <span className="rsd-lv ok">確認できた</span> 全問正解
+          <span className="rsd-lv review">もう一度</span> 誤答・わからない
+          <span className="rsd-lv none">未学習</span> 確認問題がまだ
+        </p>
+      </div>
+      <div className="rsd-map">
+        {map.map((c) => {
+          const items = s.learning.filter((l) => l.primaryDomain === c.domain);
+          const active = filter === c.domain;
+          return (
+            <button
+              key={c.domain}
+              type="button"
+              className={`rsd-map-cell ${c.total > 0 ? c.level : "empty"} ${active ? "active" : ""}`}
+              aria-pressed={active}
+              disabled={c.total === 0}
+              onClick={() => onFilter(active ? null : c.domain)}
+              aria-label={`${c.label}: ${c.total > 0 ? LEVEL_LABEL[c.level] : "処方・学習なし"}。${domainNote(c)}`}
+            >
+              <span className="name">{c.label}</span>
+              {c.total > 0 ? <span className={`rsd-lv ${c.level}`}>{LEVEL_LABEL[c.level]}</span> : <span className="rsd-lv none">処方・学習なし</span>}
+              {c.total > 0 && <span className="note">{domainNote(c)}</span>}
+              {items.length > 0 && (
+                <span className="items">
+                  {items.map((l) => (
+                    <span key={l.materialId}>
+                      {l.selfLearning ? "自" : "処"} {l.title}
+                    </span>
+                  ))}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      <p className="rsd-muted" style={{ marginTop: 8 }}>
+        「処」は処方した教材、「自」は患者さんが自分で学んだ教材です。領域を押すと、下の「前回の学びから」をその領域に絞り込みます。
+      </p>
+    </section>
+  );
 }

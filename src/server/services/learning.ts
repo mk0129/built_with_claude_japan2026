@@ -1,19 +1,42 @@
 import { and, asc, desc, eq, isNull } from "drizzle-orm";
 import { getDb, type Db } from "@/server/db/client";
-import { learningProgress, prescriptionItems, prescriptionSets, quizAnswers, quizAttempts, quizQuestions } from "@/server/db/schema";
+import { learningProgress, materialVersions, materials, prescriptionItems, prescriptionSets, quizAnswers, quizAttempts, quizQuestions } from "@/server/db/schema";
 import { badRequest, conflict, forbidden, notFound } from "@/server/authz/errors";
 import { getVersionContent } from "./materials";
 import { listApprovedFiguresForVersion } from "./figures";
 
-/** 患者はこの版を処方されているか（患者保有データへの唯一の入口） */
-export async function assertPatientHasVersion(patientId: string, versionId: string, db: Db = getDb()) {
+/**
+ * 患者がこの版を学習できるか（患者保有データへの唯一の入口）。2026-11-03 Phase E で方針変更:
+ * - 処方された版（旧版を含む）は従来どおり学習できる → "prescribed"
+ * - 処方されていなくても、現在公開中の版で、患者に見える教材（共通教材、または患者に処方したことのある病院の独自教材）は
+ *   自主学習として学習できる → "self"
+ * - 下書き・承認待ち・取り下げ・旧版（処方されていないもの）、他院の独自教材は学習できない（403 NOT_AVAILABLE）
+ */
+export async function assertPatientHasVersion(patientId: string, versionId: string, db: Db = getDb()): Promise<"prescribed" | "self"> {
   const [row] = await db
     .select({ id: prescriptionItems.id })
     .from(prescriptionItems)
     .innerJoin(prescriptionSets, eq(prescriptionSets.id, prescriptionItems.setId))
     .where(and(eq(prescriptionSets.patientId, patientId), eq(prescriptionItems.materialVersionId, versionId)))
     .limit(1);
-  if (!row) throw forbidden("NOT_PRESCRIBED");
+  if (row) return "prescribed";
+  const [v] = await db
+    .select({ status: materialVersions.status, scope: materials.scope, ownerOrgId: materials.ownerOrgId, current: materials.currentPublishedVersionId })
+    .from(materialVersions)
+    .innerJoin(materials, eq(materials.id, materialVersions.materialId))
+    .where(eq(materialVersions.id, versionId))
+    .limit(1);
+  if (!v || v.status !== "published" || v.current !== versionId) throw forbidden("NOT_AVAILABLE");
+  if (v.scope === "common") return "self";
+  const orgIds = await patientOrgIds(patientId, db);
+  if (v.ownerOrgId && orgIds.includes(v.ownerOrgId)) return "self";
+  throw forbidden("NOT_AVAILABLE");
+}
+
+/** 患者に処方したことのある病院（その病院の独自教材を自主学習できる） */
+export async function patientOrgIds(patientId: string, db: Db = getDb()): Promise<string[]> {
+  const rows = await db.selectDistinct({ orgId: prescriptionSets.orgId }).from(prescriptionSets).where(eq(prescriptionSets.patientId, patientId));
+  return rows.map((r) => r.orgId);
 }
 
 /** 学習画面用: スライド（正解なし設問一覧付き）と進捗 */

@@ -832,3 +832,181 @@
 .rsd-grid > * {
   min-width: 0;
 }
+
+/* ---- Phase E: 3 段の区切り、要約帯、理解の地図 ---- */
+.rsd-stepnum {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--blue);
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.rsd-filterbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 6px 6px 12px;
+  margin: 0 0 10px;
+  border-radius: 11px;
+  background: #e9f1f7;
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 14px;
+}
+.rsd-overview {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-inline: 0;
+  margin-top: 0;
+}
+.rsd-overview > div {
+  background: #fff;
+  border: 1px solid #e3ebef;
+  border-radius: 15px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+.rsd-overview > div.warn {
+  background: #fdf4f0;
+  border-color: #f0d6ca;
+}
+.rsd-overview dt {
+  font-size: 12px;
+  font-weight: 800;
+  color: #597481;
+}
+.rsd-overview dd {
+  margin: 0;
+  font-size: 12px;
+  color: #6f8792;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rsd-overview .num {
+  font-family: Georgia, "Noto Serif JP", serif;
+  font-size: 26px;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.rsd-lv {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 20px;
+  padding: 2px 9px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.rsd-lv.ok {
+  background: #eaf3ee;
+  color: #3f6d5f;
+}
+.rsd-lv.ok::before {
+  content: "●";
+  font-size: 8px;
+}
+.rsd-lv.review {
+  background: #fbe9e2;
+  color: #a2563c;
+}
+.rsd-lv.review::before {
+  content: "▲";
+  font-size: 8px;
+}
+.rsd-lv.none {
+  background: #eef2f4;
+  color: #6c7f89;
+}
+.rsd-lv.none::before {
+  content: "○";
+  font-size: 9px;
+}
+.rsd-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-size: 12px;
+  color: #6f8792;
+  margin: 0;
+}
+.rsd-map {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 14px;
+}
+.rsd-map-cell {
+  text-align: left;
+  border-radius: 14px;
+  border: 1px solid #e3ebef;
+  background: #fff;
+  padding: 11px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-height: 112px;
+  min-width: 0;
+  cursor: pointer;
+  color: var(--ink);
+}
+.rsd-map-cell.ok {
+  background: #f3f8f5;
+  border-color: #d5e6dc;
+}
+.rsd-map-cell.review {
+  background: #fdf4f0;
+  border-color: #f0d6ca;
+}
+.rsd-map-cell.empty {
+  background: #f8fafb;
+  color: #8a9ba4;
+  cursor: default;
+}
+.rsd-map-cell.active {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+.rsd-map-cell .name {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.rsd-map-cell .note {
+  font-size: 12px;
+  color: #6f8792;
+}
+.rsd-map-cell .items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  color: #4f6573;
+  width: 100%;
+}
+.rsd-map-cell .items > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 1023px) {
+  .rsd-map {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .rsd-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 639px) {
+  .rsd-map {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

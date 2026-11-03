@@ -1044,3 +1044,309 @@ html[data-textsize="large"] .reset-shell .rs-count .lab,
 html[data-textsize="large"] .reset-shell .rs-link {
   font-size: 16px;
 }
+
+/* ---- Phase E: 状態と理解の印（患者・医療者で同じ言葉） ---- */
+.rs-st,
+.rs-lv {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.rs-st.todo {
+  background: #f6efeb;
+  color: #9a6a55;
+}
+.rs-st.doing {
+  background: #e9f1f7;
+  color: var(--blue);
+}
+.rs-st.done {
+  background: #eaf3ee;
+  color: #4f7468;
+}
+.rs-lv.ok {
+  background: #eaf3ee;
+  color: #3f6d5f;
+}
+.rs-lv.ok::before {
+  content: "●";
+  font-size: 9px;
+}
+.rs-lv.review {
+  background: #fbe9e2;
+  color: #a2563c;
+}
+.rs-lv.review::before {
+  content: "▲";
+  font-size: 9px;
+}
+.rs-lv.none {
+  background: #eef2f4;
+  color: #6c7f89;
+}
+.rs-lv.none::before {
+  content: "○";
+  font-size: 10px;
+}
+.rs-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 7px;
+  padding: 1px 7px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  background: #eef2f4;
+  color: #5c7180;
+}
+.rs-badge.rx {
+  background: var(--coral);
+  color: #fff;
+}
+.rs-badge.self {
+  background: #e9f1f7;
+  color: var(--blue);
+}
+/* 今回の処方 */
+.rs-rx-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 12px;
+  font-size: 14px;
+  color: #59758a;
+  font-weight: 700;
+}
+.rs-rx-progress .bar {
+  flex: 1;
+  height: 7px;
+  border-radius: 10px;
+  background: #e4edf1;
+  overflow: hidden;
+}
+.rs-rx-progress .bar > i {
+  display: block;
+  height: 100%;
+  background: var(--sage);
+  border-radius: 10px;
+}
+.rs-rx-list {
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #eef1f2;
+}
+.rs-rx-list > li > a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  min-height: 56px;
+  border-bottom: 1px solid #eef1f2;
+  color: inherit;
+}
+.rs-rx-list .num {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 800;
+  background: #eef2f4;
+  color: #5c7180;
+}
+.rs-rx-list .num.done {
+  background: var(--sage);
+  color: #fff;
+}
+.rs-rx-list .num.next {
+  background: var(--blue);
+  color: #fff;
+}
+.rs-rx-list .t {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+.rs-rx-list .t small {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6f8792;
+  margin-top: 2px;
+}
+/* まなぶ */
+.rs-filter {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 2px 0 4px;
+  margin: 0 0 6px;
+}
+.rs-filter button {
+  flex: none;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 20px;
+  border: 1px solid #d7e3e9;
+  background: #fff;
+  color: #536a79;
+  font-size: 14px;
+  font-weight: 700;
+}
+.rs-filter button[aria-pressed="true"] {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}
+.rs-domain-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin: 22px 0 10px;
+}
+.rs-domain-head h2 {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rs-domain-head h2 .step {
+  font-family: Georgia, serif;
+  font-size: 14px;
+  color: #9caeb8;
+  font-weight: 400;
+}
+.rs-lib-row {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  padding: 12px 2px;
+  min-height: 64px;
+  color: inherit;
+}
+.rs-small-card > li + li > .rs-lib-row {
+  border-top: 1px solid #eef1f2;
+}
+.rs-lib-row .badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+.rs-lib-row .right {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+/* 理解の地図 */
+.rs-map {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+.rs-map-cell {
+  border-radius: 15px;
+  border: 1px solid #e7edf0;
+  background: #fff;
+  padding: 12px 12px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 98px;
+  color: inherit;
+}
+.rs-map-cell.ok {
+  background: #f3f8f5;
+  border-color: #d5e6dc;
+}
+.rs-map-cell.review {
+  background: #fdf4f0;
+  border-color: #f0d6ca;
+}
+.rs-map-cell .name {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.rs-map-cell .note {
+  font-size: 13px;
+  color: #6f8792;
+}
+.rs-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #6f8792;
+}
+html[data-textsize="large"] .reset-shell .rs-map {
+  grid-template-columns: 1fr;
+}
+html[data-textsize="large"] .reset-shell .rs-st,
+html[data-textsize="large"] .reset-shell .rs-lv {
+  font-size: 15px;
+}
+html[data-textsize="large"] .reset-shell .rs-rx-list .t {
+  font-size: 18px;
+}
+html[data-textsize="large"] .reset-shell .rs-rx-list .t small,
+html[data-textsize="large"] .reset-shell .rs-map-cell .note {
+  font-size: 15px;
+}
+.rs-next-label {
+  font-size: 14px;
+  color: #59758a;
+  margin: 0 0 8px;
+  line-height: 1.6;
+}
+.rs-next-label b {
+  color: var(--ink);
+}
+html[data-textsize="large"] .reset-shell .rs-next-label {
+  font-size: 16px;
+}
+/* Phase E: ホームの挨拶は小さく（「今回の処方」を 1 画面目に入れる） */
+.rs-hero.compact {
+  height: 128px;
+  padding: 16px 17px;
+  margin-bottom: 12px;
+}
+.rs-hero.compact .rs-hero-photo {
+  width: 160px;
+  height: 124px;
+  right: -14px;
+  bottom: -6px;
+}
+.rs-hero.compact .rs-hero-text .kicker {
+  margin-bottom: 6px;
+}
+.rs-hero.compact .rs-hero-text .rs-h1 {
+  font-size: 22px;
+  margin: 0;
+}
+.rs-hero.compact .rs-hero-text p {
+  display: none;
+}
+html[data-textsize="large"] .reset-shell .rs-hero.compact {
+  height: 148px;
+}
+html[data-textsize="large"] .reset-shell .rs-hero.compact .rs-hero-text .rs-h1 {
+  font-size: 25px;
+}

@@ -69,6 +69,7 @@ test("UX 監査: スタジオとクイズの幅別スクリーンショット", 
     await demoLogin(page, "patient", "佐藤 花子");
     await page.waitForLoadState("networkidle");
     await snap(page, `patient_home_${vp.name}_viewport`, false);
+    await page.goto("/library"); // Phase E: 前回までの処方はホームでは折りたたみ。教材は「まなぶ」から開く
     await page.getByRole("link", { name: /乳がんの診断と病期の考え方/ }).first().click();
     await page.waitForURL(/\/(learn|quiz)\//);
     const quizUrl = page.url().replace("/learn/", "/quiz/").split("?")[0];

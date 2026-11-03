@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray, isNotNull } from "drizzle-orm";
 import { getDb, type Db } from "@/server/db/client";
-import { materialVersions, materials, prescriptionItems, prescriptionSets, quizAttempts, systemSettings } from "@/server/db/schema";
+import { learningProgress, materialVersions, materials, prescriptionItems, prescriptionSets, quizAttempts, systemSettings } from "@/server/db/schema";
 
 /**
  * スコア計算（D10, D26, D27, LEARN-06〜10）。
@@ -42,8 +42,29 @@ export async function prescribedMaterialIds(patientId: string, db: Db = getDb())
   return rows.map((r) => r.materialId);
 }
 
+/** 患者が自主学習した教材ID（処方されていない教材で、進捗または確認問題の挑戦があるもの） */
+export async function selfLearnedMaterialIds(patientId: string, db: Db = getDb()): Promise<string[]> {
+  const prescribed = new Set(await prescribedMaterialIds(patientId, db));
+  const viaProgress = await db
+    .selectDistinct({ materialId: materialVersions.materialId })
+    .from(learningProgress)
+    .innerJoin(materialVersions, eq(materialVersions.id, learningProgress.materialVersionId))
+    .where(eq(learningProgress.patientId, patientId));
+  const viaAttempts = await db
+    .selectDistinct({ materialId: materialVersions.materialId })
+    .from(quizAttempts)
+    .innerJoin(materialVersions, eq(materialVersions.id, quizAttempts.materialVersionId))
+    .where(eq(quizAttempts.patientId, patientId));
+  return [...new Set([...viaProgress, ...viaAttempts].map((r) => r.materialId))].filter((id) => !prescribed.has(id));
+}
+
+/** 理解の集計対象: 処方された教材＋自主学習した教材 */
+export async function learnedMaterialIds(patientId: string, db: Db = getDb()): Promise<string[]> {
+  return [...new Set([...(await prescribedMaterialIds(patientId, db)), ...(await selfLearnedMaterialIds(patientId, db))])];
+}
+
 export async function computeMaterialScores(patientId: string, materialIds?: string[], db: Db = getDb()): Promise<MaterialScore[]> {
-  const ids = materialIds ?? (await prescribedMaterialIds(patientId, db));
+  const ids = materialIds ?? (await learnedMaterialIds(patientId, db));
   if (ids.length === 0) return [];
   const includeOld = await getSettingBool("scoring.includeOldVersionInAverage", true, db);
 

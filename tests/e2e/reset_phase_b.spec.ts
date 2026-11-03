@@ -29,7 +29,7 @@ async function setLarge(page: Page, large: boolean) {
   await page.waitForTimeout(150);
 }
 async function openFresh(page: Page) {
-  await page.goto("/home");
+  await page.goto("/library");
   const href = await page.getByRole("link", { name: /乳がんの診断と病期の考え方/ }).first().getAttribute("href");
   await page.goto(href!.replace("/learn/", "/quiz/").split("?")[0]);
   const retry = page.getByRole("button", { name: /もう一度挑戦する/ });

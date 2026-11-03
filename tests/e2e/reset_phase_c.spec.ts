@@ -54,7 +54,7 @@ const wideElements = (page: Page) =>
 
 async function prepPatient(page: Page) {
   await demoLogin(page, "patient", "佐藤 花子");
-  await page.goto("/home");
+  await page.goto("/library");
   const href = await page.getByRole("link", { name: /乳がんの診断と病期の考え方/ }).first().getAttribute("href");
   await page.goto(href!.replace("/learn/", "/quiz/").split("?")[0]);
   const retry = page.getByRole("button", { name: /もう一度挑戦する/ });

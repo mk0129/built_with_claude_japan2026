@@ -1,42 +1,38 @@
 import Link from "next/link";
 import { requirePageUser } from "@/server/auth/session";
 import { listHomeworkForPatient, type HomeworkItem, type HomeworkSet } from "@/server/services/prescription";
+import { getPatientLibrary } from "@/server/services/library";
 import { getApprovedAsset } from "@/server/services/figures";
 import { SignOutButton } from "@/components/SignOutButton";
 import { FontSizeToggle } from "@/components/FontSizeToggle";
 import { Icon } from "@/components/reset/Icons";
-import { DOMAIN_LABEL, estimateMinutes, fmtDate } from "@/lib/labels";
+import { LevelChip, PhaseChip, nextAction, nextHref } from "@/components/reset/Status";
+import { DOMAIN_LABEL, estimateMinutes, fmtDate, fmtDateShort } from "@/lib/labels";
+import { type Phase } from "@/lib/understanding";
 
-function hrefFor(i: HomeworkItem) {
-  return i.phase === "quiz" ? `/quiz/${i.versionId}` : `/learn/${i.versionId}`;
-}
-function actionLabel(i: HomeworkItem) {
-  if (i.phase === "quiz") return "確認問題の続きから";
-  if (i.phase === "reading") return "続きから読む";
-  if (i.phase === "completed") return "もう一度読む";
-  return "読む・聞く";
-}
-function trailing(i: HomeworkItem) {
-  if (i.phase === "completed") return "学習済み";
-  if (i.phase === "reading" || i.phase === "quiz") return "つづきから";
-  return null;
+const phaseOf = (i: HomeworkItem) => i.phase as Phase;
+/** 処方セットの中で次に取り組む教材: 途中のもの → 未学習のもの */
+function nextOf(items: HomeworkItem[]) {
+  return items.find((i) => i.phase === "reading" || i.phase === "quiz") ?? items.find((i) => i.phase === "not_started") ?? null;
 }
 
 /**
- * 患者ホーム（Experience Reset 01）。挨拶＋水彩イラストのヒーロー → 医療者から届いた教材（主役カード、主ボタンは全幅で最下部）
- * → これまでの学び（小カードの行）。データ・遷移は従来どおり（宿題セット・進捗・EDI-001 の承認済みアセット）。
+ * 患者ホーム（Phase E）。最上段に「今回の処方」: 誰から・いつ・何教材中いくつ完了か、各教材の状態（未学習・途中・完了）、
+ * 次にやることのボタン 1 つ。その下に、自分で学んでいる教材、教材一覧（まなぶ）への入口、前回までの処方（折りたたみ）。
  */
 export default async function PatientHome() {
   const u = await requirePageUser("patient");
   const sets = await listHomeworkForPatient(u.id);
+  const lib = await getPatientLibrary(u.id);
   const edi = await getApprovedAsset("EDI-001");
-  const allItems = sets.flatMap((s) => s.items);
-  const inProgress = allItems.find((i) => i.phase === "reading" || i.phase === "quiz");
-  const next = inProgress ?? allItems.find((i) => i.phase === "not_started") ?? null;
-  const nextSet: HomeworkSet | undefined = next ? sets.find((s) => s.items.some((i) => i.itemId === next.itemId)) : sets[0];
-  const doneCount = allItems.filter((i) => i.phase === "completed").length;
-  const allDone = allItems.length > 0 && doneCount === allItems.length;
-  const others = allItems.filter((i) => i.itemId !== next?.itemId);
+  const current: HomeworkSet | undefined = sets[0];
+  const older = sets.slice(1);
+  const items = current?.items ?? [];
+  const done = items.filter((i) => i.phase === "completed").length;
+  const next = nextOf(items);
+  const selfLearning = lib.items.filter((i) => i.selfLearning);
+  const levelByMaterial = new Map(lib.items.map((i) => [i.materialId, i.level]));
+  const reviewCount = lib.items.filter((i) => (i.prescribed || i.selfLearning) && i.level === "review").length;
 
   return (
     <>
@@ -48,7 +44,7 @@ export default async function PatientHome() {
         <FontSizeToggle variant="icon" />
       </header>
       <main className="rs-content">
-        <section className="rs-hero" aria-label="挨拶">
+        <section className="rs-hero compact" aria-label="挨拶">
           {edi?.src && (
             // eslint-disable-next-line @next/next/no-img-element
             <img className="rs-hero-photo" src={edi.src} alt={edi.altText} />
@@ -70,95 +66,146 @@ export default async function PatientHome() {
           </div>
         </section>
 
-        {next ? (
-          <section className="rs-rx" aria-labelledby="next-title">
+        {current ? (
+          <section className="rs-rx" aria-labelledby="rx-title" data-testid="current-rx">
             <div className="rs-rx-head">
               <div className="rs-sender">
                 <i>
                   <Icon name="book" size="sm" />
                 </i>
-                医療者から届いた教材
+                {fmtDateShort(current.createdAt)} ・ {current.clinicianName}から
               </div>
-              <span className="rs-pill">{inProgress ? "つづきから" : "はじめから"}</span>
+              <span className="rs-pill">今回の処方</span>
             </div>
-            <h2 id="next-title">{next.title}</h2>
-            <p className="desc">{next.summary ?? (nextSet ? `${fmtDate(nextSet.createdAt)}に ${nextSet.orgName}・${nextSet.clinicianName}から届きました。` : "")}</p>
-            <div className="rs-meta">
-              <Icon name="clock" size="sm" /> 約{estimateMinutes(next.slideCount, next.questionCount)}分
-              <span className="dot">·</span> 全{next.slideCount}画面
-              <span className="dot">·</span>
-              {next.phase === "reading" ? `${Math.min(next.lastSlideSeq, next.slideCount)}/${next.slideCount}画面` : `確認問題${next.questionCount}問`}
+            <h2 id="rx-title">今回の教材は {items.length} つです</h2>
+            <div className="rs-rx-progress" aria-label={`${items.length} 教材中 ${done} 教材完了`}>
+              <span>
+                {done} / {items.length} 完了
+              </span>
+              <span className="bar" aria-hidden>
+                <i style={{ width: `${items.length ? (done / items.length) * 100 : 0}%` }} />
+              </span>
             </div>
-            <Link href={hrefFor(next)} className="rs-btn primary wide" aria-label={`${actionLabel(next)}：${next.title}`}>
-              {actionLabel(next)} <Icon name="arrow" size="sm" />
-            </Link>
-          </section>
-        ) : allDone ? (
-          <section className="rs-rx" aria-labelledby="next-title">
-            <div className="rs-sender">
-              <i>
-                <Icon name="checkcircle" size="sm" />
-              </i>
-              医療者から届いた教材
-            </div>
-            <h2 id="next-title">届いた説明はすべて読み終えました</h2>
-            <p className="desc">気になるところは何度でも読み直せます。「記録」で確認問題の結果や質問を見られます。</p>
-            <Link href="/scores" className="rs-btn outline wide">
-              記録を見る
-            </Link>
-          </section>
-        ) : (
-          <section className="rs-rx" aria-labelledby="next-title">
-            <div className="rs-sender">
-              <i>
-                <Icon name="book" size="sm" />
-              </i>
-              医療者から届いた教材
-            </div>
-            <h2 id="next-title">まだ届いていません</h2>
-            <p className="desc">診察のときに「共有」から QR コードを表示して医療者に見せると、説明が届きます。</p>
-            <Link href="/share" className="rs-btn primary wide">
-              QR コードを表示する <Icon name="arrow" size="sm" />
-            </Link>
-          </section>
-        )}
-
-        {others.length > 0 && (
-          <>
-            <div className="rs-section-label">
-              <span>これまでの学び</span>
-              <Link href="/scores" className="more">
-                すべて見る →
-              </Link>
-            </div>
-            <ul className="rs-small-card" aria-label="これまでの学び">
-              {others.map((i) => {
-                const t = trailing(i);
+            <ol className="rs-rx-list" aria-label="今回の処方の教材">
+              {items.map((i, idx) => {
+                const isNext = next?.itemId === i.itemId;
+                const lv = levelByMaterial.get(i.materialId) ?? "none";
                 return (
                   <li key={i.itemId}>
-                    <Link href={hrefFor(i)} className="rs-item-row">
-                      <div className={`rs-mini-icon ${i.phase === "not_started" ? "coral" : ""}`}>
-                        <Icon name={i.phase === "completed" ? "checkcircle" : i.phase === "not_started" ? "heart" : "book"} />
-                      </div>
-                      <div className="rs-item-info">
-                        <div className="rs-item-title">{i.title}</div>
-                        <div className="rs-item-sub">
+                    <Link href={nextHref({ phase: phaseOf(i), versionId: i.versionId })}>
+                      <span className={`num ${i.phase === "completed" ? "done" : isNext ? "next" : ""}`} aria-hidden>
+                        {i.phase === "completed" ? "✓" : idx + 1}
+                      </span>
+                      <span className="t">
+                        {i.title}
+                        <small>
                           {DOMAIN_LABEL[i.primaryDomain] ?? i.primaryDomain} ・ 約{estimateMinutes(i.slideCount, i.questionCount)}分
-                        </div>
-                      </div>
-                      {t ? <span className="rs-item-trailing">{t}</span> : <Icon name="next" size="sm" className="text-[#84959e]" />}
+                        </small>
+                      </span>
+                      {i.phase === "completed" && lv === "review" ? <LevelChip level="review" /> : <PhaseChip phase={phaseOf(i)} lastSlideSeq={i.lastSlideSeq} slideCount={i.slideCount} />}
                     </Link>
                   </li>
                 );
               })}
+            </ol>
+            {next ? (
+              <>
+                <p className="rs-next-label">
+                  次はこれ：<b>{next.title}</b>
+                </p>
+                <Link href={nextHref({ phase: phaseOf(next), versionId: next.versionId })} className="rs-btn primary wide" aria-label={`${nextAction({ phase: phaseOf(next) })}：${next.title}`}>
+                  {nextAction({ phase: phaseOf(next) })} <Icon name="arrow" size="sm" />
+                </Link>
+              </>
+            ) : (
+              <>
+                <p className="desc">今回の教材はすべて終わりました。{reviewCount > 0 ? `「もう一度」の教材が ${reviewCount} つあります。` : ""}</p>
+                <Link href="/scores" className="rs-btn outline wide">
+                  きろくで理解を見る
+                </Link>
+              </>
+            )}
+          </section>
+        ) : (
+          <section className="rs-rx" aria-labelledby="rx-title">
+            <div className="rs-sender">
+              <i>
+                <Icon name="book" size="sm" />
+              </i>
+              医療者から届く教材
+            </div>
+            <h2 id="rx-title">まだ処方はありません</h2>
+            <p className="desc">診察のときに「共有」から QR コードを見せると、先生から教材が届きます。気になるテーマは「まなぶ」から自由に読めます。</p>
+            <Link href="/library" className="rs-btn primary wide">
+              教材を見てみる <Icon name="arrow" size="sm" />
+            </Link>
+          </section>
+        )}
+
+        {selfLearning.length > 0 && (
+          <>
+            <div className="rs-section-label">
+              <span>自分で学んでいる教材</span>
+              <Link href="/library" className="more">
+                まなぶ →
+              </Link>
+            </div>
+            <ul className="rs-small-card" aria-label="自分で学んでいる教材">
+              {selfLearning.map((i) => (
+                <li key={i.materialId}>
+                  <Link href={nextHref(i)} className="rs-item-row">
+                    <div className="rs-mini-icon">
+                      <Icon name="book" />
+                    </div>
+                    <div className="rs-item-info">
+                      <div className="rs-item-title">{i.title}</div>
+                      <div className="rs-item-sub">{DOMAIN_LABEL[i.primaryDomain] ?? i.primaryDomain}</div>
+                    </div>
+                    {i.phase === "completed" ? <LevelChip level={i.level} /> : <PhaseChip phase={i.phase} lastSlideSeq={i.lastSlideSeq} slideCount={i.slideCount} />}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </>
         )}
 
-        {sets.length > 1 && (
-          <p className="rs-muted mt-3">
-            {sets.map((s) => `${fmtDate(s.createdAt)} ${s.orgName}`).join(" ／ ")} から届いています。
-          </p>
+        <Link href="/library" className="rs-small-card rs-item-row" style={{ marginTop: 16 }}>
+          <div className="rs-mini-icon">
+            <Icon name="grid" />
+          </div>
+          <div className="rs-item-info">
+            <div className="rs-item-title">ほかの教材も自由に学べます</div>
+            <div className="rs-item-sub">診断から心のケアまで、テーマごとに見る</div>
+          </div>
+          <Icon name="next" size="sm" className="text-[#84959e]" />
+        </Link>
+
+        {older.length > 0 && (
+          <details className="rs-small-card rs-details" style={{ marginTop: 16 }}>
+            <summary>
+              <Icon name="list" size="sm" />
+              前回までの処方（{older.length}回）
+            </summary>
+            {older.map((s) => (
+              <div key={s.setId} className="mt-3">
+                <p className="rs-muted">
+                  {fmtDate(s.createdAt)} ・ {s.orgName} ・ {s.clinicianName} ・ {s.items.filter((i) => i.phase === "completed").length}/{s.items.length} 完了
+                </p>
+                <ul>
+                  {s.items.map((i) => (
+                    <li key={i.itemId}>
+                      <Link href={nextHref({ phase: phaseOf(i), versionId: i.versionId })} className="rs-item-row">
+                        <div className="rs-item-info">
+                          <div className="rs-item-title">{i.title}</div>
+                        </div>
+                        {i.phase === "completed" ? <LevelChip level={levelByMaterial.get(i.materialId) ?? "none"} /> : <PhaseChip phase={phaseOf(i)} lastSlideSeq={i.lastSlideSeq} slideCount={i.slideCount} />}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </details>
         )}
 
         <p className="rs-hero-secondary">

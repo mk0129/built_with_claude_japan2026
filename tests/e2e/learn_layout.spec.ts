@@ -64,6 +64,7 @@ test("学習画面: 折衷レイアウトの順序・初期表示・図の注記
   for (const vp of WIDTHS) {
     const { ctx, page } = await newPage(browser, { width: vp.width, height: vp.height });
     await demoLogin(page, "patient", "佐藤 花子");
+    await page.goto("/library"); // Phase E: 前回までの処方はホームでは折りたたみ。教材は「まなぶ」から開く
     await page.getByRole("link", { name: /乳がんの診断と病期の考え方/ }).first().click();
     await page.waitForURL(/\/(learn|quiz)\//);
     const learnUrl = page.url().replace("/quiz/", "/learn/").split("?")[0] + "?slide=1";

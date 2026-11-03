@@ -12,6 +12,7 @@ const MED001 = /乳がんの診断と病期の考え方/;
 
 async function openFreshQuiz(page: Page) {
   await page.goto("/home");
+  await page.goto("/library"); // Phase E: 前回までの処方はホームでは折りたたみ。教材は「まなぶ」から開く
   const href = await page.getByRole("link", { name: MED001 }).first().getAttribute("href");
   const quizUrl = href!.replace("/learn/", "/quiz/").split("?")[0];
   await page.goto(quizUrl);

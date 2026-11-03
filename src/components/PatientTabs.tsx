@@ -5,8 +5,9 @@ import { Icon } from "@/components/reset/Icons";
 
 /** 下部ナビ（Experience Reset 01 の tab-link）。学習・クイズ中は非表示（主要ボタンと重ならないように） */
 const TABS = [
-  { href: "/home", label: "ホーム", icon: "book" as const },
-  { href: "/scores", label: "記録", icon: "checkcircle" as const },
+  { href: "/home", label: "ホーム", icon: "home" as const },
+  { href: "/library", label: "まなぶ", icon: "book" as const },
+  { href: "/scores", label: "きろく", icon: "checkcircle" as const },
   { href: "/share", label: "共有", icon: "person" as const },
 ];
 const HIDDEN_PREFIXES = ["/login", "/learn/", "/quiz/"];

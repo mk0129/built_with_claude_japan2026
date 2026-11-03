@@ -52,7 +52,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
 
   // 5. 患者ホームに届く
   await p.goto("/home");
-  await expect(p.getByText(/医療者から届いた教材/).first()).toBeVisible();
+  await expect(p.getByText(/今回の処方/).first()).toBeVisible();
   await shot(p, "10_patient_home_homework");
 
   // 6. 説明を読む・音声再生

@@ -71,3 +71,9 @@ export function estimateMinutes(slideCount: number, questionCount: number): numb
 export function fmtDate(d: string | Date): string {
   return new Date(d).toLocaleDateString("ja-JP", { year: "numeric", month: "short", day: "numeric" });
 }
+
+/** 年を省いた日付（例: 10月24日）。今年の日付を短く見せる場面で使う */
+export function fmtDateShort(d: string | Date): string {
+  const x = new Date(d);
+  return x.toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo", month: "long", day: "numeric" });
+}

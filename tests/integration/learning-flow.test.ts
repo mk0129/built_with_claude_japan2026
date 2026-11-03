@@ -1,12 +1,12 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { eq } from "drizzle-orm";
+import { eq, ne } from "drizzle-orm";
 import { getDb } from "@/server/db/client";
 import { homeworkSnapshots, materialVersions, materials, prescriptionSets, systemSettings } from "@/server/db/schema";
 import { AppError } from "@/server/authz/errors";
 import { requireActiveConsultation, type ConsultationContext } from "@/server/authz/consultation";
 import { endConsultation, getPatientSummary } from "@/server/services/consultation";
 import { listHomeworkForPatient, prescribe } from "@/server/services/prescription";
-import { answerQuestion, getLearningView, saveProgress, startOrResumeAttempt } from "@/server/services/learning";
+import { answerQuestion, assertPatientHasVersion, getLearningView, saveProgress, startOrResumeAttempt } from "@/server/services/learning";
 import { computeHomeworkScore, computeMaterialScores, computeScoreSummary } from "@/server/services/scoring";
 import { listFeedbackForPatient, submitFeedback, updateQuestionStatus } from "@/server/services/questions";
 import { listTemplates, listVisibleMaterials } from "@/server/services/materials";
@@ -107,9 +107,18 @@ describe("情報処方 → 学習 → クイズ → 医療者の確認（縦断�
     expect(hw[0].items.every((i) => i.phase === "not_started")).toBe(true);
   });
 
-  it("処方されていない教材は患者が開けない。処方済みは読める", async () => {
+  it("Phase E: 公開中の共通教材は処方前でも自主学習できる。他院の独自教材・未公開の版は開けない。処方済みは読める", async () => {
     const [other] = await getDb().select({ v: materials.currentPublishedVersionId }).from(materials).where(eq(materials.id, mat("こころのケアと相談先")));
-    await expectAppError(getLearningView(uid(PATIENT_A), other.v!), 403, "NOT_PRESCRIBED");
+    expect(await assertPatientHasVersion(uid(PATIENT_A), other.v!)).toBe("self");
+    expect((await getLearningView(uid(PATIENT_A), other.v!)).slides.length).toBeGreaterThanOrEqual(3);
+    // 患者B はどの病院からも処方されていない → さくら総合病院の独自教材は開けない
+    const [sakuraOnly] = await getDb().select({ v: materials.currentPublishedVersionId }).from(materials).where(eq(materials.id, mat(M_SAKURA_ONLY)));
+    await expectAppError(getLearningView(uid(PATIENT_B), sakuraOnly.v!), 403, "NOT_AVAILABLE");
+    // 患者A はさくら総合病院から処方されている → 同院の独自教材は自主学習できる
+    expect(await assertPatientHasVersion(uid(PATIENT_A), sakuraOnly.v!)).toBe("self");
+    // 公開中でない版（下書きなど）は開けない
+    const [draft] = await getDb().select({ id: materialVersions.id }).from(materialVersions).where(ne(materialVersions.status, "published")).limit(1);
+    if (draft) await expectAppError(getLearningView(uid(PATIENT_A), draft.id), 403);
     const hw = await listHomeworkForPatient(uid(PATIENT_A));
     const item = hw[0].items.find((i) => i.materialId === mat(M_STAGE))!;
     const view = await getLearningView(uid(PATIENT_A), item.versionId);

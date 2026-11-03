@@ -20,6 +20,7 @@ test("C2 患者画面の幅別スクリーンショット", async ({ browser }) 
     expect((await layoutAudit(page)).overflowX, `home ${vp.name}`).toBeLessThanOrEqual(0);
     await page.screenshot({ path: `${SHOT_DIR}/c2_home_${vp.name}.png`, fullPage: true });
     // 教材: 病期（完了済み）を開く
+    await page.goto("/library"); // Phase E: 前回までの処方はホームでは折りたたみ。教材は「まなぶ」から開く
     await page.getByRole("link", { name: /乳がんの診断と病期の考え方/ }).first().click();
     await page.waitForURL(/\/(learn|quiz)\//);
     if (page.url().includes("/quiz/")) {
@@ -53,7 +54,7 @@ test("C2 医療者ダッシュボードと監修プレビュー（820 / 1180）"
     await staff.page.getByRole("button", { name: /共有を要求する/ }).click();
     await patient.page.getByRole("button", { name: "許可する" }).click({ timeout: 10_000 });
     await staff.page.waitForURL(/\/staff\/consult\//, { timeout: 15_000 });
-    await expect(staff.page.getByText(/前回の学びから/)).toBeVisible({ timeout: 15_000 });
+    await expect(staff.page.getByRole("heading", { name: "前回の学びから" })).toBeVisible({ timeout: 15_000 });
     await staff.page.waitForLoadState("networkidle");
     await staff.page.screenshot({ path: `${SHOT_DIR}/c2_staff_dashboard_${vp.name}.png`, fullPage: true });
     await staff.page.getByRole("button", { name: "共有を終了" }).click();

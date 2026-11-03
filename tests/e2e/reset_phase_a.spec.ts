@@ -69,6 +69,7 @@ test("Phase A: 患者ホームと教材学習の撮影・計測", async ({ brows
       };
     }
     await setLarge(page, false);
+    await page.goto("/library"); // Phase E: 前回までの処方はホームでは折りたたみ。教材は「まなぶ」から開く
     const href = await page.getByRole("link", { name: /乳がんの診断と病期の考え方/ }).first().getAttribute("href");
     const v = href!.split("/")[2].split("?")[0];
     for (const large of vp.width <= 430 ? [false, true] : [false]) {

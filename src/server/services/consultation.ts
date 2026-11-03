@@ -4,6 +4,7 @@ import { consultationExtensions, consultationSessions, homeworkSnapshots, organi
 import { conflict, forbidden, notFound } from "@/server/authz/errors";
 import { isSessionActive, type ConsultationContext } from "@/server/authz/consultation";
 import { audit } from "./audit";
+import { getPatientLibrary, learnedItems } from "./library";
 import { CONSULTATION_TTL_MS } from "./qr";
 import { listHomeworkForPatient, getSetForSession } from "./prescription";
 import { computeHomeworkScore, computeScoreSummary } from "./scoring";
@@ -240,6 +241,22 @@ export async function getPatientSummary(ctx: ConsultationContext, db: Db = getDb
         }
       : null,
     currentSet: await getSetForSession(ctx, db),
+    // Phase E: 領域ごとの理解の地図に使う、処方・自主学習した教材の一覧（状態と 3 段階）
+    learning: learnedItems((await getPatientLibrary(ctx.patientId, db)).items).map((i) => ({
+      materialId: i.materialId,
+      title: i.title,
+      primaryDomain: i.primaryDomain,
+      phase: i.phase,
+      lastSlideSeq: i.lastSlideSeq,
+      slideCount: i.slideCount,
+      level: i.level,
+      prescribed: !!i.prescribed,
+      prescribedAt: i.prescribed?.createdAt ?? null,
+      prescribedOrgName: i.prescribed?.orgName ?? null,
+      selfLearning: i.selfLearning,
+      nWrong: i.nWrong,
+      nUnknown: i.nUnknown,
+    })),
   };
 }
 
