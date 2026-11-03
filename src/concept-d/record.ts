@@ -311,10 +311,15 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
   // Claude の外来間要約（期間ごと。サーバー側で同じデータなら再利用）
   const [ai, setAi] = useState<{ sid: string; key: string; data: AiSummaryApi } | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  // 同じ期間の要求が進行中なら新しく送らない（開発時の二重マウントなどで Claude を二重に呼ばない）
+  const aiInflight = useRef<string | null>(null);
   const loadAiSummary = useCallback(
     async (period: { from: string; to: string } | null, opts: { regenerate?: boolean } = {}) => {
       if (!sid) return;
       const key = period ? `?from=${period.from}&to=${period.to}` : "";
+      const flightKey = `${sid}${key}${opts.regenerate ? "|re" : ""}`;
+      if (aiInflight.current === flightKey) return;
+      aiInflight.current = flightKey;
       // 開発用: URL の aisim=invalid|error で AI の失敗を再現（擬似生成のときだけサーバーが受け付ける）
       const sim = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("aisim") : null;
       setAiLoading(true);
@@ -326,6 +331,7 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
       } catch (e) {
         notifyRef.current(errorText(e));
       } finally {
+        if (aiInflight.current === flightKey) aiInflight.current = null;
         setAiLoading(false);
       }
     },

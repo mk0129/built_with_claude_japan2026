@@ -217,6 +217,9 @@ export const hashIntervisit = (iv: Intervisit) =>
 const cache = new Map<string, Omit<AiSummaryResult, "cached">>();
 const CACHE_MAX = 100;
 
+/** 同じ共有・期間・データの生成中の要求（同時に来た要求は同じ結果を待ち、Claude を二重に呼ばない） */
+const inflight = new Map<string, Promise<AiSummaryResult>>();
+
 export async function summarizeIntervisit(
   iv: Intervisit,
   opts: { sessionId: string; fictional: boolean; regenerate?: boolean; simulate?: "invalid" | "error" | null },
@@ -225,6 +228,22 @@ export async function summarizeIntervisit(
   const key = `${opts.sessionId}|${iv.period.from}|${iv.period.to}|${dataHash}`;
   const hit = !opts.regenerate && !opts.simulate ? cache.get(key) : undefined;
   if (hit) return { ...hit, cached: true };
+  if (!opts.simulate) {
+    const pending = inflight.get(key);
+    if (pending) return pending;
+    const p = generate(iv, opts, key, dataHash).finally(() => inflight.delete(key));
+    inflight.set(key, p);
+    return p;
+  }
+  return generate(iv, opts, key, dataHash);
+}
+
+async function generate(
+  iv: Intervisit,
+  opts: { sessionId: string; fictional: boolean; regenerate?: boolean; simulate?: "invalid" | "error" | null },
+  key: string,
+  dataHash: string,
+): Promise<AiSummaryResult> {
   const rules = ruleSummary(iv);
   let usage: AiSummaryResult["usage"] = null;
   let rawItems: SummaryItem[] = [];
@@ -265,6 +284,11 @@ export async function summarizeIntervisit(
       model = "fake:intervisit";
       generator = "fake";
     } else {
+      // 実 API の呼び出し回数の上限（検証・デモで課金を抑える。INTERVISIT_AI_MAX_CALLS。プロセス内で数える）
+      const g = globalThis as { __shioriIntervisitAiCalls?: number };
+      const max = process.env.INTERVISIT_AI_MAX_CALLS ? Number(process.env.INTERVISIT_AI_MAX_CALLS) : Infinity;
+      if (mode === "claude" && (g.__shioriIntervisitAiCalls ?? 0) >= max) return fallback("AI 要約の呼び出し回数の上限に達したため、ルールベースで表示しています");
+      if (mode === "claude") g.__shioriIntervisitAiCalls = (g.__shioriIntervisitAiCalls ?? 0) + 1;
       const r = await callClaudeStructured({ system: SYSTEM, user: buildUser(iv), schema: AiSummarySchema, schemaName: "intervisit_summary", maxTokens: 6000 });
       items = r.data.items;
       model = r.model;

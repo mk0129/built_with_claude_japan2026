@@ -199,6 +199,25 @@ describe("Claude の外来間要約（Step 4-C・モック）", () => {
     expect(r.json.fallbackReason).not.toContain("しびれ");
   });
 
+  it("同じ共有・期間・データの同時の要求は、Claude を 1 回だけ呼んで同じ結果を返す", async () => {
+    let release: () => void = () => {};
+    const gate = new Promise<void>((r) => (release = r));
+    g.__shioriClaudeMock = async ({ user }) => {
+      calls++;
+      await gate;
+      const json = JSON.parse(user.match(/<intervisit_data>\n([\s\S]*)\n<\/intervisit_data>/)![1]);
+      return { items: [{ section: "患者からの質問", text: `「${json.questions[0].text}」`, sourceIds: [json.questions[0].id] }] };
+    };
+    const iv = await buildIntervisit({ patientId: seeded.users.get(PATIENT_B)!, sessionId });
+    const a = summarizeIntervisit(iv, { sessionId: `${sessionId}-dup`, fictional: true });
+    const b = summarizeIntervisit(iv, { sessionId: `${sessionId}-dup`, fictional: true });
+    release();
+    const [ra, rb] = await Promise.all([a, b]);
+    expect(calls).toBe(1);
+    expect(ra.status).toBe("ai");
+    expect(rb).toEqual(ra);
+  });
+
   it("架空のデモ患者以外は外部 AI に送らない", async () => {
     mock(() => ({ items: [] }));
     const iv = await buildIntervisit({ patientId: seeded.users.get(PATIENT_B)!, sessionId });
