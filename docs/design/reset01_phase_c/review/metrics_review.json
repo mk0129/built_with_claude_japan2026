@@ -1,0 +1,80 @@
+{
+  "editorUrl": "http://localhost:3205/staff/studio/materials/d5683227-666e-4e7f-bc35-242cdcbd3785",
+  "previewUrl": "http://localhost:3205/staff/materials/d5683227-666e-4e7f-bc35-242cdcbd3785/preview",
+  "studio3_1180": {
+    "grid": {
+      "top": 345,
+      "left": 230,
+      "w": 920,
+      "h": 503
+    },
+    "cards": [
+      503,
+      503,
+      503
+    ],
+    "h3": [
+      53,
+      53,
+      53
+    ],
+    "overflowX": 0
+  },
+  "studio3_820": {
+    "grid": {
+      "top": 443,
+      "left": 16,
+      "w": 788,
+      "h": 917
+    },
+    "cards": [
+      441,
+      441,
+      462
+    ],
+    "h3": [
+      53,
+      53,
+      53
+    ],
+    "overflowX": 0
+  },
+  "studio3_430": {
+    "grid": {
+      "top": 504,
+      "left": 16,
+      "w": 398,
+      "h": 1373
+    },
+    "cards": [
+      441,
+      441,
+      462
+    ],
+    "h3": [
+      53,
+      53,
+      53
+    ],
+    "overflowX": 0
+  },
+  "studio3_390": {
+    "grid": {
+      "top": 554,
+      "left": 16,
+      "w": 358,
+      "h": 1373
+    },
+    "cards": [
+      441,
+      441,
+      462
+    ],
+    "h3": [
+      53,
+      53,
+      53
+    ],
+    "overflowX": 0
+  }
+}

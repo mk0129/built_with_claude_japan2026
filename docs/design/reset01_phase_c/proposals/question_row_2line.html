@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>診察画面 質問行の改善案（2 行表示＋展開）— 静的モック、製品コードではない</title>
+<style>
+:root{--ink:#243543;--soft:#607688;--line:#e6edf1;--blue:#3a5a78;--coral:#b86a4a;--coralbg:#f7e9e2;--sage:#5f8a96;--bg:#f5f8fa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:"Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif;color:var(--ink);font-size:15px;line-height:1.6}
+.wrap{max-width:577px;margin:0 auto;padding:24px 16px}
+.label{font:700 12px/1.4 sans-serif;color:var(--coral);letter-spacing:.04em;margin:28px 0 8px}
+.note{font-size:13px;color:var(--soft);margin:0 0 10px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:23px}
+.card h2{font-size:18px;margin:0 0 4px;font-weight:800}
+.sub{font-size:13px;color:var(--soft);margin:0 0 6px}
+.row{display:flex;align-items:center;gap:8px}.between{justify-content:space-between}
+.tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:8px;background:#edf2f5;color:var(--soft);font-size:12px;font-weight:700;white-space:nowrap}
+.tag.coral{background:var(--coralbg);color:var(--coral)}
+.line{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.mark{flex:0 0 38px;width:38px;height:38px;border-radius:12px;background:#eaf1f4;display:grid;place-items:center;color:var(--blue)}
+.mark.coral{background:var(--coralbg);color:var(--coral)}
+.body{flex:1;min-width:0}
+.line h3{font-size:15px;font-weight:800;margin:0 0 2px}
+.meta{font-size:12px;color:var(--soft);margin:0 0 4px}
+.q{margin:0;font-size:15px;line-height:1.65}
+.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.more{display:inline-flex;align-items:center;min-height:36px;padding:0;border:0;background:none;color:var(--blue);font-weight:700;font-size:13px;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:43px;padding:0 16px;border-radius:11px;border:1px solid #cfdbe2;background:#fff;font-weight:700;font-size:14px;color:var(--ink);cursor:pointer;white-space:nowrap}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.ghost{border-color:transparent;background:#eaf1f4;color:var(--blue)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.expand{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:44px;min-width:44px;padding:0 12px;border-radius:11px;border:1px solid #cfdbe2;background:#fff;font-weight:700;font-size:13px;color:var(--blue);cursor:pointer;align-self:center}
+.panel{margin-top:10px;padding:14px;border-radius:12px;background:#f6fafc;border:1px solid var(--line)}
+.panel .q{margin-bottom:10px}
+.muted{font-size:13px;color:var(--soft)}
+svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:480px){.wrap{padding:16px 12px}.card{padding:16px}.line{gap:10px}}
+</style></head><body><div class="wrap">
+
+<div class="label">現状（Phase C 実装）: 質問本文を全文表示、操作ボタン 2 つ常時表示 — 行高 218px（1180）</div>
+<div class="card">
+  <div class="row between"><h2>前回の学びから</h2><span class="tag coral">確認事項 4件</span></div>
+  <p class="sub">未確認の質問 2 ・ 誤答・わからない 2 ・ 未完了 1</p>
+  <div class="line"><div class="mark coral"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></div>
+    <div class="body"><div class="row between"><h3>患者からの質問</h3><span class="tag coral">未確認</span></div>
+      <p class="meta">2026年11月3日 ・ 乳がんの診断と病期の考え方 ・ 「質問がある」</p>
+      <p class="q">『病期は治療の目安』のところで、「がんの性質や体の状態で治療は変わる」という点がよくわかりませんでした。次の診察で説明してほしいです。</p>
+      <div class="actions"><button class="btn primary">対応を記録</button><button class="btn ghost">関連教材を候補へ</button></div>
+    </div></div>
+</div>
+
+<div class="label">A 案: 本文 2 行省略＋「全文を読む」、ボタンは維持 — 約 150px</div>
+<p class="note">変更が最小。省略は CSS の line-clamp（文字拡大時は 3 行）。「全文を読む」で本文だけ展開する。</p>
+<div class="card">
+  <div class="line"><div class="mark coral"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></div>
+    <div class="body"><div class="row between"><h3>患者からの質問 <span class="muted" style="font-weight:400">・ 11月3日 ・ 病期の考え方</span></h3><span class="tag coral">未確認</span></div>
+      <p class="q clamp">『病期は治療の目安』のところで、「がんの性質や体の状態で治療は変わる」という点がよくわかりませんでした。次の診察で説明してほしいです。</p>
+      <button class="more" aria-expanded="false">全文を読む ▾</button>
+      <div class="actions"><button class="btn primary">対応を記録</button><button class="btn ghost">関連教材を候補へ</button></div>
+    </div></div>
+</div>
+
+<div class="label">B 案（推奨）: 2 行省略＋行の右端「対応する ›」で展開。展開内に全文・対応の記録・関連教材 — 折りたたみ時 約 100px、参照 81px に近い</div>
+<p class="note">一覧では「誰が・何を」だけが見え、質問が複数あっても確認したいことの全体が 1 画面に収まる。展開ボタンは 44px 以上、`aria-expanded` と `aria-controls` を付け、キーボードで開閉できる。未確認タグは折りたたみ時も維持。</p>
+<div class="card">
+  <div class="line"><div class="mark coral"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></div>
+    <div class="body"><div class="row between"><h3>患者からの質問 <span class="muted" style="font-weight:400">・ 11月3日 ・ 病期の考え方</span></h3><span class="tag coral">未確認</span></div>
+      <p class="q clamp">『病期は治療の目安』のところで、「がんの性質や体の状態で治療は変わる」という点がよくわかりませんでした。次の診察で説明してほしいです。</p>
+    </div>
+    <button class="expand" aria-expanded="false" aria-controls="q1">対応する ›</button></div>
+  <div class="line"><div class="mark coral"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></div>
+    <div class="body"><div class="row between"><h3>患者からの質問 <span class="muted" style="font-weight:400">・ 10月23日 ・ 病期の考え方</span></h3><span class="tag coral">未確認</span></div>
+      <p class="q clamp">ステージが同じでも治療が違うことがあると読みました。私の場合はどういう理由で今の治療になったのか、次に教えてください。</p>
+    </div>
+    <button class="expand" aria-expanded="false">対応する ›</button></div>
+</div>
+
+<div class="label">B 案 展開時: 全文＋対応の記録フォーム＋関連教材（既存ロジックのまま）</div>
+<div class="card">
+  <div class="line" style="border-bottom:0"><div class="mark coral"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></div>
+    <div class="body"><div class="row between"><h3>患者からの質問 <span class="muted" style="font-weight:400">・ 11月3日 ・ 乳がんの診断と病期の考え方 ・ 「質問がある」</span></h3><span class="tag coral">未確認</span></div>
+      <div class="panel" id="q1">
+        <p class="q">『病期は治療の目安』のところで、「がんの性質や体の状態で治療は変わる」という点がよくわかりませんでした。次の診察で説明してほしいです。</p>
+        <p class="muted" style="margin:0 0 6px">対応の方法</p>
+        <div class="actions" style="margin:0 0 10px"><button class="btn">口頭で説明</button><button class="btn">教材で補足</button><button class="btn">次回に持ち越し</button></div>
+        <div class="actions"><button class="btn primary">対応済みとして記録する</button><button class="btn ghost">関連教材を候補へ</button><button class="btn" style="margin-left:auto">閉じる ▴</button></div>
+      </div>
+    </div></div>
+</div>
+
+<p class="note" style="margin-top:24px">※ 架空データ。製品コードではなく提案用の静的モック（docs/design/reset01_phase_c/proposals）。</p>
+</div></body></html>
