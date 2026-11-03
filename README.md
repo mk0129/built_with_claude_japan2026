@@ -4,73 +4,74 @@ Built with Claude: Japan 2026（2026-11-02〜11-08）で開発するハッカソ
 **架空の患者・医療機関のみ**を扱い、実患者データ・実院内資料は使用しない。本番医療運用を主張しない。
 
 - 要件の正本: `clinical_info_rx_ClaudeCode_spec_20261102/REQUIREMENTS.md`（+ `DECISIONS.md`, `ACCEPTANCE_TESTS.md`, `CLAUDE.md`）
-- 設計・実装計画（承認済み）: `docs/DESIGN_PROPOSAL_20261102.md`
-- Day 3 UI/UX 検証: `docs/UX_REVIEW_DAY3_20261102.md`（スクリーンショット: `docs/screenshots/day3/`）
-- UI P0 改善レポート: `docs/UI_P0_REPORT_20261102.md`（修正前後: `docs/screenshots/ui_p0/`）
-- デザイン再設計（C2 適用）: `docs/design/`（スクリーンショット: `docs/screenshots/c2/`）
+- 正式 UI: Figma Make「Concept D」の移植（`src/concept-d/`）。移植の記録: `docs/design/concept_d/`
+- Phase 2（実データ接続）の報告: `docs/design/phase2/step1` 〜 `step4`
+- 旧 UI（Reset 01 まで）は `legacy/reset01-ui/` に退避（バックエンド移行が終わるまで削除しない。ビルド対象外）
 
-## 実装ステータス
-
-| 機能 | 状態 | 備考 |
+## 画面
+| URL | 対象 | 内容 |
 |---|---|---|
-| 認証（デモアカウント / メールOTP / Google） | ✅ 基盤 / ⚠️ 外部設定待ち | Better Auth。OTP は未設定時サーバーログに出力。Google は環境変数設定で有効。LINE は P1 |
-| 組織・役割（org_admin / material_editor / material_approver / clinician） | ✅ | サーバー側で毎回検証 |
-| 患者 QR（5分・1回限り）+ 6桁コード代替（D28） | ✅ | 生トークン非保存、原子的消費、試行制限 |
-| 患者の明示承認 → 60分診察セッション / 即時終了 / 延長の再承認 | ✅ | 医療者の患者データ閲覧は有効セッション必須 |
-| 医療者ダッシュボード（未確認質問 → 誤答・わからない → 未完了 → スコア） | ✅ | 関連教材のワンクリック処方 |
-| 情報処方サイドパネル（テンプレート / キーワード・領域検索 / 候補バスケット / 確定） | ✅ | AI 検索は後続 |
-| 診察セッション単位の宿題セット・同教材の統合・再処方の進捗引き継ぎ | ✅ | T13 / T14 |
-| 教材学習（C2: 命題・短い本文・くわしく・読み上げ・固定ナビ） | ✅ | 医学的図解は承認済みのものだけ表示。未承認は非表示（D33） |
-| 図解アセット（figure_assets / placements）と監修プレビュー | ✅ 基盤 | 画像は未納品。`/staff/materials/[versionId]/preview`（編集者・承認者のみ） |
-| クイズ（3択+わからない、1問ずつ確定、再開、再挑戦、採点） | ✅ | T10 / T11 / T12 |
-| 全体・宿題・領域別スコア（丸めは表示時のみ、旧版バッジ、安全無効化の除外） | ✅ | D26 / D27 |
-| 次回診察時の宿題スナップショット（処方元病院のみ・一度だけ） | ✅ | T15 / D29 |
-| 患者のふりかえり・質問と3段階の対応管理 | ✅ | T16 / T17 |
-| 架空教材 10 本（本文・クイズ・テンプレート 4 件） | ✅ | オリジナル原稿。本番監修ではない |
-| 原資料アップロード・許諾管理・非公開ストレージ | ⬜ | Day 4 |
-| Claude による教材生成（B/C）・編集・承認・公開 | ⬜ | Day 4-5（ジョブ化） |
-| 通知（メール / LINE）、AI 教材検索、改訂・版比較 UI | ⬜ | P1 |
+| `/home` | 患者（スマートフォン・タブレット） | ホーム・今回の情報処方・教材を探す・学習・理解確認・学習記録・体調記録・診察ノート・医療者との一時共有 |
+| `/staff` | 医療者（iPad / PC。Figma の設計幅 1180 / 820 を中央に配置） | 一時共有の開始（QR / 6 桁コード）・診察サマリー・在宅経過表・情報処方・教材ライブラリ・教材スタジオ |
+| `/d/dev` | 開発用（医療者ログイン） | Figma の架空データと検証シナリオで描画（画素比較用。本番には出さない） |
+
+## 実装ステータス（Phase 2）
+| Step | 内容 | 状態 |
+|---|---|---|
+| 1 | QR 一時共有: 医療者が QR を表示 → 患者が申請者・有効期間を確認して明示承認 → 60 分。延長は再承認、どちらからも即時終了、終了後の API は 403。患者発行の 6 桁コード（5 分・1 回限り・失敗 5 回/10 分で拒否）。複数施設の医療者は申請先を選択。患者一覧なし | ✅ |
+| 2 | 情報処方と学習記録: 承認済み教材の処方（同一診察で重複なし・再処方）、患者の学習（スライド・承認済み図解・位置の保存）、理解確認（1 問ずつ確定、「わからない」と誤答を区別）、医療者の診察サマリー（回答・正答・解説・日時・教材。点数で理解を断定しない） | ✅ |
+| 3 | 体調記録（バイタル 5 項目は任意・同じ日に複数回・欠測と 0 の区別・編集・削除）、症状の追加・非表示・並び替え・独自の症状名、診察ノート（自由な質問・理解確認からの候補は保存したときだけ記録）。医療者は共有中だけ閲覧 | ✅ |
+| 4 | 在宅経過表（7/14/28 日・指定期間、同じ日の複数回、5 系列のバイタル統合グラフ、欠測期間を線で結ばない）、外来間の構造化データ（安定 ID・元データ参照）、Claude による外来間要約（根拠 ID・数値・日付・引用・禁止語をサーバーで検証、通らなければルールベースへ切り替え） | ✅ |
+| 5 | 教材スタジオ（原資料・作成方針・構成案・Must-cover・編集・患者プレビュー・承認・公開）の実データ接続 | ⬜ 未実装（画面は Figma の架空データ。上部に明示） |
+
+既存のバックエンド（Reset 01 まで）: 原資料の許諾管理・非公開ストレージ、Claude による教材生成（ジョブ化）・編集・承認・公開、図解アセットの監修、採点・宿題スナップショット・版管理は API・サービスとして残っており、Step 5 で正式 UI に接続する。
 
 ## セットアップ
 
 ```bash
 npm install
-cp .env.example .env.local   # BETTER_AUTH_SECRET などを設定
+cp .env.example .env.local   # BETTER_AUTH_SECRET などを設定（.env* は Git に含めない）
 npm run db:setup             # ローカル DB（PGlite）を作成し、架空データを投入
 npm run dev                  # http://localhost:3000
 ```
 
-- ローカル開発では Docker 不要。`scripts/with-local-db.mjs` が PGlite を Postgres 互換ソケット（127.0.0.1:5433）として起動し、`DATABASE_URL` を注入する。
-- 本番 / 共有環境は Supabase Postgres。`.env.local` に `DATABASE_URL` を設定し `npm run db:setup:remote`。
+- ローカル開発では Docker 不要。`scripts/with-local-db.mjs` が PGlite を Postgres 互換ソケットとして起動し、`DATABASE_URL` を注入する。
 - デモログイン（`DEMO_AUTH=true` のときのみ）: ログイン画面に架空アカウント一覧が出る。本番環境では起動時に拒否される。
-- 架空データ: 患者A（佐藤 花子）には 14 日前の初回診察・処方・学習・質問の履歴が入っている。患者B（鈴木 美咲）は履歴なし。
+- 架空データ: 患者A（佐藤 花子）は診察・処方・学習・質問の履歴と直近 2 週間の体調記録あり。患者B（鈴木 美咲）・患者C（高橋 由美）は履歴なし。医療者は山田 太郎（さくら総合病院）、中村 健（2 施設所属）など。
+- Claude を使わずに動かすときは `ANTHROPIC_API_KEY=` と `CLAUDE_FAKE=1`（開発用の擬似生成。画面に「Claudeではありません」と表示）。
 
 ### 検証
 
 ```bash
-npm run typecheck   # tsc
-npm run lint        # eslint（React Compiler ルール含む）
-npm test            # vitest（インメモリ PGlite。T01-T05, T10-T17, T22 相当を含む 33 テスト）
-npm run e2e:fresh   # Playwright: DB を初期化して通し操作 + 幅別レイアウト + 主要ボタン到達性（E2E_SHOT_DIR で保存先指定）
+npm run typecheck              # tsc
+npm run lint                   # eslint
+npm test                       # vitest（インメモリ PGlite。認可・整合性・外来間要約の検証を含む。Claude はモック）
+npm run e2e                    # Playwright（一時 DB の専用サーバー。Claude は擬似生成）
+node scripts/concept-d/compare.mjs  # Figma Make エクスポートとの画素比較（Figma 側を Vite で起動して実行）
+npm run intervisit:real -- --dry    # 外来間要約の実 API 検証の送信量の確認（--dry なしで実 API を 2 回呼ぶ。架空患者A・インメモリ DB のみ）
 ```
-
-UI/UX 検証の記録: `docs/UX_REVIEW_DAY3_20261102.md`
 
 ## 構成
 
 ```
-src/app/(patient)/   患者向け画面（スマホ）: login, home, share, learn/[v], quiz/[v], scores
-src/app/staff/       医療者向け画面（iPad/PC）: login, scan, consult/[id]（ダッシュボード + 処方パネル）
-src/app/c            QR 着地点（/c?t=token）
-src/app/api/v1/      Route Handlers（全て認可層を通る）
-src/server/authz/    requirePatient / requireStaff / requireOrgRole / requireActiveConsultation
-src/server/services/ qr, consultation, consultation-hooks(snapshot), materials, prescription, learning, scoring, questions, audit
-src/server/db/       Drizzle スキーマ・マイグレーション・架空シード
-tests/               vitest 統合テスト
+src/app/(concept-d)/   正式 UI のページ（/home, /staff, /d/dev）
+src/app/(shiori)/      ログイン・ログアウト・トップ
+src/concept-d/         Figma Make Concept D の移植（PatientD / ClinicianD）と実 API 接続のフック
+                       live.ts（一時共有）・learning.ts（教材・学習）・record.ts（医療者のサマリー・処方・経過）・health.ts（体調・ノート）
+src/app/api/v1/        Route Handlers（全て認可層を通る）
+src/server/authz/      requirePatient / requireStaff / requireOrgRole / requireActiveConsultation
+src/server/services/   connect / qr / consultation / prescription / learning / learning-record / health / notes /
+                       intervisit（構造化）/ intervisit-rules（ルールベース）/ intervisit-ai（Claude・検証）/ audit ほか
+src/server/db/         Drizzle スキーマ・マイグレーション・架空シード
+tests/                 vitest 統合テスト・Playwright E2E
+legacy/reset01-ui/     旧 UI（退避）
 ```
 
 ## 安全上の取り決め
 
-- `.env*`、`.data/`、`uploads/`、`DESIGN_REFERENCE.png` は Git に含めない。
-- Claude API はサーバー専用。原資料は `allow_ai` 許諾を確認してから、抽出テキストのみ送信する。患者の自由記述・回答は送信しない。
+- `.env*`、ローカル DB（`.data*`）、`uploads/`、提供されたデザイン参照（権利未確認）は Git に含めない。
+- 医療者が患者情報を見られるのは、患者が承認した有効な一時共有の間だけ。医療者の患者一覧・恒久的なアクセス権はない。
+- Claude API はサーバー専用。教材生成には許諾（`allow_ai`）を確認した原資料の抽出テキストだけを送る。
+- 外来間要約（Step 4）で外部 AI へ送るのは**架空のデモ患者（@example.com）の構造化データだけ**（氏名・メールは送らない）。実患者の利用には施設の承認・データ処理契約・セキュリティ評価が別途必要で、この実装は送信しない。
+- AI 要約・ルールベースの要約は記録の整理であり、診断・CTCAE Grade・因果関係・治療の提案を行わない。欠測を「症状なし」「改善」と解釈しない。記録しても医療者へ通知しない（24 時間の遠隔モニタリングではない）。
 - 共通教材の承認者アカウントはデモ用であり、本番の医学的承認を意味しない。
