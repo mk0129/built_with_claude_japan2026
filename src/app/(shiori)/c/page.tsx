@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getPageUser } from "@/server/auth/session";
 import { listMemberships } from "@/server/authz/principal";
-import { ScanClient } from "@/app/staff/scan/ScanClient";
+import { ScanClient } from "@/app/(shiori)/staff/scan/ScanClient";
 
 /**
  * QR コードの着地点。QR には `/c?t=<token>` が入っている。

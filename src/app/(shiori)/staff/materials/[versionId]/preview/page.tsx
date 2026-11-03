@@ -5,10 +5,10 @@ import { getVersionContent } from "@/server/services/materials";
 import { listAllFiguresForVersion, requireMaterialRole } from "@/server/services/figures";
 import { FigureSet } from "@/components/patient/FigureSet";
 import { FigureReviewActions } from "./FigureReviewActions";
-import { STATUS_LABEL } from "@/app/staff/studio/shared";
-import { Stepper } from "@/app/staff/studio/Stepper";
+import { STATUS_LABEL } from "@/app/(shiori)/staff/studio/shared";
+import { Stepper } from "@/app/(shiori)/staff/studio/Stepper";
 import { Icon } from "@/components/reset/Icons";
-import { LearnClient } from "@/app/(patient)/learn/[versionId]/LearnClient";
+import { LearnClient } from "@/app/(shiori)/(patient)/learn/[versionId]/LearnClient";
 
 /**
  * 管理者プレビュー（教材編集者・承認者のみ。requireMaterialRole で権限を確認）。

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { requirePageUser } from "@/server/auth/session";
 import { DOMAIN_LABEL } from "@/lib/labels";
-import { Stepper } from "@/app/staff/studio/Stepper";
+import { Stepper } from "@/app/(shiori)/staff/studio/Stepper";
 
 type Outline = { title: string; primaryDomain?: string; targetReader: string; learningObjectives: string[]; slideTitles: string[]; rationale: string };
 

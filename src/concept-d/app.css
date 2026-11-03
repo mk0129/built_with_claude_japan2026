@@ -1,0 +1,24 @@
+/*
+ * 実アプリ表示（variant="app"）だけに当てる最小の上書き。
+ * Figma の端末枠（.d-device / .cd-device）を画面そのものにする。Figma 自身の 700px 以下の表示（枠なし・角丸なし・影なし）と同じ扱いで、
+ * 中身の文字・余白・色は変更しない。
+ */
+.d-device.d-device-app,
+.d-device.d-device-app.viewport-430,
+.d-device.d-device-app.viewport-tablet {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  border-radius: 0;
+  box-shadow: none;
+  transition: none;
+}
+.cd-wrap:has(> .cd-device-app) { width: 100%; min-width: 820px; gap: 0; }
+.cd-device.cd-device-app {
+  width: 100%;
+  min-width: 820px;
+  height: 100vh;
+  height: 100dvh;
+  border-radius: 0;
+  box-shadow: none;
+}

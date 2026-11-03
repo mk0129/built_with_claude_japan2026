@@ -1,0 +1,183 @@
+"use client";
+
+/**
+ * Figma Make「Concept D」の移植（Phase 1: Figma の架空データで表示と操作を再現）。
+ * 状態の持ち方は Figma の App（src/App.tsx の Concept D 部分）をそのまま使う。
+ * - PatientDApp / ClinicianDApp: 本番表示。端末枠と検証用の切り替えを外し、画面幅に応じて Figma の表示幅クラスを選ぶ。
+ * - ConceptDDev: 開発用。Figma の検証シナリオ・テスト状態・表示幅の切り替えつき（案 A/B/C は含めない）。
+ */
+import { useState, useSyncExternalStore } from "react"
+import ClinicianD, { type ClinicianDViewport } from "./ClinicianD"
+import { DPrototype, Icon, Logo, type DViewport } from "./PatientD"
+import { initialActiveSymptomIds, initialHealthRecords, type HealthRecord } from "./healthData"
+
+type DMode = "patient" | "clinician"
+
+/** Figma App と同じ体調記録・トーストの状態 */
+function useConceptDState() {
+  const [healthRecords, setHealthRecords] =
+    useState<HealthRecord[]>(initialHealthRecords)
+  const [activeSymptomIds, setActiveSymptomIds] = useState(
+    initialActiveSymptomIds,
+  )
+  const [customSymptomNames, setCustomSymptomNames] =
+    useState<Record<string, string>>({})
+  const [toast, setToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState("質問メモに追加しました")
+  const notify = (message = "質問メモに追加しました") => {
+    setToastMessage(message)
+    setToast(true)
+    window.setTimeout(() => setToast(false), 2200)
+  }
+  return {
+    healthRecords,
+    setHealthRecords,
+    activeSymptomIds,
+    setActiveSymptomIds,
+    customSymptomNames,
+    setCustomSymptomNames,
+    notify,
+    toastNode: toast ? (
+      <div className="toast">
+        <Icon name="check" />
+        {toastMessage}
+      </div>
+    ) : null,
+  }
+}
+
+function useMedia(query: string, serverValue: boolean) {
+  return useSyncExternalStore(
+    (onChange) => {
+      const m = window.matchMedia(query)
+      m.addEventListener("change", onChange)
+      return () => m.removeEventListener("change", onChange)
+    },
+    () => window.matchMedia(query).matches,
+    () => serverValue,
+  )
+}
+
+/** 患者: 700px 以下はスマートフォン表示（Figma の 390/430 は幅以外同一）、それより広い画面はタブレット表示 */
+export function PatientDApp() {
+  const s = useConceptDState()
+  const tablet = useMedia("(min-width: 701px)", false)
+  return (
+    <>
+      <DPrototype
+        variant="app"
+        viewport={tablet ? "tablet" : "390"}
+        notify={s.notify}
+        healthRecords={s.healthRecords}
+        setHealthRecords={s.setHealthRecords}
+        activeSymptomIds={s.activeSymptomIds}
+        setActiveSymptomIds={s.setActiveSymptomIds}
+        customSymptomNames={s.customSymptomNames}
+        setCustomSymptomNames={s.setCustomSymptomNames}
+      />
+      {s.toastNode}
+    </>
+  )
+}
+
+/** 医療者: 1000px 以上は Figma の 1180 表示、それ未満は 820 表示 */
+export function ClinicianDApp() {
+  const s = useConceptDState()
+  const wide = useMedia("(min-width: 1000px)", true)
+  return (
+    <>
+      <ClinicianD
+        variant="app"
+        viewport={wide ? "1180" : "820"}
+        healthRecords={s.healthRecords}
+        activeSymptomIds={s.activeSymptomIds}
+        customSymptomNames={s.customSymptomNames}
+      />
+      {s.toastNode}
+    </>
+  )
+}
+
+/** 開発用: Figma の Concept D プロトタイプ（検証シナリオ・テスト状態・表示幅切り替え）。患者の体調記録は医療者画面と共有 */
+export function ConceptDDev() {
+  const s = useConceptDState()
+  const [dMode, setDMode] = useState<DMode>("patient")
+  const [dViewport, setDViewport] = useState<DViewport>("390")
+  const [dClinicianViewport, setDClinicianViewport] =
+    useState<ClinicianDViewport>("1180")
+  return (
+    <div className="app">
+      <header className="prototype-bar">
+        <div className="prototype-title">
+          <Logo />
+          <span>Concept D 開発用（検証シナリオ）</span>
+        </div>
+        <div className="view-switch" style={{ marginLeft: "auto" }}>
+          <button
+            className={dMode === "patient" ? "active" : ""}
+            onClick={() => setDMode("patient")}
+          >
+            <Icon name="user" />
+            患者
+          </button>
+          <button
+            className={dMode === "clinician" ? "active" : ""}
+            onClick={() => setDMode("clinician")}
+          >
+            <Icon name="grid" />
+            医療者
+          </button>
+        </div>
+        <div className="view-switch d-viewport-switch">
+          {dMode === "patient"
+            ? (["390", "430", "tablet"] as DViewport[]).map((viewport) => (
+                <button
+                  key={viewport}
+                  className={dViewport === viewport ? "active" : ""}
+                  onClick={() => setDViewport(viewport)}
+                >
+                  <Icon name={viewport === "tablet" ? "grid" : "user"} />
+                  {viewport === "tablet" ? "タブレット" : `${viewport}px`}
+                </button>
+              ))
+            : (["1180", "820"] as ClinicianDViewport[]).map((viewport) => (
+                <button
+                  key={viewport}
+                  className={dClinicianViewport === viewport ? "active" : ""}
+                  onClick={() => setDClinicianViewport(viewport)}
+                >
+                  <Icon name="grid" />
+                  {viewport}px
+                </button>
+              ))}
+        </div>
+      </header>
+      <div
+        className={`prototype-stage ${
+          dMode === "patient" ? "concept-d-stage" : "concept-d-clinician-stage"
+        }`}
+      >
+        {dMode === "patient" ? (
+          <DPrototype
+            viewport={dViewport}
+            notify={s.notify}
+            healthRecords={s.healthRecords}
+            setHealthRecords={s.setHealthRecords}
+            activeSymptomIds={s.activeSymptomIds}
+            setActiveSymptomIds={s.setActiveSymptomIds}
+            customSymptomNames={s.customSymptomNames}
+            setCustomSymptomNames={s.setCustomSymptomNames}
+          />
+        ) : (
+          <ClinicianD
+            viewport={dClinicianViewport}
+            healthRecords={s.healthRecords}
+            activeSymptomIds={s.activeSymptomIds}
+            customSymptomNames={s.customSymptomNames}
+          />
+        )}
+      </div>
+      {s.toastNode}
+    </div>
+  )
+}

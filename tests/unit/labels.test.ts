@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DOMAIN_LABEL, ROLE_LABEL } from "@/lib/labels";
 import { DOMAIN_TAGS } from "@/server/db/domain-schema";
-import { JOB_MODE_LABEL, STATUS_LABEL, modelLabel } from "@/app/staff/studio/shared";
+import { JOB_MODE_LABEL, STATUS_LABEL, modelLabel } from "@/app/(shiori)/staff/studio/shared";
 
 /** UX-02: 内部コードが UI に出ないよう、ラベル表が列挙値を網羅していることを固定する */
 describe("UI ラベル（UX-02 回帰）", () => {

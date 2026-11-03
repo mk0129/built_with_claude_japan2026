@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { BIZ_UDPGothic, Noto_Sans_JP } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import { FONT_SIZE_INIT_SCRIPT } from "@/components/FontSizeToggle";
 
 const noto = Noto_Sans_JP({
