@@ -40,15 +40,15 @@ test("スタジオ 6 ステップ: 構成案の比較 → 必須事項の分類 
   await expect(s.getByRole("list", { name: "制作の進み方" })).toBeVisible();
   await s.getByRole("button", { name: "構成案を作る" }).click();
   const result = s.getByTestId("generation-result");
-  await expect(result.getByRole("heading", { name: /Claude の構成案/ })).toBeVisible({ timeout: 60_000 });
+  await expect(result.getByRole("heading", { name: /構成案が届きました/ })).toBeVisible({ timeout: 60_000 });
   expect(await result.getByText("おすすめ").count()).toBe(0);
-  await expect(result.getByText("学習目標", { exact: false }).first()).toBeVisible();
+  await expect(result.getByText("この教材で学ぶこと").first()).toBeVisible();
   await s.screenshot({ path: `${SHOT_DIR}/studio_after_outline_1180.png`, fullPage: false });
 
   // ステップ 3: 必須事項の分類（この教材で必須 / 別教材で扱う / 医療者の確認が必要）
-  await result.getByRole("button", { name: "この案で進む" }).first().click();
+  await result.getByRole("button", { name: /この構成で次へ/ }).click();
   await expect(result.getByText(/ステップ 3: 必須事項を確認/)).toBeVisible();
-  await expect(s.getByRole("list", { name: "制作の進み方" }).locator("[aria-current=step]")).toContainText("必須事項を確認");
+  await expect(s.getByRole("list", { name: "制作の進み方" }).locator("[aria-current=step]")).toContainText("必須事項");
   const groups = result.getByRole("radiogroup");
   expect(await groups.count()).toBeGreaterThanOrEqual(2);
   await groups.nth(1).getByRole("radio", { name: "別教材で扱う" }).click();

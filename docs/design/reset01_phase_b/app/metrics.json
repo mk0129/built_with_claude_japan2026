@@ -58,6 +58,8 @@
       "w": 354,
       "h": 152
     },
+    "ctaTop": 760,
+    "hiddenByCta": false,
     "overflowX": 0,
     "small": [],
     "clipped": [
@@ -90,22 +92,22 @@
       "top": 357,
       "left": 18,
       "w": 354,
-      "h": 365
+      "h": 235
     },
     "chips": {
-      "top": 526,
+      "top": 494,
       "left": 37,
       "w": 316,
-      "h": 98
+      "h": 43
     },
     "sectionLabel": {
-      "top": 739,
+      "top": 609,
       "left": 18,
       "w": 354,
       "h": 27
     },
     "toReview": {
-      "top": 778,
+      "top": 648,
       "left": 18,
       "w": 354,
       "h": 94
@@ -117,7 +119,11 @@
       "h": 84
     },
     "overflowX": 0,
-    "small": [],
+    "small": [
+      "button:病期は治療の目安@128x43",
+      "button:検査結果の見方@115x43",
+      "button:テーマを選ばずに自分で書く@182x36"
+    ],
     "clipped": [],
     "fontSize": "18px"
   },
@@ -185,11 +191,13 @@
   },
   "quiz_390_large_answered": {
     "feedback": {
-      "top": 621,
+      "top": 572,
       "left": 18,
       "w": 354,
       "h": 176
     },
+    "ctaTop": 760,
+    "hiddenByCta": false,
     "overflowX": 0,
     "small": [
       "a:この説明を読み直す@162x26"
@@ -203,43 +211,43 @@
   },
   "result_390_large": {
     "icon": {
-      "top": 83,
+      "top": 70,
       "left": 168,
       "w": 55,
       "h": 55
     },
     "h1": {
-      "top": 150,
+      "top": 137,
       "left": 18,
       "w": 354,
       "h": 33
     },
     "counts": {
-      "top": 265,
+      "top": 252,
       "left": 18,
       "w": 354,
       "h": 87
     },
     "qbox": {
-      "top": 371,
+      "top": 358,
       "left": 18,
       "w": 354,
-      "h": 393
+      "h": 276
     },
     "chips": {
-      "top": 550,
+      "top": 530,
       "left": 37,
       "w": 316,
-      "h": 106
+      "h": 49
     },
     "sectionLabel": {
-      "top": 781,
+      "top": 651,
       "left": 18,
       "w": 354,
       "h": 27
     },
     "toReview": {
-      "top": 820,
+      "top": 690,
       "left": 18,
       "w": 354,
       "h": 131
@@ -251,7 +259,9 @@
       "h": 84
     },
     "overflowX": 0,
-    "small": [],
+    "small": [
+      "button:テーマを選ばずに自分で書く@208x36"
+    ],
     "clipped": [],
     "fontSize": "21px"
   },
@@ -324,6 +334,8 @@
       "w": 394,
       "h": 127
     },
+    "ctaTop": 848,
+    "hiddenByCta": false,
     "overflowX": 0,
     "small": [
       "a:この説明を読み直す@135x21"
@@ -358,22 +370,22 @@
       "top": 357,
       "left": 18,
       "w": 394,
-      "h": 340
+      "h": 210
     },
     "chips": {
-      "top": 500,
+      "top": 469,
       "left": 37,
       "w": 356,
-      "h": 98
+      "h": 43
     },
     "sectionLabel": {
-      "top": 714,
+      "top": 584,
       "left": 18,
       "w": 394,
       "h": 27
     },
     "toReview": {
-      "top": 753,
+      "top": 623,
       "left": 18,
       "w": 394,
       "h": 94
@@ -385,7 +397,11 @@
       "h": 84
     },
     "overflowX": 0,
-    "small": [],
+    "small": [
+      "button:病期は治療の目安@128x43",
+      "button:検査結果の見方@115x43",
+      "button:テーマを選ばずに自分で書く@182x36"
+    ],
     "clipped": [],
     "fontSize": "18px"
   },
@@ -458,6 +474,8 @@
       "w": 394,
       "h": 176
     },
+    "ctaTop": 848,
+    "hiddenByCta": false,
     "overflowX": 0,
     "small": [],
     "clipped": [
@@ -490,22 +508,22 @@
       "top": 371,
       "left": 18,
       "w": 394,
-      "h": 367
+      "h": 224
     },
     "chips": {
-      "top": 524,
+      "top": 491,
       "left": 37,
       "w": 356,
-      "h": 106
+      "h": 49
     },
     "sectionLabel": {
-      "top": 755,
+      "top": 612,
       "left": 18,
       "w": 394,
       "h": 27
     },
     "toReview": {
-      "top": 794,
+      "top": 651,
       "left": 18,
       "w": 394,
       "h": 131
@@ -517,7 +535,9 @@
       "h": 84
     },
     "overflowX": 0,
-    "small": [],
+    "small": [
+      "button:テーマを選ばずに自分で書く@208x36"
+    ],
     "clipped": [],
     "fontSize": "21px"
   },
@@ -590,6 +610,8 @@
       "w": 468,
       "h": 127
     },
+    "ctaTop": 1096,
+    "hiddenByCta": false,
     "overflowX": 0,
     "small": [
       "a:この説明を読み直す@135x21"
@@ -624,22 +646,22 @@
       "top": 357,
       "left": 176,
       "w": 468,
-      "h": 240
+      "h": 210
     },
     "chips": {
-      "top": 477,
+      "top": 469,
       "left": 195,
       "w": 430,
-      "h": 45
+      "h": 43
     },
     "sectionLabel": {
-      "top": 615,
+      "top": 584,
       "left": 176,
       "w": 468,
       "h": 27
     },
     "toReview": {
-      "top": 654,
+      "top": 623,
       "left": 176,
       "w": 468,
       "h": 94
@@ -651,7 +673,11 @@
       "h": 84
     },
     "overflowX": 0,
-    "small": [],
+    "small": [
+      "button:病期は治療の目安@128x43",
+      "button:検査結果の見方@115x43",
+      "button:テーマを選ばずに自分で書く@182x36"
+    ],
     "clipped": [],
     "fontSize": "18px"
   },
@@ -724,6 +750,8 @@
       "w": 468,
       "h": 127
     },
+    "ctaTop": 736,
+    "hiddenByCta": false,
     "overflowX": 0,
     "small": [
       "a:この説明を読み直す@135x21"
@@ -758,22 +786,22 @@
       "top": 357,
       "left": 356,
       "w": 468,
-      "h": 240
+      "h": 210
     },
     "chips": {
-      "top": 477,
+      "top": 469,
       "left": 375,
       "w": 430,
-      "h": 45
+      "h": 43
     },
     "sectionLabel": {
-      "top": 615,
+      "top": 584,
       "left": 356,
       "w": 468,
       "h": 27
     },
     "toReview": {
-      "top": 654,
+      "top": 623,
       "left": 356,
       "w": 468,
       "h": 94
@@ -785,7 +813,11 @@
       "h": 84
     },
     "overflowX": 0,
-    "small": [],
+    "small": [
+      "button:病期は治療の目安@128x43",
+      "button:検査結果の見方@115x43",
+      "button:テーマを選ばずに自分で書く@182x36"
+    ],
     "clipped": [],
     "fontSize": "18px"
   },

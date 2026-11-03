@@ -39,8 +39,8 @@ test("UX 監査: スタジオとクイズの幅別スクリーンショット", 
   await s.waitForURL(/\/staff\/studio\/sources\//);
   const sourceUrl = s.url();
   await s.getByRole("button", { name: "構成案を作る" }).click();
-  await expect(s.getByRole("button", { name: "この案で進む" }).first()).toBeVisible({ timeout: 60_000 });
-  await s.getByRole("button", { name: "この案で進む" }).first().click();
+  await expect(s.getByRole("button", { name: /この案を選ぶ|選択中/ }).first()).toBeVisible({ timeout: 60_000 });
+  await s.getByRole("button", { name: /この構成で次へ/ }).click();
   await s.getByRole("button", { name: /件を含めて教材・クイズを生成する/ }).click();
   const open = s.getByRole("link", { name: /下書きを確認・編集する/ }).first();
   await expect(open).toBeVisible({ timeout: 60_000 });

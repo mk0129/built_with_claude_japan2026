@@ -834,6 +834,7 @@ html[data-textsize="large"] .reset-shell .rs-tab {
   font-size: 15px;
   line-height: 1.65;
   margin-top: 13px;
+  scroll-margin-bottom: 96px;
 }
 .rs-feedback.review {
   background: #fbf3ee;
@@ -901,11 +902,25 @@ html[data-textsize="large"] .reset-shell .rs-tab {
   border: 1px solid #f1dcd2;
   border-radius: 18px;
   background: linear-gradient(145deg, #fff 10%, #fdf7f2);
-  padding: 18px;
+  padding: 16px 18px;
   margin: 0 0 17px;
 }
 .rs-qbox .rs-eyebrow {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+}
+.rs-qbox .rs-freewrite {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  margin-top: 2px;
+  font-size: 14px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.rs-freewrite[aria-pressed="true"] {
+  font-weight: 800;
 }
 .rs-qbox h2 {
   font-size: 17px;
@@ -915,9 +930,9 @@ html[data-textsize="large"] .reset-shell .rs-tab {
 }
 .rs-qbox > p {
   color: #617787;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.65;
-  margin: 0 0 13px;
+  margin: 0 0 10px;
 }
 .rs-chiprow {
   display: flex;
@@ -928,11 +943,11 @@ html[data-textsize="large"] .reset-shell .rs-tab {
   border: 1px solid #d7e3e9;
   border-radius: 30px;
   background: #fff;
-  padding: 9px 12px;
+  padding: 9px 11px;
   color: #536a79;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 750;
-  min-height: 40px;
+  min-height: 36px;
   cursor: pointer;
 }
 .rs-chip[aria-pressed="true"] {

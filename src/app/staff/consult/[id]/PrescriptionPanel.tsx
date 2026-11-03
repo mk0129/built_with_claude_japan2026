@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { api, errorText } from "@/lib/api";
 import { DOMAIN_LABEL, DOMAIN_ORDER } from "@/lib/labels";
 import { useMediaQuery } from "@/lib/use-media-query";
+import { Icon } from "@/components/reset/Icons";
 
 type Material = { materialId: string; versionId: string; title: string; summary: string | null; primaryDomain: string; scope: "common" | "org"; slideCount: number; questionCount: number };
 type Template = { id: string; name: string; description: string | null; scope: string; materials: { id: string; title: string; primaryDomain: string }[] };
@@ -81,12 +82,12 @@ export function PrescriptionPanel({
 
   const header = (
     <div className="flex items-center justify-between gap-2">
-      <h2 className="font-bold">
-        情報処方
-        {basket.length > 0 && <span className="pill bg-sakura ml-2">候補 {basket.length}</span>}
-        {currentSet && currentSet.items.length > 0 && <span className="pill bg-wakakusa ml-1">処方済 {currentSet.items.length}</span>}
+      <h2 className="font-bold" style={{ fontSize: 18, letterSpacing: "-0.05em", margin: 0 }}>
+        次の情報処方
+        {basket.length > 0 && <span className="rsd-tag coral ml-2">候補 {basket.length}</span>}
+        {currentSet && currentSet.items.length > 0 && <span className="rsd-tag sage ml-1">処方済 {currentSet.items.length}</span>}
       </h2>
-      <button className="btn text-sm min-h-11 px-4" onClick={onToggle} aria-expanded={open}>
+      <button className="btn" onClick={onToggle} aria-expanded={open}>
         {open ? "閉じる" : "開く"}
       </button>
     </div>
@@ -95,7 +96,7 @@ export function PrescriptionPanel({
   const body = (
     <div className="space-y-3">
       {currentSet && currentSet.items.length > 0 && (
-        <div className="rounded-xl bg-wakakusa p-3 text-sm">
+        <div className="rounded-xl p-3 text-sm" style={{ background: "#e9f4ee" }}>
           <p className="font-bold">この診察で処方済み</p>
           <ul className="list-disc ml-5">
             {currentSet.items.map((i) => (
@@ -106,7 +107,7 @@ export function PrescriptionPanel({
       )}
       <div className="flex gap-1 border-b border-line">
         {(["template", "search"] as const).map((t) => (
-          <button key={t} className={`px-3 min-h-11 text-sm ${tab === t ? "font-bold border-b-2 border-accent" : "text-ink-soft"}`} onClick={() => setTab(t)}>
+          <button key={t} className={`px-3 min-h-11 text-sm ${tab === t ? "font-bold border-b-2 border-[color:var(--blue)] text-[color:var(--blue)]" : "text-ink-soft"}`} onClick={() => setTab(t)}>
             {t === "template" ? "テンプレート" : "検索"}
           </button>
         ))}
@@ -166,43 +167,49 @@ export function PrescriptionPanel({
   );
 
   const footer = (
-    <div className="rounded-xl border-2 border-sakura-deep bg-surface p-3 space-y-2">
-      <p className="font-bold">候補（{basket.length}）</p>
+    <div className="space-y-2">
+      <p className="rsd-muted">必要な教材を選び、診察の最後にお渡しできます。</p>
       {basket.length === 0 ? (
-        <p className="text-sm text-ink-muted">「関連教材を処方」「再処方」や検索・テンプレートから追加します。</p>
+        <p className="rsd-muted">「関連教材を候補へ」「再処方を候補へ」やテンプレート・検索から追加します。</p>
       ) : (
-        <ul className="space-y-1 max-h-40 overflow-auto">
+        <ul className="space-y-2 max-h-56 overflow-auto">
           {basket.map((b) => (
-            <li key={b.materialId} className="flex items-center justify-between gap-2 text-sm">
-              <span className="min-w-0">{b.title}</span>
-              <button className="btn btn-ghost text-xs min-h-9 px-2 shrink-0 whitespace-nowrap" onClick={() => setBasket((x) => x.filter((y) => y.materialId !== b.materialId))} aria-label={`${b.title} を候補から外す`}>
+            <li key={b.materialId} className="rsd-small-card">
+              <div className="rsd-mini-icon">
+                <Icon name="book" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="font-bold leading-snug" style={{ fontSize: 15 }}>{b.title}</div>
+                <div className="rsd-muted">候補</div>
+              </div>
+              <button className="btn btn-ghost shrink-0" onClick={() => setBasket((x) => x.filter((y) => y.materialId !== b.materialId))} aria-label={`${b.title} を候補から外す`}>
                 外す
               </button>
             </li>
           ))}
         </ul>
       )}
-      <button className="btn btn-primary btn-block" disabled={basket.length === 0 || busy} onClick={confirm}>
-        処方を確定する
+      <button className="btn btn-primary w-full" disabled={basket.length === 0 || busy} onClick={confirm}>
+        <Icon name="book" size="sm" /> 教材を処方する
       </button>
-      {msg && <p className="text-sm text-ink-soft" role="status">{msg}</p>}
+      {msg && <p className="rsd-muted" role="status">{msg}</p>}
     </div>
   );
 
   if (isDesktop) {
     // lg 以上: 右カラム（sticky, ヘッダ / スクロール本文 / 常に見える候補・確定）
     return (
-      <aside className="card flex flex-col gap-3 sticky top-4 max-h-[calc(100vh-2rem)]">
+      <aside className="rsd-card flex flex-col gap-3 sticky top-4 max-h-[calc(100vh-2rem)]" aria-label="次の情報処方">
         {header}
-        {open && <div className="flex-1 min-h-0 overflow-auto pr-1">{body}</div>}
         {footer}
+        {open && <div className="flex-1 min-h-0 overflow-auto pr-1 border-t border-line pt-3">{body}</div>}
       </aside>
     );
   }
 
   // lg 未満: 画面下のドロワー。閉じていてもバーとして残り、患者情報の閲覧を妨げない
   return (
-    <div className={`fixed inset-x-0 bottom-0 z-20 bg-surface border-t border-line shadow-[0_-8px_24px_rgba(47,58,86,0.12)] rounded-t-2xl flex flex-col ${open ? "h-[72vh]" : ""}`} role="region" aria-label="情報処方パネル">
+    <div className={`fixed inset-x-0 bottom-0 z-20 bg-surface border-t border-line shadow-[0_-8px_24px_rgba(47,58,86,0.12)] rounded-t-2xl flex flex-col ${open ? "h-[72vh]" : ""}`} role="region" aria-label="次の情報処方">
       <div className="px-4 py-2">{header}</div>
       {open && (
         <>
@@ -212,7 +219,7 @@ export function PrescriptionPanel({
       )}
       {!open && basket.length > 0 && (
         <div className="px-4 pb-3">
-          <button className="btn btn-primary btn-block" disabled={busy} onClick={confirm}>
+          <button className="btn btn-primary w-full" disabled={busy} onClick={confirm}>
             候補 {basket.length} 件を処方する
           </button>
         </div>

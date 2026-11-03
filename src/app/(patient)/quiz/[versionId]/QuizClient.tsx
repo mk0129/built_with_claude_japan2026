@@ -116,6 +116,14 @@ export function QuizClient({ versionId, title, slides = [] }: { versionId: strin
       });
       setPending(undefined);
       setSelected(undefined);
+      // 解説が固定 CTA に隠れる場合だけ見える位置まで送る（prefers-reduced-motion では即時）
+      requestAnimationFrame(() => {
+        const el = document.querySelector<HTMLElement>("[data-quiz-feedback]");
+        if (!el) return;
+        const cta = document.querySelector<HTMLElement>(".rs-cta");
+        const limit = (cta?.getBoundingClientRect().top ?? window.innerHeight) - 8;
+        if (el.getBoundingClientRect().bottom > limit) el.scrollIntoView({ block: "end", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      });
     } catch (e) {
       setErr(errorText(e));
     } finally {
@@ -210,7 +218,7 @@ export function QuizClient({ versionId, title, slides = [] }: { versionId: strin
         </div>
 
         {answered && (
-          <div className={`rs-feedback ${answered.isCorrect ? "" : "review"}`} role="status">
+          <div className={`rs-feedback ${answered.isCorrect ? "" : "review"}`} role="status" data-quiz-feedback>
             <b>{feedbackTitle}</b>
             <br />
             {!answered.isCorrect && !answered.isUnknown && (
@@ -368,17 +376,17 @@ function ResultScreen({ attempt, versionId, title, slides, onRetry, onFinish }: 
             </>
           ) : (
             <>
-              <p>気になるテーマを選ぶと、質問を自分の言葉で残せます。</p>
+              <p>テーマを選ぶと、質問を自分の言葉で残せます。</p>
               <div className="rs-chiprow" role="group" aria-label="質問のテーマ">
                 {missed.map((x) => (
                   <button key={x.questionId} type="button" className="rs-chip" aria-pressed={theme === x.questionId} data-testid="ask-theme" onClick={() => chooseTheme(x.questionId)}>
                     {themeOf(x)}
                   </button>
                 ))}
-                <button type="button" className="rs-chip" aria-pressed={theme === "free"} data-testid="ask-theme-free" onClick={() => chooseTheme("free")}>
-                  自分で書く
-                </button>
               </div>
+              <button type="button" className="rs-link rs-freewrite" aria-pressed={theme === "free"} data-testid="ask-theme-free" onClick={() => chooseTheme("free")}>
+                テーマを選ばずに自分で書く
+              </button>
               {theme !== null && (
                 <>
                   <textarea className="rs-qinput" value={text} onChange={(e) => setText(e.target.value)} placeholder="次の診察で聞きたいこと" maxLength={FREE_TEXT_MAX + 50} aria-label="次の診察で聞きたいこと" />
@@ -395,6 +403,9 @@ function ResultScreen({ attempt, versionId, title, slides, onRetry, onFinish }: 
                   <button type="button" className="rs-btn primary wide" style={{ marginTop: 10 }} disabled={busy || tooLong} onClick={save}>
                     <Icon name="check" size="sm" /> 次の診察に残す
                   </button>
+                  <p className="rs-muted" style={{ margin: "8px 0 0" }}>
+                    このボタンを押したときだけ保存されます。緊急のときは病院の連絡先へ。
+                  </p>
                   {err && (
                     <p className="rs-feedback review" role="alert">
                       {err}
@@ -402,9 +413,6 @@ function ResultScreen({ attempt, versionId, title, slides, onRetry, onFinish }: 
                   )}
                 </>
               )}
-              <p className="rs-muted" style={{ margin: "10px 0 0" }}>
-                保存は「次の診察に残す」を押したときだけ行われます。すぐの返信はありません。緊急のときは病院の連絡先へ。
-              </p>
             </>
           )}
         </section>

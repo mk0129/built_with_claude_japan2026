@@ -1,0 +1,599 @@
+/*
+ * Experience Reset 01 医療者画面（.desktop / .sidebar / .deskbar / .dcard / .infoline / .stepper / .outline）。
+ * 参照 HTML の値を px のまま抽出。.reset-desk にスコープし、1024px 未満ではサイドバーを上部の横ナビにする。
+ * 文字は参照（本文 13px）より可読性基準で大きい: 本文 15px、重要項目（質問・誤答・教材名）16px、補助 13px。
+ */
+.reset-desk {
+  --ink: #203744;
+  --blue: #365c79;
+  --blue2: #587e99;
+  --bluePale: #e9f1f7;
+  --canvas: #f6f8fa;
+  --border: #e3ebef;
+  --coral: #c9957e;
+  --coralPale: #f8eee9;
+  --sage: #5a867b;
+  --sagePale: #eaf3ee;
+  --muted: #5c7180;
+  --muted2: #798b95;
+  --bg: var(--canvas);
+  --surface: #fff;
+  --ink-soft: var(--muted);
+  --ink-muted: var(--muted2);
+  --line: var(--border);
+  --line-strong: var(--blue);
+  --accent: var(--blue);
+  --accent-ink: #fff;
+  --sakura: var(--coralPale);
+  --sakura-deep: var(--coral);
+  --wakakusa: var(--sagePale);
+  --sora: var(--bluePale);
+  --suna: #f3efe9;
+  --danger: #a94f3e;
+  --ok: var(--sage);
+  --radius: 20px;
+  --tap: 44px;
+  font-family: var(--font-noto), "Noto Sans JP", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  background: var(--canvas);
+  color: var(--ink);
+  min-height: 100%;
+  display: flex;
+}
+.reset-desk .rs-icon {
+  width: 21px;
+  height: 21px;
+  flex: none;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.reset-desk .rs-icon.sm {
+  width: 17px;
+  height: 17px;
+}
+/* 既存部品の密度（医療者） */
+.reset-desk .card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(35, 68, 85, 0.035);
+  padding: 23px;
+}
+.reset-desk .btn {
+  font-size: 14px;
+  min-height: 43px;
+  border-radius: 11px;
+  padding: 0.4rem 1rem;
+  border: 1px solid #b9cdd8;
+  color: var(--blue);
+  background: #fff;
+  font-weight: 800;
+}
+.reset-desk .btn-primary {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+  box-shadow: none;
+}
+.reset-desk .btn-soft {
+  background: var(--bluePale);
+  border-color: transparent;
+  color: var(--blue);
+}
+.reset-desk .btn-ghost {
+  border-color: transparent;
+  background: transparent;
+}
+.reset-desk .btn-danger {
+  border-color: #d9b2a8;
+  color: var(--danger);
+}
+.reset-desk .pill {
+  font-size: 12px;
+  border-radius: 6px;
+  background: #eff4f7;
+  color: #5a778a;
+  padding: 4px 7px;
+  font-weight: 750;
+}
+.reset-desk .input {
+  min-height: 43px;
+  border-radius: 11px;
+  font-size: 15px;
+}
+/* 骨格 */
+.rsd-sidebar {
+  width: 200px;
+  flex: none;
+  background: #fff;
+  border-right: 1px solid #e4ecef;
+  padding: 26px 13px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.rsd-brand {
+  font-family: Georgia, "Noto Serif JP", serif;
+  font-size: 27px;
+  letter-spacing: -1.5px;
+  color: var(--blue);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 28px;
+}
+.rsd-brandmark {
+  display: inline-block;
+  width: 18px;
+  height: 27px;
+  border: 2px solid var(--blue);
+  border-left: 0;
+  border-bottom-left-radius: 20px;
+  border-top-left-radius: 8px;
+  border-bottom-right-radius: 12px;
+  transform: rotate(-20deg);
+  margin-right: 3px;
+}
+.rsd-sidesection {
+  margin: 25px 12px 9px;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  color: #9babb4;
+  font-weight: 850;
+}
+.rsd-sidenav {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 14px;
+  color: #667d8a;
+  font-weight: 700;
+  margin: 3px 0;
+  min-height: 42px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.rsd-sidenav[aria-current="page"] {
+  background: #eaf2f7;
+  color: var(--blue);
+}
+.rsd-app {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.rsd-bar {
+  height: 73px;
+  background: #fff;
+  border-bottom: 1px solid #e8eff2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 29px;
+  gap: 12px;
+}
+.rsd-bar > .rsd-row {
+  flex-shrink: 0;
+}
+.rsd-crumb {
+  flex: 1 1 0;
+  font-size: 13px;
+  color: #607688;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rsd-crumb b {
+  color: var(--ink);
+}
+.rsd-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e5edf2;
+  color: var(--blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.rsd-content {
+  padding: 24px 30px 40px;
+  flex: 1;
+}
+.rsd-eyebrow {
+  font-weight: 800;
+  color: #996b56;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.rsd-eyebrow::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--coral);
+  border-radius: 50%;
+  display: block;
+}
+.rsd-h1 {
+  font-size: 26px;
+  letter-spacing: -0.055em;
+  margin: 5px 0 6px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+.rsd-desc {
+  font-size: 14px;
+  color: #627b88;
+  line-height: 1.65;
+}
+.rsd-status .short {
+  display: none;
+}
+.rsd-status {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: #e9f4ee;
+  color: #416a5e;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.rsd-status.warn {
+  background: var(--coralPale);
+  color: #8a5a3c;
+}
+.rsd-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.rsd-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(275px, 0.9fr);
+  gap: 18px;
+  margin-top: 21px;
+  align-items: start;
+}
+.rsd-card {
+  background: #fff;
+  border: 1px solid #e3ebef;
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(35, 68, 85, 0.035);
+  padding: 23px;
+}
+.rsd-card h2 {
+  font-size: 18px;
+  letter-spacing: -0.05em;
+  margin: 0 0 15px;
+  font-weight: 800;
+}
+.rsd-infoline {
+  padding: 16px 0;
+  border-bottom: 1px solid #edf0f2;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+.rsd-infoline:last-of-type {
+  border-bottom: 0;
+}
+.rsd-mark {
+  background: #e8f1f6;
+  color: var(--blue);
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.rsd-mark.coral {
+  background: #f7eee9;
+  color: #a16d56;
+}
+.rsd-infoline h3 {
+  font-size: 16px;
+  margin: 0 0 6px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+.rsd-infoline p {
+  font-size: 15px;
+  margin: 0;
+  line-height: 1.65;
+  color: #5b7181;
+}
+.rsd-infoline .important {
+  font-size: 16px;
+  color: var(--ink);
+}
+.rsd-tag {
+  font-size: 12px;
+  border-radius: 6px;
+  background: #eff4f7;
+  color: #5a778a;
+  padding: 4px 7px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.rsd-tag.coral {
+  color: #9b684f;
+  background: #f8ede7;
+}
+.rsd-tag.sage {
+  color: #416a5e;
+  background: #e9f4ee;
+}
+.rsd-muted {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.rsd-small-card {
+  border-radius: 15px;
+  background: #f6fafc;
+  border: 1px solid #e7edf0;
+  padding: 13px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.rsd-mini-icon {
+  width: 41px;
+  height: 41px;
+  border-radius: 13px;
+  background: #e9f1f7;
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.rsd-progress {
+  height: 7px;
+  background: #e4edf1;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.rsd-progress > div {
+  height: 100%;
+  background: #5f8a96;
+  border-radius: 10px;
+}
+/* スタジオ */
+.rsd-source-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 30px;
+  background: #eaf1f5;
+  color: #537287;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 44px;
+  border: 0;
+  cursor: pointer;
+}
+.rsd-stepper {
+  display: flex;
+  gap: 0;
+  background: #eef3f6;
+  border-radius: 14px;
+  padding: 6px;
+  margin: 16px 0 16px;
+  overflow-x: auto;
+}
+.rsd-step {
+  flex: 1;
+  text-align: center;
+  padding: 9px 5px;
+  color: #85959e;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 10px;
+  white-space: nowrap;
+  min-width: 96px;
+}
+.rsd-step.on {
+  background: #fff;
+  box-shadow: 0 2px 7px #cddbe170;
+  color: var(--blue);
+}
+.rsd-step.done {
+  color: #5f8a96;
+}
+.rsd-outlinegrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+.rsd-outline {
+  background: #fff;
+  border: 1px solid #dfe8ed;
+  border-radius: 19px;
+  padding: 18px;
+  min-height: 284px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 5px 19px #2a58710c;
+}
+.rsd-outline.active {
+  border: 2px solid var(--blue);
+  padding: 17px;
+  box-shadow: 0 10px 28px #2a587118;
+}
+.rsd-outline .index {
+  font-family: Georgia, "Noto Serif JP", serif;
+  font-size: 22px;
+  color: #9caeb8;
+}
+.rsd-outline h3 {
+  font-size: 18px;
+  line-height: 1.48;
+  letter-spacing: -0.04em;
+  margin: 9px 0 5px;
+  min-height: 50px;
+  font-weight: 800;
+}
+.rsd-outline .target {
+  font-size: 13px;
+  color: #597481;
+  margin-bottom: 17px;
+  line-height: 1.5;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+.rsd-goal {
+  font-size: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.5;
+  margin: 7px 0;
+  color: #4e6978;
+}
+.rsd-goal .rs-icon {
+  color: var(--sage);
+}
+.rsd-outline .action {
+  margin-top: auto;
+  padding-top: 10px;
+}
+.rsd-outline .action .btn {
+  min-height: 47px;
+  font-size: 14px;
+  width: 100%;
+}
+.rsd-outline details {
+  font-size: 13px;
+  color: #597481;
+}
+.rsd-outline details > summary {
+  cursor: pointer;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  color: var(--blue);
+}
+/* 1024px 未満: サイドバーを上部の横ナビに */
+.rsd-tallbtn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 112px;
+  min-height: 84px;
+  padding: 12px 18px;
+  border: 1.5px solid #dbe5ea;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.rsd-tallbtn:hover {
+  background: #f5f8fa;
+}
+.rsd-tallbtn.danger {
+  color: var(--danger);
+}
+@media (max-width: 1023px) {
+  .reset-desk {
+    flex-direction: column;
+  }
+  .rsd-sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid #e4ecef;
+  }
+  .rsd-brand {
+    padding: 0 8px 0 0;
+    font-size: 22px;
+  }
+  .rsd-sidesection {
+    display: none;
+  }
+  .rsd-sidenav {
+    width: auto;
+    white-space: nowrap;
+    padding: 9px 12px;
+  }
+  .rsd-bar {
+    height: 56px;
+    padding: 0 16px;
+  }
+  .rsd-content {
+    padding: 16px 16px 32px;
+  }
+  .rsd-grid {
+    grid-template-columns: 1fr;
+  }
+  .rsd-outlinegrid {
+    grid-template-columns: 1fr;
+  }
+  .rsd-outline {
+    min-height: 0;
+  }
+  .rsd-tallbtn {
+    min-height: 56px;
+    flex-direction: row;
+    min-width: 0;
+  }
+}
+@media (max-width: 480px) {
+  .rsd-brand span {
+    display: none;
+  }
+  /* 上部バーに承認状態が入るときは「架空データ」タグを隠し、状態の文言を短くする */
+  .rsd-bar .rsd-row:has(#rsd-bar-slot > *) > .rsd-tag,
+  .rsd-status .long {
+    display: none;
+  }
+  .rsd-status .short {
+    display: inline;
+  }
+  .rsd-sidenav {
+    padding: 9px 10px;
+    font-size: 14px;
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .rsd-outlinegrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

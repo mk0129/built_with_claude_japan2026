@@ -46,7 +46,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
   await s.getByLabel("キーワード検索").fill("副作用");
   await s.getByRole("button", { name: "追加", exact: true }).first().click();
   await shot(s, "08_staff_prescription_panel");
-  await s.getByRole("button", { name: /処方を確定する/ }).click();
+  await s.getByRole("button", { name: /教材を処方する/ }).click();
   await expect(s.getByText(/件を処方しました/)).toBeVisible();
   await shot(s, "09_staff_after_prescribe");
 
@@ -120,7 +120,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
 
   // 医療者が終了 → 患者が再度 QR → 次回診察
   await s.goto(consultUrl1);
-  await s.getByRole("button", { name: "終了", exact: true }).click();
+  await s.getByRole("button", { name: "共有を終了" }).click();
   await expect(s.getByText(/診察セッションは終了しました/)).toBeVisible({ timeout: 15_000 });
   const code2 = await showQrCode(p);
   await s.goto("/staff/scan");
@@ -131,6 +131,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
 
   // 8. 次回診察: 宿題結果（スナップショット）と質問を確認
   await expect(s.getByText(/未確認の質問 1/)).toBeVisible({ timeout: 15_000 });
+  await s.getByText("理解確認スコア（参考）").click();
   await expect(s.getByText(/前回の宿題/)).toBeVisible();
   await shot(s, "21_staff_dashboard_second_visit");
   await s.getByRole("button", { name: "対応を記録" }).first().click();
@@ -140,9 +141,9 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
 
   // 9. 誤答・未完了から再処方
   await s.getByRole("button", { name: "再処方" }).first().click();
-  await expect(s.getByText(/候補（1）/)).toBeVisible();
+  await expect(s.getByText(/候補 1/).first()).toBeVisible();
   await shot(s, "22_staff_represcribe_basket");
-  await s.getByRole("button", { name: /処方を確定する/ }).click();
+  await s.getByRole("button", { name: /教材を処方する/ }).click();
   await expect(s.getByText(/件を処方しました/)).toBeVisible();
   await shot(s, "23_staff_after_represcribe");
   await p.goto("/home");
@@ -152,7 +153,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
 
   // 後片付け: セッションを終了して次のテストに影響させない
   await s.goto(s.url());
-  await s.getByRole("button", { name: "終了", exact: true }).click();
+  await s.getByRole("button", { name: "共有を終了" }).click();
 
   await patient.ctx.close();
   await staff.ctx.close();

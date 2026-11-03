@@ -36,7 +36,7 @@ test("原資料の登録から患者への処方まで", async ({ browser }) => 
   await expect(s.getByText("登録しました。")).toBeVisible({ timeout: 30_000 });
   await s.getByRole("link", { name: "原資料の画面へ" }).click();
   await s.waitForURL(/\/staff\/studio\/sources\//);
-  await expect(s.getByText(/Claude に送信できます/)).toBeVisible();
+  await expect(s.getByText(/Claude に送信できます/).first()).toBeVisible();
   await shot(s, "d4_03_source_detail");
 
   // B. 生成（C 方式: テーマ指定）
@@ -83,7 +83,7 @@ test("原資料の登録から患者への処方まで", async ({ browser }) => 
   await s.getByLabel("キーワード検索").fill(stamp);
   await s.getByRole("button", { name: "追加", exact: true }).first().click();
   await shot(s, "d4_08_prescribe_new_material");
-  await s.getByRole("button", { name: /処方を確定する/ }).click();
+  await s.getByRole("button", { name: /教材を処方する/ }).click();
   await expect(s.getByText(/件を処方しました/)).toBeVisible();
 
   await p.goto("/home");

@@ -56,8 +56,12 @@ test("Phase B: クイズと結果の撮影・計測", async ({ browser }) => {
       await page.screenshot({ path: `${OUT}/app_quiz_${sfx}_selected.png`, fullPage: false });
       await page.getByRole("button", { name: /回答を確認する/ }).click();
       await expect(page.getByText("確認できました。")).toBeVisible({ timeout: 10_000 });
+      await page.waitForTimeout(700); // 必要時のスクロール（smooth）が終わるのを待つ
       await page.screenshot({ path: `${OUT}/app_quiz_${sfx}_answered.png`, fullPage: false });
-      metrics[`quiz_${sfx}_answered`] = { feedback: await box(page, ".rs-feedback"), ...(await layoutAudit(page)) };
+      const fb = await box(page, ".rs-feedback");
+      const ctaBox = await box(page, ".rs-cta");
+      metrics[`quiz_${sfx}_answered`] = { feedback: fb, ctaTop: ctaBox?.top, hiddenByCta: !!fb && !!ctaBox && fb.top + fb.h > ctaBox.top, ...(await layoutAudit(page)) };
+      expect(fb && ctaBox && fb.top + fb.h <= ctaBox.top, `回答後の説明が固定 CTA に隠れる (${sfx})`).toBe(true);
       // 残り 2 問: 誤答・わからない → 結果
       await page.getByRole("button", { name: "次の問題へ" }).click();
       await page.getByRole("radio", { name: /^ア/ }).click();

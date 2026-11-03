@@ -38,9 +38,9 @@ test("UX-03 / UX-04: 構成案は操作の直下に出て画面内に入る。�
   // UX-03: 「構成案を作る」→ 結果領域（操作の直下）に構成案が出て、見出しが画面内に入る
   await s.getByRole("button", { name: "構成案を作る" }).click();
   const result = s.getByTestId("generation-result");
-  await expect(result.getByRole("heading", { name: /Claude の構成案/ })).toBeVisible({ timeout: 60_000 });
-  await expect(result.getByText(/次のステップ: 1 つ選んで/)).toBeVisible();
-  const heading = result.getByRole("heading", { name: /Claude の構成案/ });
+  await expect(result.getByRole("heading", { name: /構成案が届きました/ })).toBeVisible({ timeout: 60_000 });
+  await expect(result.getByText(/患者に届けたいテーマを選択してください/)).toBeVisible();
+  const heading = result.getByRole("heading", { name: /構成案が届きました/ });
   await s.waitForTimeout(800); // smooth scroll
   const box = await heading.boundingBox();
   expect(box, "構成案の見出しが取得できる").not.toBeNull();
@@ -48,12 +48,13 @@ test("UX-03 / UX-04: 構成案は操作の直下に出て画面内に入る。�
   expect(box!.y).toBeLessThan(1180);
   await s.screenshot({ path: `${SHOT_DIR}/p0_ux03_outline_result_820.png`, fullPage: false });
   // 構成案の違いが分かる要素（学習目標・画面構成・特徴）がカードにある
-  await expect(result.getByText("学習目標").first()).toBeVisible();
-  await expect(result.getByText(/画面構成（\d+ 画面）/).first()).toBeVisible();
+  await expect(result.getByText("この教材で学ぶこと").first()).toBeVisible();
+  await result.getByText("画面構成と根拠を見る").first().click();
+  await expect(result.getByText(/画面構成（\d+）/).first()).toBeVisible();
   await expect(result.getByText(/根拠（原資料のどこに基づくか）/).first()).toBeVisible();
 
   // 案を選ぶ → ステップ 3（必須事項の確認）が同じ領域に出る → 生成 → 「下書きができました」
-  await result.getByRole("button", { name: "この案で進む" }).first().click();
+  await result.getByRole("button", { name: /この構成で次へ/ }).click();
   await expect(result.getByText(/ステップ 3: 必須事項を確認/)).toBeVisible();
   await expect(result.getByRole("radio", { name: "この教材で必須" }).first()).toBeVisible();
   await s.screenshot({ path: `${SHOT_DIR}/p0_ux03_must_cover_step_820.png`, fullPage: false });
@@ -80,7 +81,7 @@ test("UX-03 / UX-04: 構成案は操作の直下に出て画面内に入る。�
   await s.screenshot({ path: `${SHOT_DIR}/p0_ux04_editor_preview_link_820.png`, fullPage: false });
   await preview.click();
   await s.waitForURL(/\/staff\/materials\/.*\/preview/);
-  await expect(s.getByText(/患者画面プレビュー/)).toBeVisible();
+  await expect(s.getByText(/患者画面プレビュー（医療者のみ）/)).toBeVisible();
   await expect(s.getByText(/「下書き」のため、患者さんには表示されません/)).toBeVisible();
   await expect(s.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(s.getByRole("link", { name: /編集・承認画面へ/ })).toBeVisible();
@@ -150,7 +151,7 @@ test("UX-02: 医療者ホームと診察画面に内部表記・開発者向け�
   const consult = await staff.page.locator("body").innerText();
   expect(consult).not.toMatch(/後続フェーズ|四捨五入|MVP|drug_therapy|clinician/);
   await staff.page.screenshot({ path: `${SHOT_DIR}/p0_ux02_prescribe_panel_1180.png`, fullPage: false });
-  await staff.page.getByRole("button", { name: "終了", exact: true }).click();
+  await staff.page.getByRole("button", { name: "共有を終了" }).click();
   await staff.ctx.close();
   await patient.ctx.close();
 });
@@ -192,7 +193,7 @@ test("UX-10: 「共有を終了する」は連続 3 回とも 1 回の操作で�
   // 医療者が先に終了 → 患者画面は「共有は終了しました」→ 閉じる → QR ボタン
   const sessionId = await startSharing();
   await expect(patient.page.getByRole("button", { name: /共有を終了する/ })).toBeVisible({ timeout: 10_000 });
-  await staff.page.getByRole("button", { name: "終了", exact: true }).click();
+  await staff.page.getByRole("button", { name: "共有を終了" }).click();
   await expect(patient.page.getByText("共有は終了しました")).toBeVisible({ timeout: 10_000 });
   await expect(patient.page.getByText("医療者が終了しました。")).toBeVisible();
   await patient.page.screenshot({ path: `${SHOT_DIR}/p0_ux10_ended_by_staff_390.png`, fullPage: false });

@@ -1,11 +1,13 @@
 "use client";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { ApiError, api, errorText } from "@/lib/api";
 import { usePoll } from "@/lib/use-poll";
 import { useNow } from "@/lib/use-now";
 import { DOMAIN_LABEL, PHASE_LABEL, RESPONSE_LABEL, SELECTION_LABEL, STATUS_LABEL, fmtDate, fmtScore } from "@/lib/labels";
 import { PrescriptionPanel, type BasketItem } from "./PrescriptionPanel";
+import { Icon } from "@/components/reset/Icons";
+import { createPortal } from "react-dom";
 
 type Consultation = { id: string; orgName: string; clinicianName: string; expiresAt: string; active: boolean; endedBy: string | null; pendingExtension: { id: string } | null };
 type Question = {
@@ -114,39 +116,45 @@ export function ConsultClient({ sessionId }: { sessionId: string }) {
     setBasket((b) => (b.some((x) => x.materialId === materialId) ? b : [...b, { materialId, title }]));
   }
 
+  const remain = c ? fmtRemain(remainMs) : "--:--";
   return (
     <main className="space-y-4 pb-32 lg:pb-0">
-      <header className="card flex flex-wrap items-center gap-3 justify-between">
-        <div>
-          <p className="text-sm text-ink-soft">
-            {c?.orgName} ・ {c?.clinicianName}
-          </p>
-          <h1 className="text-xl font-bold">{s ? `${s.patient.displayName} さん` : "読み込み中…"}</h1>
+      <div className="rsd-row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div className="min-w-0">
+          <div className="rsd-eyebrow">外来サポート</div>
+          <h1 className="rsd-h1">診察で確認したいこと</h1>
+          <div className="rsd-desc">
+            {s ? `${s.patient.displayName} さん` : "読み込み中…"} ／ {c?.orgName} ・ {c?.clinicianName} ／ 学習内容の共有中
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className={`pill text-base ${remainMs < 5 * 60_000 ? "bg-sakura" : "bg-wakakusa"}`} aria-live="polite">
-            残り {c ? fmtRemain(remainMs) : "--:--"}
-          </span>
+        <div className="rsd-row" style={{ flexWrap: "nowrap", alignItems: "stretch" }}>
           {c?.pendingExtension ? (
-            <span className="pill">延長の承認待ち</span>
+            <span className="rsd-tag self-center">延長の承認待ち</span>
           ) : (
-            <button className="btn text-sm min-h-11" onClick={extend}>
+            <button className="rsd-tallbtn" onClick={extend}>
+              <Icon name="clock" size="sm" />
               延長を要求
             </button>
           )}
-          <button className="btn btn-danger text-sm min-h-11" onClick={end}>
-            終了
+          <button className="rsd-tallbtn danger" onClick={end} aria-label="共有を終了">
+            <Icon name="logout" size="sm" />
+            共有を終了
           </button>
         </div>
-      </header>
-      {err && <p className="text-sm text-ink-soft">{err}</p>}
+      </div>
+      <BarStatus warn={remainMs < 5 * 60_000}>
+        <Icon name="checkcircle" size="sm" />
+        <span className="long">患者の承認済み ・ </span>
+        <span className="short">承認済み ・ </span>
+        残り {remain}
+      </BarStatus>
+      {err && <p className="rsd-muted">{err}</p>}
 
-      <div className="grid lg:grid-cols-[1fr_minmax(320px,400px)] gap-4 items-start">
+      <div className="rsd-grid">
         <section className="space-y-4">
-          {s ? <TodayCard sessionId={sessionId} s={s} onChanged={refresh} onPrescribe={prescribeRelated} /> : <section className="card text-ink-soft">患者さんの記録を読み込んでいます…</section>}
-          <ScoresCard s={s} />
+          {s ? <TodayCard sessionId={sessionId} s={s} onChanged={refresh} onPrescribe={prescribeRelated} /> : <section className="rsd-card rsd-muted">患者さんの記録を読み込んでいます…</section>}
           {s && s.previousConsultations.length > 0 && (
-            <details className="card">
+            <details className="rsd-card">
               <summary className="font-bold cursor-pointer">これまでの診察セッション（{s.previousConsultations.length}）</summary>
               <ul className="text-sm space-y-1 mt-2">
                 {s.previousConsultations.map((p) => (
@@ -160,117 +168,119 @@ export function ConsultClient({ sessionId }: { sessionId: string }) {
           )}
         </section>
 
-        <PrescriptionPanel sessionId={sessionId} open={panelOpen} onToggle={() => setPanelOpen((v) => !v)} currentSet={s?.currentSet ?? null} onPrescribed={refresh} basket={basket} setBasket={updateBasket} />
+        <div className="space-y-4">
+          <PrescriptionPanel sessionId={sessionId} open={panelOpen} onToggle={() => setPanelOpen((v) => !v)} currentSet={s?.currentSet ?? null} onPrescribed={refresh} basket={basket} setBasket={updateBasket} />
+          <ProgressCard s={s} />
+        </div>
       </div>
     </main>
   );
 }
 
-/** 今日の確認事項: 未確認の質問 → 誤答・わからない → 未完了教材 を 1 枚に。各行に主アクション 1 つ */
+/** 前回の学びから（参照 .dcard / .infoline）: 患者からの質問 → もう一度説明したいこと（誤答・わからない） → 学習途中の教材。各行に主アクション */
 function TodayCard({ sessionId, s, onChanged, onPrescribe }: { sessionId: string; s: Summary; onChanged: () => void; onPrescribe: (id: string) => void }) {
   const unread = s.questions.filter((q) => q.status === "unread").length;
   const missedCount = s.missed.reduce((a, m) => a + m.nWrong + m.nUnknown, 0);
   const openQuestions = s.questions.filter((q) => q.status !== "resolved");
   const resolved = s.questions.filter((q) => q.status === "resolved");
-  const nothing = openQuestions.length === 0 && s.missed.length === 0 && s.incompleteMaterials.length === 0;
+  const total = openQuestions.length + (s.missed.length ? 1 : 0) + (s.incompleteMaterials.length ? 1 : 0);
+  const nothing = total === 0;
 
   return (
-    <section className="card space-y-4" aria-labelledby="today-title">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 id="today-title" className="text-lg font-bold">
-          今日の確認事項
+    <section className="rsd-card" aria-labelledby="today-title">
+      <div className="rsd-row" style={{ justifyContent: "space-between" }}>
+        <h2 id="today-title" style={{ marginBottom: 0 }}>
+          前回の学びから
         </h2>
-        <div className="flex flex-wrap gap-1">
-          <span className={`pill ${unread ? "bg-sakura" : ""}`}>未確認の質問 {unread}</span>
-          <span className={`pill ${missedCount ? "bg-suna" : ""}`}>誤答・わからない {missedCount}</span>
-          <span className={`pill ${s.incompleteMaterials.length ? "bg-sora" : ""}`}>未完了 {s.incompleteMaterials.length}</span>
-        </div>
+        <span className={`rsd-tag ${unread > 0 ? "coral" : ""}`}>確認事項 {total}件</span>
       </div>
-      {nothing && <p className="text-ink-soft">確認が必要な項目はありません。必要に応じて「情報処方」から教材を追加できます。</p>}
+      <p className="rsd-muted" style={{ margin: "4px 0 0" }}>
+        未確認の質問 {unread} ・ 誤答・わからない {missedCount} ・ 未完了 {s.incompleteMaterials.length}
+      </p>
+      {nothing && <p className="rsd-muted" style={{ marginTop: 12 }}>確認が必要な項目はありません。必要に応じて「次の情報処方」から教材を追加できます。</p>}
 
-      {openQuestions.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-bold text-ink-soft">患者さんからの質問・ふりかえり</h3>
-          <ul className="space-y-2">
-            {openQuestions.map((q) => (
-              <QuestionRow key={q.feedbackId} sessionId={sessionId} q={q} onChanged={onChanged} onPrescribe={onPrescribe} />
-            ))}
-          </ul>
-        </div>
-      )}
+      {openQuestions.map((q) => (
+        <QuestionRow key={q.feedbackId} sessionId={sessionId} q={q} onChanged={onChanged} onPrescribe={onPrescribe} />
+      ))}
 
       {s.missed.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-bold text-ink-soft">誤答・わからない（最新の確認問題）</h3>
-          <ul className="space-y-2">
-            {s.missed.map((m) => (
-              <li key={m.materialId} className="rounded-xl border border-line p-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="font-bold leading-snug">
+        <div className="rsd-infoline">
+          <div className="rsd-mark">
+            <Icon name="book" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3>もう一度説明したいこと</h3>
+            <ul className="space-y-3">
+              {s.missed.map((m) => (
+                <li key={m.materialId}>
+                  <div className="rsd-row" style={{ justifyContent: "space-between" }}>
+                    <p className="important font-bold">
                       {m.title}
-                      {m.isOldVersion && <span className="pill ml-1">旧版</span>}
+                      {m.isOldVersion && <span className="rsd-tag ml-1">旧版</span>}
+                      <span className="rsd-muted font-normal"> ・ まちがい {m.nWrong} ・ わからない {m.nUnknown} ・ {fmtDate(m.completedAt)}</span>
                     </p>
-                    <p className="text-xs text-ink-muted">
-                      まちがい {m.nWrong} ・ わからない {m.nUnknown} ・ {fmtDate(m.completedAt)}
-                    </p>
+                    <button className="btn btn-soft" onClick={() => onPrescribe(m.materialId)}>
+                      再処方を候補へ
+                    </button>
                   </div>
-                  <button className="btn btn-soft text-sm min-h-11 shrink-0 whitespace-nowrap" onClick={() => onPrescribe(m.materialId)}>
-                    再処方
-                  </button>
-                </div>
-                <ul className="mt-2 space-y-1 text-sm">
-                  {m.questions.map((q) => (
-                    <li key={q.seq} className="flex gap-2 items-start">
-                      <span className={`pill shrink-0 ${q.isUnknown ? "" : "bg-sakura"}`}>{q.isUnknown ? "わからない" : "誤答"}</span>
-                      <span>
-                        {q.stem}
-                        {!q.isUnknown && q.selectedIndex !== null && (
-                          <span className="block text-xs text-ink-muted">
-                            患者の答え: {LETTERS[q.selectedIndex]} {q.options[q.selectedIndex]} ／ 正解: {LETTERS[q.correctIndex]} {q.options[q.correctIndex]}
-                          </span>
-                        )}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
+                  <ul className="mt-1 space-y-1">
+                    {m.questions.map((q) => (
+                      <li key={q.seq} className="flex gap-2 items-start">
+                        <span className={`rsd-tag shrink-0 ${q.isUnknown ? "" : "coral"}`}>{q.isUnknown ? "わからない" : "誤答"}</span>
+                        <p>
+                          {q.stem}
+                          {!q.isUnknown && q.selectedIndex !== null && (
+                            <span className="block rsd-muted">
+                              患者「{q.options[q.selectedIndex]}」／正解「<b className="text-[color:var(--ink)]">{q.options[q.correctIndex]}</b>」
+                            </span>
+                          )}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
 
       {s.incompleteMaterials.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-bold text-ink-soft">未完了の教材</h3>
-          <ul className="space-y-1">
-            {s.incompleteMaterials.map((i) => (
-              <li key={i.materialId} className="flex items-center justify-between gap-2 rounded-xl border border-line px-3 py-2">
-                <span className="min-w-0">
-                  <span className="font-bold">{i.title}</span>
-                  <span className="block text-xs text-ink-muted">
-                    {PHASE_LABEL[i.phase]} ・ {fmtDate(i.setCreatedAt)} {i.orgName}
-                  </span>
-                </span>
-                <button className="btn btn-ghost text-sm min-h-11 shrink-0 whitespace-nowrap" onClick={() => onPrescribe(i.materialId)}>
-                  再処方
-                </button>
-              </li>
-            ))}
-          </ul>
+        <div className="rsd-infoline">
+          <div className="rsd-mark">
+            <Icon name="clock" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3>学習途中の教材</h3>
+            <ul className="space-y-2">
+              {s.incompleteMaterials.map((i) => (
+                <li key={i.materialId} className="rsd-row" style={{ justifyContent: "space-between" }}>
+                  <p>
+                    <span className="important font-bold">「{i.title}」</span>　{PHASE_LABEL[i.phase]} ・ {fmtDate(i.setCreatedAt)} {i.orgName}
+                  </p>
+                  <button className="btn btn-ghost" onClick={() => onPrescribe(i.materialId)}>
+                    再処方を候補へ
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
 
-      {resolved.length > 0 && (
-        <details>
-          <summary className="text-sm text-ink-soft cursor-pointer">対応済みの質問（{resolved.length}）</summary>
-          <ul className="space-y-2 mt-2">
-            {resolved.map((q) => (
-              <QuestionRow key={q.feedbackId} sessionId={sessionId} q={q} onChanged={onChanged} onPrescribe={onPrescribe} />
-            ))}
-          </ul>
-        </details>
-      )}
+      <div className="rsd-row" style={{ justifyContent: "space-between", marginTop: 15 }}>
+        <div className="rsd-muted">内容を確認し、説明または再処方につなげます</div>
+        {resolved.length > 0 && (
+          <details>
+            <summary className="rsd-muted cursor-pointer">対応済みの質問（{resolved.length}）</summary>
+            <ul className="space-y-2 mt-2">
+              {resolved.map((q) => (
+                <QuestionRow key={q.feedbackId} sessionId={sessionId} q={q} onChanged={onChanged} onPrescribe={onPrescribe} />
+              ))}
+            </ul>
+          </details>
+        )}
+      </div>
     </section>
   );
 }
@@ -296,43 +306,46 @@ function QuestionRow({ sessionId, q, onChanged, onPrescribe }: { sessionId: stri
   }
   const isQuestion = !!q.freeText || q.selection === "have_question" || q.selection === "explain_again";
   return (
-    <li className={`rounded-xl border p-3 space-y-2 ${q.status === "unread" ? "border-sakura-deep bg-sakura/30" : "border-line"}`}>
-      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-        <span className="text-ink-soft">
-          {fmtDate(q.createdAt)} ・ {q.materialTitle}
-        </span>
-        <span className={`pill ${q.status === "resolved" ? "bg-wakakusa" : q.status === "reviewed" ? "bg-sora" : "bg-sakura"}`}>{STATUS_LABEL[q.status]}</span>
+    <div className="rsd-infoline">
+      <div className={`rsd-mark ${q.status === "unread" ? "coral" : ""}`}>
+        <Icon name="message" />
       </div>
-      <p className="text-sm">{SELECTION_LABEL[q.selection]}</p>
-      {q.freeText && <p className={`bg-surface rounded-lg p-2 ${open ? "" : "line-clamp-3"}`}>{q.freeText}</p>}
-      {q.actions
-        .filter((a) => a.status === "resolved")
-        .map((a, i) => (
-          <p key={i} className="text-xs text-ink-soft">
-            {fmtDate(a.createdAt)} {a.orgName}: {a.responseType ? RESPONSE_LABEL[a.responseType] : ""}
-            {a.note ? `（${a.note}）` : ""}
-          </p>
-        ))}
-      <div className="flex flex-wrap gap-2">
-        {q.status !== "resolved" && isQuestion && (
-          <button className="btn btn-soft text-sm min-h-11 whitespace-nowrap" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-            {open ? "閉じる" : "対応を記録"}
-          </button>
-        )}
-        <button className="btn btn-ghost text-sm min-h-11 whitespace-nowrap" onClick={() => onPrescribe(q.materialId)}>
-          関連教材を処方
-        </button>
-      </div>
-      {open && (
-        <div className="grid gap-2 bg-surface rounded-lg p-3 border border-line">
-          <p className="text-sm font-bold">この質問の状態を記録する</p>
-          {q.status === "unread" && (
-            <button className="btn text-sm min-h-11" disabled={busy} onClick={() => setStatus("reviewed")}>
-              確認済みにする（まだ対応はしていない）
+      <div className="min-w-0 flex-1">
+        <div className="rsd-row" style={{ justifyContent: "space-between" }}>
+          <h3>患者からの質問</h3>
+          <span className={`rsd-tag ${q.status === "unread" ? "coral" : q.status === "resolved" ? "sage" : ""}`}>{STATUS_LABEL[q.status]}</span>
+        </div>
+        <p className="rsd-muted">
+          {fmtDate(q.createdAt)} ・ {q.materialTitle} ・ 「{SELECTION_LABEL[q.selection]}」
+        </p>
+        {q.freeText && <p className={`important ${open ? "" : "line-clamp-3"}`}>{q.freeText}</p>}
+        {q.actions
+          .filter((a) => a.status === "resolved")
+          .map((a, i) => (
+            <p key={i} className="rsd-muted">
+              {fmtDate(a.createdAt)} {a.orgName}: {a.responseType ? RESPONSE_LABEL[a.responseType] : ""}
+              {a.note ? `（${a.note}）` : ""}
+            </p>
+          ))}
+        <div className="rsd-row" style={{ marginTop: 10 }}>
+          {q.status !== "resolved" && isQuestion && (
+            <button className="btn btn-primary" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+              {open ? "閉じる" : "対応を記録"}
             </button>
           )}
-          <div className="grid gap-2 rounded-lg bg-bg p-2">
-            <label className="label" htmlFor={`rt-${q.feedbackId}`}>
+          <button className="btn btn-soft" onClick={() => onPrescribe(q.materialId)}>
+            関連教材を候補へ
+          </button>
+        </div>
+        {open && (
+          <div className="grid gap-2 rounded-xl p-3 border border-line mt-3" style={{ background: "#f6fafc" }}>
+            <p className="font-bold">この質問の状態を記録する</p>
+            {q.status === "unread" && (
+              <button className="btn" disabled={busy} onClick={() => setStatus("reviewed")}>
+                確認済みにする（まだ対応はしていない）
+              </button>
+            )}
+            <label className="rsd-muted" htmlFor={`rt-${q.feedbackId}`}>
               対応の方法
             </label>
             <select id={`rt-${q.feedbackId}`} className="input" value={responseType} onChange={(e) => setResponseType(e.target.value)}>
@@ -343,25 +356,35 @@ function QuestionRow({ sessionId, q, onChanged, onPrescribe }: { sessionId: stri
               ))}
             </select>
             <input className="input" placeholder="一言メモ（任意）" value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} aria-label="一言メモ" />
-            <button className="btn btn-primary min-h-11" disabled={busy} onClick={() => setStatus("resolved")}>
+            <button className="btn btn-primary" disabled={busy} onClick={() => setStatus("resolved")}>
               対応済みとして記録する
             </button>
-            <p className="text-xs text-ink-muted">「対応済み」は患者さんの疑問が解消したことを意味しません。記録は履歴として残り、後から追記できます。</p>
+            <p className="rsd-muted">「対応済み」は患者さんの疑問が解消したことを意味しません。記録は履歴として残り、後から追記できます。</p>
           </div>
-        </div>
-      )}
-    </li>
+        )}
+      </div>
+    </div>
   );
 }
 
-/** スコアはコンパクトに。詳細は展開式（情報は隠さず、折りたたむだけ） */
-function ScoresCard({ s }: { s: Summary | null }) {
+/** 学習の進み具合（参照 .dcard）。点数は折りたたみの中（情報は隠さず、主役にしない） */
+function ProgressCard({ s }: { s: Summary | null }) {
   if (!s) return null;
   const snap = s.snapshotForThisSession;
   const latestSet = s.homework[0];
+  const completed = latestSet?.completedCount ?? 0;
+  const assigned = latestSet?.assignedCount ?? 0;
   return (
-    <section className="card space-y-3">
-      <h2 className="font-bold">理解確認スコア</h2>
+    <section className="rsd-card space-y-3">
+      <h2 style={{ fontSize: 15, marginBottom: 8 }}>学習の進み具合</h2>
+      <div className="rsd-desc">{assigned > 0 ? `${assigned}教材のうち${completed}教材を完了（${latestSet ? fmtDate(latestSet.createdAt) : ""} 処方）` : "処方された教材はまだありません"}</div>
+      <div className="rsd-progress" aria-label="完了率">
+        <div style={{ width: assigned > 0 ? `${(completed / assigned) * 100}%` : "0%" }} />
+      </div>
+      <div className="rsd-muted">点数ではなく、確認すべき内容を優先表示</div>
+      <details>
+      <summary className="rsd-muted cursor-pointer">理解確認スコア（参考）</summary>
+      <div className="space-y-3 mt-2">
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-xl bg-suna p-3">
           <p className="text-xs text-ink-soft">全体</p>
@@ -471,6 +494,23 @@ function ScoresCard({ s }: { s: Summary | null }) {
           </ul>
         </details>
       )}
+      </div>
+      </details>
     </section>
   );
+}
+
+/** 上部バー右側の差し込み口（DeskBar の #rsd-bar-slot）に承認状態を出す。参照 .deskbar .status */
+function BarStatus({ warn, children }: { warn: boolean; children: React.ReactNode }) {
+  const slot = useSyncExternalStore(
+    () => () => {},
+    () => document.getElementById("rsd-bar-slot"),
+    () => null,
+  );
+  const el = (
+    <span className={`rsd-status ${warn ? "warn" : ""}`} aria-live="polite">
+      {children}
+    </span>
+  );
+  return slot ? createPortal(el, slot) : <div>{el}</div>;
 }

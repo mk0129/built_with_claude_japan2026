@@ -16,6 +16,11 @@ const PATHS: Record<string, string> = {
   heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
   arrow: '<path d="M4 12h16m-6-6 6 6-6 6"/>',
   text: '<path d="M4 7V5h16v2M12 5v14M9 19h6"/>',
+  sparkle: '<path d="m12 2 2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2Z"/>',
+  logout: '<path d="M9 3H4v18h5M13 7l5 5-5 5M8 12h10"/>',
+  message: '<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.5 0-3-.4-4.2-1L3 21l1.8-5A8.5 8.5 0 1 1 21 11.5Z"/>',
+  file: '<path d="M5 2h9l5 5v15H5V2Z"/><path d="M14 2v5h5M9 12h6M9 16h6"/>',
+  shield: '<path d="M12 2 4 6v6c0 5 3 8 8 10 5-2 8-5 8-10V6l-8-4Z"/><path d="m9 12 2 2 4-4"/>',
 };
 
 export function Icon({ name, size = "md", className = "" }: { name: keyof typeof PATHS; size?: "sm" | "md" | "xl"; className?: string }) {

@@ -65,7 +65,7 @@ test("実 API: B 方式・C 方式の生成から患者の学習まで", async (
   await e.getByRole("button", { name: "登録する" }).click();
   await e.getByRole("link", { name: "原資料の画面へ" }).click();
   await e.waitForURL(/\/staff\/studio\/sources\//);
-  await expect(e.getByText(/Claude に送信できます/)).toBeVisible();
+  await expect(e.getByText(/Claude に送信できます/).first()).toBeVisible();
   const sourceUrl = e.url();
   const sourceId = sourceUrl.split("/").pop()!;
   save("source", await (await e.request.get(`/api/v1/studio/sources/${sourceId}`)).json());
@@ -73,13 +73,14 @@ test("実 API: B 方式・C 方式の生成から患者の学習まで", async (
 
   // B 方式: 構成案 → 選択 → 必須事項の確認（GEN-05: 候補は Claude、分類は医療者）→ 生成
   await e.getByRole("button", { name: "構成案を作る" }).click();
-  await expect(e.getByRole("button", { name: "この案で進む" }).first()).toBeVisible({ timeout: JOB_WAIT });
+  await expect(e.getByRole("button", { name: /この案を選ぶ|選択中/ }).first()).toBeVisible({ timeout: JOB_WAIT });
   const outlineJob = await jobDetail(e, (await latestJob(e, "outline")).id);
   save("b_outline_job", outlineJob);
   await shot(e, "d5_02_b_outlines");
   // 案 2（副作用と連絡してほしい症状）があればそれを選ぶ（GEN-01 の検証対象: 受診行動の欠落）。無ければ案 1
-  const picks = e.getByRole("button", { name: "この案で進む" });
+  const picks = e.getByRole("button", { name: /この案を選ぶ|選択中/ });
   await picks.nth(Math.min(1, (await picks.count()) - 1)).click();
+  await e.getByRole("button", { name: /この構成で次へ/ }).click();
   await expect(e.getByText(/ステップ 3: 必須事項を確認/)).toBeVisible();
   // 医療者の分類: 候補は既定「この教材で必須」のまま。最後の 1 件だけ「医療者の確認が必要」にして分類の通しを確認
   const groups = e.getByRole("radiogroup");
@@ -95,6 +96,9 @@ test("実 API: B 方式・C 方式の生成から患者の学習まで", async (
   save("b_generate_job", bJob);
 
   // C 方式: テーマ・学習目標を指定
+  // 結果があるときは作り方のカードは折りたたまれている（Phase C）
+  const other = e.getByText("別の方法で作る・もう一度提案してもらう");
+  if (await other.isVisible().catch(() => false)) await other.click();
   await e.getByLabel("テーマ").fill("治療中に気をつけたい体の変化と、病院へ連絡する目安");
   await e.getByLabel("対象（任意）").fill("術後にホルモン療法を始める方");
   await e.getByLabel(/学習目標/).fill("すぐに連絡が必要な症状を知る\n副作用は相談してよいと知る");
@@ -179,7 +183,7 @@ test("実 API: B 方式・C 方式の生成から患者の学習まで", async (
   await a.getByRole("button", { name: "追加", exact: true }).first().click();
   await a.getByRole("button", { name: "追加", exact: true }).first().click();
   await shot(a, "d5_08_prescribe");
-  await a.getByRole("button", { name: /処方を確定する/ }).click();
+  await a.getByRole("button", { name: /教材を処方する/ }).click();
   await expect(a.getByText(/2 件を処方しました|件を処方しました/)).toBeVisible();
 
   await p.goto("/home");

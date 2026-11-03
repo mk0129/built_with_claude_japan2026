@@ -85,7 +85,7 @@ test("医療者ダッシュボードの幅別表示", async ({ browser }) => {
     const open = await layoutAudit(staff.page);
     await staff.page.screenshot({ path: `${SHOT_DIR}/w${vp.width}_staff_dashboard_panel_open.png`, fullPage: false });
     report.push({ viewport: name, width: vp.width, closed, open });
-    await staff.page.getByRole("button", { name: "終了", exact: true }).click();
+    await staff.page.getByRole("button", { name: "共有を終了" }).click();
     await staff.ctx.close();
   }
   writeFileSync(`${SHOT_DIR}/dashboard_audit.json`, JSON.stringify(report, null, 2));

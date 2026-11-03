@@ -1,0 +1,565 @@
+{
+  "consult_1180": {
+    "sidebar": {
+      "top": 0,
+      "left": 0,
+      "w": 200,
+      "h": 820,
+      "font": "15px"
+    },
+    "bar": {
+      "top": 0,
+      "left": 200,
+      "w": 980,
+      "h": 73,
+      "font": "15px"
+    },
+    "eyebrow": {
+      "top": 97,
+      "left": 230,
+      "w": 476,
+      "h": 19,
+      "font": "12px"
+    },
+    "h1": {
+      "top": 121,
+      "left": 230,
+      "w": 476,
+      "h": 35,
+      "font": "26px"
+    },
+    "desc": {
+      "top": 162,
+      "left": 230,
+      "w": 476,
+      "h": 23,
+      "font": "14px"
+    },
+    "status": {
+      "top": 17,
+      "left": 775,
+      "w": 212,
+      "h": 37,
+      "font": "12px"
+    },
+    "endBtn": {
+      "top": 97,
+      "left": 1038,
+      "w": 112,
+      "h": 84,
+      "font": "14px"
+    },
+    "card": {
+      "top": 206,
+      "left": 230,
+      "w": 577,
+      "h": 1032,
+      "font": "15px"
+    },
+    "infoline": {
+      "top": 284,
+      "left": 254,
+      "w": 529,
+      "h": 218,
+      "font": "15px"
+    },
+    "mark": {
+      "top": 300,
+      "left": 254,
+      "w": 38,
+      "h": 38,
+      "font": "15px"
+    },
+    "primaryBtn": {
+      "top": 442,
+      "left": 307,
+      "w": 108,
+      "h": 43,
+      "font": "14px"
+    },
+    "rxPanel": {
+      "top": 206,
+      "left": 825,
+      "w": 325,
+      "h": 249,
+      "font": "15px"
+    },
+    "overflowX": 0,
+    "small": [
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:再処方を候補へ@136x43",
+      "button:再処方を候補へ@136x43",
+      "button:開く@66x43",
+      "button:教材を処方する@277x43"
+    ],
+    "clipped": [],
+    "fontSize": "18px",
+    "bottom": {
+      "text": " 教材を処方する",
+      "bottom": 98,
+      "vh": 820,
+      "coveredByFixed": false
+    }
+  },
+  "consult_1180_rx": {
+    "panel": {
+      "top": 149,
+      "left": 825,
+      "w": 325,
+      "h": 784,
+      "font": "15px"
+    },
+    "overflowX": 0,
+    "small": [
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:再処方を候補へ@136x43",
+      "button:再処方を候補へ@136x43",
+      "button:閉じる@80x43",
+      "button:教材を処方する@277x43",
+      "button:まとめて追加@122x43",
+      "button:まとめて追加@122x43",
+      "button:まとめて追加@122x43",
+      "button:まとめて追加@122x43"
+    ],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "consult_820": {
+    "sidebar": {
+      "top": 0,
+      "left": 0,
+      "w": 820,
+      "h": 69,
+      "font": "15px"
+    },
+    "bar": {
+      "top": 69,
+      "left": 0,
+      "w": 820,
+      "h": 56,
+      "font": "15px"
+    },
+    "eyebrow": {
+      "top": 141,
+      "left": 16,
+      "w": 476,
+      "h": 19,
+      "font": "12px"
+    },
+    "h1": {
+      "top": 165,
+      "left": 16,
+      "w": 476,
+      "h": 35,
+      "font": "26px"
+    },
+    "desc": {
+      "top": 206,
+      "left": 16,
+      "w": 476,
+      "h": 23,
+      "font": "14px"
+    },
+    "status": {
+      "top": 78,
+      "left": 428,
+      "w": 212,
+      "h": 37,
+      "font": "12px"
+    },
+    "endBtn": {
+      "top": 141,
+      "left": 673,
+      "w": 131,
+      "h": 56,
+      "font": "14px"
+    },
+    "card": {
+      "top": 250,
+      "left": 16,
+      "w": 788,
+      "h": 849,
+      "font": "15px"
+    },
+    "infoline": {
+      "top": 328,
+      "left": 40,
+      "w": 740,
+      "h": 192,
+      "font": "15px"
+    },
+    "mark": {
+      "top": 344,
+      "left": 40,
+      "w": 38,
+      "h": 38,
+      "font": "15px"
+    },
+    "primaryBtn": {
+      "top": 460,
+      "left": 93,
+      "w": 108,
+      "h": 43,
+      "font": "14px"
+    },
+    "rxPanel": {
+      "top": 1100,
+      "left": 0,
+      "w": 820,
+      "h": 62,
+      "font": "15px"
+    },
+    "overflowX": 0,
+    "small": [
+      "a:診察@80x42",
+      "a:教材スタジオ@136x42",
+      "button:ログアウト@122x42",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:再処方を候補へ@136x43",
+      "button:再処方を候補へ@136x43",
+      "button:開く@66x43"
+    ],
+    "clipped": [],
+    "fontSize": "18px",
+    "bottom": {
+      "text": "開く",
+      "bottom": 1153,
+      "vh": 1180,
+      "coveredByFixed": false
+    }
+  },
+  "consult_820_rx": {
+    "panel": {
+      "top": 312,
+      "left": 0,
+      "w": 820,
+      "h": 850,
+      "font": "15px"
+    },
+    "overflowX": 0,
+    "small": [
+      "a:診察@80x42",
+      "a:教材スタジオ@136x42",
+      "button:ログアウト@122x42",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:再処方を候補へ@136x43",
+      "button:再処方を候補へ@136x43",
+      "button:閉じる@80x43",
+      "button:まとめて追加@122x43",
+      "button:まとめて追加@122x43",
+      "button:まとめて追加@122x43",
+      "button:まとめて追加@122x43",
+      "button:教材を処方する@784x43"
+    ],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "consult_430": {
+    "sidebar": {
+      "top": 0,
+      "left": 0,
+      "w": 430,
+      "h": 69,
+      "font": "15px"
+    },
+    "bar": {
+      "top": 69,
+      "left": 0,
+      "w": 430,
+      "h": 56,
+      "font": "15px"
+    },
+    "eyebrow": {
+      "top": 141,
+      "left": 16,
+      "w": 398,
+      "h": 19,
+      "font": "12px"
+    },
+    "h1": {
+      "top": 165,
+      "left": 16,
+      "w": 398,
+      "h": 35,
+      "font": "26px"
+    },
+    "desc": {
+      "top": 206,
+      "left": 16,
+      "w": 398,
+      "h": 46,
+      "font": "14px"
+    },
+    "status": {
+      "top": 78,
+      "left": 194,
+      "w": 176,
+      "h": 37,
+      "font": "12px"
+    },
+    "endBtn": {
+      "top": 262,
+      "left": 157,
+      "w": 131,
+      "h": 56,
+      "font": "14px"
+    },
+    "card": {
+      "top": 339,
+      "left": 16,
+      "w": 398,
+      "h": 1131,
+      "font": "15px"
+    },
+    "infoline": {
+      "top": 417,
+      "left": 40,
+      "w": 350,
+      "h": 243,
+      "font": "15px"
+    },
+    "mark": {
+      "top": 433,
+      "left": 40,
+      "w": 38,
+      "h": 38,
+      "font": "15px"
+    },
+    "primaryBtn": {
+      "top": 600,
+      "left": 93,
+      "w": 108,
+      "h": 43,
+      "font": "14px"
+    },
+    "rxPanel": {
+      "top": 852,
+      "left": 0,
+      "w": 430,
+      "h": 62,
+      "font": "15px"
+    },
+    "overflowX": 0,
+    "small": [
+      "a:診察@76x42",
+      "a:教材スタジオ@132x42",
+      "button:ログアウト@118x42",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:再処方を候補へ@136x43",
+      "button:再処方を候補へ@136x43",
+      "button:開く@66x43"
+    ],
+    "clipped": [],
+    "fontSize": "18px",
+    "bottom": {
+      "text": "開く",
+      "bottom": 905,
+      "vh": 932,
+      "coveredByFixed": false
+    }
+  },
+  "consult_430_rx": {
+    "panel": {
+      "top": 243,
+      "left": 0,
+      "w": 430,
+      "h": 671,
+      "font": "15px"
+    },
+    "overflowX": 0,
+    "small": [
+      "a:診察@76x42",
+      "a:教材スタジオ@132x42",
+      "button:ログアウト@118x42",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:再処方を候補へ@136x43",
+      "button:再処方を候補へ@136x43",
+      "button:閉じる@80x43",
+      "button:まとめて追加@122x43",
+      "button:まとめて追加@122x43",
+      "button:まとめて追加@122x43",
+      "button:まとめて追加@122x43",
+      "button:教材を処方する@394x43"
+    ],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "consult_430_zoom125": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px",
+    "bottom": {
+      "text": "開く",
+      "bottom": 898,
+      "vh": 932,
+      "coveredByFixed": false
+    }
+  },
+  "consult_390": {
+    "sidebar": {
+      "top": 0,
+      "left": 0,
+      "w": 390,
+      "h": 69,
+      "font": "15px"
+    },
+    "bar": {
+      "top": 69,
+      "left": 0,
+      "w": 390,
+      "h": 56,
+      "font": "15px"
+    },
+    "eyebrow": {
+      "top": 141,
+      "left": 16,
+      "w": 358,
+      "h": 19,
+      "font": "12px"
+    },
+    "h1": {
+      "top": 165,
+      "left": 16,
+      "w": 358,
+      "h": 35,
+      "font": "26px"
+    },
+    "desc": {
+      "top": 206,
+      "left": 16,
+      "w": 358,
+      "h": 46,
+      "font": "14px"
+    },
+    "status": {
+      "top": 78,
+      "left": 154,
+      "w": 176,
+      "h": 37,
+      "font": "12px"
+    },
+    "endBtn": {
+      "top": 262,
+      "left": 157,
+      "w": 131,
+      "h": 56,
+      "font": "14px"
+    },
+    "card": {
+      "top": 339,
+      "left": 16,
+      "w": 358,
+      "h": 1282,
+      "font": "15px"
+    },
+    "infoline": {
+      "top": 417,
+      "left": 40,
+      "w": 310,
+      "h": 296,
+      "font": "15px"
+    },
+    "mark": {
+      "top": 433,
+      "left": 40,
+      "w": 38,
+      "h": 38,
+      "font": "15px"
+    },
+    "primaryBtn": {
+      "top": 600,
+      "left": 93,
+      "w": 108,
+      "h": 43,
+      "font": "14px"
+    },
+    "rxPanel": {
+      "top": 764,
+      "left": 0,
+      "w": 390,
+      "h": 62,
+      "font": "15px"
+    },
+    "overflowX": 0,
+    "small": [
+      "a:診察@76x42",
+      "a:教材スタジオ@132x42",
+      "button:ログアウト@118x42",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:再処方を候補へ@136x43",
+      "button:再処方を候補へ@136x43",
+      "button:開く@66x43"
+    ],
+    "clipped": [],
+    "fontSize": "18px",
+    "bottom": {
+      "text": "開く",
+      "bottom": 817,
+      "vh": 844,
+      "coveredByFixed": false
+    }
+  },
+  "consult_390_rx": {
+    "panel": {
+      "top": 218,
+      "left": 0,
+      "w": 390,
+      "h": 608,
+      "font": "15px"
+    },
+    "overflowX": 0,
+    "small": [
+      "a:診察@76x42",
+      "a:教材スタジオ@132x42",
+      "button:ログアウト@118x42",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:対応を記録@108x43",
+      "button:関連教材を候補へ@150x43",
+      "button:再処方を候補へ@136x43",
+      "button:再処方を候補へ@136x43",
+      "button:閉じる@80x43",
+      "button:まとめて追加@122x43",
+      "button:まとめて追加@122x43",
+      "button:まとめて追加@122x43",
+      "button:まとめて追加@122x43",
+      "button:教材を処方する@354x43"
+    ],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "consult_390_zoom125": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px",
+    "bottom": {
+      "text": "開く",
+      "bottom": 810,
+      "vh": 844,
+      "coveredByFixed": false
+    }
+  }
+}

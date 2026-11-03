@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { api, errorText } from "@/lib/api";
 import { DOMAIN_LABEL, MUST_COVER_KIND_LABEL, MUST_COVER_STATUS_LABEL } from "@/lib/labels";
 import { GeneratorBadge } from "../../GeneratorBadge";
+import { Icon } from "@/components/reset/Icons";
 import { Stepper } from "../../Stepper";
 import { JOB_MODE_LABEL, modelLabel } from "../../shared";
 
@@ -53,6 +54,7 @@ export function GeneratePanel({ sourceId, orgId, canGenerate, aiConfigured, jobs
   const [msg, setMsg] = useState<string | null>(null);
   const [pendingMode, setPendingMode] = useState<string | null>(null);
   const [step3, setStep3] = useState<Step3 | null>(null);
+  const [picked, setPicked] = useState<number>(0);
   const resultRef = useRef<HTMLDivElement>(null);
 
   async function post(path: string, json: unknown, mode?: string) {
@@ -132,18 +134,50 @@ export function GeneratePanel({ sourceId, orgId, canGenerate, aiConfigured, jobs
   // ステッパーの現在位置
   const currentStep = step3 ? 3 : active || showPending ? ((active?.mode ?? pendingMode) === "outline" ? 2 : 4) : latest?.status === "succeeded" && latest.mode !== "outline" ? 5 : 2;
   const historyJobs = jobs.filter((j) => j.id !== latest?.id);
+  const hasResult = !!step3 || !!active || showPending || !!latest;
+  /** 最新の結果 / ステップ 3。結果があるときはステッパー直下に出す（参照: 構成案が主役） */
+  const resultBlock = (
+    <div ref={resultRef} className="scroll-mt-4 space-y-4" data-testid="generation-result" aria-live="polite">
+        {step3 && <MustCoverStep step={step3} onChange={setStep3} onCancel={() => setStep3(null)} onGenerate={() => generate(step3)} busy={busy || !!active} canGenerate={canGenerate} />}
+        {(active || showPending) && <ProgressCard job={active} mode={active?.mode ?? pendingMode ?? "outline"} />}
+        {latest && latest.status === "failed" && (
+          <div className="rsd-card space-y-2" style={{ borderColor: "var(--danger)" }} role="alert">
+            <p className="font-bold text-danger">作成に失敗しました（{JOB_MODE_LABEL[latest.mode] ?? latest.mode}）</p>
+            <p className="text-sm text-danger">
+              {latest.errorMessage}
+              {latest.errorCode ? `（${latest.errorCode}）` : ""}
+            </p>
+            <button className="btn min-h-11 text-sm" disabled={busy} onClick={() => post(`/api/v1/studio/jobs/${latest.id}/retry`, {}, latest.mode)}>
+              再試行する
+            </button>
+          </div>
+        )}
+        {!step3 && latest && latest.status === "succeeded" && latest.mode === "outline" && <OutlineResult job={latest} busy={busy || !!active} canGenerate={canGenerate} picked={picked} onPick={setPicked} onNext={() => openStep3FromOutline(latest, picked)} />}
+        {!step3 && latest && latest.status === "succeeded" && latest.mode !== "outline" && (
+          <DraftReady job={latest}>
+            {latestOutline && (
+              <details className="text-sm">
+                <summary className="cursor-pointer min-h-11 flex items-center text-ink-soft">別の構成案から作る（前回の提案 {latestOutline.outlines.length} 案）</summary>
+                <div className="mt-2">
+                  <OutlineResult job={latestOutline} busy={busy || !!active} canGenerate={canGenerate} compact picked={picked} onPick={setPicked} onNext={() => openStep3FromOutline(latestOutline, picked)} />
+                </div>
+              </details>
+            )}
+          </DraftReady>
+        )}
+    </div>
+  );
 
   return (
     <section className="space-y-4">
       <Stepper current={currentStep} done={[1]} />
       {!aiConfigured && <p className="rounded-xl bg-suna text-[#8a5a0a] text-sm px-4 py-3">Claude API が未設定のため、AI 下書きは作成できません（ANTHROPIC_API_KEY）。</p>}
-      <div>
-        <h2 className="font-bold text-lg">Claude に下書きを作ってもらう</h2>
-        <p className="text-sm text-ink-soft">原資料に書かれていない医学情報は追加しない指示で生成します。生成物は下書きで、医療者が確認・承認するまで患者さんには届きません。</p>
-      </div>
-      <div className="grid lg:grid-cols-2 gap-4 items-start">
-        <div className="card space-y-3 min-w-0 border-2 border-sakura-deep">
-          <h3 className="font-bold text-lg">構成案を提案してもらう</h3>
+      {hasResult && resultBlock}
+      <details className={hasResult ? "rsd-card" : "contents"} open={!hasResult}>
+        {hasResult && <summary className="cursor-pointer min-h-11 flex items-center font-bold">別の方法で作る・もう一度提案してもらう</summary>}
+      <div className="grid lg:grid-cols-2 gap-4 items-start" style={hasResult ? { marginTop: 12 } : undefined}>
+        <div className="rsd-card space-y-3 min-w-0">
+          <h3 className="font-bold" style={{ fontSize: 16 }}>Claude に構成案を提案してもらう</h3>
           <p className="text-sm text-ink-soft">原資料の章立てから 1〜3 案の教材構成と、必須事項の候補を提案します。案を選ぶと、必須事項を確認してから 3〜5 画面と確認問題の下書きを作ります。</p>
           <button className="btn btn-primary min-h-11 w-full" disabled={!canGenerate || busy || !!active} onClick={() => create({ mode: "outline", sourceIds: [sourceId] })}>
             構成案を作る
@@ -151,13 +185,13 @@ export function GeneratePanel({ sourceId, orgId, canGenerate, aiConfigured, jobs
           <p className="text-xs text-ink-soft">通常 15〜20 秒ほど。結果はこの下に表示されます。</p>
         </div>
         <form
-          className="card space-y-3 min-w-0"
+          className="rsd-card space-y-3 min-w-0"
           onSubmit={(e) => {
             e.preventDefault();
             openStep3Freeform();
           }}
         >
-          <h3 className="font-bold text-lg">テーマと学習目標を指定して作る</h3>
+          <h3 className="font-bold" style={{ fontSize: 16 }}>テーマと学習目標を指定して作る</h3>
           <label className="block text-sm font-bold">
             テーマ
             <input className="input min-h-11 mt-1" value={theme} onChange={(e) => setTheme(e.target.value)} maxLength={200} required placeholder="例: ホルモン療法を自己判断でやめないために" />
@@ -176,41 +210,13 @@ export function GeneratePanel({ sourceId, orgId, canGenerate, aiConfigured, jobs
           <p className="text-xs text-ink-soft">次に必須事項を確認してから生成します。</p>
         </form>
       </div>
+      <p className="rsd-muted">原資料に書かれていない医学情報は追加しない指示で生成します。生成物は下書きで、医療者が確認・承認するまで患者さんには届きません。</p>
+      </details>
       {msg && <p className="text-sm text-danger">{msg}</p>}
-
-      {/* ---- 最新の結果 / ステップ 3（操作の直下） ---- */}
-      <div ref={resultRef} className="scroll-mt-4 space-y-4" data-testid="generation-result" aria-live="polite">
-        {step3 && <MustCoverStep step={step3} onChange={setStep3} onCancel={() => setStep3(null)} onGenerate={() => generate(step3)} busy={busy || !!active} canGenerate={canGenerate} />}
-        {(active || showPending) && <ProgressCard job={active} mode={active?.mode ?? pendingMode ?? "outline"} />}
-        {latest && latest.status === "failed" && (
-          <div className="card border-2 border-danger space-y-2" role="alert">
-            <p className="font-bold text-danger">作成に失敗しました（{JOB_MODE_LABEL[latest.mode] ?? latest.mode}）</p>
-            <p className="text-sm text-danger">
-              {latest.errorMessage}
-              {latest.errorCode ? `（${latest.errorCode}）` : ""}
-            </p>
-            <button className="btn min-h-11 text-sm" disabled={busy} onClick={() => post(`/api/v1/studio/jobs/${latest.id}/retry`, {}, latest.mode)}>
-              再試行する
-            </button>
-          </div>
-        )}
-        {!step3 && latest && latest.status === "succeeded" && latest.mode === "outline" && <OutlineResult job={latest} busy={busy || !!active} canGenerate={canGenerate} onPick={(i) => openStep3FromOutline(latest, i)} />}
-        {!step3 && latest && latest.status === "succeeded" && latest.mode !== "outline" && (
-          <DraftReady job={latest}>
-            {latestOutline && (
-              <details className="text-sm">
-                <summary className="cursor-pointer min-h-11 flex items-center text-ink-soft">別の構成案から作る（前回の提案 {latestOutline.outlines.length} 案）</summary>
-                <div className="mt-2">
-                  <OutlineResult job={latestOutline} busy={busy || !!active} canGenerate={canGenerate} compact onPick={(i) => openStep3FromOutline(latestOutline, i)} />
-                </div>
-              </details>
-            )}
-          </DraftReady>
-        )}
-      </div>
+      {!hasResult && resultBlock}
 
       {historyJobs.length > 0 && (
-        <details className="card">
+        <details className="rsd-card">
           <summary className="cursor-pointer min-h-11 flex items-center font-bold">これまでの作成履歴（{historyJobs.length}）</summary>
           <ul className="mt-2 divide-y divide-line text-sm">
             {historyJobs.map((j) => (
@@ -253,7 +259,7 @@ function JobMeta({ job: j }: { job: JobView }) {
 function ProgressCard({ job, mode }: { job: JobView | null; mode: string }) {
   const outline = mode === "outline";
   return (
-    <div className="card border-2 border-accent space-y-2" role="status" aria-label="作成中">
+    <div className="rsd-card space-y-2" role="status" aria-label="作成中">
       <p className="font-bold text-lg">{outline ? "Claude が構成案を考えています…" : "Claude が教材の下書きを作っています…"}</p>
       <p className="text-sm text-ink-soft">{job?.progress ?? "送信しました"} ・ 通常 {outline ? "15〜20 秒" : "20〜40 秒"}ほどかかります。この画面を開いたままお待ちください。</p>
       {job?.status === "queued" && job.errorMessage && <p className="text-xs text-[#8a5a0a]">前回の失敗: {job.errorMessage}（自動で再試行します）</p>}
@@ -264,83 +270,84 @@ function ProgressCard({ job, mode }: { job: JobView | null; mode: string }) {
   );
 }
 
-/** 構成案の比較。同じ項目を同じ順（対象・領域・学習目標・画面構成・根拠）で並べ、違いを見比べられるようにする。「おすすめ」は付けない */
-function OutlineResult({ job, busy, canGenerate, onPick, compact = false }: { job: JobView; busy: boolean; canGenerate: boolean; onPick: (i: number) => void; compact?: boolean }) {
+/**
+ * Claude の構成案（参照 .outlinegrid / .outline）。タイトル・対象者・学習目標・選択ボタンを優先し、
+ * 画面構成と根拠は展開式。カードを選んでから「この構成で次へ」で必須事項の確認へ進む。「おすすめ」は付けない。
+ */
+function OutlineResult({ job, busy, canGenerate, picked, onPick, onNext, compact = false }: { job: JobView; busy: boolean; canGenerate: boolean; picked: number; onPick: (i: number) => void; onNext: () => void; compact?: boolean }) {
   const n = job.outlines.length;
+  const sel = Math.min(picked, n - 1);
   return (
-    <section className={compact ? "space-y-3" : "card border-2 border-accent space-y-3"} aria-label="Claude の構成案">
+    <section className={compact ? "space-y-3" : "space-y-3"} aria-label="Claude の構成案">
       {!compact && (
-        <header className="space-y-1">
-          <p className="flex flex-wrap items-center gap-2">
-            <span className="pill bg-wakakusa text-ink font-bold">構成案ができました</span>
+        <div className="rsd-row" style={{ justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div>
+            <h2 className="font-bold" style={{ fontSize: 22, letterSpacing: "-0.045em", margin: "0 0 5px" }}>
+              Claudeから{n}つの構成案が届きました
+            </h2>
+            <div className="rsd-desc">学習目標を比べて、患者に届けたいテーマを選択してください。</div>
+          </div>
+          <div className="rsd-row">
             <GeneratorBadge generator={job.generator} />
-            <JobMeta job={job} />
-          </p>
-          <h3 className="font-bold text-xl">Claude の構成案（{n} 案）</h3>
-          <p className="text-sm text-ink-soft">
-            {n > 1 ? "原資料の章立てに沿って分けています。同じ項目を同じ順に並べているので、対象・学習目標・画面構成を横に見比べてください。" : "対象・学習目標・画面構成を確認してください。"}
-            <b>次のステップ: 1 つ選んで「この案で進む」</b>を押すと、必須事項の確認に進みます。別の案は後から作れます。
-          </p>
-        </header>
+            <span className="rsd-muted">編集・再生成は選択後に可能</span>
+          </div>
+        </div>
       )}
-      {n > 1 && !compact && (
-        <ul className="flex flex-wrap gap-2 text-xs" aria-label="比較のポイント">
-          {job.outlines.map((o, i) => (
-            <li key={i} className="pill">
-              案 {i + 1}: {o.slideTitles.length} 画面 ・ 目標 {o.learningObjectives.length} ・ {DOMAIN_LABEL[o.primaryDomain ?? ""] ?? o.primaryDomain ?? "領域未設定"}
+      <ol className="rsd-outlinegrid">
+        {job.outlines.map((o, i) => {
+          const active = i === sel;
+          return (
+            <li key={i} className={`rsd-outline ${active ? "active" : ""}`} aria-label={`案 ${i + 1}`}>
+              <div className="rsd-row" style={{ justifyContent: "space-between" }}>
+                <span className="index">{String(i + 1).padStart(2, "0")}</span>
+                <span className="rsd-tag">{o.slideTitles.length}画面 ・ 約{Math.max(2, Math.round(o.slideTitles.length * 1.2 + 2))}分</span>
+              </div>
+              <h3>{o.title}</h3>
+              <div className="target">
+                <Icon name="person" size="sm" /> {o.targetReader}
+                {o.primaryDomain ? ` ・ ${DOMAIN_LABEL[o.primaryDomain] ?? o.primaryDomain}` : ""}
+              </div>
+              <div className="font-bold" style={{ fontSize: 13, margin: "2px 0 3px" }}>
+                この教材で学ぶこと
+              </div>
+              {o.learningObjectives.map((g) => (
+                <div key={g} className="rsd-goal">
+                  <Icon name="checkcircle" size="sm" /> {g}
+                </div>
+              ))}
+              <details>
+                <summary>画面構成と根拠を見る</summary>
+                <p className="font-bold" style={{ margin: "6px 0 2px" }}>画面構成（{o.slideTitles.length}）</p>
+                <ol className="list-decimal pl-5">
+                  {o.slideTitles.map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
+                </ol>
+                <p className="font-bold" style={{ margin: "8px 0 2px" }}>根拠（原資料のどこに基づくか）</p>
+                <p>{o.rationale}</p>
+              </details>
+              <div className="action">
+                <button className={`btn ${active ? "btn-primary" : ""}`} disabled={!canGenerate || busy} aria-pressed={active} onClick={() => onPick(i)}>
+                  {active ? (
+                    <>
+                      <Icon name="check" size="sm" /> 選択中
+                    </>
+                  ) : (
+                    "この案を選ぶ"
+                  )}
+                </button>
+              </div>
             </li>
-          ))}
-        </ul>
-      )}
-      <ol className={`grid gap-3 ${n >= 3 ? "md:grid-cols-3" : n === 2 ? "md:grid-cols-2" : ""}`}>
-        {job.outlines.map((o, i) => (
-          <li key={i} className="rounded-xl bg-surface border border-line p-3 space-y-2 text-sm flex flex-col" aria-label={`案 ${i + 1}`}>
-            <p className="font-bold text-base leading-snug">
-              <span className="pill mr-2">案 {i + 1}</span>
-              {o.title}
-            </p>
-            <dl className="space-y-1.5">
-              <div>
-                <dt className="font-bold text-xs text-ink-soft">対象</dt>
-                <dd>{o.targetReader}</dd>
-              </div>
-              <div>
-                <dt className="font-bold text-xs text-ink-soft">領域</dt>
-                <dd>{DOMAIN_LABEL[o.primaryDomain ?? ""] ?? o.primaryDomain ?? "—"}</dd>
-              </div>
-              <div>
-                <dt className="font-bold text-xs text-ink-soft">学習目標（{o.learningObjectives.length}）</dt>
-                <dd>
-                  <ul className="list-disc pl-5">
-                    {o.learningObjectives.map((t) => (
-                      <li key={t}>{t}</li>
-                    ))}
-                  </ul>
-                </dd>
-              </div>
-              <div>
-                <dt className="font-bold text-xs text-ink-soft">画面構成（{o.slideTitles.length} 画面）</dt>
-                <dd>
-                  <ol className="list-decimal pl-5">
-                    {o.slideTitles.map((t) => (
-                      <li key={t}>{t}</li>
-                    ))}
-                  </ol>
-                </dd>
-              </div>
-              <div>
-                <dt className="font-bold text-xs text-ink-soft">根拠（原資料のどこに基づくか）</dt>
-                <dd className="text-xs text-ink-soft">{o.rationale}</dd>
-              </div>
-            </dl>
-            <button className="btn btn-primary min-h-11 w-full text-sm mt-auto" disabled={!canGenerate || busy} onClick={() => onPick(i)}>
-              この案で進む
-            </button>
-          </li>
-        ))}
+          );
+        })}
       </ol>
-      {job.mustCoverCandidates.length > 0 && <p className="text-xs text-ink-soft">必須事項の候補 {job.mustCoverCandidates.length} 件を抽出しました。案を選ぶと確認できます。</p>}
-      {job.notCovered.length > 0 && <p className="text-xs text-ink-soft">原資料に記載がなく扱わない内容: {job.notCovered.join("、")}</p>}
+      <div className="rsd-row" style={{ justifyContent: "space-between", marginTop: 8 }}>
+        <div className="rsd-muted">※ 患者向けに公開する前に、必須事項の確認と医療者の承認が必要です。{job.mustCoverCandidates.length > 0 ? `必須事項の候補 ${job.mustCoverCandidates.length} 件を抽出済み。` : ""}</div>
+        <button className="btn btn-primary" disabled={!canGenerate || busy} onClick={onNext}>
+          この構成で次へ <Icon name="arrow" size="sm" />
+        </button>
+      </div>
+      {job.notCovered.length > 0 && <p className="rsd-muted">原資料に記載がなく扱わない内容: {job.notCovered.join("、")}</p>}
       {job.warnings.map((w) => (
         <p key={w} className="text-xs text-[#8a5a0a]">⚠ {w}</p>
       ))}
@@ -357,7 +364,7 @@ function MustCoverStep({ step, onChange, onCancel, onGenerate, busy, canGenerate
   const required = step.items.filter((i) => i.status === "required" && i.text.trim()).length;
   const needsReview = step.items.filter((i) => i.status === "needs_review").length;
   return (
-    <section className="card border-2 border-accent space-y-3" aria-label="必須事項の確認">
+    <section className="rsd-card space-y-3" aria-label="必須事項の確認">
       <header className="space-y-1">
         <p className="pill bg-wakakusa text-ink font-bold">ステップ 3: 必須事項を確認</p>
         <h3 className="font-bold text-xl">{step.title}</h3>
@@ -438,7 +445,7 @@ function MustCoverStep({ step, onChange, onCancel, onGenerate, busy, canGenerate
 
 function DraftReady({ job, children }: { job: JobView; children?: React.ReactNode }) {
   return (
-    <section className="card border-2 border-accent space-y-3" aria-label="下書きができました">
+    <section className="rsd-card space-y-3" aria-label="下書きができました">
       <p className="flex flex-wrap items-center gap-2">
         <span className="pill bg-wakakusa text-ink font-bold">下書きができました</span>
         <GeneratorBadge generator={job.generator} />

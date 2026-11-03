@@ -53,10 +53,10 @@ test("C2 医療者ダッシュボードと監修プレビュー（820 / 1180）"
     await staff.page.getByRole("button", { name: /共有を要求する/ }).click();
     await patient.page.getByRole("button", { name: "許可する" }).click({ timeout: 10_000 });
     await staff.page.waitForURL(/\/staff\/consult\//, { timeout: 15_000 });
-    await expect(staff.page.getByText(/今日の確認事項/)).toBeVisible({ timeout: 15_000 });
+    await expect(staff.page.getByText(/前回の学びから/)).toBeVisible({ timeout: 15_000 });
     await staff.page.waitForLoadState("networkidle");
     await staff.page.screenshot({ path: `${SHOT_DIR}/c2_staff_dashboard_${vp.name}.png`, fullPage: true });
-    await staff.page.getByRole("button", { name: "終了", exact: true }).click();
+    await staff.page.getByRole("button", { name: "共有を終了" }).click();
     await staff.ctx.close();
   }
   // 監修プレビュー（運営の承認者）

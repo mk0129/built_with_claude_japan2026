@@ -45,11 +45,9 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
     <main className="space-y-6">
       <JobWatcher active={active} />
       <header className="space-y-1">
-        <Link href="/staff" className="tap-link">
-          ← 医療者ホーム
-        </Link>
-        <h1 className="text-2xl font-bold">教材スタジオ</h1>
-        <p className="text-ink-soft">
+        <div className="rsd-eyebrow">医療者がつくる患者教育</div>
+        <h1 className="rsd-h1">教材スタジオ</h1>
+        <p className="rsd-desc">
           {m.orgName} ・ {m.orgKind === "operator" ? "共通教材（作成者と別の承認者が必要）" : "病院独自教材（承認権限があれば自己承認可）"} ・ あなたの権限: {m.roles.filter((r) => r.startsWith("material")).map((r) => (r === "material_approver" ? "承認者" : "編集者")).join("・")}
         </p>
         {ms.length > 1 && (
@@ -75,9 +73,8 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
         </div>
       )}
 
-      <section className="space-y-2" aria-label="制作の進み方">
-        <Stepper current={0} done={[]} />
-        <p className="text-xs text-ink-soft">原資料を選ぶ → Claude の構成案 → 必須事項を確認 → 教材・クイズを生成 → 患者画面で確認 → 原資料と照合し編集・承認</p>
+      <section aria-label="制作の進み方">
+        <Stepper current={1} done={[]} />
       </section>
 
       <section className="space-y-3" aria-label="対応が必要" data-testid="needs-action">
@@ -85,15 +82,15 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
           <h2 className="font-bold text-lg">
             対応が必要 <span className="pill">{needsAction}</span>
           </h2>
-          <a href="#register" className="btn btn-primary min-h-11 text-sm inline-flex items-center">
+          <a href="#register" className="btn btn-primary inline-flex items-center">
             ＋ 原資料を登録して作り始める
           </a>
         </div>
         {needsAction === 0 ? (
-          <p className="card text-sm text-ink-muted">いま対応が必要な教材・ジョブはありません。原資料を登録するか、原資料の画面から下書きを作ります。</p>
+          <p className="rsd-card rsd-muted">いま対応が必要な教材・ジョブはありません。原資料を登録するか、原資料の画面から下書きを作ります。</p>
         ) : (
           <div className="grid md:grid-cols-3 gap-3 items-start">
-            <div className="card space-y-2 min-w-0">
+            <div className="rsd-card space-y-2 min-w-0">
               <h3 className="font-bold">
                 承認待ち <span className={`pill ${inReview.length ? "bg-sakura text-ink" : ""}`}>{inReview.length}</span>
               </h3>
@@ -114,7 +111,7 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
                 ))}
               </ul>
             </div>
-            <div className="card space-y-2 min-w-0">
+            <div className="rsd-card space-y-2 min-w-0">
               <h3 className="font-bold">
                 下書き（編集中） <span className="pill">{drafts.length}</span>
               </h3>
@@ -135,7 +132,7 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
                 ))}
               </ul>
             </div>
-            <div className="card space-y-2 min-w-0">
+            <div className="rsd-card space-y-2 min-w-0">
               <h3 className="font-bold">
                 作成中・失敗したジョブ <span className={`pill ${failedJobs.length ? "bg-sakura text-ink" : ""}`}>{runningJobs.length + failedJobs.length}</span>
               </h3>
@@ -170,7 +167,7 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
         <RegisterCollapsible initialOpen={sources.length === 0}>
           <UploadForm orgId={m.orgId} />
         </RegisterCollapsible>
-        <div className="card space-y-3 min-w-0">
+        <div className="rsd-card space-y-3 min-w-0">
           <h2 className="font-bold text-lg">原資料（{sources.length}）</h2>
           {sources.length === 0 && <p className="text-sm text-ink-muted">まだ登録がありません。</p>}
           <ul className="divide-y divide-line">
@@ -190,7 +187,7 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
         </div>
       </section>
 
-      <details className="card space-y-3">
+      <details className="rsd-card space-y-3">
         <summary className="cursor-pointer min-h-11 flex items-center font-bold text-lg">AI 作成ジョブの履歴（{jobs.length}）</summary>
         {jobs.length === 0 && <p className="text-sm text-ink-muted">まだありません。原資料の画面から作成します。</p>}
         <ul className="divide-y divide-line text-sm">
@@ -216,7 +213,7 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
         </ul>
       </details>
 
-      <section className="card space-y-3">
+      <section className="rsd-card space-y-3">
         <h2 className="font-bold text-lg">公開中・すべての教材（{mats.length}）</h2>
         <ul className="divide-y divide-line text-sm">
           {mats.map((x) => (

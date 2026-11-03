@@ -18,7 +18,7 @@ export function OrgPicker({ memberships }: { memberships: M[] }) {
   }
 
   return (
-    <section className="card space-y-4">
+    <section className="rsd-card space-y-4">
       <h2 className="font-bold">所属医療機関</h2>
       <div className="grid gap-2">
         {memberships.map((m) => (
