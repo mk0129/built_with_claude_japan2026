@@ -45,6 +45,8 @@ const lineConfig =
 export const auth = betterAuth({
   appName: process.env.NEXT_PUBLIC_APP_NAME ?? "shiori",
   baseURL: process.env.BETTER_AUTH_URL,
+  // 実機確認用: BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3300,http://192.168.x.x:3300 のように指定したときだけ追加で許可（未指定なら baseURL のみ）
+  ...(process.env.BETTER_AUTH_TRUSTED_ORIGINS ? { trustedOrigins: process.env.BETTER_AUTH_TRUSTED_ORIGINS.split(",").map((s) => s.trim()) } : {}),
   secret: process.env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(getDb(), { provider: "pg", schema }),
   user: {
