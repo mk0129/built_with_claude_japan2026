@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { useUrlState } from "./urlState"
 import type { PatientLive } from "./live"
+import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes } from "./health"
 import {
   saveProgress,
   useAttempt,
@@ -332,6 +333,9 @@ type DLiveInfo = {
   latest: PatientLearning["latest"]
   sharingLabel: string | null
   sharingRemainingMin: number
+  /** 本番（Step 3）: 診察ノートの質問数・最後に体調を記録した日（未記録は null） */
+  noteCount: number
+  lastHealthDate: string | null
 }
 const LiveInfoContext = createContext<DLiveInfo | null>(null)
 
@@ -578,6 +582,8 @@ export function DPrototype({
   live,
   learning,
   userName,
+  health,
+  notesLive,
   viewport,
   notify,
   healthRecords,
@@ -595,6 +601,10 @@ export function DPrototype({
   learning?: PatientLearning
   /** 本番: 患者の表示名（ホームの呼びかけ） */
   userName?: string
+  /** 本番（Step 3）: 体調記録・症状の設定の実 API。なければ Figma の架空の記録 */
+  health?: PatientHealth
+  /** 本番（Step 3）: 診察ノートの実 API。なければ Figma の架空の質問メモ */
+  notesLive?: PatientNotes
   viewport: DViewport
   notify: (message?: string) => void
   healthRecords: HealthRecord[]
@@ -609,6 +619,8 @@ export function DPrototype({
   const [scenario, setScenario] = useState(2)
   // 教材は URL に持つ（Figma の架空データは番号、本番は教材 ID）
   const [selectedId, setSelectedId] = useUrlState<string>("lesson", "1")
+  // 本番: 理解確認から作った質問候補（診察ノートの入力欄に入れ、患者が確認して保存したときだけ DB に記録）
+  const [noteDraft, setNoteDraft] = useState<{ text: string; versionId: string; questionId: string; title: string } | null>(null)
   // 本番: 回答の解説を表示している設問（再読み込みで同じ解説に戻る）
   const [quizQuestionId, setQuizQuestionId] = useUrlState<string>("q", "")
   const [selectedCategory, setSelectedCategory] = useUrlState<string>("area", "手術")
@@ -622,6 +634,9 @@ export function DPrototype({
     "腕のつっぱりはいつまで続きますか？",
     "薬を飲み忘れたときはどうすればよいですか？",
   ])
+  // 本番: 体調記録・症状の設定（Figma の架空の記録の代わり）
+  const records = health ? health.records : healthRecords
+  const noteCount = notesLive ? notesLive.notes.length : notes.length
   const [quizAnswer, setQuizAnswer] = useState("")
   const [motionEnabled, setMotionEnabled] = useState(true)
   const [lessonStates, setLessonStates] = useState<Record<string, {
@@ -693,8 +708,9 @@ export function DPrototype({
     learning && ["learn", "explanation"].includes(page) ? versionId : null,
     notify,
   )
+  // 学習画面でも有効にする（最後のページの「理解を確認する」で、完了済みなら新しい挑戦を作るため）
   const quiz = useAttempt(
-    learning && ["quiz", "explanation", "result"].includes(page) ? versionId : null,
+    learning && ["learn", "quiz", "explanation", "result"].includes(page) ? versionId : null,
     notify,
   )
   // 学習中のページ（未操作なら保存済みの位置から再開）
@@ -948,7 +964,18 @@ export function DPrototype({
             setPage("result")
           }}
           onAddQuestion={() => {
-            // 診察ノートは Step 3 で接続（それまでは画面内の架空のメモ）
+            // 本番: 候補を診察ノートの入力欄に入れるだけ（患者が確認して「質問を保存」を押したときに記録）
+            if (notesLive && shownQuestion && selected?.versionId) {
+              setNoteDraft({
+                text: `「${shownQuestion.stem}」について、私の場合を教えてください`,
+                versionId: selected.versionId,
+                questionId: shownQuestion.questionId,
+                title: selected.title,
+              })
+              notify("質問候補を診察ノートの入力欄に入れました。確認して保存してください")
+              setPage("notes")
+              return
+            }
             const candidate = learning && shownQuestion
               ? `「${shownQuestion.stem}」について、私の場合を教えてください`
               : "腕を動かす範囲について、私の場合の目安を教えてください"
@@ -974,10 +1001,10 @@ export function DPrototype({
           }
           healthDays={
             new Set(
-              healthRecords.map((record) => record.measuredAt.slice(0, 10)),
+              records.map((record) => record.measuredAt.slice(0, 10)),
             ).size
           }
-          questionCount={notes.length}
+          questionCount={noteCount}
           motionEnabled={motionEnabled}
           setMotionEnabled={setMotionEnabled}
           onNotes={() => setPage("notes")}
@@ -998,12 +1025,19 @@ export function DPrototype({
     if (page === "health")
       return (
         <DHealthTracker
-          records={healthRecords}
+          records={records}
           setRecords={setHealthRecords}
-          activeSymptomIds={activeSymptomIds}
-          setActiveSymptomIds={setActiveSymptomIds}
-          customNames={customSymptomNames}
+          activeSymptomIds={health ? health.activeIds : activeSymptomIds}
+          setActiveSymptomIds={
+            health
+              ? (ids: string[]) => void health.saveSettings(ids, health.customNames)
+              : setActiveSymptomIds
+          }
+          customNames={health ? health.customNames : customSymptomNames}
           setCustomNames={setCustomSymptomNames}
+          health={health}
+          learnedCount={visibleLessons.filter((lesson) => lesson.status !== "new").length}
+          noteCount={noteCount}
           motionEnabled={motionEnabled}
           setMotionEnabled={setMotionEnabled}
           notify={notify}
@@ -1014,6 +1048,9 @@ export function DPrototype({
         <DNotes
           notes={notes}
           setNotes={setNotes}
+          live={notesLive}
+          draftFrom={noteDraft}
+          clearDraft={() => setNoteDraft(null)}
           notify={notify}
           onShare={() => setPage("share")}
         />
@@ -1047,6 +1084,13 @@ export function DPrototype({
         latest: learning.latest,
         sharingLabel: live?.clinicianName ?? null,
         sharingRemainingMin: live?.remainingMin ?? 0,
+        noteCount,
+        lastHealthDate: records.length
+          ? (() => {
+              const d = new Date([...records].sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))[0].measuredAt)
+              return `${d.getMonth() + 1}月${d.getDate()}日`
+            })()
+          : null,
       }
     : null
   return (
@@ -1080,7 +1124,7 @@ export function DPrototype({
           {renderPage()}
         </main>
         {!fullScreen && (
-          <DNav page={page} setPage={setPage} noteCount={notes.length} />
+          <DNav page={page} setPage={setPage} noteCount={noteCount} />
         )}
       </div>
       {zoomed && (
@@ -1139,7 +1183,14 @@ function DHealthTracker({
   motionEnabled,
   setMotionEnabled,
   notify,
+  health,
+  learnedCount,
+  noteCount,
 }: {
+  /** 本番（Step 3）: 体調記録の実 API。1 回の測定 = 1 記録（同じ日でも別の記録）。新しい記録は空欄から始める */
+  health?: PatientHealth
+  learnedCount?: number
+  noteCount?: number
   records: HealthRecord[]
   setRecords: (records: HealthRecord[]) => void
   activeSymptomIds: string[]
@@ -1154,19 +1205,30 @@ function DHealthTracker({
     [...records].sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))[0] ||
     initialHealthRecords[initialHealthRecords.length - 1]
   const [view, setView] = useState<"record" | "history" | "manage">("record")
-  const [measuredAt, setMeasuredAt] = useState(latest.measuredAt)
-  const [vitals, setVitals] = useState({
-    temperature: String(latest.vitals.temperature ?? ""),
-    systolic: String(latest.vitals.systolic ?? ""),
-    diastolic: String(latest.vitals.diastolic ?? ""),
-    pulse: String(latest.vitals.pulse ?? ""),
-    spo2: String(latest.vitals.spo2 ?? ""),
-  })
-  const [symptoms, setSymptoms] = useState<Record<string, number | undefined>>(
-    Object.fromEntries(
-      activeSymptomIds.map((id) => [id, latest.symptoms[id]?.severity]),
-    ),
+  // 本番: 新しい記録は今の日時・すべて空欄（前回の値を今回の値として入れない）
+  const [measuredAt, setMeasuredAt] = useState(() => (health ? toLocalInput(new Date()) : latest.measuredAt))
+  const emptyVitals = { temperature: "", systolic: "", diastolic: "", pulse: "", spo2: "" }
+  const [vitals, setVitals] = useState(() =>
+    health
+      ? emptyVitals
+      : {
+          temperature: String(latest.vitals.temperature ?? ""),
+          systolic: String(latest.vitals.systolic ?? ""),
+          diastolic: String(latest.vitals.diastolic ?? ""),
+          pulse: String(latest.vitals.pulse ?? ""),
+          spo2: String(latest.vitals.spo2 ?? ""),
+        },
   )
+  const [symptoms, setSymptoms] = useState<Record<string, number | undefined>>(() =>
+    health
+      ? {}
+      : Object.fromEntries(
+          activeSymptomIds.map((id) => [id, latest.symptoms[id]?.severity]),
+        ),
+  )
+  // 本番: 履歴から編集している記録（なければ新しい記録）
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
   const [detailOpen, setDetailOpen] = useState<string | null>(null)
   const [details, setDetails] = useState<Record<string, {
     count?: string
@@ -1207,6 +1269,8 @@ function DHealthTracker({
 
   const loadRecordForDate = (value: string) => {
     setMeasuredAt(value)
+    // 本番: 同じ日に何回でも記録できるため、日時を変えても既存の記録を読み込まない
+    if (health) return
     const found = records.find(
       (record) => record.measuredAt.slice(0, 10) === value.slice(0, 10),
     )
@@ -1235,7 +1299,66 @@ function DHealthTracker({
     )
   }
 
+  /** 本番: 履歴の記録を編集のために読み込む */
+  const editRecord = (record: HealthRecord) => {
+    setEditingId(record.id)
+    setMeasuredAt(record.measuredAt)
+    setVitals({
+      temperature: String(record.vitals.temperature ?? ""),
+      systolic: String(record.vitals.systolic ?? ""),
+      diastolic: String(record.vitals.diastolic ?? ""),
+      pulse: String(record.vitals.pulse ?? ""),
+      spo2: String(record.vitals.spo2 ?? ""),
+    })
+    setSymptoms(Object.fromEntries(Object.entries(record.symptoms).map(([id, entry]) => [id, entry.severity])))
+    setDetails(
+      Object.fromEntries(
+        Object.entries(record.symptoms).map(([id, entry]) => [
+          id,
+          { count: entry.count == null ? undefined : String(entry.count), location: entry.location, interference: entry.interference },
+        ]),
+      ),
+    )
+    setFeedbackOpen(false)
+    setView("record")
+  }
+  const resetForm = () => {
+    setEditingId(null)
+    setMeasuredAt(toLocalInput(new Date()))
+    setVitals(emptyVitals)
+    setSymptoms({})
+    setDetails({})
+    setDetailOpen(null)
+  }
+  const saveLive = async () => {
+    if (!health || invalidFields.length || saving) return
+    const n = (v: string) => (v === "" ? null : Number(v))
+    const input: HealthInput = {
+      measuredAt,
+      vitals: { temperature: n(vitals.temperature), systolic: n(vitals.systolic), diastolic: n(vitals.diastolic), pulse: n(vitals.pulse), spo2: n(vitals.spo2) },
+      // 回答した症状だけ（未回答は欠測として送らない）。非表示にした症状も、編集中の記録に回答があれば残す
+      symptoms: Object.entries(symptoms)
+        .filter(([, severity]) => severity !== undefined)
+        .map(([key, severity]) => ({
+          key,
+          severity: severity!,
+          count: details[key]?.count ? Number(details[key]?.count) : null,
+          location: details[key]?.location || null,
+          interference: details[key]?.interference || null,
+        })),
+    }
+    setSaving(true)
+    const wasEditing = !!editingId
+    const ok = await health.save(input, editingId)
+    setSaving(false)
+    if (!ok) return
+    resetForm()
+    setFeedbackOpen(true)
+    notify(wasEditing ? "記録を更新しました" : "体調を記録しました")
+  }
+
   const saveRecord = () => {
+    if (health) return void saveLive()
     if (invalidFields.length) return
     const symptomEntries: HealthRecord["symptoms"] = {}
     Object.entries(symptoms).forEach(([id, severity]) => {
@@ -1288,6 +1411,16 @@ function DHealthTracker({
         setCustomName={setCustomName}
         customNames={customNames}
         setCustomNames={setCustomNames}
+        onAddCustom={
+          health
+            ? (name: string) => {
+                const id = `custom-${crypto.randomUUID()}`
+                void health.saveSettings([...activeSymptomIds, id], { ...customNames, [id]: name }).then((ok) => {
+                  if (ok) notify("その他の症状を追加しました")
+                })
+              }
+            : undefined
+        }
         onBack={() => setView("record")}
         notify={notify}
       />
@@ -1324,7 +1457,7 @@ function DHealthTracker({
             <input
               type="datetime-local"
               value={measuredAt}
-              max={`${currentVisitDate}T23:59`}
+              max={health ? toLocalInput(new Date()) : `${currentVisitDate}T23:59`}
               onChange={(event) => loadRecordForDate(event.target.value)}
             />
           </label>
@@ -1416,7 +1549,10 @@ function DHealthTracker({
               </button>
             </div>
             <div className="d-symptom-records">
-              {activeSymptomIds.map((id) => {
+              {(health
+                ? [...activeSymptomIds, ...Object.keys(symptoms).filter((id) => symptoms[id] !== undefined && !activeSymptomIds.includes(id))]
+                : activeSymptomIds
+              ).map((id) => {
                 const definition = symptomLibrary.find((item) => item.id === id)
                 return (
                   <article key={id}>
@@ -1536,12 +1672,17 @@ function DHealthTracker({
           </div>
           <button
             className="primary-button d-save-health"
-            disabled={invalidFields.length > 0}
+            disabled={invalidFields.length > 0 || saving}
             onClick={saveRecord}
           >
             <Icon name="check" />
-            この日の記録を保存
+            {health ? (editingId ? "この記録を更新" : "この記録を保存") : "この日の記録を保存"}
           </button>
+          {health && editingId && (
+            <button className="d-text-action" onClick={resetForm}>
+              編集をやめて新しい記録にする
+            </button>
+          )}
           <p className="d-share-health">
             <Icon name="shield" />
             QR一時共有を承認したときだけ、医療者がこの記録を閲覧できます。
@@ -1571,18 +1712,18 @@ function DHealthTracker({
               <div className="d-feedback-totals">
                 <span>
                   <b>
-                    {selectedDateRecord
+                    {health || selectedDateRecord
                       ? recordedDayCount
                       : recordedDayCount + 1}
                   </b>
                   体調を記録した日
                 </span>
                 <span>
-                  <b>4</b>
+                  <b>{health ? (learnedCount ?? 0) : 4}</b>
                   これまでに学んだ教材
                 </span>
                 <span>
-                  <b>2</b>
+                  <b>{health ? (noteCount ?? 0) : 2}</b>
                   診察につなげた質問
                 </span>
               </div>
@@ -1600,6 +1741,21 @@ function DHealthTracker({
           records={records}
           chartSymptom={chartSymptom}
           setChartSymptom={setChartSymptom}
+          live={
+            health
+              ? {
+                  symptomIds: [...new Set([...activeSymptomIds, ...records.flatMap((record) => Object.keys(record.symptoms))])],
+                  nameOf: displayName,
+                  onEdit: editRecord,
+                  onDelete: async (id: string) => {
+                    if (await health.remove(id)) {
+                      if (editingId === id) resetForm()
+                      notify("記録を削除しました")
+                    }
+                  },
+                }
+              : undefined
+          }
         />
       )}
     </div>
@@ -1659,7 +1815,10 @@ function DSymptomManager({
   setCustomNames,
   onBack,
   notify,
+  onAddCustom,
 }: {
+  /** 本番: 独自の症状の追加（表示の並びと症状名を 1 回で保存） */
+  onAddCustom?: (name: string) => void
   activeIds: string[]
   setActiveIds: (ids: string[]) => void
   search: string
@@ -1790,6 +1949,11 @@ function DSymptomManager({
             <button
               disabled={!customName.trim()}
               onClick={() => {
+                if (onAddCustom) {
+                  onAddCustom(customName.trim())
+                  setCustomName("")
+                  return
+                }
                 const id = `custom-${Date.now()}`
                 setCustomNames({ ...customNames, [id]: customName.trim() })
                 setActiveIds([...activeIds, id])
@@ -1810,18 +1974,31 @@ function DHealthHistory({
   records,
   chartSymptom,
   setChartSymptom,
+  live,
 }: {
   records: HealthRecord[]
   chartSymptom: string
   setChartSymptom: (id: string) => void
+  /** 本番: 推移を見る症状の候補（表示中＋記録のある症状）、症状名、記録の編集・削除 */
+  live?: {
+    symptomIds: string[]
+    nameOf: (id: string) => string
+    onEdit: (record: HealthRecord) => void
+    onDelete: (id: string) => void
+  }
 }) {
+  const nameOf = (id: string) => live?.nameOf(id) ?? symptomName(id)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  // 本番: 選んだ症状に記録がなければ、記録のある最初の症状の推移を表示する
+  const has = (id: string) => records.some((record) => record.symptoms[id])
+  const chart = live && !has(chartSymptom) ? (live.symptomIds.find(has) ?? chartSymptom) : chartSymptom
   const sorted = [...records].sort((a, b) =>
     a.measuredAt.localeCompare(b.measuredAt),
   )
   const points = sorted
     .map((record, index) => ({
       index,
-      value: record.symptoms[chartSymptom]?.severity,
+      value: record.symptoms[chart]?.severity,
       date: record.measuredAt,
     }))
     .filter((item) => item.value !== undefined)
@@ -1846,12 +2023,12 @@ function DHealthHistory({
             </div>
           </div>
           <select
-            value={chartSymptom}
+            value={chart}
             onChange={(event) => setChartSymptom(event.target.value)}
           >
-            {initialActiveSymptomIds.map((id) => (
+            {(live ? live.symptomIds : initialActiveSymptomIds).map((id) => (
               <option key={id} value={id}>
-                {symptomName(id)}
+                {nameOf(id)}
               </option>
             ))}
           </select>
@@ -1859,7 +2036,7 @@ function DHealthHistory({
         <svg
           viewBox="0 0 340 130"
           role="img"
-          aria-label={`${symptomName(chartSymptom)}の推移`}
+          aria-label={`${nameOf(chart)}の推移`}
         >
           {[0, 1, 2, 3, 4].map((value) => (
             <g key={value}>
@@ -1894,7 +2071,11 @@ function DHealthHistory({
       <section className="d-health-list">
         <div className="d-section-head">
           <h2>過去の記録</h2>
-          <span>{records.length}日分</span>
+          <span>
+            {live
+              ? `${new Set(records.map((record) => record.measuredAt.slice(0, 10))).size}日分・${records.length}件`
+              : `${records.length}日分`}
+          </span>
         </div>
         {[...records]
           .sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))
@@ -1927,12 +2108,35 @@ function DHealthHistory({
                 </p>
                 {Object.entries(record.symptoms).map(([id, entry]) => (
                   <span key={id}>
-                    {entry.customName || symptomName(id)}
+                    {entry.customName || nameOf(id)}
                     <b>
                       {entry.severity} · {severityLabels[entry.severity]}
                     </b>
                   </span>
                 ))}
+                {live && Object.keys(record.symptoms).length === 0 && <p>自覚症状：回答なし（欠測）</p>}
+                {live && (
+                  // 本番: 過去の記録の編集・削除（本人だけ。削除は確認してから）
+                  <p className="d-record-actions">
+                    <button className="d-text-action" onClick={() => live.onEdit(record)}>
+                      この記録を編集
+                    </button>
+                    {confirmDelete === record.id ? (
+                      <>
+                        <button className="d-text-action" onClick={() => live.onDelete(record.id)}>
+                          削除する
+                        </button>
+                        <button className="d-text-action" onClick={() => setConfirmDelete(null)}>
+                          やめる
+                        </button>
+                      </>
+                    ) : (
+                      <button className="d-text-action" onClick={() => setConfirmDelete(record.id)}>
+                        この記録を削除
+                      </button>
+                    )}
+                  </p>
+                )}
               </div>
             </details>
           ))}
@@ -2069,7 +2273,7 @@ function DHome({
             <Icon name="note" />
           </span>
           <span>
-            <b>質問メモ 2件</b>
+            <b>質問メモ {live ? live.noteCount : 2}件</b>
             <small>診察で聞きたいことを確認・追加</small>
           </span>
           <Icon name="arrow" />
@@ -2089,7 +2293,10 @@ function DHome({
           </span>
           <span>
             <b>今日の体調を記録する</b>
-            <small>バイタルと気になる症状だけ · 前回 6月19日</small>
+            <small>
+              バイタルと気になる症状だけ ·{" "}
+              {live ? (live.lastHealthDate ? `前回 ${live.lastHealthDate}` : "まだ記録はありません") : "前回 6月19日"}
+            </small>
           </span>
           <Icon name="arrow" />
         </button>
@@ -2926,13 +3133,12 @@ function DResult({
             <b>{live ? live.learnedCount : 4}</b>
             学んだ教材
           </span>
-          {/* 本番: 体調記録・診察ノートは Step 3 で接続するまで数えない（架空の値と実データを並べない） */}
           <span>
-            <b>{live ? "—" : healthDays}</b>
+            <b>{healthDays}</b>
             体調を記録した日
           </span>
           <span>
-            <b>{live ? "—" : questionCount}</b>
+            <b>{questionCount}</b>
             診察につなげた質問
           </span>
         </div>
@@ -3055,20 +3261,41 @@ function DHistory({
 }
 
 function DNotes({
-  notes,
+  notes: figmaNotes,
   setNotes,
   notify,
   onShare,
+  live,
+  draftFrom,
+  clearDraft,
 }: {
   notes: string[]
   setNotes: (notes: string[]) => void
   notify: (message?: string) => void
   onShare: () => void
+  /** 本番（Step 3）: 診察ノートの実 API（作成・編集・削除・作成日時・更新日時） */
+  live?: PatientNotes
+  /** 本番: 理解確認から作った質問候補（保存するまで記録しない） */
+  draftFrom?: { text: string; versionId: string; questionId: string; title: string } | null
+  clearDraft?: () => void
 }) {
-  const [draft, setDraft] = useState("")
+  const [draft, setDraft] = useState(draftFrom?.text ?? "")
   const [editing, setEditing] = useState<number | null>(null)
   const [editValue, setEditValue] = useState("")
-  const addNote = () => {
+  const [busy, setBusy] = useState(false)
+  const notes = live ? live.notes.map((note) => note.body) : figmaNotes
+  const addNote = async () => {
+    if (live) {
+      if (!draft.trim() || busy) return
+      setBusy(true)
+      const ok = await live.create(draft.trim(), draftFrom ? { versionId: draftFrom.versionId, questionId: draftFrom.questionId } : null)
+      setBusy(false)
+      if (!ok) return
+      setDraft("")
+      clearDraft?.()
+      notify("質問を保存しました")
+      return
+    }
     if (!draft.trim()) return
     setNotes([...notes, draft.trim()])
     setDraft("")
@@ -3080,10 +3307,18 @@ function DNotes({
       <h1>診察ノート</h1>
       <div className="d-visit-date">
         <Icon name="calendar" />
+        {live ? (
+          // 本番: 次回診察日は DB にないため表示しない（架空の日時を出さない）
+          <span>
+            <b>次回診察日：未登録</b>
+            <small>QR一時共有を承認したときだけ、医療者がこの質問を閲覧できます</small>
+          </span>
+        ) : (
         <span>
           <b>次回診察 6月20日（木）10:30</b>
           <small>乳腺外科 · 山田医師</small>
         </span>
+        )}
       </div>
       <div className="d-not-emergency">
         <Icon name="alert" />
@@ -3094,6 +3329,11 @@ function DNotes({
       </div>
       <section className="d-add-question">
         <h2>聞きたいことを追加</h2>
+        {live && draftFrom && (
+          <p className="d-support-copy">
+            「{draftFrom.title}」の理解確認から作った候補です。確認・編集して保存してください（保存するまで記録されません）。
+          </p>
+        )}
         <textarea
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
@@ -3101,8 +3341,8 @@ function DNotes({
         />
         <button
           className="primary-button"
-          disabled={!draft.trim()}
-          onClick={addNote}
+          disabled={!draft.trim() || busy}
+          onClick={() => void addNote()}
         >
           <Icon name="plus" />
           質問を保存
@@ -3115,7 +3355,7 @@ function DNotes({
         </div>
         <div className="d-saved-notes">
           {notes.map((note, index) => (
-            <div key={`${note}-${index}`}>
+            <div key={live ? live.notes[index].id : `${note}-${index}`}>
               <span className="d-note-number">{index + 1}</span>
               {editing === index ? (
                 <textarea
@@ -3123,13 +3363,32 @@ function DNotes({
                   onChange={(event) => setEditValue(event.target.value)}
                 />
               ) : (
-                <p>{note}</p>
+                <p>
+                  {note}
+                  {live && (
+                    <small className="d-note-meta">
+                      {live.notes[index].materialTitle ? `教材「${live.notes[index].materialTitle}」から · ` : ""}
+                      {(() => {
+                        const n = live.notes[index]
+                        const d = new Date(n.updatedAt)
+                        return `${d.getMonth() + 1}月${d.getDate()}日${n.updatedAt !== n.createdAt ? "に更新" : "に保存"}`
+                      })()}
+                    </small>
+                  )}
+                </p>
               )}
               <div>
                 {editing === index ? (
                   <>
                     <button
-                      onClick={() => {
+                      disabled={!editValue.trim()}
+                      onClick={async () => {
+                        if (live) {
+                          if (!(await live.update(live.notes[index].id, editValue))) return
+                          setEditing(null)
+                          notify("質問を更新しました")
+                          return
+                        }
                         setNotes(
                           notes.map((item, itemIndex) =>
                             itemIndex === index ? editValue : item,
@@ -3154,11 +3413,15 @@ function DNotes({
                       編集
                     </button>
                     <button
-                      onClick={() =>
+                      onClick={async () => {
+                        if (live) {
+                          if (await live.remove(live.notes[index].id)) notify("質問を削除しました")
+                          return
+                        }
                         setNotes(
                           notes.filter((_, itemIndex) => itemIndex !== index),
                         )
-                      }
+                      }}
                     >
                       削除
                     </button>

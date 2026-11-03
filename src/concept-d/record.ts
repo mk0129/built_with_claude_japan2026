@@ -26,6 +26,8 @@ export type SummaryApi = {
     createdAt: string;
     status: "unread" | "reviewed" | "resolved";
   }[];
+  /** Step 3: 診察ノートの質問（教材に紐づかないものを含む。新しい順） */
+  visitNotes: { id: string; body: string; source: "free" | "quiz"; materialId: string | null; materialTitle: string | null; primaryDomain: string | null; createdAt: string; updatedAt: string }[];
   currentSet: null | { setId: string; createdAt: string; items: { materialId: string; title: string; prescribedAt: string }[] };
   learning: {
     materialId: string;
@@ -99,8 +101,8 @@ export type LiveConcern = {
   source: string;
   correct?: string;
   explanation?: string;
-  materialId: string;
-  materialTitle: string;
+  materialId: string | null;
+  materialTitle: string | null;
   materialStatus: string;
   feedbackId?: string;
   status?: "unread" | "reviewed" | "resolved";
@@ -128,7 +130,26 @@ export function toConcerns(s: SummaryApi) {
       materialTitle: a.materialTitle,
       materialStatus: status.get(a.materialId) ?? "",
     }));
-  const questions: LiveConcern[] = s.questions.map((q) => {
+  // 診察ノートの質問（患者原文。教材から作った候補は教材を表示、自由な質問は教材なし）
+  const notes: LiveConcern[] = s.visitNotes.map((n) => {
+    const rel = n.materialId ? s.answers.find((a) => a.materialId === n.materialId && !a.isCorrect) : undefined;
+    return {
+      id: `note:${n.id}`,
+      kind: "question",
+      type: "患者の質問",
+      tone: "purple",
+      title: n.body,
+      area: n.primaryDomain ? areaOf(n.primaryDomain) : "診察ノート",
+      detail: n.body,
+      answer: "患者記載の質問",
+      source: `診察ノート · ${dateTime(n.updatedAt)}${n.updatedAt !== n.createdAt ? " 更新" : ""}`,
+      materialId: n.materialId,
+      materialTitle: n.materialTitle,
+      materialStatus: n.materialId ? (status.get(n.materialId) ?? "") : "",
+      related: rel ? { stem: rel.stem, answer: rel.isUnknown ? "わからない" : (rel.selectedText ?? "") } : null,
+    };
+  });
+  const feedback: LiveConcern[] = s.questions.map((q) => {
     const rel = s.answers.find((a) => a.materialId === q.materialId && !a.isCorrect);
     return {
       id: q.feedbackId,
@@ -148,7 +169,8 @@ export function toConcerns(s: SummaryApi) {
       related: rel ? { stem: rel.stem, answer: rel.isUnknown ? "わからない" : (rel.selectedText ?? "") } : null,
     };
   });
-  return { questions, checks };
+  // 診察ノートの質問 → 学習後の質問（既存）の順に統合
+  return { questions: [...notes, ...feedback], checks };
 }
 
 /** Figma の「領域別の学習・理解確認」と同じ形 [領域, 学習, 確認問題, 要確認, 学習済みの割合] */

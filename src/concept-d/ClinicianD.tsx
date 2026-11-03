@@ -980,7 +980,7 @@ function VisitWorkspace({
           const target = record
             ? [...record.questions, ...record.checks].find((item) => item.id === selectedConcern)?.materialId
             : 1
-          if (target === undefined) return
+          if (target == null) return
           if (record?.library?.find((item) => item.id === target)?.prescribedNow) {
             notify("この教材は、この診察で処方済みです")
             return
@@ -1071,6 +1071,11 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
   const notStarted = rx.filter((item) => item.phase === "not_started").length
   const wrong = s.answers.filter((a) => !a.isCorrect && !a.isUnknown).length
   const unknown = s.answers.filter((a) => a.isUnknown).length
+  // 診察ノートの質問（Step 3）と学習後の質問を合わせた件数・原文
+  const allQuestions = [
+    ...s.visitNotes.map((n) => ({ key: n.id, text: n.body, date: n.updatedAt, label: n.materialTitle ?? "診察ノート" })),
+    ...s.questions.map((q) => ({ key: q.feedbackId, text: q.freeText ?? "（自由記述なし）", date: q.createdAt, label: q.materialTitle })),
+  ].sort((a, b) => b.date.localeCompare(a.date))
   const events = [
     ...s.learning
       .filter((item) => item.prescribedAt)
@@ -1081,7 +1086,7 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
     ...s.answers
       .filter((a) => !a.isCorrect)
       .map((a) => ({ date: a.answeredAt, type: "learning", title: `回答「${a.isUnknown ? "わからない" : a.selectedText}」`, detail: `${a.materialTitle} · ${a.stem}` })),
-    ...s.questions.map((q) => ({ date: q.createdAt, type: "question", title: q.freeText ?? "質問（自由記述なし）", detail: q.materialTitle })),
+    ...allQuestions.map((q) => ({ date: q.date, type: "question", title: q.text, detail: q.label })),
   ].sort((a, b) => a.date.localeCompare(b.date))
   return (
     <section className="cd-intervisit">
@@ -1099,7 +1104,7 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
           <b>保存された学習記録と質問</b>
           <p>
             <strong>体調の変化：</strong>
-            体調記録は未接続のため表示していません。
+            体調記録の経過表・要約は未接続です（Step 4 で表示）。
           </p>
           <p>
             <strong>学習の状況：</strong>
@@ -1112,7 +1117,7 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
           </p>
           <p>
             <strong>患者からの質問：</strong>
-            {s.questions.length ? `${s.questions.length}件（下の「患者が診察で聞きたいこと」に原文）` : "ありません"}
+            {allQuestions.length ? `${allQuestions.length}件（下の「患者が診察で聞きたいこと」に原文）` : "ありません"}
           </p>
         </div>
         <p className="cd-summary-safety">
@@ -1129,7 +1134,7 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
             <div>
               <small>バイタル</small>
               <b>未接続</b>
-              <p>体調記録はStep 3で接続</p>
+              <p>経過表はStep 4で表示</p>
             </div>
             <span />
           </button>
@@ -1142,7 +1147,7 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
             <div>
               <small>自覚症状</small>
               <b>未接続</b>
-              <p>体調記録はStep 3で接続</p>
+              <p>経過表はStep 4で表示</p>
             </div>
             <span />
           </button>
@@ -1189,17 +1194,19 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
             </span>
             <div>
               <small>患者の質問</small>
-              <b>{s.questions.length ? `${shortDate(s.questions[0].createdAt)}に保存` : "なし"}</b>
-              <p>{s.questions.length ? `${s.questions.length}件` : "質問はありません"}</p>
+              <b>{allQuestions.length ? `${shortDate(allQuestions[0].date)}に保存` : "なし"}</b>
+              <p>{allQuestions.length ? `${allQuestions.length}件` : "質問はありません"}</p>
             </div>
             <span>{expanded === "questions" ? "閉じる" : "原文"}</span>
           </button>
           {expanded === "questions" && (
             <div className="cd-summary-evidence">
-              {s.questions.map((q) => (
-                <p key={q.feedbackId}>「{q.freeText ?? "（自由記述なし）"}」</p>
+              {allQuestions.map((q) => (
+                <p key={q.key}>
+                  「{q.text}」 · {q.label}
+                </p>
               ))}
-              {s.questions.length === 0 && <p>質問はありません</p>}
+              {allQuestions.length === 0 && <p>質問はありません</p>}
             </div>
           )}
         </article>
@@ -2345,7 +2352,10 @@ function Summary({
                       <div className="cd-question-expanded">
                         <p>{item.detail}</p>
                         <div>
-                          <span>関連教材：{item.materialTitle ?? "手術後の腕と傷のケア"}</span>
+                          <span>
+                            関連教材：
+                            {record ? (item.materialTitle ?? "なし（自由な質問）") : "手術後の腕と傷のケア"}
+                          </span>
                           <button onClick={() => onConcern(item.id)}>
                             詳しく確認
                             <CIcon name="arrow" />
@@ -2651,6 +2661,7 @@ function ConcernDetail({
             </p>
           </div>
           )}
+          {(!record || concern.materialTitle) && (
           <div className="cd-related-material">
             <span>
               <CIcon name="book" />
@@ -2665,6 +2676,7 @@ function ConcernDetail({
               再処方候補へ
             </button>
           </div>
+          )}
         </section>
         <aside className="cd-panel cd-light-actions">
           <div className="cd-panel-head">
@@ -2676,7 +2688,7 @@ function ConcernDetail({
           <p className="cd-no-action-required">
             内容を読むだけで完了できます。shioriへの記録やチェックは必須ではありません。
           </p>
-          {(!record || concern.kind === "question") && (
+          {(!record || (concern.kind === "question" && concern.feedbackId)) && (
           <div className="cd-status-actions">
             <button
               className={status === "reviewed" ? "active" : ""}

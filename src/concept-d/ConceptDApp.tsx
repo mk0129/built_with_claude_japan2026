@@ -11,6 +11,7 @@ import ClinicianD, { CIcon, type ClinicianDViewport } from "./ClinicianD"
 import { useClinicianLive, usePatientLive, type ClinicianOrg } from "./live"
 import { usePatientLearning } from "./learning"
 import { useClinicianRecord } from "./record"
+import { usePatientHealth, usePatientNotes } from "./health"
 import { DPrototype, Icon, Logo, type DViewport } from "./PatientD"
 import { initialActiveSymptomIds, initialHealthRecords, type HealthRecord } from "./healthData"
 import { UrlInitContext, type UrlInit } from "./urlState"
@@ -69,15 +70,20 @@ export function PatientDApp({ initial = {}, userName }: { initial?: UrlInit; use
   const connect = typeof initial.connect === "string" ? initial.connect : null
   const live = usePatientLive(connect, s.notify)
   const learning = usePatientLearning(s.notify)
+  const health = usePatientHealth(s.notify)
+  const notesLive = usePatientNotes(s.notify)
+  // Step 3 で患者画面の表示はすべて実データになったため、「架空データ」の表示は出さない
+  // （全画面の学習・解説・振り返りで見出しに重なっていた問題もこれで解消）
   return (
     <UrlInitContext.Provider value={initial}>
     <div className="d-app-stage">
-      <ProtoFlag long="体調記録・診察ノートは架空データ（未接続）" short="体調・ノートは架空" />
       <DPrototype
         variant="app"
         live={live}
         learning={learning}
         userName={userName}
+        health={health}
+        notesLive={notesLive}
         viewport={tablet ? "tablet" : "390"}
         notify={s.notify}
         healthRecords={s.healthRecords}
@@ -108,7 +114,7 @@ export function ClinicianDApp({ sessionId = null, orgs = [] }: { sessionId?: str
   const record = useClinicianRecord(live.sessionId, live.state === "active", showNotice)
   return (
     <div className="cd-app-stage">
-      <ProtoFlag long="在宅経過・教材スタジオは架空データ（未接続）" short="在宅経過・スタジオは架空" />
+      <ProtoFlag long="在宅経過は未接続（Step 4）・教材スタジオは架空データ" short="在宅経過は未接続・スタジオは架空" />
       <ClinicianD
         variant="app"
         live={live}

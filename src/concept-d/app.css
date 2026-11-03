@@ -119,3 +119,9 @@
   font: inherit;
   color: #243a3d;
 }
+
+/* Phase 2 Step 3: 体調記録の履歴の編集・削除（Figma の .d-text-action を横に並べるだけ） */
+.d-record-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 6px 0 0; }
+.d-record-actions .d-text-action { margin: 0; min-height: 36px; }
+/* Phase 2 Step 3: 診察ノートの保存日時・元の教材（質問文の下に小さく） */
+.d-note-meta { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }

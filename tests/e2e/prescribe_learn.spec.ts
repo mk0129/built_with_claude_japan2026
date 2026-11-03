@@ -41,7 +41,7 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   // 1・2. QR 接続 → 患者の承認
   const sid1 = await connect(s, p);
   // 処方前のサマリー: 架空の質問・回答を出さない
-  await expect(s.locator(".cd-question-priority")).toContainText("患者からの質問はありません");
+  // （患者の質問は実データ。他のテストで保存した診察ノートがあり得るため、架空の質問がないことだけを確認）
   await expect(s.locator(".cd-understanding")).toContainText("確認問題は未回答です");
   await expect(s.locator(".cd-summary")).not.toContainText("腕のつっぱり");
 
@@ -137,13 +137,14 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   await expect(s.locator(".cd-area-compact button").filter({ hasText: "検査・診断" })).toContainText("0 / 2");
   await s.locator(".cd-intervisit-cards article").filter({ hasText: "学習履歴" }).getByRole("button").click();
   await expect(s.locator("[data-learning-evidence]")).toContainText(`処方：${MATERIAL}（学習途中）`);
-  await expect(s.locator(".cd-intervisit")).toContainText("体調記録は未接続");
+  await expect(s.locator(".cd-intervisit")).toContainText("体調記録の経過表・要約は未接続");
   // 詳しく確認 → 再処方候補（同じ診察ではまだ処方していないので追加できる）
   await unknown.getByRole("button", { name: "詳しく確認" }).click();
   await expect(s.locator(".cd-answer-compare")).toContainText("わからない");
   await expect(s.locator(".cd-answer-compare")).toContainText("患者さんの年齢");
   await s.getByRole("button", { name: "再処方候補へ" }).click();
-  await expect(s.locator(".cd-toast")).toContainText("処方候補へ追加しました");
+  await expect(s.locator(".cd-toast").filter({ hasText: "処方候補へ追加しました" })).toBeVisible();
+  await expect(s.locator(".cd-toast").filter({ hasText: /エラー|ERROR|できません/ })).toHaveCount(0);
   await s.getByRole("button", { name: "何も記録せずサマリーへ戻る" }).click();
 
   // 9. 何も追加入力せずに共有を終了できる

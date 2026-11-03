@@ -577,3 +577,88 @@ export const systemSettings = pgTable("system_settings", {
   updatedByUserId: text("updated_by_user_id"),
   updatedAt: ts("updated_at").notNull().defaultNow(),
 });
+
+// ---------- 体調記録・診察ノート（Phase 2 Step 3） ----------
+/**
+ * 患者が自宅で残す体調記録。1 回の測定 = 1 行（同じ日に何回でも独立して記録できる）。
+ * バイタルはすべて任意で、未測定は NULL（0 や前回値で埋めない）。measured_at は患者が入力した測定日時、
+ * created_at / updated_at は保存・更新した日時。編集・削除は患者本人だけ。医療者は有効な一時共有の間だけ閲覧できる。
+ */
+export const healthRecords = pgTable(
+  "health_records",
+  {
+    id: id(),
+    patientId: userRef("patient_id").notNull(),
+    measuredAt: ts("measured_at").notNull(),
+    temperature: numeric("temperature", { precision: 4, scale: 1 }),
+    systolic: integer("systolic"),
+    diastolic: integer("diastolic"),
+    pulse: integer("pulse"),
+    spo2: integer("spo2"),
+    createdAt: ts("created_at").notNull().defaultNow(),
+    updatedAt: ts("updated_at").notNull().defaultNow(),
+  },
+  (t) => [index("health_records_patient_idx").on(t.patientId, t.measuredAt)],
+);
+
+/**
+ * 自覚症状の回答（記録ごと・症状ごとに 1 行）。程度は患者本人による 0〜4（なし〜非常に強い）で、CTCAE Grade・PRO-CTCAE ではない。
+ * 回答しなかった症状は行を作らない（欠測。0 = 「なし」とは区別する）。symptom_key は症状ライブラリの ID か、患者が追加した独自の症状（custom-…）。
+ * symptom_name は保存時の表示名（独自の症状名を後で変えても、過去の記録の名前は変わらない）。
+ */
+export const healthSymptomEntries = pgTable(
+  "health_symptom_entries",
+  {
+    id: id(),
+    recordId: uuid("record_id").notNull().references(() => healthRecords.id, { onDelete: "cascade" }),
+    symptomKey: text("symptom_key").notNull(),
+    symptomName: text("symptom_name"),
+    severity: integer("severity").notNull(),
+    count: integer("count"),
+    location: text("location"),
+    interference: text("interference"),
+  },
+  (t) => [uniqueIndex("health_symptom_entries_uq").on(t.recordId, t.symptomKey)],
+);
+
+/**
+ * 患者ごとの「日々の入力に表示する症状」の設定（追加・非表示・並び順・独自の症状名）。
+ * 非表示にしても行は残し（hidden = true）、過去の記録は消さない。行がない患者は既定の症状を表示する。
+ */
+export const patientSymptomSettings = pgTable(
+  "patient_symptom_settings",
+  {
+    id: id(),
+    patientId: userRef("patient_id").notNull(),
+    symptomKey: text("symptom_key").notNull(),
+    customName: text("custom_name"),
+    position: integer("position").notNull().default(0),
+    hidden: boolean("hidden").notNull().default(false),
+    createdAt: ts("created_at").notNull().defaultNow(),
+    updatedAt: ts("updated_at").notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("patient_symptom_settings_uq").on(t.patientId, t.symptomKey)],
+);
+
+export const visitNoteSource = pgEnum("visit_note_source", ["free", "quiz"]);
+
+/**
+ * 診察ノート（次の診察で聞きたいこと）。教材に紐づかない自由な質問も保存できる。
+ * 理解確認から作った質問候補は、患者が確認して保存したときにだけ行を作る（source = quiz、教材・版・設問を保持）。
+ * 自由記述の質問には教材を付けない。既存の学習後フィードバック（patient_feedback）は別に残し、医療者画面で統合して表示する。
+ */
+export const visitNotes = pgTable(
+  "visit_notes",
+  {
+    id: id(),
+    patientId: userRef("patient_id").notNull(),
+    body: text("body").notNull(),
+    source: visitNoteSource("source").notNull().default("free"),
+    materialId: uuid("material_id").references(() => materials.id),
+    materialVersionId: uuid("material_version_id").references(() => materialVersions.id),
+    quizQuestionId: uuid("quiz_question_id").references(() => quizQuestions.id),
+    createdAt: ts("created_at").notNull().defaultNow(),
+    updatedAt: ts("updated_at").notNull().defaultNow(),
+  },
+  (t) => [index("visit_notes_patient_idx").on(t.patientId, t.createdAt)],
+);

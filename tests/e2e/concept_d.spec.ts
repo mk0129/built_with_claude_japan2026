@@ -55,7 +55,8 @@ test("患者: ログイン後に Figma 版ホーム。主要な画面遷移、�
   const device = page.locator(".d-device");
   await expect(device).toBeVisible();
   await expect(page.locator(".d-scenario-bar, .prototype-bar, .concept-switch")).toHaveCount(0);
-  await expect(page.locator("[data-proto-flag]")).toContainText("架空データ");
+  // Step 3 以降、患者画面はすべて実データのため「架空データ」の表示はない
+  await expect(page.locator("[data-proto-flag]")).toHaveCount(0);
   expect(await device.boundingBox()).toMatchObject({ x: 0, y: 0, width: 390, height: 844 });
   const css = await page.evaluate(() => ({ html: getComputedStyle(document.documentElement).fontSize, font: getComputedStyle(document.body).fontFamily }));
   expect(css.html).toBe("16px");
