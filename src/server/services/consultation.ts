@@ -10,6 +10,7 @@ import { listHomeworkForPatient, getSetForSession } from "./prescription";
 import { computeHomeworkScore, computeScoreSummary } from "./scoring";
 import { listMissedQuestions } from "./learning";
 import { listQuestionsForClinician } from "./questions";
+import { listLatestAnswers, objectivesByVersion } from "./learning-record";
 
 export type ConsultationView = {
   id: string;
@@ -222,6 +223,9 @@ export async function getPatientSummary(ctx: ConsultationContext, db: Db = getDb
     });
   }
 
+  const library = (await getPatientLibrary(ctx.patientId, db)).items;
+  const learned = learnedItems(library);
+  const objectives = await objectivesByVersion(learned.map((i) => i.versionId), db);
   await audit({ actorUserId: ctx.clinician.userId, orgId: ctx.orgId, action: "patient.summary.read", resourceType: "patient", resourceId: ctx.patientId, consultationSessionId: ctx.sessionId, outcome: "ok" }, db);
   return {
     patient: { id: u.id, displayName: u.name },
@@ -246,13 +250,16 @@ export async function getPatientSummary(ctx: ConsultationContext, db: Db = getDb
       : null,
     currentSet: await getSetForSession(ctx, db),
     // Phase E: 領域ごとの理解の地図に使う、処方・自主学習した教材の一覧（状態と 3 段階）
-    learning: learnedItems((await getPatientLibrary(ctx.patientId, db)).items).map((i) => ({
+    learning: learned.map((i) => ({
       materialId: i.materialId,
+      versionId: i.versionId,
+      objective: objectives.get(i.versionId)?.[0] ?? null,
+      slideCount: i.slideCount,
+      questionCount: i.questionCount,
       title: i.title,
       primaryDomain: i.primaryDomain,
       phase: i.phase,
       lastSlideSeq: i.lastSlideSeq,
-      slideCount: i.slideCount,
       level: i.level,
       prescribed: !!i.prescribed,
       prescribedAt: i.prescribed?.createdAt ?? null,
@@ -260,7 +267,11 @@ export async function getPatientSummary(ctx: ConsultationContext, db: Db = getDb
       selfLearning: i.selfLearning,
       nWrong: i.nWrong,
       nUnknown: i.nUnknown,
+      completedAt: i.completedAt,
     })),
+    // Phase 2 Step 2: 教材ごとの最新の挑戦の回答（完了・途中を問わない）。誤答と「わからない」を区別し、回答日時と教材を付ける
+    answers: await listLatestAnswers(ctx.patientId, db),
+    patientName: u.name,
   };
 }
 

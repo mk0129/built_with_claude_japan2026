@@ -7,6 +7,7 @@
  *   ONLY        : 画面 ID の部分一致で絞り込み（例 ONLY=P0）
  * 比較対象は Figma のプロトタイプ外枠ではなく端末内の実アプリ（患者 .d-device / 医療者 .cd-device）。
  * shiori 側は正式 URL（患者 /home、医療者 /staff）。医療者の一時共有中の画面は、本番に架空の承認ボタンがないため開発用 /d/dev で撮る。
+ * Phase 2 Step 2 以降、患者の画面は本番が実データのため /d/dev（同じコンポーネントを Figma の架空データで描画）で撮る（PATIENT_PROD=1 で本番）。
  * shiori の「架空データ・未接続」表示（.proto-flag、重ね表示）は比較時だけ隠す。
  * Figma 側は 700px 以下で端末枠が外れる（角丸・影なし）ため、患者はその表示幅で撮る。医療者は 1180/820 の端末をそのまま撮る。
  */
@@ -114,7 +115,14 @@ async function shioriPage(browser, vp, mode, cookies, testState, devVp, useDev) 
   const ctx = await browser.newContext({ viewport: dev ? devVp : vp, deviceScaleFactor: 1, locale: "ja-JP" });
   await ctx.addCookies(cookies);
   const p = await ctx.newPage();
-  if (dev) {
+  if (mode === "patient" && !dev && process.env.PATIENT_PROD !== "1") {
+    // Phase 2 Step 2 以降、本番 /home は実データ（教材・学習記録）を表示するため、Figma の架空データとの画素比較は
+    // 同じコンポーネントを Figma のデータで描く開発用 /d/dev で行う（本番の実データ表示は docs/design/phase2/step2 の撮影で確認）。
+    // /d/dev は医療者のログインが必要なため、医療者の Cookie で開く。
+    // 開発用の上部バーで端末の縦位置が 0.5px ずれる（文字の描画がずれる）ため、バーと余白を外して端末を整数位置に置く。端末内には触れない
+    await p.goto(`${SHIORI}/d/dev`);
+    await p.addStyleTag({ content: ".prototype-bar,.d-scenario-bar{display:none!important}.prototype-stage,.concept-d-stage{padding:0!important;margin:0!important}" });
+  } else if (dev) {
     await p.goto(`${SHIORI}/d/dev`);
     await p.locator(".view-switch").first().getByRole("button", { name: "医療者" }).click();
     await p.locator(".d-viewport-switch").getByRole("button", { name: `${vp.width}px` }).click();
@@ -245,7 +253,7 @@ for (const run of runs) {
       const { ctx, p, root } =
         side === "figma"
           ? await figmaPage(browser, run.figmaVp ?? run.vp, run.mode, run.tag, TEST_STATES[id])
-          : await shioriPage(browser, run.vp, run.mode, run.mode === "patient" ? patientCookies : staffCookies, TEST_STATES[id], run.figmaVp, run.mode === "clinician" && !CLINICIAN_PROD.has(id));
+          : await shioriPage(browser, run.vp, run.mode, run.mode === "patient" && process.env.PATIENT_PROD === "1" ? patientCookies : staffCookies, TEST_STATES[id], run.figmaVp, run.mode === "clinician" && !CLINICIAN_PROD.has(id));
       try {
         await root.waitFor();
         await settle(p);

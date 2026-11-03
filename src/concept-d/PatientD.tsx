@@ -1,8 +1,16 @@
 "use client";
 
-import { useState, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { useUrlState } from "./urlState"
 import type { PatientLive } from "./live"
+import {
+  saveProgress,
+  useAttempt,
+  useLearnView,
+  type LiveLesson,
+  type PatientLearning,
+  type Slide,
+} from "./learning"
 import {
   currentVisitDate,
   formatShortDate,
@@ -169,7 +177,8 @@ function Pill({
 }
 
 type DLesson = {
-  id: number
+  /** Figma の架空データは番号、本番（Step 2）は教材 ID */
+  id: number | string
   title: string
   category: string
   time: number
@@ -180,7 +189,7 @@ type DLesson = {
   progress: number
   summary: string
   goal: string
-}
+} & Partial<Omit<LiveLesson, "id" | "title" | "category" | "time" | "status" | "prescribed" | "sender" | "date" | "progress" | "summary" | "goal">>
 
 const dLessons: DLesson[] = [
   {
@@ -310,6 +319,25 @@ const dCategories = [
   { name: "日常生活・相談支援", count: 9, icon: "home", progress: 35 },
 ]
 
+/** 学習領域の一覧。本番は DB の教材数・学習状況から作ったものを Provider で渡す（なければ Figma の架空の値） */
+type DCategoryInfo = { name: string; count: number; icon: string; progress: number }
+const CategoriesContext = createContext<DCategoryInfo[]>(dCategories)
+
+/** 本番の患者情報（呼び名・今回の処方元など）。Figma の架空データ表示（開発用）では null */
+type DLiveInfo = {
+  /** 教材一覧を読み込み済み（読み込み前に「届いている教材はありません」を出さない） */
+  loaded: boolean
+  familyName: string
+  today: string
+  latest: PatientLearning["latest"]
+  sharingLabel: string | null
+  sharingRemainingMin: number
+}
+const LiveInfoContext = createContext<DLiveInfo | null>(null)
+
+const imageKind = (lesson: DLesson): "medical" | "editorial" =>
+  typeof lesson.id === "number" && lesson.id % 3 === 0 ? "editorial" : "medical"
+
 const dScenarios = [
   "初回・処方0件",
   "今回処方3件",
@@ -325,13 +353,27 @@ function DImageSlot({
   caption,
   onExpand,
   compact = false,
+  image,
 }: {
   kind: "medical" | "editorial"
   caption: string
   onExpand?: () => void
   compact?: boolean
+  /** 本番: 医療者が承認した図解（承認済みの画像だけが API から届く）。なければ Figma の「画像準備中」 */
+  image?: { src: string; alt: string }
 }) {
-  const placeholderContent = (
+  const placeholderContent = image ? (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={image.src} alt={image.alt} style={{ width: "100%", height: "100%", objectFit: "contain", background: "#fff" }} />
+      {onExpand && (
+        <span className="d-expand">
+          <Icon name="search" size={16} />
+          拡大
+        </span>
+      )}
+    </>
+  ) : (
     <>
       <span className="d-image-type">
         {kind === "medical" ? "MEDICAL ILLUSTRATION" : "EDITORIAL ILLUSTRATION"}
@@ -421,7 +463,7 @@ function DLessonCard({
     >
       <DImageSlot
         compact
-        kind={lesson.id % 3 === 0 ? "editorial" : "medical"}
+        kind={imageKind(lesson)}
         caption=""
       />
       <span className="d-lesson-card-body">
@@ -534,6 +576,8 @@ function DPageHeader({
 export function DPrototype({
   variant = "prototype",
   live,
+  learning,
+  userName,
   viewport,
   notify,
   healthRecords,
@@ -547,6 +591,10 @@ export function DPrototype({
   variant?: "app" | "prototype"
   /** 本番: 一時共有の実 API（共有中かどうか・申請者・残り時間・承認・終了）。なければ Figma の架空の状態 */
   live?: PatientLive
+  /** 本番（Step 2）: 情報処方・教材・学習記録の実 API。なければ Figma の架空の教材 */
+  learning?: PatientLearning
+  /** 本番: 患者の表示名（ホームの呼びかけ） */
+  userName?: string
   viewport: DViewport
   notify: (message?: string) => void
   healthRecords: HealthRecord[]
@@ -559,7 +607,10 @@ export function DPrototype({
   // 画面・教材・領域は URL に持つ（再読み込みで同じ画面に戻る）
   const [page, setPage] = useUrlState<DPage>("view", "home", D_PAGES)
   const [scenario, setScenario] = useState(2)
-  const [selectedId, setSelectedId] = useUrlState<number>("lesson", 1)
+  // 教材は URL に持つ（Figma の架空データは番号、本番は教材 ID）
+  const [selectedId, setSelectedId] = useUrlState<string>("lesson", "1")
+  // 本番: 回答の解説を表示している設問（再読み込みで同じ解説に戻る）
+  const [quizQuestionId, setQuizQuestionId] = useUrlState<string>("q", "")
   const [selectedCategory, setSelectedCategory] = useUrlState<string>("area", "手術")
   const [query, setQuery] = useState("")
   const [sourceFilter, setSourceFilter] = useState("すべて")
@@ -573,7 +624,7 @@ export function DPrototype({
   ])
   const [quizAnswer, setQuizAnswer] = useState("")
   const [motionEnabled, setMotionEnabled] = useState(true)
-  const [lessonStates, setLessonStates] = useState<Record<number, {
+  const [lessonStates, setLessonStates] = useState<Record<string, {
     status: DLesson["status"]
     progress: number
   }>>({})
@@ -600,18 +651,22 @@ export function DPrototype({
       ? { ...scenarioLesson, ...lessonStates[lesson.id] }
       : scenarioLesson
   })
-  const visibleLessons =
+  const figmaLessons =
     scenario === 6
       ? [...scenarioLessons, ...dLessons.slice(3, 8).map((lesson, index) => ({
             ...lesson,
-            id: lesson.id + 20,
+            id: Number(lesson.id) + 20,
             title: `${lesson.title}：詳しく知る`,
           }))]
       : scenarioLessons
-  const selected =
-    visibleLessons.find((lesson) => lesson.id === selectedId) ||
-    visibleLessons[0]
-  const prescriptions = visibleLessons.filter((lesson) => lesson.prescribed)
+  const visibleLessons: DLesson[] = learning ? learning.lessons : figmaLessons
+  const selected: DLesson | undefined =
+    visibleLessons.find((lesson) => String(lesson.id) === selectedId) ||
+    (learning ? undefined : visibleLessons[0])
+  // 本番: ホームの「今回の情報処方」は最新の処方だけ（以前の処方は「教材を探す」「学習記録」に残る）
+  const prescriptions = visibleLessons.filter((lesson) =>
+    learning ? lesson.latest : lesson.prescribed,
+  )
   const activePrescription =
     prescriptions.find((lesson) => lesson.status === "doing") ||
     prescriptions.find((lesson) => lesson.status === "new")
@@ -628,8 +683,66 @@ export function DPrototype({
   })
 
   const openLesson = (lesson: DLesson) => {
-    setSelectedId(lesson.id)
+    setSelectedId(String(lesson.id))
     setPage("detail")
+  }
+
+  // ---- 本番（Step 2）: 学習・理解確認の実データ ----
+  const versionId = learning ? (selected?.versionId ?? null) : null
+  const learnView = useLearnView(
+    learning && ["learn", "explanation"].includes(page) ? versionId : null,
+    notify,
+  )
+  const quiz = useAttempt(
+    learning && ["quiz", "explanation", "result"].includes(page) ? versionId : null,
+    notify,
+  )
+  // 学習中のページ（未操作なら保存済みの位置から再開）
+  const [slideAt, setSlideAt] = useState<{ versionId: string; seq: number } | null>(null)
+  const totalSlides = learnView?.slides.length ?? 0
+  const currentSeq =
+    learnView && slideAt?.versionId === learnView.versionId
+      ? slideAt.seq
+      : Math.min(Math.max(1, learnView?.progress.lastSlideSeq ?? 1), Math.max(1, totalSlides))
+  const currentSlide = learnView?.slides.find((slide) => slide.seq === currentSeq) ?? null
+  const goSlide = (seq: number) => {
+    if (!learnView) return
+    setSlideAt({ versionId: learnView.versionId, seq })
+    // 学習済みの教材を読み直すときは、学習済みの状態を「途中」に戻さない
+    if (selected?.status !== "done") void saveProgress(learnView.versionId, seq, "reading").catch(() => {})
+  }
+  // 理解確認の画面を再読み込みしたとき: 進行中（なければ最新）の挑戦を読み込む
+  useEffect(() => {
+    if (learning && versionId && !quiz.attempt && ["quiz", "explanation", "result"].includes(page)) {
+      void quiz.load(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [learning, versionId, page, quiz.attempt])
+  // 一覧の画面へ戻ったら、学習状態を読み直す（学習・回答の結果を反映）
+  useEffect(() => {
+    if (learning && ["home", "prescriptions", "library", "category", "search", "detail", "history"].includes(page)) void learning.reload()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page])
+  const attempt = quiz.attempt
+  const nextQuestion = attempt?.questions.find((question) => !question.answer) ?? null
+  const shownQuestion =
+    attempt?.questions.find((question) => question.questionId === quizQuestionId && question.answer) ??
+    [...(attempt?.questions ?? [])].reverse().find((question) => question.answer) ??
+    null
+  const startQuiz = async () => {
+    if (!learnView) return
+    await saveProgress(learnView.versionId, currentSeq, "quiz").catch(() => {})
+    const a = await quiz.load(false)
+    // 前回の挑戦が完了していれば、新しい挑戦として始める（前回の回答は記録に残る）
+    if (a?.completedAt) await quiz.load(true)
+    setQuizAnswer("")
+    setPage("quiz")
+  }
+  const finishWithoutQuiz = async () => {
+    if (!learnView) return
+    await saveProgress(learnView.versionId, currentSeq, "completed").catch(() => {})
+    notify("学習を記録しました")
+    setPage("home")
   }
   const changeScenario = (value: number) => {
     setScenario(value)
@@ -640,6 +753,16 @@ export function DPrototype({
   }
 
   const renderPage = () => {
+    // 本番: 教材を開く画面で、教材がまだ読み込まれていない（または見つからない）とき
+    if (["detail", "learn", "quiz", "explanation", "result"].includes(page) && !selected) {
+      return learning?.loaded ? (
+        <div className="d-empty-search">
+          <Icon name="search" size={32} />
+          <h2>この教材は表示できません</h2>
+          <p>ホームから教材を選び直してください。</p>
+        </div>
+      ) : null
+    }
     if (page === "home")
       return (
         <DHome
@@ -681,6 +804,7 @@ export function DPrototype({
       return (
         <DCategory
           category={selectedCategory}
+          fallback={!learning}
           lessons={visibleLessons.filter(
             (lesson) => lesson.category === selectedCategory,
           )}
@@ -701,13 +825,19 @@ export function DPrototype({
     if (page === "detail")
       return (
         <DDetail
-          lesson={selected}
+          lesson={selected!}
           onBack={() => setPage("library")}
           onStart={() => {
-            if (selected.status === "new") {
+            if (learning && selected) {
+              if (selected.status === "new" && selected.versionId)
+                void saveProgress(selected.versionId, 1, "reading").catch(() => {})
+              setPage("learn")
+              return
+            }
+            if (selected!.status === "new") {
               setLessonStates({
                 ...lessonStates,
-                [selected.id]: { status: "doing", progress: 10 },
+                [selected!.id]: { status: "doing" as const, progress: 10 },
               })
             }
             setPage("learn")
@@ -718,15 +848,38 @@ export function DPrototype({
     if (page === "learn")
       return (
         <DLearning
-          lesson={selected}
+          lesson={selected!}
           panel={learningPanel}
           setPanel={setLearningPanel}
+          live={
+            learning
+              ? {
+                  slide: currentSlide,
+                  seq: currentSeq,
+                  total: totalSlides,
+                  hasQuiz: (learnView?.questionCount ?? 0) > 0,
+                  onPrev: () =>
+                    currentSeq > 1 ? goSlide(currentSeq - 1) : setPage("detail"),
+                  onNext: () =>
+                    currentSeq < totalSlides
+                      ? goSlide(currentSeq + 1)
+                      : (learnView?.questionCount ?? 0) > 0
+                        ? void startQuiz()
+                        : void finishWithoutQuiz(),
+                }
+              : undefined
+          }
           onClose={() => {
+            if (learning) {
+              notify("学習位置を保存しました")
+              setPage("home")
+              return
+            }
             setLessonStates({
               ...lessonStates,
-              [selected.id]: {
-                status: "doing",
-                progress: Math.max(selected.progress, 66),
+              [selected!.id]: {
+                status: "doing" as const,
+                progress: Math.max(selected!.progress, 66),
               },
             })
             notify("学習位置を保存しました")
@@ -741,25 +894,64 @@ export function DPrototype({
         <DQuiz
           answer={quizAnswer}
           setAnswer={setQuizAnswer}
+          live={
+            learning
+              ? {
+                  question: nextQuestion,
+                  index: attempt ? attempt.questions.findIndex((q) => q === nextQuestion) : 0,
+                  total: attempt?.nQuestions ?? 0,
+                  busy: quiz.busy,
+                }
+              : undefined
+          }
           onBack={() => setPage("learn")}
-          onConfirm={() => setPage("explanation")}
+          onConfirm={async () => {
+            if (!learning) return setPage("explanation")
+            if (!nextQuestion) return
+            const index = nextQuestion.options.indexOf(quizAnswer)
+            const ok = await quiz.answer(nextQuestion.questionId, index >= 0 ? index : null)
+            if (!ok) return
+            setQuizQuestionId(nextQuestion.questionId)
+            setPage("explanation")
+          }}
         />
       )
     if (page === "explanation")
       return (
         <DExplanation
           answer={quizAnswer}
-          onBackToLesson={() => setPage("learn")}
+          live={
+            learning
+              ? {
+                  question: shownQuestion,
+                  relatedTitle:
+                    learnView?.slides.find((slide) => slide.seq === shownQuestion?.relatedSlideSeq)?.title ?? null,
+                  remaining: attempt?.questions.filter((q) => !q.answer).length ?? 0,
+                }
+              : undefined
+          }
+          onBackToLesson={() => {
+            if (learning && learnView && shownQuestion?.relatedSlideSeq)
+              setSlideAt({ versionId: learnView.versionId, seq: shownQuestion.relatedSlideSeq })
+            setPage("learn")
+          }}
           onNext={() => {
+            if (learning) {
+              setQuizAnswer("")
+              setPage(attempt?.questions.some((q) => !q.answer) ? "quiz" : "result")
+              return
+            }
             setLessonStates({
               ...lessonStates,
-              [selected.id]: { status: "done", progress: 100 },
+              [selected!.id]: { status: "done" as const, progress: 100 },
             })
             setPage("result")
           }}
           onAddQuestion={() => {
-            const candidate =
-              "腕を動かす範囲について、私の場合の目安を教えてください"
+            // 診察ノートは Step 3 で接続（それまでは画面内の架空のメモ）
+            const candidate = learning && shownQuestion
+              ? `「${shownQuestion.stem}」について、私の場合を教えてください`
+              : "腕を動かす範囲について、私の場合の目安を教えてください"
             if (!notes.includes(candidate)) setNotes([...notes, candidate])
             notify("質問候補を診察ノートに追加しました")
           }}
@@ -769,6 +961,17 @@ export function DPrototype({
       return (
         <DResult
           answer={quizAnswer}
+          live={
+            learning && selected
+              ? {
+                  title: selected.title,
+                  slideCount: selected.slideCount ?? 0,
+                  answered: attempt ? attempt.nCorrect + attempt.nWrong + attempt.nUnknown : 0,
+                  needsReview: attempt ? attempt.nWrong + attempt.nUnknown : 0,
+                  learnedCount: visibleLessons.filter((lesson) => lesson.status !== "new").length,
+                }
+              : undefined
+          }
           healthDays={
             new Set(
               healthRecords.map((record) => record.measuredAt.slice(0, 10)),
@@ -827,7 +1030,28 @@ export function DPrototype({
   }
 
   const fullScreen = ["learn", "quiz", "explanation", "result"].includes(page)
+  // 本番: 学習領域ごとの公開教材数と学習状況（学習済みの割合）
+  const categories: DCategoryInfo[] = learning
+    ? dCategories.map((category) => {
+        const inArea = visibleLessons.filter((lesson) => lesson.category === category.name)
+        const done = inArea.filter((lesson) => lesson.status === "done").length
+        return { ...category, count: inArea.length, progress: inArea.length ? Math.round((done / inArea.length) * 100) : 0 }
+      })
+    : dCategories
+  const now = new Date()
+  const liveInfo: DLiveInfo | null = learning
+    ? {
+        loaded: learning.loaded,
+        familyName: (userName ?? "").split(/[\s　]/)[0] || (userName ?? ""),
+        today: `${now.getMonth() + 1}月${now.getDate()}日 ${"日月火水木金土"[now.getDay()]}曜日`,
+        latest: learning.latest,
+        sharingLabel: live?.clinicianName ?? null,
+        sharingRemainingMin: live?.remainingMin ?? 0,
+      }
+    : null
   return (
+    <CategoriesContext.Provider value={categories}>
+    <LiveInfoContext.Provider value={liveInfo}>
     <div className="d-prototype-wrap">
       {variant === "prototype" && (
       <div className="d-scenario-bar">
@@ -863,6 +1087,27 @@ export function DPrototype({
         <div className="d-image-modal" onClick={() => setZoomed(false)}>
           <div onClick={(event) => event.stopPropagation()}>
             <button onClick={() => setZoomed(false)}>閉じる</button>
+            {learning ? (
+              // 本番: 表示中のページの承認済み図解と、その代替説明
+              <>
+                <DImageSlot
+                  kind="medical"
+                  caption={currentSlide?.figures[0]?.caption ?? ""}
+                  image={
+                    currentSlide?.figures[0]
+                      ? { src: currentSlide.figures[0].src, alt: currentSlide.figures[0].altText ?? currentSlide.title }
+                      : undefined
+                  }
+                />
+                {(currentSlide?.figures[0]?.longDescription || currentSlide?.figures[0]?.altText) && (
+                  <div className="d-alt-copy">
+                    <b>画像の代替説明</b>
+                    <p>{currentSlide.figures[0].longDescription ?? currentSlide.figures[0].altText}</p>
+                  </div>
+                )}
+              </>
+            ) : (
+            <>
             <DImageSlot
               kind="medical"
               caption="腕の動かし方を説明する医学図解。画像・ラベル・説明文は独立して管理します。"
@@ -873,10 +1118,14 @@ export function DPrototype({
                 手術後の腕を無理なく動かす方法を、段階ごとに示す監修済み図解を掲載する領域です。
               </p>
             </div>
+            </>
+            )}
           </div>
         </div>
       )}
     </div>
+    </LiveInfoContext.Provider>
+    </CategoriesContext.Provider>
   )
 }
 
@@ -1707,27 +1956,33 @@ function DHome({
   onOpen: (lesson: DLesson) => void
   setPage: (page: DPage) => void
 }) {
+  const categories = useContext(CategoriesContext)
   const completed = prescriptions.filter((lesson) => lesson.status === "done")
+  const live = useContext(LiveInfoContext)
+  // 本番: 今回の処方をすべて学習済み（Figma の検証シナリオ 4 と同じ表示）
+  const allDone = live
+    ? prescriptions.length > 0 && completed.length === prescriptions.length
+    : scenario === 4
   return (
     <div className="d-home">
       <div className="d-welcome">
         <div>
-          <p>こんにちは、佐藤さん</p>
+          <p>こんにちは、{live ? live.familyName : "佐藤"}さん</p>
           <h1>今日、確認すること</h1>
         </div>
-        <span>6月14日 金曜日</span>
+        <span>{live ? live.today : "6月14日 金曜日"}</span>
       </div>
       {sharing && (
         <button className="d-sharing-banner" onClick={() => setPage("share")}>
           <Icon name="shield" />
           <span>
-            <b>山田医師と一時共有中</b>
-            <small>残り24分 · タップして管理</small>
+            <b>{live ? `${live.sharingLabel ?? "医療者"}と一時共有中` : "山田医師と一時共有中"}</b>
+            <small>{live ? `残り${live.sharingRemainingMin}分` : "残り24分"} · タップして管理</small>
           </span>
           <Icon name="arrow" />
         </button>
       )}
-      {prescriptions.length === 0 ? (
+      {live && !live.loaded ? null : prescriptions.length === 0 ? (
         <section className="d-empty-hero">
           <DImageSlot
             kind="editorial"
@@ -1742,14 +1997,14 @@ function DHome({
             <Icon name="arrow" />
           </button>
         </section>
-      ) : scenario === 4 ? (
+      ) : allDone ? (
         <section className="d-complete-hero">
           <span className="d-complete-icon">
             <Icon name="check" size={28} />
           </span>
           <div>
             <Pill tone="soft">今回の情報処方</Pill>
-            <h2>3件すべて確認しました</h2>
+            <h2>{live ? prescriptions.length : 3}件すべて確認しました</h2>
             <p>必要なときは、いつでも読み直せます。</p>
           </div>
           <button onClick={() => setPage("prescriptions")}>
@@ -1760,7 +2015,7 @@ function DHome({
         <section className="d-next-card">
           <div className="d-next-meta">
             <Pill>今回の情報処方</Pill>
-            <span>6月12日 · 山田医師から</span>
+            <span>{live?.latest ? `${live.latest.date} · ${live.latest.clinician}から` : "6月12日 · 山田医師から"}</span>
           </div>
           <h2>
             {active?.status === "doing"
@@ -1781,7 +2036,7 @@ function DHome({
                   <b>{active.title}</b>
                   <small>
                     {active.status === "doing"
-                      ? `${active.progress}%まで学習 · あと約4分`
+                      ? `${active.progress}%まで学習 · あと約${live ? Math.max(1, Math.round((active.time * (100 - active.progress)) / 100)) : 4}分`
                       : `約${active.time}分`}
                   </small>
                 </span>
@@ -1806,7 +2061,8 @@ function DHome({
             <p className="eyebrow">NEXT VISIT</p>
             <h2>次の診察につなげる</h2>
           </div>
-          <span>6月20日</span>
+          {/* 本番: 次回診察日は DB にないため表示しない（架空の日付を出さない） */}
+          <span>{live ? "次回診察日：未登録" : "6月20日"}</span>
         </div>
         <button className="d-note-summary" onClick={() => setPage("notes")}>
           <span className="stat-icon purple">
@@ -1847,7 +2103,7 @@ function DHome({
           <button onClick={() => setPage("library")}>すべて見る</button>
         </div>
         <div className="d-quick-categories">
-          {dCategories.slice(0, 3).map((category) => (
+          {categories.slice(0, 3).map((category) => (
             <button key={category.name} onClick={() => setPage("library")}>
               <Icon name={category.icon} />
               <span>{category.name}</span>
@@ -1874,6 +2130,7 @@ function DPrescriptions({
   onOpen: (lesson: DLesson) => void
   onBack: () => void
 }) {
+  const live = useContext(LiveInfoContext)
   return (
     <div>
       <DPageHeader
@@ -1884,8 +2141,8 @@ function DPrescriptions({
       <div className="d-prescription-info">
         <Icon name="user" />
         <span>
-          <b>乳腺外科 山田医師から</b>
-          <small>6月12日に届きました · 3件</small>
+          <b>{live?.latest ? `${live.latest.sender}から` : "乳腺外科 山田医師から"}</b>
+          <small>{live?.latest ? `${live.latest.date}に届きました · ${lessons.length}件` : "6月12日に届きました · 3件"}</small>
         </span>
       </div>
       <p className="d-gentle-copy">
@@ -1928,6 +2185,7 @@ function DLibrary({
   onCategory: (category: string) => void
   onOpen: (lesson: DLesson) => void
 }) {
+  const categories = useContext(CategoriesContext)
   return (
     <div className="d-library">
       <p className="eyebrow">LIBRARY</p>
@@ -1956,7 +2214,7 @@ function DLibrary({
           今の治療や関心に合わせて、どの領域からでも選べます。
         </p>
         <div className="d-category-cards">
-          {dCategories.map((category) => (
+          {categories.map((category) => (
             <button
               key={category.name}
               onClick={() => onCategory(category.name)}
@@ -2020,14 +2278,18 @@ function DCategory({
   lessons,
   onOpen,
   onBack,
+  fallback = true,
 }: {
+  /** Figma: 該当がなければ架空の一覧を出す。本番は出さない */
+  fallback?: boolean
   category: string
   lessons: DLesson[]
   onOpen: (lesson: DLesson) => void
   onBack: () => void
 }) {
-  const fallback = dLessons.filter((lesson) => lesson.category === category)
-  const shown = lessons.length ? lessons : fallback
+  const categories = useContext(CategoriesContext)
+  const figmaFallback = dLessons.filter((lesson) => lesson.category === category)
+  const shown = lessons.length || !fallback ? lessons : figmaFallback
   return (
     <div>
       <DPageHeader title={category} eyebrow="LEARNING AREA" onBack={onBack} />
@@ -2035,7 +2297,7 @@ function DCategory({
         <span className="d-category-icon">
           <Icon
             name={
-              dCategories.find((item) => item.name === category)?.icon || "book"
+              categories.find((item) => item.name === category)?.icon || "book"
             }
             size={26}
           />
@@ -2043,7 +2305,7 @@ function DCategory({
         <div>
           <b>
             公開教材{" "}
-            {dCategories.find((item) => item.name === category)?.count ||
+            {categories.find((item) => item.name === category)?.count ??
               shown.length}
             件
           </b>
@@ -2139,7 +2401,7 @@ function DDetail({
     <div className="d-detail">
       <DPageHeader title="教材の詳細" onBack={onBack} />
       <DImageSlot
-        kind={lesson.id % 3 === 0 ? "editorial" : "medical"}
+        kind={imageKind(lesson)}
         caption="教材内容を補助する監修済み画像を配置する領域"
         onExpand={onZoom}
       />
@@ -2156,27 +2418,34 @@ function DDetail({
           <Icon name="user" />
           <span>
             <b>{lesson.sender}から届きました</b>
-            <small>{lesson.date} · 今回の情報処方</small>
+            <small>
+              {lesson.date} · {lesson.latest === false ? "以前の情報処方" : "今回の情報処方"}
+              {lesson.note ? ` · 「${lesson.note}」` : ""}
+            </small>
           </span>
         </div>
       )}
+      {lesson.goal && (
       <section className="d-goal">
         <p className="eyebrow">この教材で確認すること</p>
         <p>{lesson.goal}</p>
       </section>
+      )}
       <div className="d-content-list">
         <span>
           <Icon name="book" />
-          短い説明 3ページ
+          短い説明 {lesson.slideCount ?? 3}ページ
         </span>
         <span>
           <Icon name="audio" />
           音声読み上げあり
         </span>
+        {(lesson.questionCount ?? 1) > 0 && (
         <span>
           <Icon name="help" />
-          理解確認 1問
+          理解確認 {lesson.questionCount ?? 1}問
         </span>
+        )}
       </div>
       <button className="primary-button d-bottom-action" onClick={onStart}>
         <Icon name={lesson.status === "doing" ? "play" : "book"} />
@@ -2190,6 +2459,19 @@ function DDetail({
   )
 }
 
+type DLearningLive = {
+  slide: Slide | null
+  seq: number
+  total: number
+  hasQuiz: boolean
+  onPrev: () => void
+  onNext: () => void
+}
+
+/** 本番: スライド本文を「要点だけ読む」用に文ごとに分ける（最大 3 つ） */
+const keyPoints = (slide: Slide) =>
+  (slide.bodyMd.match(/[^。！？]+[。！？]?/g) ?? [slide.bodyMd]).map((t) => t.trim()).filter(Boolean).slice(0, 3)
+
 function DLearning({
   lesson,
   panel,
@@ -2197,6 +2479,7 @@ function DLearning({
   onClose,
   onNext,
   onZoom,
+  live,
 }: {
   lesson: DLesson
   panel: "figure" | "points"
@@ -2204,9 +2487,115 @@ function DLearning({
   onClose: () => void
   onNext: () => void
   onZoom: () => void
+  /** 本番: 実際の教材のスライド（ページ送り・位置の保存）。なければ Figma の架空の 1 ページ */
+  live?: DLearningLive
 }) {
   const [detailOpen, setDetailOpen] = useState(false)
   const [audioPlaying, setAudioPlaying] = useState(false)
+  // 本番の音声: 端末の読み上げ機能でスライドの読み上げ用テキストを読む（ページを移ったら止める）
+  useEffect(() => {
+    if (!live) return
+    return () => {
+      if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel()
+    }
+  }, [live?.seq, live])
+  if (live) {
+    const slide = live.slide
+    const figure = slide?.figures[0]
+    const toggleAudio = () => {
+      const synth = typeof window !== "undefined" ? window.speechSynthesis : undefined
+      if (!synth || !slide) return
+      if (audioPlaying) {
+        synth.cancel()
+        setAudioPlaying(false)
+        return
+      }
+      const u = new SpeechSynthesisUtterance(slide.voiceText)
+      u.lang = "ja-JP"
+      u.onend = () => setAudioPlaying(false)
+      synth.cancel()
+      synth.speak(u)
+      setAudioPlaying(true)
+    }
+    const isLast = live.seq >= live.total
+    return (
+      <div className="d-learning">
+        <div className="d-learning-head">
+          <button onClick={onClose}>閉じる</button>
+          <span>
+            {live.seq} / {live.total || "—"}
+          </span>
+          <button className={audioPlaying ? "active" : ""} onClick={toggleAudio}>
+            <Icon name="audio" />
+            {audioPlaying ? "停止" : "音声"}
+          </button>
+        </div>
+        <div className="d-learning-progress">
+          <i style={{ width: `${live.total ? Math.round((live.seq / live.total) * 100) : 0}%` }} />
+        </div>
+        <p className="eyebrow">{lesson.title}</p>
+        {slide ? (
+          <>
+            <h1>{slide.title}</h1>
+            <p className="d-learning-lead">{slide.proposition ?? slide.bodyMd}</p>
+            {audioPlaying && (
+              <div className="d-audio-state">
+                <span className="live-dot" />
+                読み上げ中
+                <span className="d-audio-wave">〰 〰 〰</span>
+              </div>
+            )}
+            <div className="d-learning-tabs">
+              <button className={panel === "figure" ? "active" : ""} onClick={() => setPanel("figure")}>
+                医学図解
+              </button>
+              <button className={panel === "points" ? "active" : ""} onClick={() => setPanel("points")}>
+                要点だけ読む
+              </button>
+            </div>
+            {panel === "figure" ? (
+              <DImageSlot
+                kind="medical"
+                caption={figure?.caption ?? (slide.proposition ? slide.bodyMd : "このページの図解は準備中です。")}
+                image={figure ? { src: figure.src, alt: figure.altText ?? figure.caption ?? slide.title } : undefined}
+                onExpand={figure ? onZoom : undefined}
+              />
+            ) : (
+              <div className="d-key-list">
+                {keyPoints(slide).map((point, index) => (
+                  <div key={index}>
+                    <span>{index + 1}</span>
+                    <p>{point}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            {slide.detailMd && (
+              <>
+                <button className="d-disclosure" onClick={() => setDetailOpen(!detailOpen)}>
+                  <span>
+                    <b>もう少し詳しく</b>
+                    <small>{slide.title}</small>
+                  </span>
+                  <span>{detailOpen ? "−" : "＋"}</span>
+                </button>
+                {detailOpen && <div className="d-detail-copy">{slide.detailMd}</div>}
+              </>
+            )}
+          </>
+        ) : (
+          <h1>読み込んでいます…</h1>
+        )}
+        <div className="d-learning-actions">
+          <button onClick={live.onPrev}>前へ</button>
+          <button className="primary-button" onClick={live.onNext} disabled={!slide}>
+            {!isLast ? "次へ" : live.hasQuiz ? "理解を確認する" : "学習を終える"}
+            <Icon name="arrow" />
+          </button>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="d-learning">
       <div className="d-learning-head">
@@ -2303,23 +2692,30 @@ function DLearning({
   )
 }
 
+type AttemptQuestion = NonNullable<ReturnType<typeof useAttempt>["attempt"]>["questions"][number]
+
 function DQuiz({
   answer,
   setAnswer,
   onBack,
   onConfirm,
+  live,
 }: {
   answer: string
   setAnswer: (value: string) => void
   onBack: () => void
   onConfirm: () => void
+  /** 本番: 実際の設問（未回答の最初の 1 問）。「この回答で確定する」で 1 問ずつ記録する */
+  live?: { question: AttemptQuestion | null; index: number; total: number; busy: boolean }
 }) {
-  const answers = [
-    "痛みを我慢して大きく動かす",
-    "無理のない範囲でゆっくり動かす",
-    "診察まで腕をまったく動かさない",
-    "わからない",
-  ]
+  const answers = live?.question
+    ? [...live.question.options, "わからない"]
+    : [
+        "痛みを我慢して大きく動かす",
+        "無理のない範囲でゆっくり動かす",
+        "診察まで腕をまったく動かさない",
+        "わからない",
+      ]
   return (
     <div className="d-quiz">
       <div className="d-learning-head">
@@ -2328,10 +2724,12 @@ function DQuiz({
         <span />
       </div>
       <div className="d-learning-progress">
-        <i style={{ width: "82%" }} />
+        <i style={{ width: live ? `${live.total ? Math.round(((live.index + 1) / live.total) * 100) : 0}%` : "82%" }} />
       </div>
-      <p className="eyebrow">CHECK YOUR UNDERSTANDING</p>
-      <h1>腕を動かすとき、適切なのはどれですか？</h1>
+      <p className="eyebrow">
+        CHECK YOUR UNDERSTANDING{live && live.total > 1 ? ` · ${live.index + 1} / ${live.total}` : ""}
+      </p>
+      <h1>{live ? (live.question?.stem ?? "読み込んでいます…") : "腕を動かすとき、適切なのはどれですか？"}</h1>
       <p className="d-quiz-support">
         今の理解を振り返るための確認です。迷ったときは「わからない」を選べます。
       </p>
@@ -2355,10 +2753,10 @@ function DQuiz({
       </div>
       <button
         className="primary-button d-bottom-action"
-        disabled={!answer}
+        disabled={!answer || !!live?.busy || (!!live && !live.question)}
         onClick={onConfirm}
       >
-        この回答で確定する
+        {live?.busy ? "記録しています…" : "この回答で確定する"}
       </button>
     </div>
   )
@@ -2369,14 +2767,25 @@ function DExplanation({
   onBackToLesson,
   onNext,
   onAddQuestion,
+  live,
 }: {
   answer: string
   onBackToLesson: () => void
   onNext: () => void
   onAddQuestion: () => void
+  /** 本番: 記録した回答（サーバーの採点結果）と解説 */
+  live?: { question: AttemptQuestion | null; relatedTitle: string | null; remaining: number }
 }) {
-  const unsure = answer === "わからない"
-  const correct = answer === "無理のない範囲でゆっくり動かす"
+  const a = live?.question?.answer ?? null
+  const unsure = live ? !!a?.isUnknown : answer === "わからない"
+  const correct = live ? !!a?.isCorrect : answer === "無理のない範囲でゆっくり動かす"
+  const yourAnswer = live
+    ? a
+      ? a.isUnknown
+        ? "わからない"
+        : live.question!.options[a.selectedIndex ?? 0]
+      : "未選択"
+    : answer || "未選択"
   return (
     <div className="d-explanation">
       <div className={`d-answer-result ${correct ? "correct" : "review"}`}>
@@ -2396,8 +2805,23 @@ function DExplanation({
       </div>
       <div className="d-your-answer">
         <span>あなたの回答</span>
-        <b>{answer || "未選択"}</b>
+        <b>{yourAnswer}</b>
       </div>
+      {live ? (
+        <section className="d-explanation-copy">
+          <h2>解説</h2>
+          <p>{a?.explanation ?? ""}</p>
+          {a && !a.isCorrect && (
+            <div className="d-key-answer">
+              <Icon name="check" />
+              <span>
+                <b>確認したいポイント</b>
+                <p>正解は「{live.question!.options[a.correctIndex]}」です。</p>
+              </span>
+            </div>
+          )}
+        </section>
+      ) : (
       <section className="d-explanation-copy">
         <h2>解説</h2>
         <p>
@@ -2414,14 +2838,17 @@ function DExplanation({
           </span>
         </div>
       </section>
+      )}
+      {(!live || live.relatedTitle) && (
       <button className="d-link-card" onClick={onBackToLesson}>
         <Icon name="book" />
         <span>
           <b>関連する説明を読み直す</b>
-          <small>「腕の動かし方」のページへ戻る</small>
+          <small>「{live ? live.relatedTitle : "腕の動かし方"}」のページへ戻る</small>
         </span>
         <Icon name="arrow" />
       </button>
+      )}
       {!correct && (
         <button
           className="secondary-button d-question-candidate"
@@ -2435,7 +2862,7 @@ function DExplanation({
         この回答だけで、医学的な理解を判断するものではありません。
       </p>
       <button className="primary-button d-bottom-action" onClick={onNext}>
-        振り返りへ
+        {live && live.remaining > 0 ? "次の問題へ" : "振り返りへ"}
         <Icon name="arrow" />
       </button>
     </div>
@@ -2444,6 +2871,7 @@ function DExplanation({
 
 function DResult({
   answer,
+  live,
   healthDays,
   questionCount,
   motionEnabled,
@@ -2452,6 +2880,8 @@ function DResult({
   onHome,
 }: {
   answer: string
+  /** 本番: この教材の学習と理解確認の記録 */
+  live?: { title: string; slideCount: number; answered: number; needsReview: number; learnedCount: number }
   healthDays: number
   questionCount: number
   motionEnabled: boolean
@@ -2459,7 +2889,7 @@ function DResult({
   onNotes: () => void
   onHome: () => void
 }) {
-  const needsReview = answer !== "無理のない範囲でゆっくり動かす"
+  const needsReview = live ? live.needsReview > 0 : answer !== "無理のない範囲でゆっくり動かす"
   return (
     <div className={`d-result-page ${motionEnabled ? "" : "no-motion"}`}>
       <span className="d-result-mark">
@@ -2473,15 +2903,19 @@ function DResult({
       <div className="d-result-summary">
         <div>
           <span>教材</span>
-          <b>手術後の腕と傷のケア</b>
+          <b>{live ? live.title : "手術後の腕と傷のケア"}</b>
         </div>
         <div>
           <span>学習</span>
-          <b>3ページを確認</b>
+          <b>{live ? live.slideCount : 3}ページを確認</b>
         </div>
         <div>
           <span>理解確認</span>
-          <b>{needsReview ? "振り返りたい内容 1件" : "回答済み 1件"}</b>
+          <b>
+            {needsReview
+              ? `振り返りたい内容 ${live ? live.needsReview : 1}件`
+              : `回答済み ${live ? live.answered : 1}件`}
+          </b>
         </div>
       </div>
       <div className="d-growth-summary">
@@ -2489,15 +2923,16 @@ function DResult({
         <h2>これまでの積み重なり</h2>
         <div>
           <span>
-            <b>4</b>
+            <b>{live ? live.learnedCount : 4}</b>
             学んだ教材
           </span>
+          {/* 本番: 体調記録・診察ノートは Step 3 で接続するまで数えない（架空の値と実データを並べない） */}
           <span>
-            <b>{healthDays}</b>
+            <b>{live ? "—" : healthDays}</b>
             体調を記録した日
           </span>
           <span>
-            <b>{questionCount}</b>
+            <b>{live ? "—" : questionCount}</b>
             診察につなげた質問
           </span>
         </div>
@@ -2539,6 +2974,7 @@ function DHistory({
   onOpen: (lesson: DLesson) => void
   onCategory: (category: string) => void
 }) {
+  const categories = useContext(CategoriesContext)
   return (
     <div className="d-history">
       <p className="eyebrow">MY LEARNING</p>
@@ -2565,7 +3001,7 @@ function DHistory({
           </div>
         </div>
         <div className="d-area-list">
-          {dCategories.map((category) => {
+          {categories.map((category) => {
             const areaLessons = lessons.filter(
               (lesson) => lesson.category === category.name,
             )

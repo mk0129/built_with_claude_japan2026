@@ -217,6 +217,7 @@ export function useClinicianLive(initialSessionId: string | null, orgs: Clinicia
   const remainingSec = consult ? Math.max(0, Math.floor((new Date(consult.expiresAt).getTime() - now) / 1000)) : 0;
   return {
     state,
+    sessionId,
     setState,
     orgs,
     org,

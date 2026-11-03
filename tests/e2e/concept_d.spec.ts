@@ -62,18 +62,17 @@ test("患者: ログイン後に Figma 版ホーム。主要な画面遷移、�
   expect(css.font).toContain("Noto Sans JP");
   await expect(page.getByRole("heading", { name: "今日、確認すること" })).toBeVisible();
 
-  await page.getByRole("button", { name: /^教材を確認する/ }).click();
+  // 実データ（Step 2）: 今回の処方の教材 → 詳細 → 学習 → 再読み込みで同じページ → 閉じてホーム（理解確認の通しは prescribe_learn.spec.ts）
+  await page.locator(".d-next-card .primary-button").click();
   await expect(page).toHaveURL(/view=detail/);
-  await page.getByRole("button", { name: /学習を始める/ }).click();
+  await page.locator(".d-detail .d-bottom-action").click();
   await expect(page).toHaveURL(/view=learn/);
+  const heading = await page.locator(".d-learning h1").textContent();
   await page.reload();
-  await expect(page.getByRole("button", { name: "理解を確認する" })).toBeVisible();
-  await page.getByRole("button", { name: "理解を確認する" }).click();
-  await page.locator(".d-answer-list button").first().click();
-  await page.getByRole("button", { name: "この回答で確定する" }).click();
-  await page.getByRole("button", { name: "振り返りへ" }).click();
-  await page.getByRole("button", { name: "ホームへ戻る" }).click();
-  await expect(page).toHaveURL(/\/home$/);
+  await expect(page.locator(".d-learning h1")).toHaveText(heading ?? "");
+  await page.getByRole("button", { name: "閉じる" }).click();
+  await expect(page).toHaveURL(/\/home(\?lesson=[^&]+)?$/);
+  await expect(page.locator(".toast")).toContainText("学習位置を保存しました");
   for (const tab of ["教材を探す", "学習記録", "体調記録", "診察ノート"]) {
     await page.locator(".d-nav").getByRole("button", { name: tab }).click();
     await expect(page.locator(".d-nav button.active")).toContainText(tab);

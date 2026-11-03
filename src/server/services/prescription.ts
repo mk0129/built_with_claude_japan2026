@@ -26,7 +26,7 @@ import { computeMaterialScores } from "./scoring";
  * - 同一セット内の同一教材は 1 件に統合（unique(set_id, material_id)）
  * - 再処方しても learning_progress / quiz_attempts は版単位なので進捗・スコアが引き継がれる（RX-07）
  */
-export async function prescribe(ctx: ConsultationContext, materialIds: string[], db: Db = getDb()) {
+export async function prescribe(ctx: ConsultationContext, materialIds: string[], db: Db = getDb(), note: string | null = null) {
   const unique = [...new Set(materialIds)];
   if (unique.length === 0) throw badRequest("NO_MATERIALS");
   const resolved = await resolvePrescribableVersions(ctx.orgId, unique, db);
@@ -39,7 +39,7 @@ export async function prescribe(ctx: ConsultationContext, materialIds: string[],
     const [set] = await tx.select({ id: prescriptionSets.id }).from(prescriptionSets).where(eq(prescriptionSets.consultationSessionId, ctx.sessionId)).limit(1);
     await tx
       .insert(prescriptionItems)
-      .values(resolved.map((r) => ({ setId: set.id, materialId: r.materialId, materialVersionId: r.versionId, prescribedByUserId: ctx.clinician.userId })))
+      .values(resolved.map((r) => ({ setId: set.id, materialId: r.materialId, materialVersionId: r.versionId, prescribedByUserId: ctx.clinician.userId, note: note?.trim() || null })))
       .onConflictDoNothing({ target: [prescriptionItems.setId, prescriptionItems.materialId] });
     await tx
       .insert(notifications)
@@ -87,6 +87,8 @@ export type HomeworkItem = {
   scorePct: number | null;
   isOldVersion: boolean;
   oldVersionScorePct: number | null;
+  /** 医療者から患者へのメッセージ（任意） */
+  note: string | null;
 };
 
 export type HomeworkSet = {
@@ -127,6 +129,7 @@ export async function listHomeworkForPatient(patientId: string, db: Db = getDb()
       questionCount: sql<number>`(select count(*) from ${quizQuestions} where ${quizQuestions.materialVersionId} = ${materialVersions.id})`,
       prescribedBy: prescriptionItems.prescribedByUserId,
       prescribedAt: prescriptionItems.prescribedAt,
+      note: prescriptionItems.note,
     })
     .from(prescriptionItems)
     .innerJoin(materials, eq(materials.id, prescriptionItems.materialId))
@@ -179,6 +182,7 @@ export async function listHomeworkForPatient(patientId: string, db: Db = getDb()
           scorePct: sc?.scorePct ?? null,
           isOldVersion: sc?.isOldVersion ?? false,
           oldVersionScorePct: sc?.oldVersionScorePct ?? null,
+          note: i.note,
         };
       }),
   }));

@@ -9,6 +9,8 @@
 import { useState, useSyncExternalStore } from "react"
 import ClinicianD, { CIcon, type ClinicianDViewport } from "./ClinicianD"
 import { useClinicianLive, usePatientLive, type ClinicianOrg } from "./live"
+import { usePatientLearning } from "./learning"
+import { useClinicianRecord } from "./record"
 import { DPrototype, Icon, Logo, type DViewport } from "./PatientD"
 import { initialActiveSymptomIds, initialHealthRecords, type HealthRecord } from "./healthData"
 import { UrlInitContext, type UrlInit } from "./urlState"
@@ -61,18 +63,21 @@ function useMedia(query: string, serverValue: boolean) {
 }
 
 /** 患者: 700px 以下はスマートフォン表示（Figma の 390/430 は幅以外同一）、それより広い画面はタブレット表示 */
-export function PatientDApp({ initial = {} }: { initial?: UrlInit }) {
+export function PatientDApp({ initial = {}, userName }: { initial?: UrlInit; userName?: string }) {
   const s = useConceptDState()
   const tablet = useMedia("(min-width: 701px)", false)
   const connect = typeof initial.connect === "string" ? initial.connect : null
   const live = usePatientLive(connect, s.notify)
+  const learning = usePatientLearning(s.notify)
   return (
     <UrlInitContext.Provider value={initial}>
     <div className="d-app-stage">
-      <ProtoFlag />
+      <ProtoFlag long="体調記録・診察ノートは架空データ（未接続）" short="体調・ノートは架空" />
       <DPrototype
         variant="app"
         live={live}
+        learning={learning}
+        userName={userName}
         viewport={tablet ? "tablet" : "390"}
         notify={s.notify}
         healthRecords={s.healthRecords}
@@ -94,16 +99,20 @@ export function ClinicianDApp({ sessionId = null, orgs = [] }: { sessionId?: str
   const wide = useMedia("(min-width: 1180px)", true)
   // 一時共有の通知は Figma の医療者用トースト（.cd-toast）で出す
   const [notice, setNotice] = useState("")
-  const live = useClinicianLive(sessionId, orgs, (message) => {
+  const showNotice = (message: string) => {
     setNotice(message)
     window.setTimeout(() => setNotice(""), 2600)
-  })
+  }
+  const live = useClinicianLive(sessionId, orgs, showNotice)
+  // 患者が承認した有効な一時共有の間だけ、診察サマリーと処方の実データを読む（Step 2）
+  const record = useClinicianRecord(live.sessionId, live.state === "active", showNotice)
   return (
     <div className="cd-app-stage">
-      <ProtoFlag />
+      <ProtoFlag long="在宅経過・教材スタジオは架空データ（未接続）" short="在宅経過・スタジオは架空" />
       <ClinicianD
         variant="app"
         live={live}
+        record={record}
         viewport={wide ? "1180" : "820"}
         healthRecords={s.healthRecords}
         activeSymptomIds={s.activeSymptomIds}
@@ -119,12 +128,12 @@ export function ClinicianDApp({ sessionId = null, orgs = [] }: { sessionId?: str
   )
 }
 
-/** 実データ未接続の明示（Phase 2 で API に接続するまで表示する） */
-function ProtoFlag() {
+/** 実データ未接続の範囲の明示（Phase 2 の各 Step で API に接続するまで表示する） */
+function ProtoFlag({ long, short }: { long: string; short: string }) {
   return (
     <div className="proto-flag" role="note" data-proto-flag>
-      <span className="long">プロトタイプ表示・架空データ（実データ未接続）</span>
-      <span className="short">架空データ・未接続</span>
+      <span className="long">{long}</span>
+      <span className="short">{short}</span>
     </div>
   )
 }

@@ -49,6 +49,7 @@ export type QuestionView = {
   materialId: string;
   versionId: string;
   materialTitle: string;
+  primaryDomain: string;
   selection: FeedbackSelection;
   freeText: string | null;
   createdAt: Date;
@@ -63,6 +64,7 @@ async function loadQuestions(patientId: string, db: Db, onlyQuestions: boolean):
       versionId: patientFeedback.materialVersionId,
       materialId: materialVersions.materialId,
       materialTitle: materials.title,
+      primaryDomain: materials.primaryDomain,
       selection: patientFeedback.selection,
       freeText: patientFeedback.freeText,
       createdAt: patientFeedback.createdAt,

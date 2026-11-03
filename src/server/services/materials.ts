@@ -8,6 +8,7 @@ export type MaterialListItem = {
   versionId: string;
   title: string;
   summary: string | null;
+  objectives: string[];
   primaryDomain: string;
   tags: string[];
   scope: "common" | "org";
@@ -36,6 +37,7 @@ export async function listVisibleMaterials(
       versionId: materialVersions.id,
       title: materials.title,
       summary: materialVersions.summary,
+      objectives: materialVersions.learningObjectives,
       primaryDomain: materials.primaryDomain,
       tags: materials.tags,
       scope: materials.scope,

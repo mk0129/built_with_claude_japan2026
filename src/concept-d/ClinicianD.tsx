@@ -1,5 +1,7 @@
-import { useState, type ReactNode } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import type { ClinicianLive } from "./live"
+import type { ClinicianRecord, LiveConcern, LiveLibraryItem } from "./record"
+import { shortDate } from "./learning"
 import {
   currentVisitDate,
   formatShortDate,
@@ -317,9 +319,27 @@ const libraryItems = [
   },
 ]
 
+/** 質問・理解確認の項目（Figma の架空データ、または本番の LiveConcern） */
+type ConcernItem = {
+  id: number | string
+  type: string
+  tone: "purple" | "red" | "amber" | "blue"
+  title: string
+  area: string
+  detail: string
+  answer: string
+  source: string
+  symptomMention?: boolean
+} & Partial<Omit<LiveConcern, "id" | "type" | "tone" | "title" | "area" | "detail" | "answer" | "source">>
+/** 領域別の行 [領域, 学習, 確認問題, 要確認, 学習済みの割合, 本番の内訳] */
+type AreaRow = [string, string, string, string, number, { unknown: number; incomplete: boolean }?]
+/** 教材カード（Figma の架空データ、または本番の LiveLibraryItem） */
+type LibraryCard = Omit<(typeof libraryItems)[number], "id"> & { id: number | string } & Partial<Pick<LiveLibraryItem, "prescribedNow" | "prescribedBefore">>
+
 export default function ClinicianD({
   variant = "prototype",
   live,
+  record,
   viewport,
   healthRecords,
   activeSymptomIds,
@@ -329,6 +349,8 @@ export default function ClinicianD({
   variant?: "app" | "prototype"
   /** 本番: 一時共有の実 API（共有状態・残り時間・患者名・延長・終了）。なければ Figma の架空の状態 */
   live?: ClinicianLive
+  /** 本番（Step 2）: 診察サマリー・情報処方の実 API。なければ Figma の架空データ */
+  record?: ClinicianRecord
   viewport: ClinicianDViewport
   healthRecords: HealthRecord[]
   activeSymptomIds: string[]
@@ -341,8 +363,9 @@ export default function ClinicianD({
   const [visitPage, setVisitPage] = useState<VisitPage>("summary")
   const [clinicalScenario, setClinicalScenario] =
     useState<ClinicalScenario>("standard")
-  const [selectedConcern, setSelectedConcern] = useState(2)
-  const [prescription, setPrescription] = useState<number[]>([1, 2])
+  const [selectedConcern, setSelectedConcern] = useState<number | string>(2)
+  // 本番は選択なしから始める（Figma は架空の 2 件が選択済み）
+  const [prescription, setPrescription] = useState<(number | string)[]>(record ? [] : [1, 2])
   const [studioStep, setStudioStep] = useState(1)
   const [notice, setNotice] = useState("")
   const [extendLocal, setExtendLocal] = useState(false)
@@ -441,7 +464,12 @@ export default function ClinicianD({
                 >
                   <CIcon name="visit" />
                   診察
-                  {clinicalScenario !== "clear" && (
+                  {record ? (
+                    record.questions.length + record.checks.length > 0 && (
+                      <i>{record.questions.length + record.checks.length}</i>
+                    )
+                  ) : (
+                  clinicalScenario !== "clear" && (
                     <i>
                       {clinicalScenario === "many"
                         ? 7
@@ -449,6 +477,7 @@ export default function ClinicianD({
                           ? 2
                           : 4}
                     </i>
+                  )
                   )}
                 </button>
                 <button
@@ -548,9 +577,11 @@ export default function ClinicianD({
                   endSession={endSession}
                   scenario={clinicalScenario}
                   healthRecords={healthRecords}
+                  record={record}
                 />
               )}
-              {workspace === "course" && (
+              {workspace === "course" && record && <NotConnected title="在宅経過" step="Step 3・4" />}
+              {workspace === "course" && !record && (
                 <HomeCourse
                   records={healthRecords}
                   activeSymptomIds={activeSymptomIds}
@@ -560,6 +591,7 @@ export default function ClinicianD({
               {workspace === "library" && (
                 <PrescriptionLibrary
                   standalone
+                  record={record}
                   selected={prescription}
                   setSelected={setPrescription}
                   onReview={() => {
@@ -903,23 +935,27 @@ function VisitWorkspace({
   endSession,
   scenario,
   healthRecords,
+  record,
 }: {
   page: VisitPage
   setPage: (page: VisitPage) => void
-  selectedConcern: number
-  setSelectedConcern: (id: number) => void
-  prescription: number[]
-  setPrescription: (ids: number[]) => void
+  selectedConcern: number | string
+  setSelectedConcern: (id: number | string) => void
+  prescription: (number | string)[]
+  setPrescription: (ids: (number | string)[]) => void
   notify: (message: string) => void
   endSession: () => void
   scenario: ClinicalScenario
   healthRecords: HealthRecord[]
+  record?: ClinicianRecord
 }) {
+  const [sentCount, setSentCount] = useState(0)
   if (page === "summary")
     return (
       <Summary
         scenario={scenario}
         healthRecords={healthRecords}
+        record={record}
         onConcern={(id) => {
           setSelectedConcern(id)
           setPage("detail")
@@ -931,13 +967,25 @@ function VisitWorkspace({
     return (
       <ConcernDetail
         concern={
-          [...concerns, ...extraQuestions].find(
-            (item) => item.id === selectedConcern,
-          ) || concerns[0]
+          record
+            ? ([...record.questions, ...record.checks].find((item) => item.id === selectedConcern) as ConcernItem | undefined) ??
+              null
+            : ([...concerns, ...extraQuestions].find(
+                (item) => item.id === selectedConcern,
+              ) || concerns[0])
         }
+        record={record}
         onBack={() => setPage("summary")}
         onAdd={() => {
-          if (!prescription.includes(1)) setPrescription([...prescription, 1])
+          const target = record
+            ? [...record.questions, ...record.checks].find((item) => item.id === selectedConcern)?.materialId
+            : 1
+          if (target === undefined) return
+          if (record?.library?.find((item) => item.id === target)?.prescribedNow) {
+            notify("この教材は、この診察で処方済みです")
+            return
+          }
+          if (!prescription.includes(target)) setPrescription([...prescription, target])
           notify("関連教材を処方候補へ追加しました")
         }}
         onSave={notify}
@@ -947,6 +995,7 @@ function VisitWorkspace({
   if (page === "prescribe")
     return (
       <PrescriptionLibrary
+        record={record}
         selected={prescription}
         setSelected={setPrescription}
         onReview={() => setPage("review")}
@@ -956,14 +1005,23 @@ function VisitWorkspace({
   if (page === "review")
     return (
       <PrescriptionReview
+        record={record}
         selected={prescription}
         onBack={() => setPage("prescribe")}
-        onConfirm={() => setPage("sent")}
+        onConfirm={async (note) => {
+          if (!record) return setPage("sent")
+          const n = await record.prescribe(prescription.map(String), note)
+          if (n === null) return
+          setSentCount(n)
+          setPrescription([])
+          setPage("sent")
+        }}
       />
     )
   return (
     <PrescriptionSent
-      count={prescription.length}
+      record={record}
+      count={record ? sentCount : prescription.length}
       onSummary={() => setPage("summary")}
       onEnd={endSession}
     />
@@ -979,6 +1037,210 @@ function dateRange(start: string, end: string) {
     cursor.setDate(cursor.getDate() + 1)
   }
   return result
+}
+
+/** 本番で未接続の画面（架空データを表示しない） */
+function NotConnected({ title, step }: { title: string; step: string }) {
+  return (
+    <div className="cd-content">
+      <div className="cd-page-head">
+        <div>
+          <p className="cd-eyebrow">NOT CONNECTED</p>
+          <h1>{title}</h1>
+          <p>
+            この画面は{step}で実データに接続します。それまでは架空データを表示しません。
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * 本番（Step 2）の「前回外来からの経過」: 学習記録と質問だけを、保存された記録から構成する。
+ * 体調記録（バイタル・自覚症状）は Step 3・4 で接続するまで「未接続」と表示し、架空の値は出さない。
+ */
+function LiveIntervisit({ record }: { record: ClinicianRecord }) {
+  const [expanded, setExpanded] = useState<"learning" | "questions" | null>(null)
+  const [timelineOpen, setTimelineOpen] = useState(false)
+  const s = record.summary!
+  const prev = s.previousConsultations[0]
+  const rx = s.learning.filter((item) => item.prescribed)
+  const done = rx.filter((item) => item.phase === "completed").length
+  const doing = rx.filter((item) => item.phase === "reading" || item.phase === "quiz").length
+  const notStarted = rx.filter((item) => item.phase === "not_started").length
+  const wrong = s.answers.filter((a) => !a.isCorrect && !a.isUnknown).length
+  const unknown = s.answers.filter((a) => a.isUnknown).length
+  const events = [
+    ...s.learning
+      .filter((item) => item.prescribedAt)
+      .map((item) => ({ date: item.prescribedAt!, type: "learning", title: `処方：${item.title}`, detail: item.prescribedOrgName ?? "" })),
+    ...s.learning
+      .filter((item) => item.completedAt)
+      .map((item) => ({ date: item.completedAt!, type: "learning", title: `学習済み：${item.title}`, detail: "理解確認まで完了" })),
+    ...s.answers
+      .filter((a) => !a.isCorrect)
+      .map((a) => ({ date: a.answeredAt, type: "learning", title: `回答「${a.isUnknown ? "わからない" : a.selectedText}」`, detail: `${a.materialTitle} · ${a.stem}` })),
+    ...s.questions.map((q) => ({ date: q.createdAt, type: "question", title: q.freeText ?? "質問（自由記述なし）", detail: q.materialTitle })),
+  ].sort((a, b) => a.date.localeCompare(b.date))
+  return (
+    <section className="cd-intervisit">
+      <div className="cd-intervisit-head">
+        <div>
+          <p className="cd-eyebrow">SINCE LAST VISIT</p>
+          <h2>前回外来からの経過</h2>
+          <span>
+            {prev ? `${shortDate(prev.startedAt)} 前回の共有` : "前回の共有記録なし"} 〜 {shortDate(new Date())} 今回
+          </span>
+        </div>
+      </div>
+      <div className="cd-medical-summary">
+        <div className="cd-summary-narrative">
+          <b>保存された学習記録と質問</b>
+          <p>
+            <strong>体調の変化：</strong>
+            体調記録は未接続のため表示していません。
+          </p>
+          <p>
+            <strong>学習の状況：</strong>
+            {rx.length
+              ? `処方された教材${rx.length}件のうち、学習済み${done}件・学習途中${doing}件・未学習${notStarted}件。`
+              : "処方された教材はありません。"}
+            {s.answers.length
+              ? `理解確認の回答${s.answers.length}件のうち、誤答${wrong}件・「わからない」${unknown}件。`
+              : "理解確認への回答はありません。"}
+          </p>
+          <p>
+            <strong>患者からの質問：</strong>
+            {s.questions.length ? `${s.questions.length}件（下の「患者が診察で聞きたいこと」に原文）` : "ありません"}
+          </p>
+        </div>
+        <p className="cd-summary-safety">
+          <CIcon name="shield" />
+          保存された学習記録と質問のみから構成。点数で理解を断定せず、原因・治療との因果関係・CTCAE Gradeを自動判定しません。
+        </p>
+      </div>
+      <div className="cd-intervisit-cards">
+        <article>
+          <button disabled>
+            <span className="blue">
+              <CIcon name="pulse" />
+            </span>
+            <div>
+              <small>バイタル</small>
+              <b>未接続</b>
+              <p>体調記録はStep 3で接続</p>
+            </div>
+            <span />
+          </button>
+        </article>
+        <article>
+          <button disabled>
+            <span className="amber">
+              <CIcon name="help" />
+            </span>
+            <div>
+              <small>自覚症状</small>
+              <b>未接続</b>
+              <p>体調記録はStep 3で接続</p>
+            </div>
+            <span />
+          </button>
+        </article>
+        <article className={expanded === "learning" ? "active" : ""}>
+          <button onClick={() => setExpanded(expanded === "learning" ? null : "learning")}>
+            <span className="green">
+              <CIcon name="book" />
+            </span>
+            <div>
+              <small>学習履歴</small>
+              <b>
+                完了{done} · 途中{doing}
+              </b>
+              <p>
+                誤答{wrong} · 「わからない」{unknown}
+              </p>
+            </div>
+            <span>{expanded === "learning" ? "閉じる" : "根拠"}</span>
+          </button>
+          {expanded === "learning" && (
+            <div className="cd-summary-evidence" data-learning-evidence>
+              {rx.map((item) => (
+                <p key={item.materialId}>
+                  {item.prescribedAt ? `${shortDate(item.prescribedAt)} 処方` : "処方"}：{item.title}（
+                  {item.phase === "completed" ? "学習済み" : item.phase === "not_started" ? "未学習" : "学習途中"}）
+                </p>
+              ))}
+              {s.answers
+                .filter((a) => !a.isCorrect)
+                .map((a) => (
+                  <p key={`${a.attemptId}${a.questionId}`}>
+                    {shortDate(a.answeredAt)} 回答：「{a.isUnknown ? "わからない" : a.selectedText}」— {a.stem}
+                  </p>
+                ))}
+              {rx.length === 0 && s.answers.length === 0 && <p>記録はありません</p>}
+            </div>
+          )}
+        </article>
+        <article className={expanded === "questions" ? "active" : ""}>
+          <button onClick={() => setExpanded(expanded === "questions" ? null : "questions")}>
+            <span className="purple">
+              <CIcon name="note" />
+            </span>
+            <div>
+              <small>患者の質問</small>
+              <b>{s.questions.length ? `${shortDate(s.questions[0].createdAt)}に保存` : "なし"}</b>
+              <p>{s.questions.length ? `${s.questions.length}件` : "質問はありません"}</p>
+            </div>
+            <span>{expanded === "questions" ? "閉じる" : "原文"}</span>
+          </button>
+          {expanded === "questions" && (
+            <div className="cd-summary-evidence">
+              {s.questions.map((q) => (
+                <p key={q.feedbackId}>「{q.freeText ?? "（自由記述なし）"}」</p>
+              ))}
+              {s.questions.length === 0 && <p>質問はありません</p>}
+            </div>
+          )}
+        </article>
+      </div>
+      <div className="cd-integrated-timeline">
+        <button onClick={() => setTimelineOpen(!timelineOpen)}>
+          <span>
+            <CIcon name="clock" />
+            <b>学習・質問のタイムライン</b>
+          </span>
+          {timelineOpen ? "閉じる" : "表示"}
+        </button>
+        {timelineOpen && (
+          <div>
+            {events.map((event, index) => (
+              <article key={`${event.date}-${index}`}>
+                <time>{shortDate(event.date)}</time>
+                <span className={event.type}>
+                  <CIcon name={event.type === "question" ? "note" : "book"} />
+                </span>
+                <div>
+                  <b>{event.title}</b>
+                  <small>{event.detail}</small>
+                </div>
+              </article>
+            ))}
+            {events.length === 0 && (
+              <article>
+                <div>
+                  <b>記録はありません</b>
+                </div>
+              </article>
+            )}
+          </div>
+        )}
+      </div>
+      <p className="cd-summary-limit">
+        学習していない日・回答していない設問は欠測です。この要約は診療判断を補助する参考情報で、正式な診療記録ではありません。
+      </p>
+    </section>
+  )
 }
 
 function IntervisitSummary({ records }: { records: HealthRecord[] }) {
@@ -1962,28 +2224,39 @@ function VitalCombinedGraph({
 function Summary({
   scenario,
   healthRecords,
+  record,
   onConcern,
   onPrescribe,
 }: {
   scenario: ClinicalScenario
   healthRecords: HealthRecord[]
-  onConcern: (id: number) => void
+  record?: ClinicianRecord
+  onConcern: (id: number | string) => void
   onPrescribe: () => void
 }) {
   const [areaDetail, setAreaDetail] = useState<string | null>(null)
-  const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null)
-  const [expandedCheck, setExpandedCheck] = useState<number | null>(null)
-  const questions =
+  const [expandedQuestion, setExpandedQuestion] = useState<number | string | null>(null)
+  const [expandedCheck, setExpandedCheck] = useState<number | string | null>(null)
+  // 本番: サマリーを開くたびに最新の学習記録を読み直す
+  useEffect(() => {
+    void record?.reload()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const figmaQuestions: ConcernItem[] =
     scenario === "clear"
       ? []
       : scenario === "many"
         ? [concerns[0], ...extraQuestions]
         : [concerns[0], extraQuestions[0]]
-  const checks =
-    scenario === "clear" || scenario === "noQuiz"
+  const questions: ConcernItem[] = record ? record.questions : figmaQuestions
+  const checks: ConcernItem[] = record
+    ? record.checks
+    : scenario === "clear" || scenario === "noQuiz"
       ? []
       : concerns.filter((item) => item.id === 2 || item.id === 3)
-  const displayedAreas =
+  // 理解確認への回答がない（Figma の検証シナリオ D と同じ表示）。0% とは表示しない
+  const noQuiz = record ? (record.summary?.answers.length ?? 0) === 0 : scenario === "noQuiz"
+  const figmaAreas =
     scenario === "clear"
       ? areas.map((area) => [
           area[0],
@@ -1995,6 +2268,13 @@ function Summary({
       : scenario === "noQuiz"
         ? areas.map((area) => [area[0], area[1], "未回答", "なし", area[4]])
         : areas
+  const displayedAreas = (record ? record.areas : figmaAreas) as unknown as AreaRow[]
+  if (record && !record.loaded)
+    return (
+      <div className="cd-content cd-summary">
+        <p>診察サマリーを読み込んでいます…</p>
+      </div>
+    )
   return (
     <div className="cd-content cd-summary">
       <div className="cd-title-row">
@@ -2010,7 +2290,11 @@ function Summary({
           閲覧だけで終了できます。診療記録は電子カルテへ。
         </p>
       </div>
-      <IntervisitSummary records={healthRecords} />
+      {record?.summary ? (
+        <LiveIntervisit record={record} />
+      ) : (
+        <IntervisitSummary records={healthRecords} />
+      )}
       <div className="cd-clinical-grid">
         <div className="cd-clinical-main">
           <section className="cd-panel cd-question-priority">
@@ -2061,7 +2345,7 @@ function Summary({
                       <div className="cd-question-expanded">
                         <p>{item.detail}</p>
                         <div>
-                          <span>関連教材：手術後の腕と傷のケア</span>
+                          <span>関連教材：{item.materialTitle ?? "手術後の腕と傷のケア"}</span>
                           <button onClick={() => onConcern(item.id)}>
                             詳しく確認
                             <CIcon name="arrow" />
@@ -2089,20 +2373,22 @@ function Summary({
                 <h2>理解を確認したいこと</h2>
               </div>
               <Badge tone={checks.length ? "amber" : "green"}>
-                {scenario === "noQuiz"
+                {noQuiz
                   ? "未回答"
                   : checks.length
                     ? `${checks.length}件`
                     : "要確認なし"}
               </Badge>
             </div>
-            {scenario === "noQuiz" ? (
+            {noQuiz ? (
               <div className="cd-unanswered">
                 <CIcon name="help" />
                 <div>
                   <b>確認問題は未回答です</b>
                   <p>
-                    教材は学習済みですが、理解確認への回答はありません。理解度0%とは表示しません。
+                    {record
+                      ? "理解確認への回答はまだありません。理解度0%とは表示しません。"
+                      : "教材は学習済みですが、理解確認への回答はありません。理解度0%とは表示しません。"}
                   </p>
                 </div>
               </div>
@@ -2136,10 +2422,18 @@ function Summary({
                         </p>
                         <p>
                           <b>正答・解説：</b>
-                          無理のない範囲でゆっくり動かします。適切な範囲は術式や傷の状態で異なります。
+                          {item.correct
+                            ? `「${item.correct}」 ${item.explanation ?? ""}`
+                            : "無理のない範囲でゆっくり動かします。適切な範囲は術式や傷の状態で異なります。"}
                         </p>
+                        {item.source && record && (
+                          <p>
+                            <b>回答：</b>
+                            {item.source}
+                          </p>
+                        )}
                         <div>
-                          <span>関連教材：手術後の腕と傷のケア</span>
+                          <span>関連教材：{item.materialTitle ?? "手術後の腕と傷のケア"}</span>
                           <button onClick={() => onConcern(item.id)}>
                             詳しく確認
                           </button>
@@ -2192,11 +2486,18 @@ function Summary({
                   {areaDetail === area[0] && (
                     <div>
                       <p>
-                        途中・未学習：{Number(area[4]) < 100 ? "あり" : "なし"}
+                        途中・未学習：
+                        {(area[5] ? area[5].incomplete : Number(area[4]) < 100) ? "あり" : "なし"}
                       </p>
                       <p>
                         「わからない」：
-                        {String(area[3]).includes("不明") ? "1件" : "なし"}
+                        {area[5]
+                          ? area[5].unknown
+                            ? `${area[5].unknown}件`
+                            : "なし"
+                          : String(area[3]).includes("不明")
+                            ? "1件"
+                            : "なし"}
                       </p>
                     </div>
                   )}
@@ -2208,7 +2509,7 @@ function Summary({
               学習進捗と確認問題は別の指標です。医学的理解を断定しません。
             </p>
           </section>
-          {scenario !== "clear" && (
+          {(record ? questions.length + checks.length > 0 : scenario !== "clear") && (
             <section className="cd-panel cd-suggested-prescription">
               <div>
                 <span className="blue">
@@ -2235,23 +2536,48 @@ function Summary({
 }
 
 function ConcernDetail({
-  concern,
+  concern: concernOrNull,
+  record,
   onBack,
   onAdd,
   onSave,
   onNext,
 }: {
-  concern: typeof concerns[0]
+  concern: ConcernItem | null
+  record?: ClinicianRecord
   onBack: () => void
   onAdd: () => void
   onSave: (message: string) => void
   onNext: () => void
 }) {
-  const [status, setStatus] = useState<"unread" | "reviewed" | "addressed">(
+  const [statusLocal, setStatus] = useState<"unread" | "reviewed" | "addressed">(
     "unread",
   )
   const [memoOpen, setMemoOpen] = useState(false)
   const [memo, setMemo] = useState("")
+  if (!concernOrNull)
+    return (
+      <div className="cd-content">
+        <button className="cd-back" onClick={onBack}>
+          ← 戻る
+        </button>
+        <p>この項目は表示できません。</p>
+      </div>
+    )
+  const concern = concernOrNull
+  // 本番: 質問の確認状態は DB に記録（任意・診療記録ではない）。理解確認の項目は状態を持たない
+  const status: "unread" | "reviewed" | "addressed" = record
+    ? concern.status === "resolved"
+      ? "addressed"
+      : concern.status === "reviewed"
+        ? "reviewed"
+        : "unread"
+    : statusLocal
+  const changeStatus = (next: "reviewed" | "addressed") => {
+    if (!record) return setStatus(next)
+    if (concern.feedbackId)
+      void record.setQuestionStatus(concern.feedbackId, next === "addressed" ? "resolved" : "reviewed")
+  }
   return (
     <div className="cd-content">
       <div className="cd-page-head">
@@ -2293,11 +2619,17 @@ function ConcernDetail({
             )}
           </div>
           {concern.type === "患者の質問" ? (
+            (!record || concern.related) && (
             <div className="cd-related-check">
               <span>関連する理解確認</span>
-              <b>手術後の腕の動かし方 · 回答「わからない」</b>
+              <b>
+                {concern.related
+                  ? `${concern.related.stem} · 回答「${concern.related.answer}」`
+                  : "手術後の腕の動かし方 · 回答「わからない」"}
+              </b>
               <small>患者の質問と関連する可能性がある項目として表示</small>
             </div>
+            )
           ) : (
             <div className="cd-answer-compare">
               <div>
@@ -2306,24 +2638,27 @@ function ConcernDetail({
               </div>
               <div>
                 <span>正答・確認ポイント</span>
-                <b>無理のない範囲でゆっくり動かす</b>
+                <b>{concern.correct ?? "無理のない範囲でゆっくり動かす"}</b>
               </div>
             </div>
           )}
+          {(!record || concern.explanation) && (
           <div className="cd-explanation">
             <h3>解説</h3>
             <p>
-              手術方法や傷の状態によって適切な範囲は異なります。強い痛みを我慢せず、担当医療者から伝えられた範囲を優先します。
+              {concern.explanation ??
+                "手術方法や傷の状態によって適切な範囲は異なります。強い痛みを我慢せず、担当医療者から伝えられた範囲を優先します。"}
             </p>
           </div>
+          )}
           <div className="cd-related-material">
             <span>
               <CIcon name="book" />
             </span>
             <div>
               <small>関連教材</small>
-              <b>手術後の腕と傷のケア</b>
-              <p>最終学習 6月13日 · 途中 66%</p>
+              <b>{concern.materialTitle ?? "手術後の腕と傷のケア"}</b>
+              <p>{record ? concern.materialStatus || "学習記録なし" : "最終学習 6月13日 · 途中 66%"}</p>
             </div>
             <button onClick={onAdd}>
               <CIcon name="plus" />
@@ -2341,34 +2676,38 @@ function ConcernDetail({
           <p className="cd-no-action-required">
             内容を読むだけで完了できます。shioriへの記録やチェックは必須ではありません。
           </p>
+          {(!record || concern.kind === "question") && (
           <div className="cd-status-actions">
             <button
               className={status === "reviewed" ? "active" : ""}
-              onClick={() => setStatus("reviewed")}
+              onClick={() => changeStatus("reviewed")}
             >
               <CIcon name="eye" />
               確認済みにする
             </button>
             <button
               className={status === "addressed" ? "active" : ""}
-              onClick={() => setStatus("addressed")}
+              onClick={() => changeStatus("addressed")}
             >
               <CIcon name="check" />
               対応済みにする
               <small>診療記録ではありません</small>
             </button>
           </div>
+          )}
           <button
             className="cd-copy-question"
             onClick={() => {
-              void navigator.clipboard?.writeText(concern.title)
-              onSave("患者の質問をコピーしました（架空情報）")
+              void navigator.clipboard?.writeText(record ? concern.detail : concern.title)
+              onSave(record ? "コピーしました" : "患者の質問をコピーしました（架空情報）")
             }}
           >
             <CIcon name="note" />
-            患者の質問をコピー
-            <small>架空情報 · 院内ルールを確認</small>
+            {record && concern.kind === "check" ? "設問をコピー" : "患者の質問をコピー"}
+            <small>{record ? "院内ルールを確認" : "架空情報 · 院内ルールを確認"}</small>
           </button>
+          {/* 任意メモは保存先がないため、本番では出さない（保存したように見せない） */}
+          {!record && (
           <button
             className="cd-optional-memo-toggle"
             onClick={() => setMemoOpen(!memoOpen)}
@@ -2376,7 +2715,8 @@ function ConcernDetail({
             <CIcon name="edit" />
             {memoOpen ? "任意メモを閉じる" : "任意メモを追加"}
           </button>
-          {memoOpen && (
+          )}
+          {!record && memoOpen && (
             <div className="cd-optional-memo">
               <label>
                 補助メモ（任意・正式な診療記録ではありません）
@@ -2418,21 +2758,25 @@ function PrescriptionLibrary({
   onReview,
   onBack,
   standalone = false,
+  record,
 }: {
-  selected: number[]
-  setSelected: (ids: number[]) => void
+  selected: (number | string)[]
+  setSelected: (ids: (number | string)[]) => void
   onReview: () => void
   onBack?: () => void
   standalone?: boolean
+  /** 本番: 公開・承認済みの教材（共通＋自施設）と、この診察での処方状況 */
+  record?: ClinicianRecord
 }) {
   const [query, setQuery] = useState("")
   const [area, setArea] = useState("すべて")
-  const results = libraryItems.filter(
+  const items: LibraryCard[] = record ? (record.library ?? []) : libraryItems
+  const results = items.filter(
     (item) =>
       (area === "すべて" || item.area === area) &&
       `${item.title}${item.goal}${item.target}`.includes(query),
   )
-  const toggle = (id: number) =>
+  const toggle = (id: number | string) =>
     setSelected(
       selected.includes(id)
         ? selected.filter((item) => item !== id)
@@ -2509,14 +2853,27 @@ function PrescriptionLibrary({
               <p>
                 <CIcon name="check" />
                 医学的承認済み · 公開中
+                {item.prescribedBefore ? " · 以前に処方" : ""}
               </p>
+              {item.prescribedNow ? (
+                // 同じ診察では同じ教材を重複して処方しない
+                <button className="selected" disabled>
+                  <CIcon name="check" />
+                  この診察で処方済み
+                </button>
+              ) : (
               <button
                 className={selected.includes(item.id) ? "selected" : ""}
                 onClick={() => toggle(item.id)}
               >
                 <CIcon name={selected.includes(item.id) ? "check" : "plus"} />
-                {selected.includes(item.id) ? "選択済み" : "処方に追加"}
+                {selected.includes(item.id)
+                  ? "選択済み"
+                  : item.prescribedBefore
+                    ? "再処方に追加"
+                    : "処方に追加"}
               </button>
+              )}
             </div>
           </article>
         ))}
@@ -2536,12 +2893,16 @@ function PrescriptionReview({
   selected,
   onBack,
   onConfirm,
+  record,
 }: {
-  selected: number[]
+  selected: (number | string)[]
   onBack: () => void
-  onConfirm: () => void
+  onConfirm: (message: string) => void
+  record?: ClinicianRecord
 }) {
   const [message, setMessage] = useState("")
+  const [sending, setSending] = useState(false)
+  const items: LibraryCard[] = record ? (record.library ?? []) : libraryItems
   return (
     <div className="cd-content">
       <div className="cd-page-head">
@@ -2560,7 +2921,7 @@ function PrescriptionReview({
             <Badge>{selected.length}件</Badge>
           </div>
           <div className="cd-selected-materials">
-            {libraryItems
+            {items
               .filter((item) => selected.includes(item.id))
               .map((item, index) => (
                 <div key={item.id}>
@@ -2571,7 +2932,7 @@ function PrescriptionReview({
                       {item.area} · {item.time}分 · {item.scope}
                     </small>
                   </div>
-                  <Badge tone="green">承認済み</Badge>
+                  <Badge tone="green">{item.prescribedBefore ? "再処方" : "承認済み"}</Badge>
                 </div>
               ))}
           </div>
@@ -2588,12 +2949,19 @@ function PrescriptionReview({
           <small>{message.length} / 120文字</small>
           <div className="cd-confirm-recipient">
             <span>届け先</span>
-            <b>佐藤 花子さん</b>
+            <b>{record ? `${record.summary?.patientName ?? ""}さん` : "佐藤 花子さん"}</b>
           </div>
           <button
             className="cd-primary"
-            disabled={selected.length === 0}
-            onClick={onConfirm}
+            disabled={selected.length === 0 || sending}
+            onClick={async () => {
+              setSending(true)
+              try {
+                await onConfirm(message)
+              } finally {
+                setSending(false)
+              }
+            }}
           >
             <CIcon name="book" />
             {selected.length}件の情報処方を確定
@@ -2609,11 +2977,14 @@ function PrescriptionSent({
   count,
   onSummary,
   onEnd,
+  record,
 }: {
   count: number
   onSummary: () => void
   onEnd: () => void
+  record?: ClinicianRecord
 }) {
+  const family = (record?.summary?.patientName ?? "").split(/[\s　]/)[0]
   return (
     <div className="cd-content cd-sent">
       <span>
@@ -2623,14 +2994,14 @@ function PrescriptionSent({
       <h1>情報処方を届けました</h1>
       <p>
         {count}
-        件の教材が、佐藤さんの患者アプリ「今回の学び」に反映されました。
+        件の教材が、{record ? family : "佐藤"}さんの患者アプリ「今回の学び」に反映されました。
       </p>
       <div className="cd-patient-reflection">
         <CIcon name="user" />
         <div>
           <small>患者アプリでの表示</small>
           <b>今回の情報処方 · 新しい教材 {count}件</b>
-          <p>乳腺外科 山田医師から · ただいま</p>
+          <p>{record?.summary?.currentSet ? "この診察の情報処方 · ただいま" : "乳腺外科 山田医師から · ただいま"}</p>
         </div>
       </div>
       <div className="cd-sent-actions">

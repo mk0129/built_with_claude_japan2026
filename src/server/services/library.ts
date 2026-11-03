@@ -18,7 +18,7 @@ export type LibraryItem = {
   slideCount: number;
   questionCount: number;
   /** 処方の有無（最新の処方）。latest = 最新の処方セットに含まれる */
-  prescribed: null | { setId: string; createdAt: Date; orgName: string; latest: boolean };
+  prescribed: null | { setId: string; createdAt: Date; orgName: string; clinicianName: string; latest: boolean; note: string | null };
   /** 処方されていない教材を自分で学び始めたか */
   selfLearning: boolean;
   phase: Phase;
@@ -58,8 +58,10 @@ export async function getPatientLibrary(patientId: string, db: Db = getDb()): Pr
   const sets = await listHomeworkForPatient(patientId, db);
   const latestSetId = sets[0]?.setId ?? null;
   // 教材ごとの最新処方（sets は新しい順）
-  const rxByMaterial = new Map<string, { setId: string; createdAt: Date; orgName: string; item: (typeof sets)[number]["items"][number] }>();
-  for (const s of sets) for (const i of s.items) if (!rxByMaterial.has(i.materialId)) rxByMaterial.set(i.materialId, { setId: s.setId, createdAt: s.createdAt, orgName: s.orgName, item: i });
+  const rxByMaterial = new Map<string, { setId: string; createdAt: Date; orgName: string; clinicianName: string; item: (typeof sets)[number]["items"][number] }>();
+  for (const s of sets)
+    for (const i of s.items)
+      if (!rxByMaterial.has(i.materialId)) rxByMaterial.set(i.materialId, { setId: s.setId, createdAt: s.createdAt, orgName: s.orgName, clinicianName: s.clinicianName, item: i });
 
   const ids = [...new Set([...published.map((p) => p.materialId), ...rxByMaterial.keys()])];
   const scores = new Map((await computeMaterialScores(patientId, ids, db)).map((s) => [s.materialId, s]));
@@ -85,7 +87,7 @@ export async function getPatientLibrary(patientId: string, db: Db = getDb()): Pr
       ownerOrgName: pub?.ownerOrgName ?? null,
       slideCount: rx.item.slideCount,
       questionCount: rx.item.questionCount,
-      prescribed: { setId: rx.setId, createdAt: rx.createdAt, orgName: rx.orgName, latest: rx.setId === latestSetId },
+      prescribed: { setId: rx.setId, createdAt: rx.createdAt, orgName: rx.orgName, clinicianName: rx.clinicianName, latest: rx.setId === latestSetId, note: rx.item.note },
       selfLearning: false,
       phase: rx.item.phase as Phase,
       lastSlideSeq: rx.item.lastSlideSeq,
