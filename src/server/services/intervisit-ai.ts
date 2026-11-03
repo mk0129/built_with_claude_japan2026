@@ -84,6 +84,15 @@ export function validateItems(items: SummaryItem[], iv: Intervisit) {
     const pool = srcs.flatMap((x) => x!.values).join(" ");
     // 引用（「」内）は根拠の原文・教材名・設問に含まれる文字列であること（質問の意味を変えない）
     for (const q of quotes(item.text)) if (q && !pool.includes(q) && !["わからない", "誤答", "正答"].includes(q)) return reject("引用が原文と一致しない");
+    // 患者の質問: 「患者からの質問」の節では、参照した質問の原文全体をそのまま「」で引用する（意味を変えない）。
+    // 言い換え（引用符なしの短い言及）は「時系列の経過」の節だけで許す。言い換えを「」に入れて直接引用のように見せることは上の引用の照合で拒否される
+    const qSrcs = srcs.filter((x) => x!.kind === "vn" || x!.kind === "fb")
+    if (item.section === "患者からの質問") {
+      if (qSrcs.length === 0 && !/質問は(ありません|ない)/.test(plain)) return reject("質問の根拠がない");
+      for (const x of qSrcs) if (!quotes(item.text).includes(x!.body ?? "")) return reject("質問の原文が引用されていない");
+    } else if (qSrcs.length > 0 && item.section !== "時系列の経過") {
+      for (const x of qSrcs) if (!quotes(item.text).includes(x!.body ?? "")) return reject("質問の言い換えは時系列の経過だけで使える");
+    }
     // 日付は根拠の出来事の日付（日本時間）か期間の端であること
     const okDays = new Set<string>();
     for (const x of srcs) if (x!.at) okDays.add(fmtShort(x!.at));
@@ -103,16 +112,63 @@ export function validateItems(items: SummaryItem[], iv: Intervisit) {
     for (const n of numbers(pool.replace(/\/\s*4(?!\d)/g, " ").replace(/\d{4}-\d{2}-\d{2}(T[\d:.]+Z?)?/g, " ").replace(/\d{1,2}月\d{1,2}日/g, " ").replace(/\d{1,2}:\d{2}/g, " "))) addNum(n);
     addNum(String(iv.period.days));
     // 日付・時刻は上で確認済み。「n/4」は分母の 4 を除き、分子は根拠の値であること
-    const rest = plain.replace(/\d{1,2}月\d{1,2}日/g, " ").replace(/\d{1,2}:\d{2}/g, " ").replace(/(\d)\s*\/\s*4(?!\d)/g, "$1 ");
-    for (const n of numbers(rest)) {
-      if (okNums.has(n) || okNums.has(String(Number(n)))) continue;
-      if (Number.isInteger(Number(n)) && Number(n) <= item.sourceIds.length) continue;
-      return reject("根拠にない数値");
+    // 件数の判定では、結果を示す「わからない」「誤答」「正答」の語は残す（患者の原文などの引用は除く）
+    const plainR = item.text.replace(/「([^」]*)」/g, (whole, c: string) => (["わからない", "誤答", "正答"].includes(c) ? c : "「」"));
+    const rest = plainR.replace(/\d{1,2}月\d{1,2}日/g, " ").replace(/\d{1,2}:\d{2}/g, " ").replace(/(\d)\s*\/\s*4(?!\d)/g, "$1 ");
+    // 件数（「3問中2問は正答」「2回」「7日」など）は、参照した根拠から計算した件数と一致すること
+    const counts = countsOf(srcs as SourceEntry[])
+    for (const m of rest.matchAll(/(\d+)\s*(問|回(?!\s*\/\s*分)|件|日|項目|教材|つ)([^\d。、，,]{0,12})/g)) {
+      const n = Number(m[1])
+      const unit = m[2]
+      const after = m[3]
+      const expected =
+        unit === "問"
+          ? /正答|正解/.test(after)
+            ? [counts.correct]
+            : /誤答/.test(after)
+              ? [counts.wrong]
+              : /わからない/.test(after)
+                ? [counts.unknown]
+                : [counts.answers]
+          : unit === "日"
+            ? [counts.days, ...counts.statDays]
+            : [counts.refs, ...counts.byKind, ...counts.statCounts, ...counts.perDay]
+      if (!expected.includes(n)) return reject("件数が根拠と一致しない")
+    }
+    const restNoCounts = rest.replace(/(\d+)\s*(問|回(?!\s*\/\s*分)|件|日|項目|教材|つ)/g, " ")
+    for (const n of numbers(restNoCounts)) {
+      if (okNums.has(n) || okNums.has(String(Number(n)))) continue
+      return reject("根拠にない数値")
     }
     valid.push(item);
   });
   return { valid, rejected, safetyViolation };
 }
+type SourceEntry = ReturnType<typeof sourceIndex> extends Map<string, infer V> ? V : never;
+/** 参照した根拠から数えられる件数（理解確認の結果別・種類別・記録日数・集計値） */
+function countsOf(srcs: SourceEntry[]) {
+  const qa = srcs.filter((x) => x.kind === "qa");
+  const kinds = new Map<string, number>();
+  for (const x of srcs) if (x.kind !== "stat") kinds.set(x.kind, (kinds.get(x.kind) ?? 0) + 1);
+  const days = new Set(srcs.filter((x) => x.at).map((x) => localDay(new Date(x.at!))));
+  const stat = srcs.filter((x) => x.counts);
+  // 同じ日の記録の件数（「10月28日は2回」など）
+  const perDayMap = new Map<string, number>();
+  for (const x of srcs) if (x.kind !== "stat" && x.at) perDayMap.set(localDay(new Date(x.at)), (perDayMap.get(localDay(new Date(x.at))) ?? 0) + 1);
+  return {
+    refs: srcs.filter((x) => x.kind !== "stat").length,
+    byKind: [...kinds.values()],
+    answers: qa.length,
+    correct: qa.filter((x) => x.result === "正答").length,
+    wrong: qa.filter((x) => x.result === "誤答").length,
+    unknown: qa.filter((x) => x.result === "わからない").length,
+    days: days.size,
+    statCounts: stat.flatMap((x) => x.counts!),
+    statDays: stat.flatMap((x) => x.counts!),
+    perDay: [...perDayMap.values()],
+  };
+}
+
 const fmtShort = (iso: string) => {
   const day = localDay(new Date(iso));
   return `${Number(day.slice(5, 7))}/${Number(day.slice(8, 10))}`;

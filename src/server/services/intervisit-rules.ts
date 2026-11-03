@@ -123,17 +123,37 @@ export function ruleSummary(iv: Intervisit): SummaryItem[] {
 
 /** 根拠として参照できる ID → その内容（集計 ID を含む） */
 export function sourceIndex(iv: Intervisit) {
-  const map = new Map<string, { label: string; at?: string; values: string[] }>();
+  /** kind: 出来事の種類（ID の接頭辞）、result: 理解確認の結果、body: 質問の原文、counts: 集計 ID の件数・日数 */
+  const map = new Map<string, { label: string; at?: string; values: string[]; kind: string; result?: string; body?: string; counts?: number[] }>();
   const strs = (o: unknown): string[] =>
     o == null ? [] : typeof o === "object" ? Object.values(o as Record<string, unknown>).flatMap(strs) : [String(o)];
-  for (const e of iv.events) map.set(e.id, { label: e.label, at: e.at, values: [e.label, ...strs(e.data)] });
-  map.set(statIds.records, { label: `体調記録 ${iv.vitals.totalDays}日中${iv.vitals.recordDays}日・${iv.vitals.recordCount}件（${iv.fmt.from}〜${iv.fmt.to}）`, values: [String(iv.vitals.totalDays), String(iv.vitals.recordDays), String(iv.vitals.recordCount), iv.period.from, iv.period.to] });
+  for (const e of iv.events)
+    map.set(e.id, {
+      label: e.label,
+      at: e.at,
+      values: [e.label, ...strs(e.data)],
+      kind: e.id.split(":")[0],
+      result: typeof e.data.result === "string" ? e.data.result : undefined,
+      body: typeof e.data.body === "string" ? e.data.body : undefined,
+    });
+  const missing = iv.vitals.totalDays - iv.vitals.recordDays;
+  map.set(statIds.records, {
+    label: `体調記録 ${iv.vitals.totalDays}日中${iv.vitals.recordDays}日・${iv.vitals.recordCount}件（記録のない日 ${missing}日、${iv.fmt.from}〜${iv.fmt.to}）`,
+    values: [String(iv.vitals.totalDays), String(iv.vitals.recordDays), String(iv.vitals.recordCount), String(missing), iv.period.from, iv.period.to],
+    kind: "stat",
+    counts: [iv.vitals.totalDays, iv.vitals.recordDays, iv.vitals.recordCount, missing],
+  });
   for (const k of VITAL_KEYS) {
     const m = iv.vitals.metrics[k];
     if (!m.count) continue;
-    map.set(statIds.vital(k), { label: `${m.label} ${m.count}回（${m.min!.value}〜${m.max!.value}${m.unit}）`, values: [String(m.count), String(m.min!.value), String(m.max!.value), String(m.measuredDays)] });
+    map.set(statIds.vital(k), { label: `${m.label} ${m.count}回・${m.measuredDays}日（${m.min!.value}〜${m.max!.value}${m.unit}）`, values: [String(m.count), String(m.min!.value), String(m.max!.value), String(m.measuredDays)], kind: "stat", counts: [m.count, m.measuredDays] });
   }
   for (const s of iv.symptoms)
-    map.set(statIds.symptom(s.key), { label: `${s.name} ${s.count}回（${s.min}〜${s.max}/4）`, values: [s.name, String(s.count), String(s.min), String(s.max)] });
+    map.set(statIds.symptom(s.key), {
+      label: `${s.name} ${s.count}回・${new Set(s.entries.map((e) => e.day)).size}日（${s.min}〜${s.max}/4）`,
+      values: [s.name, String(s.count), String(s.min), String(s.max)],
+      kind: "stat",
+      counts: [s.count, new Set(s.entries.map((e) => e.day)).size],
+    });
   return map;
 }

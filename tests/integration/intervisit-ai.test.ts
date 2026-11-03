@@ -113,6 +113,62 @@ describe("Claude の外来間要約（Step 4-C・モック）", () => {
     expect(rejected.map((r) => r.reason)).toEqual(["根拠にない数値", "根拠にない日付", "根拠にない数値", "引用が原文と一致しない", "存在しない根拠 ID", "根拠にない時刻"]);
   });
 
+  it("件数は根拠から計算した値と一致すること。質問は原文全体を引用し、言い換えは時系列だけ", async () => {
+    const iv = await buildIntervisit({ patientId: seeded.users.get(PATIENT_B)!, sessionId });
+    const a = `hs:${recA}:numbness`;
+    const b = `hs:${recB}:numbness`;
+    const q = iv.questions[0];
+    const { valid, rejected } = validateItems(
+      [
+        { section: "体調の変化", text: "手足のしびれは2回記録されました。", sourceIds: [a, b] },
+        { section: "体調の変化", text: "手足のしびれは3回記録されました。", sourceIds: [a, b] },
+        { section: "体調の変化", text: "記録は2日でした。", sourceIds: [a, b] },
+        { section: "体調の変化", text: "記録は1日でした。", sourceIds: [a, b] },
+        { section: "患者からの質問", text: `「${q.body}」`, sourceIds: [q.sourceId] },
+        { section: "患者からの質問", text: "しびれが戻るかを質問しています。", sourceIds: [q.sourceId] },
+        { section: "患者からの質問", text: "「しびれは戻りますか」", sourceIds: [q.sourceId] },
+        { section: "時系列の経過", text: `${md(q.createdAt)}：しびれについての質問を保存しました。`, sourceIds: [q.sourceId] },
+        { section: "体調の変化", text: "しびれについての質問を保存しました。", sourceIds: [q.sourceId] },
+        { section: "時系列の経過", text: "「しびれは戻らないのですか」と質問しました。", sourceIds: [q.sourceId] },
+      ],
+      iv,
+    );
+    expect(valid.map((v) => v.text)).toEqual([
+      "手足のしびれは2回記録されました。",
+      "記録は2日でした。",
+      `「${q.body}」`,
+      `${md(q.createdAt)}：しびれについての質問を保存しました。`,
+    ]);
+    expect(rejected.map((r) => r.reason)).toEqual([
+      "件数が根拠と一致しない",
+      "件数が根拠と一致しない",
+      "質問の原文が引用されていない",
+      "引用が原文と一致しない",
+      "質問の言い換えは時系列の経過だけで使える",
+      "引用が原文と一致しない",
+    ]);
+  });
+
+  it("理解確認の件数（「3問中2問は正答」）は結果別に数えて検証する", async () => {
+    const iv = await buildIntervisit({ patientId: seeded.users.get(PATIENT_B)!, sessionId });
+    // 理解確認の回答を作る（1 問目わからない・2 問目正答・3 問目誤答）
+    const fake = {
+      ...iv,
+      events: [
+        ...iv.events,
+        { id: "qa:t1", kind: "answer" as const, at: jst(2, 9), day: "", label: "理解確認（わからない）：「設問1」", ref: { table: "quiz_answers", id: "t1" }, data: { result: "わからない" } },
+        { id: "qa:t2", kind: "answer" as const, at: jst(2, 9), day: "", label: "理解確認（正答）：「設問2」", ref: { table: "quiz_answers", id: "t2" }, data: { result: "正答" } },
+        { id: "qa:t3", kind: "answer" as const, at: jst(2, 9), day: "", label: "理解確認（誤答）：「設問3」", ref: { table: "quiz_answers", id: "t3" }, data: { result: "誤答" } },
+      ],
+    };
+    const ids = ["qa:t1", "qa:t2", "qa:t3"];
+    const ok = (text: string) => validateItems([{ section: "学習の状況", text, sourceIds: ids }], fake).valid.length === 1;
+    expect(ok("理解確認3問中1問は正答、1問は誤答、1問は「わからない」でした。")).toBe(true);
+    expect(ok("理解確認3問中2問は正答でした。")).toBe(false);
+    expect(ok("理解確認4問中1問は正答でした。")).toBe(false);
+    expect(ok("理解確認3問のうち2問は「わからない」でした。")).toBe(false);
+  });
+
   it("解釈・診断・因果・Grade・理解能力の記述があれば、要約全体を表示しない（安全な代替表示）", async () => {
     const iv = await buildIntervisit({ patientId: seeded.users.get(PATIENT_B)!, sessionId });
     const sid = `hs:${recB}:numbness`;
