@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { Icon } from "@/components/reset/Icons";
 
 const supported = () => typeof window !== "undefined" && "speechSynthesis" in window;
 
 /** 読み上げ（Web Speech API）。ユーザー操作で開始し、自動再生はしない（LEARN-02） */
-export function SpeakButton({ text, compact = false }: { text: string; compact?: boolean }) {
+export function SpeakButton({ text, compact = false, variant = "default" }: { text: string; compact?: boolean; variant?: "default" | "reset" }) {
   const ok = useSyncExternalStore(() => () => {}, supported, () => false);
   const [speaking, setSpeaking] = useState(false);
 
@@ -36,6 +37,21 @@ export function SpeakButton({ text, compact = false }: { text: string; compact?:
   }
 
   const seconds = Math.max(10, Math.round(text.length / 5));
+  if (variant === "reset")
+    return (
+      <button className="rs-listen" onClick={toggle} aria-pressed={speaking}>
+        <span className="left">
+          <span className="play" aria-hidden>
+            <Icon name={speaking ? "stop" : "play"} size="sm" />
+          </span>
+          <span>{speaking ? "読み上げを止める" : "説明を聞く"}</span>
+        </span>
+        <span className="right rs-muted">
+          {speaking ? "再生中" : `約${seconds}秒`}
+          <Icon name="volume" size="sm" />
+        </span>
+      </button>
+    );
   return (
     // compact: 見出し直下に置く版（高さ 60px。操作領域は 56px 以上を維持）。既定は従来の 72px
     <button

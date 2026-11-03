@@ -1,0 +1,667 @@
+/*
+ * Experience Reset 01（.design-reference/shiori_reset_design/index.html）のトークンと患者向け共通部品。
+ * 値はプロトタイプの :root と各クラスから抽出（px はそのまま）。患者画面の外枠 .reset-shell にスコープする。
+ * 旧 C2 の .patient-shell は globals.css に残す（段階移行）。
+ */
+.reset-shell {
+  --ink: #203744;
+  --blue: #365c79;
+  --blue2: #587e99;
+  --bluePale: #e9f1f7;
+  --canvas: #f5f8fa;
+  --white: #fff;
+  --border: #dde7eb;
+  --coral: #c9957e;
+  --coralPale: #f8eee9;
+  --sage: #5a867b;
+  --sagePale: #eaf3ee;
+  --muted: #5c7180;
+  --muted2: #798b95;
+  --shadow: 0 10px 36px rgba(31, 62, 83, 0.055);
+  --rad: 20px;
+  /* 既存ユーティリティ（bg-accent 等）との対応。未移行の患者画面も同じ配色になる */
+  --bg: var(--canvas);
+  --surface: #fff;
+  --ink-soft: var(--muted);
+  --ink-muted: var(--muted2);
+  --line: var(--border);
+  --line-strong: var(--blue);
+  --accent: var(--blue);
+  --accent-ink: #fff;
+  --sakura: var(--coralPale);
+  --sakura-deep: var(--coral);
+  --wakakusa: var(--sagePale);
+  --sora: var(--bluePale);
+  --suna: #f3efe9;
+  --danger: #a94f3e;
+  --ok: var(--sage);
+  --radius: 20px;
+  --tap: 52px;
+  font-family: var(--font-noto), "Noto Sans JP", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  background: var(--canvas);
+  color: var(--ink);
+}
+.reset-shell .rs-page {
+  padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+}
+html:not(:has(nav[data-patient-tabs])) .reset-shell .rs-page {
+  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+}
+html:has(nav[data-patient-tabs]) {
+  scroll-padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+}
+/* アイコン（線幅 1.8） */
+.rs-icon {
+  width: 21px;
+  height: 21px;
+  flex: none;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.rs-icon.sm {
+  width: 17px;
+  height: 17px;
+}
+.rs-icon.xl {
+  width: 25px;
+  height: 25px;
+}
+/* ヘッダー */
+.rs-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 56px;
+  padding: 0 19px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-bottom: 1px solid #eef1f4;
+}
+.rs-brand {
+  font-family: Georgia, "Noto Serif JP", serif;
+  font-size: 27px;
+  letter-spacing: -1.5px;
+  color: var(--blue);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rs-brandmark {
+  display: inline-block;
+  width: 18px;
+  height: 27px;
+  border: 2px solid var(--blue);
+  border-left: 0;
+  border-bottom-left-radius: 20px;
+  border-top-left-radius: 8px;
+  border-bottom-right-radius: 12px;
+  transform: rotate(-20deg);
+  margin-right: 3px;
+}
+.rs-heading-small {
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--ink);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rs-icon-btn {
+  border: 0;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  color: var(--blue);
+  font-weight: 800;
+}
+.rs-content {
+  padding: 17px 18px 28px;
+}
+/* 下部タブ・操作バー */
+.rs-tabs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  height: calc(76px + env(safe-area-inset-bottom, 0px));
+  padding: 8px 8px calc(11px + env(safe-area-inset-bottom, 0px));
+  background: rgba(255, 255, 255, 0.97);
+  border-top: 1px solid #e7edf1;
+}
+.rs-tabs ul {
+  max-width: 28rem;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+}
+.rs-tab {
+  color: #84959e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 650;
+  min-width: 64px;
+  min-height: 52px;
+}
+.rs-tab[aria-current="page"] {
+  color: var(--blue);
+}
+.rs-cta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 10px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(0deg, #fff 84%, rgba(255, 255, 255, 0.96));
+  border-top: 1px solid #e7edf1;
+}
+.rs-cta > div {
+  max-width: 28rem;
+  margin: 0 auto;
+  display: flex;
+  gap: 9px;
+}
+.rs-cta .rs-btn {
+  min-height: 55px;
+}
+/* ボタン */
+.rs-btn {
+  border: 0;
+  border-radius: 14px;
+  padding: 13px 17px;
+  font-size: 15px;
+  font-weight: 800;
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1.3;
+  color: var(--blue);
+  background: transparent;
+  cursor: pointer;
+  text-decoration: none;
+}
+.rs-btn.primary {
+  color: #fff;
+  background: var(--blue);
+  box-shadow: 0 3px 4px rgba(43, 85, 110, 0.1);
+}
+.rs-btn.outline {
+  border: 1px solid #b9cdd8;
+  background: #fff;
+}
+.rs-btn.wide {
+  width: 100%;
+}
+.rs-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+/* 文字の階層 */
+.rs-eyebrow {
+  font-weight: 800;
+  color: #996b56;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.rs-eyebrow::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--coral);
+  border-radius: 50%;
+  display: block;
+}
+.rs-h1 {
+  font-weight: 850;
+  letter-spacing: -0.055em;
+  line-height: 1.38;
+  font-size: 25px;
+  margin: 7px 0 7px;
+}
+.rs-h2 {
+  font-size: 18px;
+  letter-spacing: -0.035em;
+  line-height: 1.38;
+  font-weight: 800;
+  margin: 0;
+}
+.rs-body {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #3e5564;
+}
+.rs-muted {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+/* カード */
+.rs-big-card {
+  background: #fff;
+  border: 1px solid #e4ecf0;
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+.rs-small-card {
+  border-radius: 15px;
+  background: #fff;
+  border: 1px solid #e7edf0;
+  padding: 13px;
+  box-shadow: 0 5px 16px rgba(36, 61, 75, 0.025);
+}
+.rs-section-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin: 22px 0 12px;
+}
+.rs-section-label .more {
+  font-size: 12px;
+  color: var(--blue);
+  font-weight: 700;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+/* 患者ホーム */
+.rs-hero {
+  height: 210px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(128deg, #eaf1f5 0%, #f5f5f2 58%, #f7ede7 100%);
+  padding: 22px 17px;
+  margin: 0 -1px 15px;
+}
+.rs-hero::after {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 160px;
+  right: -70px;
+  top: -48px;
+  border-radius: 50%;
+  background: #f9eae5;
+  opacity: 0.7;
+  filter: blur(10px);
+}
+.rs-hero-photo {
+  position: absolute;
+  right: -25px;
+  bottom: -10px;
+  width: 245px;
+  height: 202px;
+  object-fit: contain;
+  object-position: right bottom;
+  z-index: 1;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.rs-hero-text {
+  position: relative;
+  z-index: 2;
+  max-width: 210px;
+}
+.rs-hero-text .kicker {
+  color: #637c8e;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.rs-hero-text .rs-h1 {
+  font-size: 26px;
+  line-height: 1.38;
+  margin: 0 0 9px;
+}
+.rs-hero-text p {
+  font-size: 12px;
+  line-height: 1.75;
+  margin: 0;
+  max-width: 184px;
+  color: #536a77;
+}
+.rs-rx {
+  border-radius: 19px;
+  background: #fff;
+  box-shadow: 0 9px 29px rgba(42, 72, 84, 0.07);
+  border: 1px solid #e5edf1;
+  padding: 19px 17px 17px;
+}
+.rs-rx-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+.rs-sender {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #59758a;
+  font-size: 12px;
+  font-weight: 700;
+}
+.rs-sender i {
+  font-style: normal;
+  background: var(--bluePale);
+  color: var(--blue);
+  padding: 5px;
+  border-radius: 9px;
+  display: flex;
+}
+.rs-pill {
+  background: #eaf3ee;
+  color: #4f7468;
+  border-radius: 20px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.rs-rx h2 {
+  font-size: 21px;
+  letter-spacing: -0.04em;
+  line-height: 1.42;
+  margin: 16px 0 6px;
+  font-weight: 800;
+}
+.rs-rx .desc {
+  font-size: 13px;
+  color: #637885;
+  line-height: 1.65;
+  margin-bottom: 15px;
+}
+.rs-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #667f8f;
+  margin-bottom: 15px;
+}
+.rs-meta .dot {
+  padding: 0 4px;
+  color: #b4c4cb;
+}
+.rs-mini-icon {
+  width: 41px;
+  height: 41px;
+  border-radius: 13px;
+  background: #e9f1f7;
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.rs-mini-icon.coral {
+  background: #f6efeb;
+  color: #a97965;
+}
+.rs-item-row {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  padding: 9px 2px;
+  min-height: 60px;
+  color: inherit;
+}
+.rs-small-card > li + li > .rs-item-row {
+  border-top: 1px solid #eef1f2;
+}
+.rs-item-info {
+  flex: 1;
+  min-width: 0;
+}
+.rs-item-title {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+.rs-item-sub {
+  color: #78909a;
+  font-size: 11px;
+  margin-top: 3px;
+}
+.rs-item-trailing {
+  font-size: 11px;
+  color: #52798b;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.rs-hero-secondary {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #688395;
+  font-size: 12px;
+  line-height: 1.7;
+  margin-top: 10px;
+}
+/* 教材学習 */
+.rs-progress {
+  height: 5px;
+  background: #dce8ee;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0 0 23px;
+}
+.rs-progress > div {
+  height: 100%;
+  background: var(--blue);
+  border-radius: 10px;
+}
+.rs-prop {
+  background: #e9f2f7;
+  border-left: 3px solid var(--blue);
+  padding: 14px 14px 13px;
+  border-radius: 0 12px 12px 0;
+  color: #28475e;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.6;
+  margin: 14px 0;
+}
+.rs-listen {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px solid #deeaef;
+  border-radius: 14px;
+  padding: 11px 12px;
+  margin: 13px 0;
+  color: var(--blue);
+  min-height: 56px;
+  cursor: pointer;
+  text-align: left;
+}
+.rs-listen .left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.rs-listen .play {
+  width: 31px;
+  height: 31px;
+  background: var(--blue);
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.rs-listen .right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rs-short {
+  font-size: 14px;
+  color: #455d6d;
+  line-height: 1.7;
+  margin: 13px 0 13px;
+}
+.rs-figure {
+  background: #fff;
+  border: 1px solid #e4edf1;
+  border-radius: 18px;
+  box-shadow: 0 5px 20px rgba(33, 69, 82, 0.04);
+  overflow: hidden;
+  margin-top: 8px;
+}
+.rs-segments {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: #f2f5f5;
+  padding: 6px;
+  gap: 3px;
+}
+.rs-segment {
+  font-size: 11px;
+  font-weight: 750;
+  color: #6f8791;
+  border: 0;
+  border-radius: 9px;
+  padding: 9px 2px;
+  background: transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 44px;
+  cursor: pointer;
+}
+.rs-segment[aria-selected="true"] {
+  background: #fff;
+  box-shadow: 0 1px 7px rgba(38, 70, 92, 0.1);
+  color: var(--blue);
+}
+.rs-figmain {
+  height: 236px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(150deg, #fff 20%, #fbf8f4 100%);
+  padding: 9px;
+}
+.rs-figmain .frame {
+  position: relative;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 100%;
+}
+.rs-figmain img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.rs-figcaption {
+  font-size: 12px;
+  color: #5e6e78;
+  line-height: 1.75;
+  padding: 4px 16px 14px;
+  min-height: 54px;
+}
+.rs-fignote {
+  color: #677f8d;
+  font-size: 11px;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  padding: 10px 0;
+  line-height: 1.65;
+}
+.rs-details > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #597280;
+  cursor: pointer;
+  min-height: 44px;
+}
+.rs-details > summary::-webkit-details-marker {
+  display: none;
+}
+.rs-details[open] > summary {
+  color: var(--blue);
+}
+.rs-details .rs-body {
+  font-size: 14px;
+  padding-top: 8px;
+  white-space: pre-wrap;
+}
+/* 文字拡大（html[data-textsize=large]）: 本文系を 2〜3px 上げる */
+html[data-textsize="large"] .reset-shell {
+  font-size: 18px;
+}
+html[data-textsize="large"] .reset-shell .rs-h1 {
+  font-size: 28px;
+}
+html[data-textsize="large"] .reset-shell .rs-hero-text .rs-h1 {
+  font-size: 28px;
+}
+html[data-textsize="large"] .reset-shell .rs-hero-text p,
+html[data-textsize="large"] .reset-shell .rs-hero-text .kicker {
+  font-size: 13px;
+}
+html[data-textsize="large"] .reset-shell .rs-rx h2 {
+  font-size: 23px;
+}
+html[data-textsize="large"] .reset-shell .rs-rx .desc,
+html[data-textsize="large"] .reset-shell .rs-meta,
+html[data-textsize="large"] .reset-shell .rs-item-title,
+html[data-textsize="large"] .reset-shell .rs-item-sub,
+html[data-textsize="large"] .reset-shell .rs-item-trailing,
+html[data-textsize="large"] .reset-shell .rs-muted,
+html[data-textsize="large"] .reset-shell .rs-fignote,
+html[data-textsize="large"] .reset-shell .rs-figcaption,
+html[data-textsize="large"] .reset-shell .rs-segment,
+html[data-textsize="large"] .reset-shell .rs-eyebrow {
+  font-size: 14px;
+}
+html[data-textsize="large"] .reset-shell .rs-prop,
+html[data-textsize="large"] .reset-shell .rs-short,
+html[data-textsize="large"] .reset-shell .rs-body,
+html[data-textsize="large"] .reset-shell .rs-details .rs-body,
+html[data-textsize="large"] .reset-shell .rs-btn,
+html[data-textsize="large"] .reset-shell .rs-listen .left {
+  font-size: 17px;
+}
+html[data-textsize="large"] .reset-shell .rs-tab {
+  font-size: 12px;
+}

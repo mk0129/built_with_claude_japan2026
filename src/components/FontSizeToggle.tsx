@@ -13,7 +13,7 @@ function read(): boolean {
 }
 
 /** 「文字を大きく」切替。html[data-textsize] を切り替え、localStorage に保存（端末ごとの好み） */
-export function FontSizeToggle() {
+export function FontSizeToggle({ variant = "text" }: { variant?: "text" | "icon" }) {
   const large = useSyncExternalStore(subscribe, read, () => false);
   function toggle() {
     const next = !large;
@@ -23,6 +23,14 @@ export function FontSizeToggle() {
     } catch {}
     window.dispatchEvent(new Event(EVENT));
   }
+  if (variant === "icon")
+    return (
+      <button className="rs-icon-btn" onClick={toggle} aria-pressed={large} aria-label={large ? "文字を元に戻す" : "文字を大きく"} title={large ? "文字を元に戻す" : "文字を大きく"}>
+        <span aria-hidden className="text-[19px] leading-none font-extrabold">
+          {large ? "あ−" : "あ+"}
+        </span>
+      </button>
+    );
   return (
     <button className="tap-link" onClick={toggle} aria-pressed={large}>
       <span aria-hidden className="mr-1 text-lg font-bold">

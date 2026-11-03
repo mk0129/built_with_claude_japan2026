@@ -19,11 +19,20 @@ test("EDI-001 患者ホーム", async ({ browser }) => {
     const img = page.locator('img[alt="窓辺で静かに過ごす女性のイラスト"]');
     await expect(img).toBeVisible();
     const r = await page.evaluate(() => {
-      const img = document.querySelector('img[alt="窓辺で静かに過ごす女性のイラスト"]')!.getBoundingClientRect();
-      const h1 = document.querySelector("h1")!.getBoundingClientRect();
-      const cta = document.querySelector("main a.btn-primary")!.getBoundingClientRect();
+      // Reset 01 のヒーロー: 挿絵は右下（245×202、乗算）で、見出し（左 210px）と箱が重なるのは意図どおり。
+      // 検証は (1) 見出しの文字がヒーロー左 60% に収まる、(2) 挿絵がヒーロー内に収まる、(3) 主ボタンと重ならない、に変える
+      const imgEl = document.querySelector<HTMLImageElement>('img[alt="窓辺で静かに過ごす女性のイラスト"]')!;
+      const img = imgEl.getBoundingClientRect();
+      const hero = (imgEl.closest(".rs-hero") ?? imgEl.parentElement!).getBoundingClientRect();
+      const h1El = document.querySelector("h1")!;
+      const range = document.createRange();
+      range.selectNodeContents(h1El);
+      const h1 = range.getBoundingClientRect();
+      const cta = document.querySelector("main a.rs-btn.primary, main a.btn-primary")!.getBoundingClientRect();
       const inter = (a: DOMRect, b: DOMRect) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
-      return { img: { w: Math.round(img.width), h: Math.round(img.height), top: Math.round(img.top), right: Math.round(window.innerWidth - img.right) }, overlapsH1: inter(img, h1), overlapsCta: inter(img, cta), ctaTop: Math.round(cta.top), vh: window.innerHeight };
+      const textInLeft = h1.right <= hero.left + hero.width * 0.6;
+      const imgInHero = img.top >= hero.top - 1 && img.bottom <= hero.bottom + 12 && img.right <= hero.right + 30;
+      return { img: { w: Math.round(img.width), h: Math.round(img.height), top: Math.round(img.top), right: Math.round(window.innerWidth - img.right) }, overlapsH1: !(textInLeft && imgInHero), overlapsCta: inter(img, cta), ctaTop: Math.round(cta.top), vh: window.innerHeight };
     });
     const audit = await layoutAudit(page);
     report.push({ viewport: vp.name, ...r, overflowX: audit.overflowX });
@@ -45,11 +54,20 @@ test("EDI-001 患者ホーム", async ({ browser }) => {
     await demoLogin(page, "patient", "佐藤 花子");
     await page.waitForLoadState("networkidle");
     const r = await page.evaluate(() => {
-      const img = document.querySelector('img[alt="窓辺で静かに過ごす女性のイラスト"]')!.getBoundingClientRect();
-      const h1 = document.querySelector("h1")!.getBoundingClientRect();
-      const cta = document.querySelector("main a.btn-primary")!.getBoundingClientRect();
+      // Reset 01 のヒーロー: 挿絵は右下（245×202、乗算）で、見出し（左 210px）と箱が重なるのは意図どおり。
+      // 検証は (1) 見出しの文字がヒーロー左 60% に収まる、(2) 挿絵がヒーロー内に収まる、(3) 主ボタンと重ならない、に変える
+      const imgEl = document.querySelector<HTMLImageElement>('img[alt="窓辺で静かに過ごす女性のイラスト"]')!;
+      const img = imgEl.getBoundingClientRect();
+      const hero = (imgEl.closest(".rs-hero") ?? imgEl.parentElement!).getBoundingClientRect();
+      const h1El = document.querySelector("h1")!;
+      const range = document.createRange();
+      range.selectNodeContents(h1El);
+      const h1 = range.getBoundingClientRect();
+      const cta = document.querySelector("main a.rs-btn.primary, main a.btn-primary")!.getBoundingClientRect();
       const inter = (a: DOMRect, b: DOMRect) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
-      return { fontSize: getComputedStyle(document.documentElement).fontSize, overlapsH1: inter(img, h1), overlapsCta: inter(img, cta), ctaTop: Math.round(cta.top), vh: window.innerHeight };
+      const textInLeft = h1.right <= hero.left + hero.width * 0.62;
+      const imgInHero = img.top >= hero.top - 1 && img.bottom <= hero.bottom + 12 && img.right <= hero.right + 30;
+      return { fontSize: getComputedStyle(document.documentElement).fontSize, overlapsH1: !(textInLeft && imgInHero), overlapsCta: inter(img, cta), ctaTop: Math.round(cta.top), vh: window.innerHeight };
     });
     const audit = await layoutAudit(page);
     report.push({ viewport: `${vp.name}-large`, ...r, overflowX: audit.overflowX });

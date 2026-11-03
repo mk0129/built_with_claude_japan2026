@@ -29,8 +29,8 @@ async function metrics(page: Page) {
     const vh = window.innerHeight;
     const q = (sel: string) => document.querySelector<HTMLElement>(sel);
     const h1 = q("article h1");
-    const prop = q("article h1 + p");
-    const speak = Array.from(document.querySelectorAll<HTMLElement>("article button")).find((b) => /読み上げ/.test(b.textContent ?? "")) ?? null;
+    const prop = q("article .rs-prop") ?? q("article h1 + p");
+    const speak = Array.from(document.querySelectorAll<HTMLElement>("article button")).find((b) => /説明を聞く|読み上げ/.test(b.textContent ?? "")) ?? null;
     const body = q("article [data-learn-body]");
     const fig = q("article figure");
     const note = q("article [data-figure-note]");
@@ -88,18 +88,18 @@ test("学習画面: 折衷レイアウトの順序・初期表示・図の注記
       // 本文 1 文目は標準文字なら 4 幅とも初期表示に入る（390 を含む）
       if (!large) expect(m.bodyBottom!, `本文 1 文の下端が画面内 (${suffix})`).toBeLessThanOrEqual(m.vh);
       // 図の注記（常時表示）と監修・出典の折りたたみ（閉）
-      expect(m.noteText, suffix).toMatch(/3 つの図は別々の情報です。病気が進む順番ではありません。/);
+      expect(m.noteText, suffix).toMatch(/3つの図は別々の情報です。病気がこの順番に進むという意味ではありません。/);
       expect(m.aboutExists, suffix).toBe(true);
       expect(m.aboutOpen, suffix).toBe(false);
       expect(m.captionVisible, `caption は隠さない (${suffix})`).toBe(true);
-      await expect(page.getByText(/図について（監修・出典）/).first()).toBeVisible();
+      await expect(page.getByText(/くわしい説明・監修情報を確認する/).first()).toBeVisible();
       expect(audit.overflowX, `横スクロール (${suffix})`).toBe(0);
     }
     await setLarge(page, false);
 
     // 最後の画面で「確認問題へ」が固定バーに見える（390 のみ）
     if (vp.width === 390) {
-      while (!(await page.getByRole("button", { name: /確認問題へ/ }).isVisible())) await page.getByRole("button", { name: /^次へ/ }).click();
+      while (!(await page.getByRole("button", { name: /確認問題へ/ }).isVisible())) await page.getByRole("button", { name: /次のページへ|^次へ/ }).click();
       const btn = page.getByRole("button", { name: /確認問題へ/ });
       await expect(btn).toBeVisible();
       const box = await btn.boundingBox();

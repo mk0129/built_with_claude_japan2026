@@ -189,7 +189,7 @@ test("実 API: B 方式・C 方式の生成から患者の学習まで", async (
   await shot(p, "d5_09_patient_learn_1");
   let n = 1;
   while (!(await p.getByRole("button", { name: /確認問題へ/ }).isVisible())) {
-    await p.getByRole("button", { name: "次へ" }).click();
+    await p.getByRole("button", { name: /次のページへ|^次へ/ }).click();
     await shot(p, `d5_09_patient_learn_${++n}`);
   }
   await p.getByRole("button", { name: /確認問題へ/ }).click();

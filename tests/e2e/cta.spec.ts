@@ -48,7 +48,7 @@ test("主要ボタンが下部ナビに隠れない（375 / 390 / 430）", async
     // 学習: ナビなし、次へが到達可能
     const href = await page.locator('a[href^="/learn/"]').first().getAttribute("href");
     await page.goto(href!);
-    const learn = await assertReachable(page, /次へ|確認問題へ/);
+    const learn = await assertReachable(page, /次のページへ|次へ|確認問題へ/);
     expect(learn.navPresent, "学習画面に下部ナビが出ている").toBe(false);
     await page.screenshot({ path: `${SHOT_DIR}/cta_${vp.name}_learn.png` });
     // クイズ: 回答後の「次の問題へ / 結果を見る」が到達可能

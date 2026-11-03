@@ -52,7 +52,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
 
   // 5. 患者ホームに届く
   await p.goto("/home");
-  await expect(p.getByText(/の診察で届いた説明/).first()).toBeVisible();
+  await expect(p.getByText(/医療者から届いた教材/).first()).toBeVisible();
   await shot(p, "10_patient_home_homework");
 
   // 6. 説明を読む・音声再生
@@ -60,13 +60,13 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
   await p.waitForURL(/\/learn\//);
   const learnUrl = p.url();
   await expect(p.getByRole("heading", { level: 1 })).toBeVisible();
-  await p.getByRole("button", { name: /読み上げる/ }).click();
+  await p.getByRole("button", { name: /説明を聞く|読み上げる/ }).click();
   await shot(p, "11_patient_learn_slide1");
   await p.getByRole("button", { name: "目次" }).click();
   await shot(p, "12_patient_learn_toc");
   await p.getByRole("button", { name: "目次" }).click();
   while (!(await p.getByRole("button", { name: /確認問題へ/ }).isVisible())) {
-    await p.getByRole("button", { name: "次へ" }).click();
+    await p.getByRole("button", { name: /次のページへ|次へ/ }).click();
   }
   await shot(p, "13_patient_learn_last");
   await p.getByRole("button", { name: /確認問題へ/ }).click();

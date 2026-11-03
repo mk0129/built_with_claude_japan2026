@@ -57,12 +57,12 @@ test("MED-001 管理者プレビュー（切り替え / 縦並び）と患者画
   if (approved) {
     // 承認済み: 1 枚ずつ切り替え、順序ではない旨と監修範囲の表示
     await expect(p.page.locator("figure")).toHaveCount(1);
-    await expect(p.page.getByText(/病気が進む順番ではありません/)).toBeVisible();
+    await expect(p.page.getByText(/病気がこの順番に進むという意味ではありません/)).toBeVisible();
     // 監修情報・出典は「図について（監修・出典）」に折りたたまれている（学習上の注意 caption は常時表示）
-    await expect(p.page.getByText(/病院の公式な承認・推奨を受けたものではありません/)).toBeHidden();
-    await p.page.getByText(/図について（監修・出典）/).first().click();
-    await expect(p.page.getByText(/病院の公式な承認・推奨を受けたものではありません/)).toBeVisible();
-    await p.page.getByText(/図について（監修・出典）/).first().click();
+    await expect(p.page.getByText(/病院の公式な承認・推奨を受けたものではありません/).first()).toBeHidden();
+    await p.page.getByText(/くわしい説明・監修情報を確認する/).first().click();
+    await expect(p.page.getByText(/病院の公式な承認・推奨を受けたものではありません/).first()).toBeVisible();
+    await p.page.getByText(/くわしい説明・監修情報を確認する/).first().click();
     await p.page.screenshot({ path: `${SHOT_DIR}/med001_patient_learn_390.png`, fullPage: true });
     for (const tab of ["近くのリンパ節", "離れた臓器"]) {
       await p.page.getByRole("tab", { name: tab }).click();
