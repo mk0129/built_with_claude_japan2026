@@ -21,6 +21,8 @@ const dry = process.argv.includes("--dry");
 const OUT = "docs/design/phase2/step4/real";
 
 async function main() {
+  // 安全確認: インメモリ DB 以外（本番・共有 DB・ローカルの実データ）なら実行しない
+  if (process.env.DATABASE_URL || process.env.PGLITE_DATA !== "memory://") throw new Error("インメモリ DB 以外では実行しません");
   const { ensureMigrated, getDb } = await import("@/server/db/client");
   const { seed } = await import("@/server/db/seed");
   const { buildIntervisit } = await import("@/server/services/intervisit");
@@ -30,6 +32,10 @@ async function main() {
   const { and, eq } = await import("drizzle-orm");
   await ensureMigrated();
   const seeded = await seed(getDb());
+  // 安全確認: DB の患者がすべて架空のデモアカウント（@example.com）であること
+  const { user } = await import("@/server/db/schema");
+  const all = await getDb().select({ email: user.email }).from(user);
+  if (all.some((u) => !u.email.toLowerCase().endsWith("@example.com"))) throw new Error("架空のデモアカウント以外が含まれるため実行しません");
   const patientId = seeded.users.get("patient1@example.com")!;
   const iv = await buildIntervisit({ patientId });
   const sources = sourceIndex(iv);
@@ -50,6 +56,7 @@ async function main() {
       usage: r.usage,
       fallbackReason: r.fallbackReason,
       rejected: r.rejected,
+      rejectedItems: r.rejectedItems ?? [],
       items: r.items.map((it) => ({ ...it, sources: it.sourceIds.map((id) => ({ id, ...idx.get(id) })) })),
       revalidated: check ? { valid: check.valid.length, rejected: check.rejected.length } : null,
     };

@@ -125,6 +125,9 @@ describe("Claude の外来間要約（Step 4-C・モック）", () => {
     expect(r.json.status).toBe("fallback");
     expect(r.json.generator).toBe("rule");
     expect(r.json.fallbackReason).toContain("安全上の記述");
+    // 不採用の本文は医療者向けの API に返さない
+    expect(r.json.rejectedItems).toBeUndefined();
+    expect(JSON.stringify(r.json)).not.toContain("しびれは改善しています");
     // 代替表示はルールベースの要約（元データは表示できる）
     expect(r.json.items.some((i: { text: string }) => i.text.includes("しびれは治療終了後に戻りますか？"))).toBe(true);
   });

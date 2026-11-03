@@ -41,5 +41,8 @@ export const POST = route(async (req: Request, { params }: { params: Promise<{ i
     consultationSessionId: ctx.sessionId,
     outcome: result.status === "ai" ? "ok" : "error",
   });
-  return ok({ ...result, period: iv.period, sources: Object.fromEntries(sourceIndex(iv)) });
+  // 不採用の本文（検証できない記述）は医療者に返さない
+  const { rejectedItems: _omit, ...publicResult } = result;
+  void _omit;
+  return ok({ ...publicResult, period: iv.period, sources: Object.fromEntries(sourceIndex(iv)) });
 });

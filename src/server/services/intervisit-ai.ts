@@ -40,6 +40,11 @@ export type AiSummaryResult = {
   generatedAt: string;
   cached: boolean;
   usage: { inputTokens: number; outputTokens: number } | null;
+  /**
+   * 不採用になった項目の本文（検証レポート用。サーバー内だけで使い、医療者向けの API には返さない。
+   * 検証できない記述を画面に出さないため）
+   */
+  rejectedItems?: (SummaryItem & { reason: string })[];
 };
 
 // ---------- 検証 ----------
@@ -165,6 +170,9 @@ export async function summarizeIntervisit(
   const hit = !opts.regenerate && !opts.simulate ? cache.get(key) : undefined;
   if (hit) return { ...hit, cached: true };
   const rules = ruleSummary(iv);
+  let usage: AiSummaryResult["usage"] = null;
+  let rawItems: SummaryItem[] = [];
+  const rejectedItemsOf = (rejected: AiSummaryResult["rejected"]) => rejected.map((r) => ({ ...rawItems[r.index], reason: r.reason }));
   const fallback = (reason: string, rejected: AiSummaryResult["rejected"] = [], model: string | null = null): AiSummaryResult => ({
     status: "fallback",
     generator: "rule",
@@ -175,7 +183,9 @@ export async function summarizeIntervisit(
     dataHash,
     generatedAt: new Date().toISOString(),
     cached: false,
-    usage: null,
+    // Claude を呼んだ後の代替表示でも、使ったトークン数は残す
+    usage,
+    rejectedItems: rejectedItemsOf(rejected),
   });
   if (!opts.fictional) return fallback("架空のデモ患者以外のデータは外部 AI に送信しない設定です");
   const mode = claudeMode();
@@ -186,7 +196,6 @@ export async function summarizeIntervisit(
   let items: SummaryItem[];
   let model: string;
   let generator: Generator;
-  let usage: AiSummaryResult["usage"] = null;
   try {
     if (opts.simulate === "error") throw new Error("simulated");
     if (mode === "fake") {
@@ -210,11 +219,12 @@ export async function summarizeIntervisit(
     const err = classifyClaudeError(e);
     return fallback(`AI 要約を生成できませんでした（${err.code}）`);
   }
+  rawItems = items;
   const { valid, rejected, safetyViolation } = validateItems(items, iv);
   if (safetyViolation) return fallback("AI 要約に安全上の記述（解釈・診断・因果・Grade など）が含まれたため表示しません", rejected, model);
   if (valid.length === 0 || rejected.length > items.length / 3) return fallback("AI 要約の多くを元データで検証できなかったため表示しません", rejected, model);
   if (iv.questions.length > 0 && !valid.some((v) => v.section === "患者からの質問")) return fallback("AI 要約に患者の質問が含まれなかったため表示しません", rejected, model);
-  const result = { status: "ai" as const, generator, model, items: valid, rejected, fallbackReason: null, dataHash, generatedAt: new Date().toISOString(), usage };
+  const result = { status: "ai" as const, generator, model, items: valid, rejected, fallbackReason: null, dataHash, generatedAt: new Date().toISOString(), usage, rejectedItems: rejectedItemsOf(rejected) };
   if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value!);
   cache.set(key, result);
   return { ...result, cached: false };
