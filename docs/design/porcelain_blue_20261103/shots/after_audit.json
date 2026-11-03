@@ -11,17 +11,17 @@
     "clipped": [],
     "fontSize": "18px",
     "vh": 844,
-    "body": 542,
+    "body": 544,
     "strip": 422,
-    "figure": 682,
-    "docH": 1349
+    "figure": 684,
+    "docH": 1351
   },
   "after_learn_390_large": {
     "vh": 844,
-    "body": 610,
+    "body": 629,
     "strip": 474,
-    "figure": 774,
-    "docH": 1517,
+    "figure": 793,
+    "docH": 1536,
     "overflowX": 0
   },
   "after_learn_fullfig_390": {
@@ -65,10 +65,10 @@
     "clipped": [],
     "fontSize": "18px",
     "vh": 932,
-    "body": 536,
+    "body": 544,
     "strip": 422,
-    "figure": 676,
-    "docH": 1383
+    "figure": 684,
+    "docH": 1391
   },
   "after_learn_430_large": {
     "vh": 932,
@@ -119,10 +119,10 @@
     "clipped": [],
     "fontSize": "18px",
     "vh": 1180,
-    "body": 536,
+    "body": 544,
     "strip": 422,
-    "figure": 642,
-    "docH": 1423
+    "figure": 650,
+    "docH": 1431
   },
   "after_learn_fullfig_820": {
     "overflowX": 0,
@@ -165,10 +165,10 @@
     "clipped": [],
     "fontSize": "18px",
     "vh": 820,
-    "body": 536,
+    "body": 544,
     "strip": 422,
-    "figure": 642,
-    "docH": 1423
+    "figure": 650,
+    "docH": 1431
   },
   "after_learn_fullfig_1180": {
     "overflowX": 0,

@@ -142,12 +142,14 @@
   box-shadow: 0 0 0 2px var(--accent-soft);
 }
 .pb-figstrip img {
-  width: 44px;
-  height: 44px;
+  /* トリミングで医学的情報が失われないよう全体を収める（contain）。識別の手掛かりで、内容は下の図本体で読む */
+  width: 52px;
+  height: 52px;
   flex: none;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 10px;
-  background: var(--sora);
+  background: #fff;
+  border: 1px solid var(--line);
 }
 .pb-figstrip span {
   display: block;
@@ -160,10 +162,38 @@
 html[data-textsize="large"] .pb-figstrip span {
   font-size: 0.72rem;
 }
-/* 医療者画面（密度を上げる） */
+/* 緊急（医療的な緊急性）と未確認（状態）を混同しない:
+   - .pb-urgent: 赤（--danger）の枠と面、警告アイコン、「緊急」ラベル。医学的に急ぐ内容（緊急連絡の症状、危険な行動の回答）だけ
+   - .pb-unconfirmed: テラコッタの枠と面、「未確認」ラベル。まだ医療者が見ていない・確認していない状態 */
+.pb-urgent {
+  border: 2px solid var(--danger);
+  background: #fbeeea;
+}
+.pb-unconfirmed {
+  border: 2px solid var(--sakura-deep);
+  background: var(--pb-terra-soft);
+}
+.pb-tag-urgent {
+  background: var(--danger);
+  color: #fff;
+  font-weight: 700;
+}
+.pb-tag-unconfirmed {
+  background: var(--pb-terra);
+  color: #fff;
+  font-weight: 700;
+}
+/* 医療者画面: 補助情報は 15px、重要な質問・誤答・確認事項は 16px 以上（.pb-important） */
 .pb-staff {
   font-size: 15px;
   line-height: 1.55;
+}
+.pb-staff .pb-important {
+  font-size: 16.5px;
+  line-height: 1.5;
+}
+.pb-staff .pb-important-sub {
+  font-size: 16px;
 }
 .pb-staff .card {
   padding: 1rem 1.1rem;

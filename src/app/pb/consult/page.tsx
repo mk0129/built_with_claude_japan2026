@@ -41,28 +41,33 @@ export default async function PbConsult() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="pb-eyebrow">上から順に</p>
-                  <h2 id="pb-today" className="text-lg font-bold">
-                    今日の確認事項 <span className="text-ink-soft font-normal text-sm">3 件</span>
+                  <h2 id="pb-today" className="text-lg font-bold pb-important">
+                    今日の確認事項 <span className="text-ink-soft font-normal text-sm">4 件</span>
                   </h2>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  <span className="pill bg-sakura text-danger">質問 1</span>
-                  <span className="pill bg-suna text-ink">誤答・わからない 2</span>
+                  <span className="pill pb-tag-unconfirmed">未確認の質問 1</span>
+                  <span className="pill pb-tag-urgent">緊急 1</span>
+                  <span className="pill bg-suna text-ink">誤答・わからない 3</span>
                   <span className="pill">未完了 1</span>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <h3 className="text-sm font-bold text-danger inline-flex items-center gap-1">
+                <h3 className="text-sm font-bold inline-flex items-center gap-1" style={{ color: "var(--pb-terra-ink)" }}>
                   <IconQuestion />
                   未確認の質問
                 </h3>
-                <div className="rounded-2xl border-2 border-sakura-deep bg-sakura/40 p-3 flex flex-wrap gap-3 items-start sm:flex-nowrap">
-                  <span className="w-7 h-7 rounded-full bg-danger text-white inline-flex items-center justify-center font-bold shrink-0">1</span>
+                <div className="rounded-2xl pb-unconfirmed p-3 flex flex-wrap gap-3 items-start sm:flex-nowrap">
+                  <span className="w-7 h-7 rounded-full bg-sakura-deep text-white inline-flex items-center justify-center font-bold shrink-0">1</span>
                   <div className="min-w-0 flex-1 basis-[12rem] space-y-1">
-                    <p className="font-bold leading-snug">「私の場合はどういう理由で今の治療になったのか」</p>
+                    <p className="flex flex-wrap items-center gap-2">
+                      <span className="pill pb-tag-unconfirmed text-xs">未確認</span>
+                      <span className="text-xs text-ink-soft">医療者がまだ見ていない質問（緊急ではありません）</span>
+                    </p>
+                    <p className="font-bold leading-snug pb-important">「私の場合はどういう理由で今の治療になったのか」</p>
                     <p className="text-xs text-ink-soft">10/22 ・ 乳がんの診断と病期の考え方 ・ 「質問がある」</p>
-                    <p className="text-sm border-l-2 border-sakura-deep pl-2 text-ink-soft">『病期は治療の目安』の「がんの性質や体の状態で治療は変わる」がよくわかりませんでした。私の場合はどういう理由で今の治療になったのか、次に教えてください。</p>
+                    <p className="pb-important-sub border-l-2 border-sakura-deep pl-2 text-ink-soft">『病期は治療の目安』の「がんの性質や体の状態で治療は変わる」がよくわかりませんでした。私の場合はどういう理由で今の治療になったのか、次に教えてください。</p>
                   </div>
                   <div className="flex flex-wrap sm:flex-col gap-1.5 w-full sm:w-auto">
                     <button className="btn btn-primary flex-1 sm:flex-none">対応を記録</button>
@@ -76,13 +81,36 @@ export default async function PbConsult() {
                   <IconAlert />
                   誤答・わからない（最新の確認問題）
                 </h3>
-                <div className="rounded-2xl border border-line p-3 flex flex-wrap gap-3 items-start sm:flex-nowrap">
-                  <span className="w-7 h-7 rounded-full bg-suna text-ink inline-flex items-center justify-center font-bold shrink-0">2</span>
+                {/* 緊急: 患者の回答に医学的に危険な行動（治療をやめる）が含まれる例。赤＋「緊急の確認」。未確認（テラコッタ）とは別 */}
+                <div className="rounded-2xl pb-urgent p-3 flex flex-wrap gap-3 items-start sm:flex-nowrap">
+                  <span className="w-7 h-7 rounded-full bg-danger text-white inline-flex items-center justify-center font-bold shrink-0">!</span>
                   <div className="min-w-0 flex-1 basis-[12rem] space-y-1">
-                    <p className="font-bold leading-snug">
+                    <p className="flex flex-wrap items-center gap-2">
+                      <span className="pill pb-tag-urgent text-xs inline-flex items-center gap-1">
+                        <IconAlert />
+                        緊急の確認
+                      </span>
+                      <span className="text-xs text-ink-soft">回答に危険な行動が含まれます</span>
+                    </p>
+                    <p className="font-bold leading-snug pb-important">
+                      こころのケアと相談先 <span className="text-xs font-normal text-ink-soft">まちがい 1 ・ 10/23</span>
+                    </p>
+                    <p className="pb-important-sub">
+                      眠れない・食欲がない状態が続くとき → 患者「<b className="text-danger">治療をやめる</b>」／正解「医療者や相談支援センターに相談する」
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap sm:flex-col gap-1.5 w-full sm:w-auto">
+                    <button className="btn btn-primary flex-1 sm:flex-none">今日の診察で確認</button>
+                    <button className="btn btn-soft flex-1 sm:flex-none">再処方を候補へ</button>
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-line p-3 flex flex-wrap gap-3 items-start sm:flex-nowrap">
+                  <span className="w-7 h-7 rounded-full bg-suna text-ink inline-flex items-center justify-center font-bold shrink-0">3</span>
+                  <div className="min-w-0 flex-1 basis-[12rem] space-y-1">
+                    <p className="font-bold leading-snug pb-important">
                       乳がんの診断と病期の考え方 <span className="text-xs font-normal text-ink-soft">まちがい 1 ・ わからない 1 ・ 10/22</span>
                     </p>
-                    <ul className="text-sm space-y-1">
+                    <ul className="pb-important-sub space-y-1">
                       <li className="flex gap-2 items-start">
                         <span className="pill bg-sakura text-danger shrink-0">誤答</span>
                         <span>
@@ -105,11 +133,11 @@ export default async function PbConsult() {
               <div className="space-y-1.5">
                 <h3 className="text-sm font-bold text-ink-soft">未完了の教材</h3>
                 <div className="rounded-2xl border border-line p-3 flex flex-wrap gap-3 items-center">
-                  <span className="w-7 h-7 rounded-full bg-accent-soft text-accent inline-flex items-center justify-center font-bold shrink-0" style={{ background: "var(--accent-soft)" }}>
-                    3
+                  <span className="w-7 h-7 rounded-full inline-flex items-center justify-center font-bold shrink-0" style={{ background: "var(--accent-soft)", color: "var(--accent)" }}>
+                    4
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="font-bold leading-snug">こころのケアと相談先</p>
+                    <p className="font-bold leading-snug pb-important">こころのケアと相談先</p>
                     <p className="text-xs text-ink-soft">未着手 ・ 10/19 処方 ・ 約 6 分の教材</p>
                   </div>
                   <button className="btn btn-soft w-full sm:w-auto">再処方を候補へ</button>
