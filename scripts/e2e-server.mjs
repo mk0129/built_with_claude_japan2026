@@ -4,6 +4,7 @@
  * 開発用 DB（.data/）や開発サーバー（3000）には触れないため、過去の学習履歴に依存しない。
  *   E2E_CLAUDE=fake（既定）: API キーを空にして擬似生成。外部送信も課金もしない
  *   E2E_CLAUDE=real        : .env.local の ANTHROPIC_API_KEY で実際の Claude API を呼ぶ
+ *   E2E_PORT / E2E_DB_PORT / NEXT_DIST_DIR: 複数の E2E を同時に走らせるときに分ける（例: 3200 / 5436 / .next-e2e-b）
  */
 import { spawn, spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -18,7 +19,7 @@ const env = {
   ...process.env,
   LOCAL_DB_DIR: dir,
   LOCAL_DB_PORT: DB_PORT,
-  NEXT_DIST_DIR: ".next-e2e",
+  NEXT_DIST_DIR: process.env.NEXT_DIST_DIR || ".next-e2e",
   BETTER_AUTH_URL: `http://localhost:${PORT}`,
   NEXT_PUBLIC_APP_URL: `http://localhost:${PORT}`,
   SEED_DEMO_HISTORY: process.env.SEED_DEMO_HISTORY ?? "1",
