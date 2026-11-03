@@ -38,7 +38,7 @@
   --radius: 20px;
   --tap: 52px;
   font-family: var(--font-noto), "Noto Sans JP", "Hiragino Kaku Gothic ProN", system-ui, sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.8;
   background: var(--canvas);
   color: var(--ink);
@@ -157,7 +157,7 @@ html:has(nav[data-patient-tabs]) {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 650;
   min-width: 64px;
   min-height: 52px;
@@ -189,7 +189,7 @@ html:has(nav[data-patient-tabs]) {
   border: 0;
   border-radius: 14px;
   padding: 13px 17px;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
   min-height: 52px;
   display: inline-flex;
@@ -223,7 +223,7 @@ html:has(nav[data-patient-tabs]) {
   font-weight: 800;
   color: #996b56;
   letter-spacing: 0.04em;
-  font-size: 12px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -251,12 +251,12 @@ html:has(nav[data-patient-tabs]) {
   margin: 0;
 }
 .rs-body {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.8;
   color: #3e5564;
 }
 .rs-muted {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
   line-height: 1.6;
 }
@@ -285,7 +285,7 @@ html:has(nav[data-patient-tabs]) {
   margin: 22px 0 12px;
 }
 .rs-section-label .more {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--blue);
   font-weight: 700;
   min-height: 44px;
@@ -333,7 +333,7 @@ html:has(nav[data-patient-tabs]) {
 }
 .rs-hero-text .kicker {
   color: #637c8e;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   margin-bottom: 10px;
 }
@@ -343,10 +343,10 @@ html:has(nav[data-patient-tabs]) {
   margin: 0 0 9px;
 }
 .rs-hero-text p {
-  font-size: 12px;
-  line-height: 1.75;
+  font-size: 14px;
+  line-height: 1.7;
   margin: 0;
-  max-width: 184px;
+  max-width: 196px;
   color: #536a77;
 }
 .rs-rx {
@@ -367,7 +367,7 @@ html:has(nav[data-patient-tabs]) {
   align-items: center;
   gap: 7px;
   color: #59758a;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
 }
 .rs-sender i {
@@ -382,8 +382,8 @@ html:has(nav[data-patient-tabs]) {
   background: #eaf3ee;
   color: #4f7468;
   border-radius: 20px;
-  padding: 4px 9px;
-  font-size: 11px;
+  padding: 4px 10px;
+  font-size: 13px;
   font-weight: 800;
   white-space: nowrap;
 }
@@ -395,7 +395,7 @@ html:has(nav[data-patient-tabs]) {
   font-weight: 800;
 }
 .rs-rx .desc {
-  font-size: 13px;
+  font-size: 14px;
   color: #637885;
   line-height: 1.65;
   margin-bottom: 15px;
@@ -404,7 +404,7 @@ html:has(nav[data-patient-tabs]) {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 14px;
   color: #667f8f;
   margin-bottom: 15px;
 }
@@ -443,17 +443,17 @@ html:has(nav[data-patient-tabs]) {
   min-width: 0;
 }
 .rs-item-title {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
   line-height: 1.5;
 }
 .rs-item-sub {
-  color: #78909a;
-  font-size: 11px;
+  color: #6f8792;
+  font-size: 14px;
   margin-top: 3px;
 }
 .rs-item-trailing {
-  font-size: 11px;
+  font-size: 14px;
   color: #52798b;
   font-weight: 700;
   white-space: nowrap;
@@ -463,7 +463,7 @@ html:has(nav[data-patient-tabs]) {
   align-items: flex-start;
   gap: 8px;
   color: #688395;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.7;
   margin-top: 10px;
 }
@@ -486,7 +486,7 @@ html:has(nav[data-patient-tabs]) {
   padding: 14px 14px 13px;
   border-radius: 0 12px 12px 0;
   color: #28475e;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
   line-height: 1.6;
   margin: 14px 0;
@@ -510,7 +510,7 @@ html:has(nav[data-patient-tabs]) {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
 }
 .rs-listen .play {
@@ -530,7 +530,7 @@ html:has(nav[data-patient-tabs]) {
   gap: 6px;
 }
 .rs-short {
-  font-size: 14px;
+  font-size: 16px;
   color: #455d6d;
   line-height: 1.7;
   margin: 13px 0 13px;
@@ -551,7 +551,7 @@ html:has(nav[data-patient-tabs]) {
   gap: 3px;
 }
 .rs-segment {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 750;
   color: #6f8791;
   border: 0;
@@ -589,15 +589,54 @@ html:has(nav[data-patient-tabs]) {
   object-fit: contain;
 }
 .rs-figcaption {
-  font-size: 12px;
+  font-size: 14px;
   color: #5e6e78;
-  line-height: 1.75;
+  line-height: 1.7;
   padding: 4px 16px 14px;
   min-height: 54px;
 }
+/* 図の上の番号ピンと、図の下の凡例（名称は重ねない） */
+.rs-figpin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(31, 62, 83, 0.25);
+}
+.rs-figpin.inline {
+  position: static;
+  transform: none;
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+  box-shadow: none;
+  margin-right: 7px;
+  flex: none;
+}
+.rs-figlegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 10px 16px 0;
+  font-size: 14px;
+  color: #3e5564;
+  font-weight: 700;
+}
+.rs-figlegend li {
+  display: inline-flex;
+  align-items: center;
+}
 .rs-fignote {
   color: #677f8d;
-  font-size: 11px;
+  font-size: 13px;
   display: flex;
   gap: 6px;
   align-items: flex-start;
@@ -609,7 +648,7 @@ html:has(nav[data-patient-tabs]) {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 15px;
   color: #597280;
   cursor: pointer;
   min-height: 44px;
@@ -621,23 +660,22 @@ html:has(nav[data-patient-tabs]) {
   color: var(--blue);
 }
 .rs-details .rs-body {
-  font-size: 14px;
+  font-size: 16px;
   padding-top: 8px;
   white-space: pre-wrap;
 }
-/* 文字拡大（html[data-textsize=large]）: 本文系を 2〜3px 上げる */
+/* 文字拡大（html[data-textsize=large]）: 本文 18px、見出し 28px、補助 16px */
 html[data-textsize="large"] .reset-shell {
   font-size: 18px;
 }
-html[data-textsize="large"] .reset-shell .rs-h1 {
-  font-size: 28px;
-}
+html[data-textsize="large"] .reset-shell .rs-h1,
 html[data-textsize="large"] .reset-shell .rs-hero-text .rs-h1 {
   font-size: 28px;
 }
 html[data-textsize="large"] .reset-shell .rs-hero-text p,
-html[data-textsize="large"] .reset-shell .rs-hero-text .kicker {
-  font-size: 13px;
+html[data-textsize="large"] .reset-shell .rs-hero-text .kicker,
+html[data-textsize="large"] .reset-shell .rs-eyebrow {
+  font-size: 15px;
 }
 html[data-textsize="large"] .reset-shell .rs-rx h2 {
   font-size: 23px;
@@ -650,18 +688,22 @@ html[data-textsize="large"] .reset-shell .rs-item-trailing,
 html[data-textsize="large"] .reset-shell .rs-muted,
 html[data-textsize="large"] .reset-shell .rs-fignote,
 html[data-textsize="large"] .reset-shell .rs-figcaption,
+html[data-textsize="large"] .reset-shell .rs-figlegend,
 html[data-textsize="large"] .reset-shell .rs-segment,
-html[data-textsize="large"] .reset-shell .rs-eyebrow {
-  font-size: 14px;
+html[data-textsize="large"] .reset-shell .rs-sender,
+html[data-textsize="large"] .reset-shell .rs-pill,
+html[data-textsize="large"] .reset-shell .rs-hero-secondary {
+  font-size: 16px;
 }
 html[data-textsize="large"] .reset-shell .rs-prop,
 html[data-textsize="large"] .reset-shell .rs-short,
 html[data-textsize="large"] .reset-shell .rs-body,
 html[data-textsize="large"] .reset-shell .rs-details .rs-body,
+html[data-textsize="large"] .reset-shell .rs-details > summary,
 html[data-textsize="large"] .reset-shell .rs-btn,
 html[data-textsize="large"] .reset-shell .rs-listen .left {
-  font-size: 17px;
+  font-size: 18px;
 }
 html[data-textsize="large"] .reset-shell .rs-tab {
-  font-size: 12px;
+  font-size: 13px;
 }

@@ -120,7 +120,7 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
                 <div className="rs-segments" role="tablist" aria-label="図解を選ぶ">
                   {figures.map((f, i) => (
                     <button key={f.placementId} role="tab" aria-selected={i === figIdx} className="rs-segment" onClick={() => setFigIdx(i)}>
-                      {f.tabLabel ?? f.labels[0]?.text ?? `図 ${i + 1}`}
+                      {f.shortLabel ?? f.tabLabel ?? `図 ${i + 1}`}
                     </button>
                   ))}
                 </div>
@@ -129,16 +129,24 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
                 <div className="frame">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={fig.src!} alt={fig.altText} />
-                  {fig.labels.map((l) => (
-                    <span key={l.id}>
-                      <i className="fig-anchor" style={{ left: `${l.anchor.x}%`, top: `${l.anchor.y}%` }} aria-hidden />
-                      <span className="fig-label" style={{ left: `${l.anchor.x + (l.offset?.x ?? 0)}%`, top: `${l.anchor.y + (l.offset?.y ?? 18)}%` }}>
-                        {l.text}
-                      </span>
+                  {/* 図の上には番号の点だけを置き、名称は図の下の凡例に移す（ラベル同士の重なりで図を隠さない） */}
+                  {fig.labels.map((l, i) => (
+                    <span key={l.id} className="rs-figpin" style={{ left: `${l.anchor.x}%`, top: `${l.anchor.y}%` }} aria-hidden>
+                      {i + 1}
                     </span>
                   ))}
                 </div>
               </div>
+              {fig.labels.length > 0 && (
+                <ol className="rs-figlegend" aria-label="図の番号の意味">
+                  {fig.labels.map((l, i) => (
+                    <li key={l.id}>
+                      <span className="rs-figpin inline">{i + 1}</span>
+                      {l.text}
+                    </li>
+                  ))}
+                </ol>
+              )}
               <figcaption className="rs-figcaption">{fig.caption ?? fig.altText}</figcaption>
             </figure>
           )}

@@ -44,6 +44,18 @@ test("Phase A: 患者ホームと教材学習の撮影・計測", async ({ brows
       await page.waitForTimeout(200);
       await page.screenshot({ path: `${OUT}/app_home_${sfx}.png`, fullPage: false });
       await page.screenshot({ path: `${OUT}/app_home_${sfx}_full.png`, fullPage: true });
+      const homeBottom = await page.evaluate(() => {
+        window.scrollTo(0, document.documentElement.scrollHeight);
+        const main = document.querySelector("main")!;
+        const last = Array.from(main.querySelectorAll("p, li, button, a")).filter((e) => e.getBoundingClientRect().height > 0).at(-1)!;
+        const b = last.getBoundingClientRect();
+        const el = document.elementFromPoint(b.left + b.width / 2, b.bottom - 2);
+        const r = { text: (last.textContent ?? "").slice(0, 30), bottom: Math.round(b.bottom), vh: window.innerHeight, coveredByFixed: !!el && !last.contains(el) && !!el.closest(".rs-cta, .rs-tabs") };
+        window.scrollTo(0, 0);
+        return r;
+      });
+      expect(homeBottom.coveredByFixed, `ホーム最下部の要素が下部タブに隠れる (${sfx}): ${homeBottom.text}`).toBe(false);
+      metrics[`home_${sfx}_bottom`] = homeBottom;
       metrics[`home_${sfx}`] = {
         header: await box(page, ".rs-header"),
         hero: await box(page, ".rs-hero"),
@@ -81,14 +93,32 @@ test("Phase A: 患者ホームと教材学習の撮影・計測", async ({ brows
         primaryBtn: await box(page, ".rs-cta .rs-btn.primary"),
         ...(await layoutAudit(page)),
       };
-      if (!large) {
-        // 図のタブ切り替えと、最終画面の「確認問題へ」
-        const tabs = page.getByRole("tab");
-        if ((await tabs.count()) > 1) {
-          await tabs.nth(1).click();
-          await expect(tabs.nth(1)).toHaveAttribute("aria-selected", "true");
-          if (vp.width <= 430) await page.screenshot({ path: `${OUT}/app_learn_${sfx}_tab2.png`, fullPage: false });
+      // 図の 3 タブ（390 / 430 は標準・拡大とも撮影）。タブ名が省略（ellipsis）されていないことを確認
+      const tabs = page.getByRole("tab");
+      const n = await tabs.count();
+      for (let i = 0; i < n; i++) {
+        await tabs.nth(i).click();
+        await expect(tabs.nth(i)).toHaveAttribute("aria-selected", "true");
+        const clipped = await tabs.nth(i).evaluate((el) => el.scrollWidth > el.clientWidth + 1);
+        expect(clipped, `タブ名が省略されている (${sfx}, tab ${i + 1})`).toBe(false);
+        if (vp.width <= 430) {
+          await page.locator(".rs-figure").screenshot({ path: `${OUT}/app_learn_${sfx}_fig${i + 1}.png` });
         }
+      }
+      // 最下部までスクロールしても固定 CTA に本文・詳細・ボタンが隠れない
+      await page.locator("details.rs-details > summary").click().catch(() => {});
+      const covered = await page.evaluate(() => {
+        window.scrollTo(0, document.documentElement.scrollHeight);
+        const main = document.querySelector("main")!;
+        const last = Array.from(main.querySelectorAll("p, li, summary, button, a")).filter((e) => e.getBoundingClientRect().height > 0).at(-1)!;
+        const b = last.getBoundingClientRect();
+        const el = document.elementFromPoint(b.left + b.width / 2, b.bottom - 2);
+        return { text: (last.textContent ?? "").slice(0, 30), bottom: Math.round(b.bottom), vh: window.innerHeight, coveredByFixed: !!el && !last.contains(el) && !!el.closest(".rs-cta, .rs-tabs") };
+      });
+      metrics[`learn_${sfx}_bottom`] = covered;
+      expect(covered.coveredByFixed, `最下部の要素が固定 CTA に隠れる (${sfx}): ${covered.text}`).toBe(false);
+      if (!large) {
+        await page.evaluate(() => window.scrollTo(0, 0));
         await page.getByRole("button", { name: /次のページへ/ }).click();
         await expect(page.getByText(/2 \/ 4/)).toBeVisible();
       }

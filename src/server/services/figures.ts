@@ -28,6 +28,8 @@ export type FigureView = {
   reviewedAt: Date | null;
   /** 切り替えタブの見出し（caption の最初の句） */
   tabLabel: string | null;
+  /** タブ用の短い表現（2〜5 文字。文字拡大時も省略されない）。正式な説明は caption */
+  shortLabel: string | null;
   reviewScopeNote: string | null;
   revisionCandidates: string[];
   learningObjective: string | null;
@@ -44,6 +46,14 @@ function toSrc(a: { assetId?: string; type: "medical" | "editorial"; filename: s
   if (!a.filename) return null;
   if (a.type === "medical" && a.reviewStatus !== "approved" && a.assetId) return `/api/v1/admin/figures/${a.assetId}/image`;
   return `/assets/${a.type}/${a.filename}`;
+}
+
+function shortLabelOf(caption: string | null): string | null {
+  if (!caption) return null;
+  if (caption.startsWith("乳房のなかの病変")) return "乳房";
+  if (caption.startsWith("乳房に近いリンパ節")) return "リンパ節";
+  if (caption.startsWith("離れた臓器")) return "ほかの臓器";
+  return caption.split(/[。（(、]/)[0].slice(0, 5);
 }
 
 function tabLabelOf(caption: string | null): string | null {
@@ -94,6 +104,7 @@ export async function listApprovedFiguresForVersion(versionId: string, db: Db = 
       labels: p.labels,
       caption: p.caption,
       tabLabel: tabLabelOf(p.caption),
+      shortLabel: shortLabelOf(p.caption),
       sourceNote: p.sourceNote,
       reviewStatus: a.reviewStatus,
       reviewedAt: a.reviewedAt,
@@ -148,6 +159,7 @@ export async function listAllFiguresForVersion(versionId: string, db: Db = getDb
       labels: p.labels,
       caption: p.caption,
       tabLabel: tabLabelOf(p.caption),
+      shortLabel: shortLabelOf(p.caption),
       sourceNote: p.sourceNote,
       reviewStatus: a.reviewStatus,
       reviewedAt: a.reviewedAt,

@@ -64,7 +64,7 @@ test("MED-001 管理者プレビュー（切り替え / 縦並び）と患者画
     await expect(p.page.getByText(/病院の公式な承認・推奨を受けたものではありません/).first()).toBeVisible();
     await p.page.getByText(/くわしい説明・監修情報を確認する/).first().click();
     await p.page.screenshot({ path: `${SHOT_DIR}/med001_patient_learn_390.png`, fullPage: true });
-    for (const tab of ["近くのリンパ節", "離れた臓器"]) {
+    for (const tab of ["リンパ節", "ほかの臓器"]) {
       await p.page.getByRole("tab", { name: tab }).click();
       await p.page.screenshot({ path: `${SHOT_DIR}/med001_patient_learn_390_${tab}.png`, fullPage: true });
     }

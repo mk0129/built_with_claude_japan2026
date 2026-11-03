@@ -1,59 +1,11 @@
 {
-  "home_390": {
-    "header": {
-      "top": 0,
-      "left": 0,
-      "w": 390,
-      "h": 56
-    },
-    "hero": {
-      "top": 73,
-      "left": 17,
-      "w": 356,
-      "h": 210
-    },
-    "heroImg": {
-      "top": 91,
-      "left": 153,
-      "w": 245,
-      "h": 202
-    },
-    "h1": {
-      "top": 125,
-      "left": 34,
-      "w": 210,
-      "h": 72
-    },
-    "rxCard": {
-      "top": 298,
-      "left": 18,
-      "w": 354,
-      "h": 264
-    },
-    "rxTitle": {
-      "top": 362,
-      "left": 36,
-      "w": 318,
-      "h": 30
-    },
-    "primaryBtn": {
-      "top": 492,
-      "left": 36,
-      "w": 318,
-      "h": 52
-    },
-    "tabs": {
-      "top": 768,
-      "left": 0,
-      "w": 390,
-      "h": 76
-    },
-    "overflowX": 0,
-    "small": [],
-    "clipped": [],
-    "fontSize": "18px"
+  "home_390_bottom": {
+    "text": "ログアウト",
+    "bottom": 740,
+    "vh": 844,
+    "coveredByFixed": false
   },
-  "home_390_large": {
+  "home_390": {
     "header": {
       "top": 0,
       "left": 0,
@@ -76,22 +28,82 @@
       "top": 128,
       "left": 34,
       "w": 210,
+      "h": 72
+    },
+    "rxCard": {
+      "top": 298,
+      "left": 18,
+      "w": 354,
+      "h": 275
+    },
+    "rxTitle": {
+      "top": 365,
+      "left": 36,
+      "w": 318,
+      "h": 30
+    },
+    "primaryBtn": {
+      "top": 503,
+      "left": 36,
+      "w": 318,
+      "h": 52
+    },
+    "tabs": {
+      "top": 768,
+      "left": 0,
+      "w": 390,
+      "h": 76
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "home_390_large_bottom": {
+    "text": "ログアウト",
+    "bottom": 740,
+    "vh": 844,
+    "coveredByFixed": false
+  },
+  "home_390_large": {
+    "header": {
+      "top": 0,
+      "left": 0,
+      "w": 390,
+      "h": 56
+    },
+    "hero": {
+      "top": 73,
+      "left": 17,
+      "w": 356,
+      "h": 210
+    },
+    "heroImg": {
+      "top": 91,
+      "left": 153,
+      "w": 245,
+      "h": 202
+    },
+    "h1": {
+      "top": 132,
+      "left": 34,
+      "w": 210,
       "h": 77
     },
     "rxCard": {
       "top": 298,
       "left": 18,
       "w": 354,
-      "h": 274
+      "h": 293
     },
     "rxTitle": {
-      "top": 362,
+      "top": 371,
       "left": 36,
       "w": 318,
       "h": 33
     },
     "primaryBtn": {
-      "top": 502,
+      "top": 521,
       "left": 36,
       "w": 318,
       "h": 52
@@ -115,43 +127,43 @@
       "h": 56
     },
     "h1": {
-      "top": 131,
+      "top": 132,
       "left": 18,
       "w": 354,
       "h": 35
     },
     "prop": {
-      "top": 179,
+      "top": 181,
       "left": 18,
       "w": 354,
-      "h": 75
+      "h": 78
     },
     "listen": {
-      "top": 268,
+      "top": 273,
       "left": 18,
       "w": 354,
       "h": 56
     },
     "short": {
-      "top": 337,
+      "top": 342,
       "left": 18,
       "w": 354,
-      "h": 48
+      "h": 82
     },
     "figure": {
-      "top": 398,
+      "top": 437,
       "left": 18,
       "w": 354,
-      "h": 354
+      "h": 395
     },
     "segments": {
-      "top": 399,
+      "top": 438,
       "left": 19,
       "w": 352,
       "h": 56
     },
     "figMain": {
-      "top": 455,
+      "top": 494,
       "left": 19,
       "w": 352,
       "h": 236
@@ -164,14 +176,20 @@
     },
     "primaryBtn": {
       "top": 771,
-      "left": 93,
-      "w": 279,
+      "left": 95,
+      "w": 277,
       "h": 55
     },
     "overflowX": 0,
     "small": [],
     "clipped": [],
     "fontSize": "18px"
+  },
+  "learn_390_bottom": {
+    "text": "開発者（医師）による医学的確認を経たデモ教材の模式図です。病",
+    "bottom": 718,
+    "vh": 844,
+    "coveredByFixed": false
   },
   "learn_390_large": {
     "header": {
@@ -181,43 +199,43 @@
       "h": 56
     },
     "h1": {
-      "top": 134,
+      "top": 136,
       "left": 18,
       "w": 354,
       "h": 39
     },
     "prop": {
-      "top": 187,
+      "top": 189,
       "left": 18,
       "w": 354,
-      "h": 81
+      "h": 85
     },
     "listen": {
-      "top": 282,
+      "top": 287,
       "left": 18,
       "w": 354,
       "h": 56
     },
     "short": {
-      "top": 351,
+      "top": 357,
       "left": 18,
       "w": 354,
-      "h": 87
+      "h": 92
     },
     "figure": {
-      "top": 451,
+      "top": 461,
       "left": 18,
       "w": 354,
-      "h": 361
+      "h": 408
     },
     "segments": {
-      "top": 452,
+      "top": 462,
       "left": 19,
       "w": 352,
-      "h": 56
+      "h": 59
     },
     "figMain": {
-      "top": 508,
+      "top": 521,
       "left": 19,
       "w": 352,
       "h": 236
@@ -230,72 +248,28 @@
     },
     "primaryBtn": {
       "top": 771,
-      "left": 97,
-      "w": 275,
+      "left": 99,
+      "w": 273,
       "h": 55
     },
     "overflowX": 0,
     "small": [],
-    "clipped": [
-      "乳房のなかの病変"
-    ],
+    "clipped": [],
     "fontSize": "21px"
   },
-  "home_430": {
-    "header": {
-      "top": 0,
-      "left": 0,
-      "w": 430,
-      "h": 56
-    },
-    "hero": {
-      "top": 73,
-      "left": 17,
-      "w": 396,
-      "h": 210
-    },
-    "heroImg": {
-      "top": 91,
-      "left": 193,
-      "w": 245,
-      "h": 202
-    },
-    "h1": {
-      "top": 125,
-      "left": 34,
-      "w": 210,
-      "h": 72
-    },
-    "rxCard": {
-      "top": 298,
-      "left": 18,
-      "w": 394,
-      "h": 243
-    },
-    "rxTitle": {
-      "top": 362,
-      "left": 36,
-      "w": 358,
-      "h": 30
-    },
-    "primaryBtn": {
-      "top": 471,
-      "left": 36,
-      "w": 358,
-      "h": 52
-    },
-    "tabs": {
-      "top": 856,
-      "left": 0,
-      "w": 430,
-      "h": 76
-    },
-    "overflowX": 0,
-    "small": [],
-    "clipped": [],
-    "fontSize": "18px"
+  "learn_390_large_bottom": {
+    "text": "開発者（医師）による医学的確認を経たデモ教材の模式図です。病",
+    "bottom": 718,
+    "vh": 844,
+    "coveredByFixed": false
   },
-  "home_430_large": {
+  "home_430_bottom": {
+    "text": "ログアウト",
+    "bottom": 828,
+    "vh": 932,
+    "coveredByFixed": false
+  },
+  "home_430": {
     "header": {
       "top": 0,
       "left": 0,
@@ -318,22 +292,82 @@
       "top": 128,
       "left": 34,
       "w": 210,
+      "h": 72
+    },
+    "rxCard": {
+      "top": 298,
+      "left": 18,
+      "w": 394,
+      "h": 275
+    },
+    "rxTitle": {
+      "top": 365,
+      "left": 36,
+      "w": 358,
+      "h": 30
+    },
+    "primaryBtn": {
+      "top": 503,
+      "left": 36,
+      "w": 358,
+      "h": 52
+    },
+    "tabs": {
+      "top": 856,
+      "left": 0,
+      "w": 430,
+      "h": 76
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "home_430_large_bottom": {
+    "text": "ログアウト",
+    "bottom": 828,
+    "vh": 932,
+    "coveredByFixed": false
+  },
+  "home_430_large": {
+    "header": {
+      "top": 0,
+      "left": 0,
+      "w": 430,
+      "h": 56
+    },
+    "hero": {
+      "top": 73,
+      "left": 17,
+      "w": 396,
+      "h": 210
+    },
+    "heroImg": {
+      "top": 91,
+      "left": 193,
+      "w": 245,
+      "h": 202
+    },
+    "h1": {
+      "top": 132,
+      "left": 34,
+      "w": 210,
       "h": 77
     },
     "rxCard": {
       "top": 298,
       "left": 18,
       "w": 394,
-      "h": 274
+      "h": 293
     },
     "rxTitle": {
-      "top": 362,
+      "top": 371,
       "left": 36,
       "w": 358,
       "h": 33
     },
     "primaryBtn": {
-      "top": 502,
+      "top": 521,
       "left": 36,
       "w": 358,
       "h": 52
@@ -357,43 +391,43 @@
       "h": 56
     },
     "h1": {
-      "top": 131,
+      "top": 132,
       "left": 18,
       "w": 394,
       "h": 35
     },
     "prop": {
-      "top": 179,
+      "top": 181,
       "left": 18,
       "w": 394,
-      "h": 75
+      "h": 78
     },
     "listen": {
-      "top": 268,
+      "top": 273,
       "left": 18,
       "w": 394,
       "h": 56
     },
     "short": {
-      "top": 337,
+      "top": 342,
       "left": 18,
       "w": 394,
-      "h": 48
+      "h": 54
     },
     "figure": {
-      "top": 398,
+      "top": 409,
       "left": 18,
       "w": 394,
-      "h": 354
+      "h": 395
     },
     "segments": {
-      "top": 399,
+      "top": 410,
       "left": 19,
       "w": 392,
       "h": 56
     },
     "figMain": {
-      "top": 455,
+      "top": 466,
       "left": 19,
       "w": 392,
       "h": 236
@@ -406,14 +440,20 @@
     },
     "primaryBtn": {
       "top": 859,
-      "left": 93,
-      "w": 319,
+      "left": 95,
+      "w": 317,
       "h": 55
     },
     "overflowX": 0,
     "small": [],
     "clipped": [],
     "fontSize": "18px"
+  },
+  "learn_430_bottom": {
+    "text": "開発者（医師）による医学的確認を経たデモ教材の模式図です。病",
+    "bottom": 806,
+    "vh": 932,
+    "coveredByFixed": false
   },
   "learn_430_large": {
     "header": {
@@ -423,43 +463,43 @@
       "h": 56
     },
     "h1": {
-      "top": 134,
+      "top": 136,
       "left": 18,
       "w": 394,
       "h": 39
     },
     "prop": {
-      "top": 187,
+      "top": 189,
       "left": 18,
       "w": 394,
-      "h": 81
+      "h": 85
     },
     "listen": {
-      "top": 282,
+      "top": 287,
       "left": 18,
       "w": 394,
       "h": 56
     },
     "short": {
-      "top": 351,
+      "top": 357,
       "left": 18,
       "w": 394,
-      "h": 58
+      "h": 92
     },
     "figure": {
-      "top": 422,
+      "top": 461,
       "left": 18,
       "w": 394,
-      "h": 361
+      "h": 408
     },
     "segments": {
-      "top": 423,
+      "top": 462,
       "left": 19,
       "w": 392,
-      "h": 56
+      "h": 59
     },
     "figMain": {
-      "top": 479,
+      "top": 521,
       "left": 19,
       "w": 392,
       "h": 236
@@ -472,14 +512,26 @@
     },
     "primaryBtn": {
       "top": 859,
-      "left": 97,
-      "w": 315,
+      "left": 99,
+      "w": 313,
       "h": 55
     },
     "overflowX": 0,
     "small": [],
     "clipped": [],
     "fontSize": "21px"
+  },
+  "learn_430_large_bottom": {
+    "text": "開発者（医師）による医学的確認を経たデモ教材の模式図です。病",
+    "bottom": 806,
+    "vh": 932,
+    "coveredByFixed": false
+  },
+  "home_820_bottom": {
+    "text": "ログアウト",
+    "bottom": 936,
+    "vh": 1180,
+    "coveredByFixed": false
   },
   "home_820": {
     "header": {
@@ -501,7 +553,7 @@
       "h": 202
     },
     "h1": {
-      "top": 125,
+      "top": 128,
       "left": 192,
       "w": 210,
       "h": 72
@@ -510,16 +562,16 @@
       "top": 298,
       "left": 176,
       "w": 468,
-      "h": 243
+      "h": 251
     },
     "rxTitle": {
-      "top": 362,
+      "top": 365,
       "left": 194,
       "w": 432,
       "h": 30
     },
     "primaryBtn": {
-      "top": 471,
+      "top": 479,
       "left": 194,
       "w": 432,
       "h": 52
@@ -543,43 +595,43 @@
       "h": 56
     },
     "h1": {
-      "top": 131,
+      "top": 132,
       "left": 176,
       "w": 468,
       "h": 35
     },
     "prop": {
-      "top": 179,
+      "top": 181,
       "left": 176,
       "w": 468,
-      "h": 51
+      "h": 78
     },
     "listen": {
-      "top": 244,
+      "top": 273,
       "left": 176,
       "w": 468,
       "h": 56
     },
     "short": {
-      "top": 313,
+      "top": 342,
       "left": 176,
       "w": 468,
-      "h": 48
+      "h": 54
     },
     "figure": {
-      "top": 374,
+      "top": 409,
       "left": 176,
       "w": 468,
-      "h": 354
+      "h": 395
     },
     "segments": {
-      "top": 375,
+      "top": 410,
       "left": 177,
       "w": 466,
       "h": 56
     },
     "figMain": {
-      "top": 431,
+      "top": 466,
       "left": 177,
       "w": 466,
       "h": 236
@@ -592,14 +644,26 @@
     },
     "primaryBtn": {
       "top": 1107,
-      "left": 233,
-      "w": 429,
+      "left": 235,
+      "w": 427,
       "h": 55
     },
     "overflowX": 0,
     "small": [],
     "clipped": [],
     "fontSize": "18px"
+  },
+  "learn_820_bottom": {
+    "text": "開発者（医師）による医学的確認を経たデモ教材の模式図です。病",
+    "bottom": 1054,
+    "vh": 1180,
+    "coveredByFixed": false
+  },
+  "home_1180_bottom": {
+    "text": "ログアウト",
+    "bottom": 716,
+    "vh": 820,
+    "coveredByFixed": false
   },
   "home_1180": {
     "header": {
@@ -621,7 +685,7 @@
       "h": 202
     },
     "h1": {
-      "top": 125,
+      "top": 128,
       "left": 372,
       "w": 210,
       "h": 72
@@ -630,16 +694,16 @@
       "top": 298,
       "left": 356,
       "w": 468,
-      "h": 243
+      "h": 251
     },
     "rxTitle": {
-      "top": 362,
+      "top": 365,
       "left": 374,
       "w": 432,
       "h": 30
     },
     "primaryBtn": {
-      "top": 471,
+      "top": 479,
       "left": 374,
       "w": 432,
       "h": 52
@@ -663,43 +727,43 @@
       "h": 56
     },
     "h1": {
-      "top": 131,
+      "top": 132,
       "left": 356,
       "w": 468,
       "h": 35
     },
     "prop": {
-      "top": 179,
+      "top": 181,
       "left": 356,
       "w": 468,
-      "h": 51
+      "h": 78
     },
     "listen": {
-      "top": 244,
+      "top": 273,
       "left": 356,
       "w": 468,
       "h": 56
     },
     "short": {
-      "top": 313,
+      "top": 342,
       "left": 356,
       "w": 468,
-      "h": 48
+      "h": 54
     },
     "figure": {
-      "top": 374,
+      "top": 409,
       "left": 356,
       "w": 468,
-      "h": 354
+      "h": 395
     },
     "segments": {
-      "top": 375,
+      "top": 410,
       "left": 357,
       "w": 466,
       "h": 56
     },
     "figMain": {
-      "top": 431,
+      "top": 466,
       "left": 357,
       "w": 466,
       "h": 236
@@ -712,13 +776,19 @@
     },
     "primaryBtn": {
       "top": 747,
-      "left": 413,
-      "w": 429,
+      "left": 415,
+      "w": 427,
       "h": 55
     },
     "overflowX": 0,
     "small": [],
     "clipped": [],
     "fontSize": "18px"
+  },
+  "learn_1180_bottom": {
+    "text": "開発者（医師）による医学的確認を経たデモ教材の模式図です。病",
+    "bottom": 694,
+    "vh": 820,
+    "coveredByFixed": false
   }
 }
