@@ -1,0 +1,202 @@
+{
+  "after_home_390": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_learn_390": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px",
+    "vh": 844,
+    "body": 542,
+    "strip": 422,
+    "figure": 682,
+    "docH": 1349
+  },
+  "after_learn_390_large": {
+    "vh": 844,
+    "body": 610,
+    "strip": 474,
+    "figure": 774,
+    "docH": 1517,
+    "overflowX": 0
+  },
+  "after_learn_fullfig_390": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px",
+    "vh": 844,
+    "body": 422,
+    "strip": null,
+    "figure": 748,
+    "docH": 1415
+  },
+  "after_result_390": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_consult_390": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_outline_390": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_home_430": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_learn_430": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px",
+    "vh": 932,
+    "body": 536,
+    "strip": 422,
+    "figure": 676,
+    "docH": 1383
+  },
+  "after_learn_430_large": {
+    "vh": 932,
+    "body": 610,
+    "strip": 474,
+    "figure": 774,
+    "docH": 1557,
+    "overflowX": 0
+  },
+  "after_learn_fullfig_430": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px",
+    "vh": 932,
+    "body": 422,
+    "strip": null,
+    "figure": 748,
+    "docH": 1455
+  },
+  "after_result_430": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_consult_430": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_outline_430": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_home_820": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_learn_820": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px",
+    "vh": 1180,
+    "body": 536,
+    "strip": 422,
+    "figure": 642,
+    "docH": 1423
+  },
+  "after_learn_fullfig_820": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px",
+    "vh": 1180,
+    "body": 422,
+    "strip": null,
+    "figure": 714,
+    "docH": 1495
+  },
+  "after_result_820": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_consult_820": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_outline_820": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_home_1180": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_learn_1180": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px",
+    "vh": 820,
+    "body": 536,
+    "strip": 422,
+    "figure": 642,
+    "docH": 1423
+  },
+  "after_learn_fullfig_1180": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px",
+    "vh": 820,
+    "body": 422,
+    "strip": null,
+    "figure": 714,
+    "docH": 1495
+  },
+  "after_result_1180": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_consult_1180": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "after_outline_1180": {
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  }
+}

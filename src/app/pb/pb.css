@@ -1,0 +1,193 @@
+/*
+ * Porcelain Blue 比較用トークン（暫定基準: 主色 #365C79 / 背景 #F5F8FA / カード #FFFFFF / アクセント #C9957E / 文字 #243744）。
+ * .pb-shell にスコープし、本番の globals.css には触れない。既存ユーティリティ（bg-accent 等）は CSS 変数経由なので
+ * スコープ内では自動的にこの配色になる。
+ */
+.pb-shell {
+  /* 基本色 */
+  --bg: #f5f8fa;
+  --surface: #ffffff;
+  --ink: #243744;
+  --ink-soft: #4b6172;
+  --ink-muted: #7a8b98;
+  --line: #d8e1e8;
+  --line-strong: #365c79;
+  /* 主色（主要ボタン・リンク・進捗） */
+  --accent: #365c79;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3ebf1;
+  /* アクセント（見出しラベル・「次に読むもの」・読み終えた印。面として少量） */
+  --pb-terra: #c9957e;
+  --pb-terra-ink: #7a4f3c;
+  --pb-terra-soft: #f6ebe4;
+  /* 状態の面（既存トークン名を流用: 正解 / ちがう答え / わからない / 情報） */
+  --wakakusa: #e1eee8;
+  --ok: #3b7a63;
+  --sakura: #f6e7e1;
+  --sakura-deep: #c9957e;
+  --danger: #a94f3e;
+  --suna: #f1ece3;
+  --sora: #e3ebf1;
+  --radius: 20px;
+  --tap: 56px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.pb-shell .card {
+  background: var(--surface);
+  border: 0;
+  border-radius: var(--radius);
+  padding: 1.25rem 1.3rem;
+  box-shadow: 0 1px 2px rgba(36, 55, 68, 0.06), 0 8px 24px -18px rgba(36, 55, 68, 0.25);
+}
+.pb-shell .card.flat {
+  box-shadow: none;
+  border: 1px solid var(--line);
+}
+.pb-shell .btn {
+  min-height: var(--tap);
+  border-radius: 999px;
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  background: var(--surface);
+  font-size: 1.05rem;
+}
+.pb-shell .btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.pb-shell .btn-soft {
+  background: var(--accent-soft);
+  border-color: transparent;
+  color: var(--ink);
+}
+.pb-shell .btn-ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--accent);
+}
+.pb-shell .btn-danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.pb-shell .pill {
+  background: var(--accent-soft);
+  color: var(--ink-soft);
+  border: 0;
+  font-weight: 700;
+}
+.pb-shell .pill.terra {
+  background: var(--pb-terra-soft);
+  color: var(--pb-terra-ink);
+}
+.pb-shell .input {
+  border-color: var(--line);
+  border-radius: 16px;
+}
+.pb-shell .input:focus {
+  outline: 3px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+/* 見出しの階層: 小見出しラベル（eyebrow）→ 見出し → 補助 */
+.pb-eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--pb-terra-ink);
+}
+.pb-shell h1 {
+  letter-spacing: -0.01em;
+}
+/* 進捗 */
+.pb-shell .prog i {
+  height: 6px;
+  background: var(--line);
+}
+.pb-shell .prog i.on {
+  background: var(--accent);
+}
+/* 教材一覧の状態リング */
+.pb-shell .ring {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.pb-shell .ring.done {
+  background: var(--accent);
+  color: #fff;
+}
+.pb-shell .ring.todo {
+  border-color: var(--line);
+  color: var(--ink-muted);
+}
+/* 図解ストリップ（390 の初期表示に図を入れるための小さなプレビュー行） */
+.pb-figstrip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.pb-figstrip button {
+  border-radius: 16px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  padding: 6px;
+  text-align: left;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pb-figstrip button[aria-selected="true"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.pb-figstrip img {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  object-fit: cover;
+  border-radius: 10px;
+  background: var(--sora);
+}
+.pb-figstrip span {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink);
+  min-width: 0;
+}
+html[data-textsize="large"] .pb-figstrip span {
+  font-size: 0.72rem;
+}
+/* 医療者画面（密度を上げる） */
+.pb-staff {
+  font-size: 15px;
+  line-height: 1.55;
+}
+.pb-staff .card {
+  padding: 1rem 1.1rem;
+  border-radius: 16px;
+}
+.pb-staff .btn {
+  min-height: 44px;
+  font-size: 0.95rem;
+  padding: 0.4rem 1rem;
+}
+.pb-staff .pill {
+  font-size: 0.8rem;
+}
+.pb-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  gap: 2px;
+}
+.pb-tab[aria-current="page"] {
+  color: var(--accent);
+  font-weight: 700;
+}
