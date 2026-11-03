@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   // Cache Components は認証必須アプリでは全ページが動的になるため無効化（従来モデル）
   serverExternalPackages: ["@electric-sql/pglite", "postgres"],
   devIndicators: false,
+  // 実機確認用: DEV_ALLOWED_ORIGINS=192.168.x.x のように指定したときだけ、LAN 内の端末から開発サーバーへのアクセスを許可する
+  ...(process.env.DEV_ALLOWED_ORIGINS ? { allowedDevOrigins: process.env.DEV_ALLOWED_ORIGINS.split(",").map((s) => s.trim()) } : {}),
   turbopack: {
     rules: {
       "*.css": {
