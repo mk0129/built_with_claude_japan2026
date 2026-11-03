@@ -23,6 +23,8 @@ export type ConsultationView = {
   active: boolean;
   remainingSec: number;
   pendingExtension: { id: string; requestedAt: Date } | null;
+  /** 共有中だけ。医療者画面のヘッダー用（終了後は null） */
+  patientName: string | null;
 };
 
 async function loadView(sessionId: string, db: Db): Promise<(ConsultationView & { patientId: string; clinicianId: string }) | null> {
@@ -55,8 +57,10 @@ async function loadView(sessionId: string, db: Db): Promise<(ConsultationView & 
     .orderBy(desc(consultationExtensions.requestedAt))
     .limit(1);
   const active = isSessionActive(s);
+  const [pu] = active ? await db.select({ name: user.name }).from(user).where(eq(user.id, s.patientId)).limit(1) : [];
   return {
     ...s,
+    patientName: pu?.name ?? null,
     clinicianName: m?.displayName ?? "医療者",
     active,
     remainingSec: active ? Math.max(0, Math.floor((s.expiresAt.getTime() - Date.now()) / 1000)) : 0,

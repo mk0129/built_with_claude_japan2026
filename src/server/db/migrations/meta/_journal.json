@@ -64,6 +64,13 @@
       "when": 1793664002514,
       "tag": "0008_day6_must_cover",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793715470286,
+      "tag": "0009_connect_requests",
+      "breakpoints": true
     }
   ]
 }

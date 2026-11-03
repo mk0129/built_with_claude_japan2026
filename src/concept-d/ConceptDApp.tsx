@@ -7,7 +7,8 @@
  * - ConceptDDev: 開発用。Figma の検証シナリオ・テスト状態・表示幅の切り替えつき（案 A/B/C は含めない）。
  */
 import { useState, useSyncExternalStore } from "react"
-import ClinicianD, { type ClinicianDViewport } from "./ClinicianD"
+import ClinicianD, { CIcon, type ClinicianDViewport } from "./ClinicianD"
+import { useClinicianLive, usePatientLive } from "./live"
 import { DPrototype, Icon, Logo, type DViewport } from "./PatientD"
 import { initialActiveSymptomIds, initialHealthRecords, type HealthRecord } from "./healthData"
 import { UrlInitContext, type UrlInit } from "./urlState"
@@ -63,12 +64,15 @@ function useMedia(query: string, serverValue: boolean) {
 export function PatientDApp({ initial = {} }: { initial?: UrlInit }) {
   const s = useConceptDState()
   const tablet = useMedia("(min-width: 701px)", false)
+  const connect = typeof initial.connect === "string" ? initial.connect : null
+  const live = usePatientLive(connect, s.notify)
   return (
     <UrlInitContext.Provider value={initial}>
     <div className="d-app-stage">
       <ProtoFlag />
       <DPrototype
         variant="app"
+        live={live}
         viewport={tablet ? "tablet" : "390"}
         notify={s.notify}
         healthRecords={s.healthRecords}
@@ -85,20 +89,32 @@ export function PatientDApp({ initial = {} }: { initial?: UrlInit }) {
 }
 
 /** 医療者: 1180px 以上は Figma の 1180 表示、それ未満は 820 表示（どちらも幅は Figma の設計幅のまま） */
-export function ClinicianDApp() {
+export function ClinicianDApp({ sessionId = null }: { sessionId?: string | null }) {
   const s = useConceptDState()
   const wide = useMedia("(min-width: 1180px)", true)
+  // 一時共有の通知は Figma の医療者用トースト（.cd-toast）で出す
+  const [notice, setNotice] = useState("")
+  const live = useClinicianLive(sessionId, (message) => {
+    setNotice(message)
+    window.setTimeout(() => setNotice(""), 2600)
+  })
   return (
     <div className="cd-app-stage">
       <ProtoFlag />
       <ClinicianD
         variant="app"
+        live={live}
         viewport={wide ? "1180" : "820"}
         healthRecords={s.healthRecords}
         activeSymptomIds={s.activeSymptomIds}
         customSymptomNames={s.customSymptomNames}
       />
-      {s.toastNode}
+      {notice && (
+        <div className="cd-toast">
+          <CIcon name="check" />
+          {notice}
+        </div>
+      )}
     </div>
   )
 }

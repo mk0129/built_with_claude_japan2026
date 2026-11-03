@@ -4,9 +4,12 @@ import { LoginPanel } from "@/components/LoginPanel";
 import { getPageUser } from "@/server/auth/session";
 import { SwitchNote } from "@/components/SwitchNote";
 
-export default async function PatientLoginPage() {
+export default async function PatientLoginPage({ searchParams }: { searchParams: Promise<{ returnTo?: string }> }) {
   const u = await getPageUser();
-  if (u?.kind === "patient") redirect("/home");
+  const { returnTo } = await searchParams;
+  // 同一サイト内の相対パスだけ（"//" で始まる外部 URL は使わない）
+  const safeReturn = returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/home";
+  if (u?.kind === "patient") redirect(safeReturn);
   return (
     <main className="space-y-6">
       <header className="space-y-1">
@@ -17,7 +20,7 @@ export default async function PatientLoginPage() {
         <p className="text-ink-soft">学習の記録はあなたのアカウントに保存され、病院が変わっても引き継がれます。</p>
       </header>
       {u && <SwitchNote name={u.name} current="医療者" />}
-      <LoginPanel kind="patient" redirectTo="/home" switching={!!u} />
+      <LoginPanel kind="patient" redirectTo={safeReturn} switching={!!u} />
     </main>
   );
 }

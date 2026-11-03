@@ -77,6 +77,31 @@ export const qrGrants = pgTable(
   ],
 );
 
+/**
+ * 医療者が発行する接続申請（Concept D: 医療者が QR を表示 → 患者が読み取り → 患者が明示承認）。
+ * 承認前は患者が決まらない（patient_id は承認時に設定）。生トークンは保存せずハッシュのみ。
+ * 承認時は qr_grants に承認済みの行を作り、既存と同じ診察セッション作成処理を使う（consultation_sessions.qr_grant_id は必須のまま）。
+ */
+export const connectDecision = pgEnum("connect_decision", ["pending", "approved", "denied", "expired", "cancelled"]);
+
+export const connectRequests = pgTable(
+  "connect_requests",
+  {
+    id: id(),
+    clinicianId: userRef("clinician_id").notNull(),
+    orgId: uuid("org_id").notNull().references(() => organizations.id),
+    tokenHash: text("token_hash").notNull().unique(),
+    createdAt: ts("created_at").notNull().defaultNow(),
+    expiresAt: ts("expires_at").notNull(),
+    decision: connectDecision("decision").notNull().default("pending"),
+    decidedAt: ts("decided_at"),
+    patientId: userRef("patient_id"),
+    qrGrantId: uuid("qr_grant_id").references(() => qrGrants.id),
+    consultationSessionId: uuid("consultation_session_id"),
+  },
+  (t) => [index("connect_requests_clinician_idx").on(t.clinicianId, t.createdAt)],
+);
+
 export const sessionEndedBy = pgEnum("session_ended_by", ["patient", "clinician", "system"]);
 
 export const consultationSessions = pgTable(

@@ -6,7 +6,7 @@ import { SwitchNote } from "@/components/SwitchNote";
 export default async function StaffLoginPage({ searchParams }: { searchParams: Promise<{ returnTo?: string }> }) {
   const u = await getPageUser();
   const { returnTo } = await searchParams;
-  const safeReturn = returnTo && returnTo.startsWith("/") ? returnTo : "/staff";
+  const safeReturn = returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/staff";
   if (u?.kind === "staff") redirect(safeReturn);
   return (
     <main className="max-w-md mx-auto space-y-5">

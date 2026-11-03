@@ -84,12 +84,12 @@ test("患者: ログイン後に Figma 版ホーム。主要な画面遷移、�
   await expect(page.locator(".d-nav button.active")).toContainText("体調記録");
   expect(await noHScroll(page)).toBe(0);
 
-  // 一時共有: 本番では共有中を装わない（準備中と知らせる）
+  // 一時共有: QR を読み取らずに開始ボタンを押しても共有中にはならない（読み取り方の案内のみ。共有の流れは share_flow.spec.ts）
   await page.locator(".d-share-chip").click();
   await page.locator(".d-consent input").check();
   await page.getByRole("button", { name: "QRを読み取って共有を開始" }).click();
-  await expect(page.locator(".toast")).toContainText("準備中");
-  await expect(page.getByText("山田医師と一時共有中です")).toHaveCount(0);
+  await expect(page.locator(".toast")).toContainText("カメラで");
+  await expect(page.getByText(/と一時共有中です/)).toHaveCount(0);
 
   // PC: Figma のタブレット表示（768px）を中央に置く
   await page.setViewportSize({ width: 1440, height: 948 });

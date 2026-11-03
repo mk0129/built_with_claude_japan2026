@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react"
+import type { ClinicianLive } from "./live"
 import {
   currentVisitDate,
   formatShortDate,
@@ -16,7 +17,7 @@ type Workspace = "visit" | "course" | "library" | "studio"
 type VisitPage = "summary" | "detail" | "prescribe" | "review" | "sent"
 type ClinicalScenario = "standard" | "many" | "noQuiz" | "clear"
 
-function CIcon({ name, size = 20 }: { name: string; size?: number }) {
+export function CIcon({ name, size = 20 }: { name: string; size?: number }) {
   const paths: Record<string, ReactNode> = {
     home: (
       <>
@@ -318,6 +319,7 @@ const libraryItems = [
 
 export default function ClinicianD({
   variant = "prototype",
+  live,
   viewport,
   healthRecords,
   activeSymptomIds,
@@ -325,12 +327,16 @@ export default function ClinicianD({
 }: {
   /** prototype: Figma のテスト状態・診察シナリオ・Before/After つき（開発用）。app: 端末枠なしの実アプリ表示 */
   variant?: "app" | "prototype"
+  /** 本番: 一時共有の実 API（共有状態・残り時間・患者名・延長・終了）。なければ Figma の架空の状態 */
+  live?: ClinicianLive
   viewport: ClinicianDViewport
   healthRecords: HealthRecord[]
   activeSymptomIds: string[]
   customSymptomNames: Record<string, string>
 }) {
-  const [session, setSession] = useState<SessionState>("none")
+  const [sessionLocal, setSessionLocal] = useState<SessionState>("none")
+  const session = live ? live.state : sessionLocal
+  const setSession = live ? live.setState : setSessionLocal
   const [workspace, setWorkspace] = useState<Workspace>("visit")
   const [visitPage, setVisitPage] = useState<VisitPage>("summary")
   const [clinicalScenario, setClinicalScenario] =
@@ -339,7 +345,13 @@ export default function ClinicianD({
   const [prescription, setPrescription] = useState<number[]>([1, 2])
   const [studioStep, setStudioStep] = useState(1)
   const [notice, setNotice] = useState("")
-  const [extendRequested, setExtendRequested] = useState(false)
+  const [extendLocal, setExtendLocal] = useState(false)
+  const extendRequested = live ? live.extensionRequested : extendLocal
+  const setExtendRequested = live
+    ? (value: boolean) => {
+        if (value) void live.requestExtension()
+      }
+    : setExtendLocal
   const [comparisonOpen, setComparisonOpen] = useState(false)
 
   const notify = (message: string) => {
@@ -347,7 +359,8 @@ export default function ClinicianD({
     window.setTimeout(() => setNotice(""), 2200)
   }
   const endSession = () => {
-    setSession("none")
+    if (live) void live.end()
+    else setSession("none")
     setVisitPage("summary")
     setWorkspace("visit")
   }
@@ -405,6 +418,7 @@ export default function ClinicianD({
             setState={setSession}
             notify={notify}
             variant={variant}
+            live={live}
           />
         ) : (
           <div className="cd-app">
@@ -414,7 +428,7 @@ export default function ClinicianD({
                 <span className="cd-live" />
                 <div>
                   <b>一時共有中</b>
-                  <small>残り 42:18</small>
+                  <small>{live ? `残り ${live.remainingClock}` : "残り 42:18"}</small>
                 </div>
               </div>
               <nav>
@@ -473,9 +487,13 @@ export default function ClinicianD({
             <main className="cd-main">
               <header className="cd-app-header">
                 <div>
-                  <span className="cd-avatar">佐</span>
+                  <span className="cd-avatar">
+                    {live?.patientName ? live.patientName.slice(0, 1) : "佐"}
+                  </span>
                   <div>
-                    <b>佐藤 花子さん</b>
+                    <b>
+                      {live?.patientName ? `${live.patientName}さん` : "佐藤 花子さん"}
+                    </b>
                     <small>52歳 · 乳房部分切除術後 · 次回診察 6月20日</small>
                   </div>
                 </div>
@@ -505,7 +523,7 @@ export default function ClinicianD({
                   )}
                   <span>
                     <i className="cd-live" />
-                    残り42分
+                    {live ? `残り${live.remainingMin}分` : "残り42分"}
                   </span>
                   <button className="cd-header-end" onClick={endSession}>
                     <CIcon name="lock" />
@@ -646,11 +664,13 @@ function SessionGate({
   setState,
   notify,
   variant = "prototype",
+  live,
 }: {
   state: SessionState
   setState: (state: SessionState) => void
   notify: (message: string) => void
   variant?: "app" | "prototype"
+  live?: ClinicianLive
 }) {
   const [method, setMethod] = useState<"qr" | "code">("qr")
   const [code, setCode] = useState("")
@@ -729,7 +749,13 @@ function SessionGate({
             {method === "qr" ? (
               <div className="cd-qr-panel">
                 <div className="cd-qr-placeholder">
-                  <CIcon name="qr" size={86} />
+                  {live?.qrDataUrl ? (
+                    // 本番: 接続申請の QR（5 分で失効し、自動で新しい QR に差し替わる）
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={live.qrDataUrl} alt="患者のアプリで読み取る接続用QRコード" width={164} height={164} />
+                  ) : (
+                    <CIcon name="qr" size={86} />
+                  )}
                 </div>
                 <div>
                   <h2>患者のアプリで読み取ります</h2>
@@ -762,7 +788,9 @@ function SessionGate({
             <button
               className="cd-primary"
               disabled={method === "code" && code.length !== 6}
-              onClick={() => setState("waiting")}
+              onClick={() =>
+                live && method === "code" ? void live.claimCode(code) : setState("waiting")
+              }
             >
               患者へ承認を依頼する
               <CIcon name="arrow" />

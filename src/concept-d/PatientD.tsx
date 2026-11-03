@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react"
 import { useUrlState } from "./urlState"
+import type { PatientLive } from "./live"
 import {
   currentVisitDate,
   formatShortDate,
@@ -532,6 +533,7 @@ function DPageHeader({
 
 export function DPrototype({
   variant = "prototype",
+  live,
   viewport,
   notify,
   healthRecords,
@@ -543,6 +545,8 @@ export function DPrototype({
 }: {
   /** prototype: Figma の検証シナリオと端末枠つき（開発用）。app: 端末枠なしの実アプリ表示 */
   variant?: "app" | "prototype"
+  /** 本番: 一時共有の実 API（共有中かどうか・申請者・残り時間・承認・終了）。なければ Figma の架空の状態 */
+  live?: PatientLive
   viewport: DViewport
   notify: (message?: string) => void
   healthRecords: HealthRecord[]
@@ -560,7 +564,8 @@ export function DPrototype({
   const [query, setQuery] = useState("")
   const [sourceFilter, setSourceFilter] = useState("すべて")
   const [statusFilter, setStatusFilter] = useState("すべて")
-  const [sharing, setSharing] = useState(false)
+  const [sharingLocal, setSharing] = useState(false)
+  const sharing = live ? live.sharing : sharingLocal
   const [zoomed, setZoomed] = useState(false)
   const [notes, setNotes] = useState([
     "腕のつっぱりはいつまで続きますか？",
@@ -812,16 +817,10 @@ export function DPrototype({
       )
     return (
       <DShare
-        sharing={sharing}
-        setSharing={
-          // 本番では共有中を装わない（QR の読み取りと一時共有は Phase 2 で既存 API に接続）。開発用画面は Figma どおり
-          variant === "app"
-            ? (value: boolean) =>
-                value
-                  ? notify("QRの読み取りと一時共有は準備中です（実データ未接続）")
-                  : setSharing(false)
-            : setSharing
-        }
+        // 延長の再承認は、承認前と同じ確認画面で行う
+        sharing={live ? live.sharing && !live.extensionPending : sharing}
+        setSharing={setSharing}
+        live={live}
         onBack={() => setPage("home")}
       />
     )
@@ -2746,10 +2745,12 @@ function DShare({
   sharing,
   setSharing,
   onBack,
+  live,
 }: {
   sharing: boolean
   setSharing: (value: boolean) => void
   onBack: () => void
+  live?: PatientLive
 }) {
   const [confirmed, setConfirmed] = useState(false)
   return (
@@ -2768,7 +2769,11 @@ function DShare({
           </div>
           <h2>あなたの承認後に、医療者が閲覧できます</h2>
           <p className="d-share-intro">
-            医療者の画面に表示されたQRコードを読み取り、共有する内容を確認してください。
+            {live?.pendingLabel
+              ? `${live.pendingLabel}が閲覧を申請しています。共有する内容を確認してください。`
+              : live?.extensionPending
+                ? `${live.clinicianLabel}が共有時間の延長（60分）を申請しています。共有する内容を確認してください。`
+                : "医療者の画面に表示されたQRコードを読み取り、共有する内容を確認してください。"}
           </p>
           <div className="d-share-scope">
             <h3>共有される内容</h3>
@@ -2803,7 +2808,7 @@ function DShare({
           <button
             className="primary-button"
             disabled={!confirmed}
-            onClick={() => setSharing(true)}
+            onClick={() => (live ? void live.approve() : setSharing(true))}
           >
             <Icon name="qr" />
             QRを読み取って共有を開始
@@ -2818,19 +2823,26 @@ function DShare({
             <Icon name="shield" size={42} />
           </span>
           <p className="eyebrow">TEMPORARY SHARE ACTIVE</p>
-          <h2>山田医師と一時共有中です</h2>
+          <h2>
+            {live?.clinicianName
+              ? `${live.clinicianName}と一時共有中です`
+              : "山田医師と一時共有中です"}
+          </h2>
           <p>共有を終了すると、医療者はこの情報を閲覧できなくなります。</p>
           <div className="d-share-session">
             <span>
               <small>共有先</small>
-              <b>乳腺外科 山田医師</b>
+              <b>{live?.clinicianLabel ?? "乳腺外科 山田医師"}</b>
             </span>
             <span>
               <small>残り時間</small>
-              <b>24分</b>
+              <b>{live ? `${live.remainingMin}分` : "24分"}</b>
             </span>
           </div>
-          <button className="d-end-sharing" onClick={() => setSharing(false)}>
+          <button
+            className="d-end-sharing"
+            onClick={() => (live ? void live.end() : setSharing(false))}
+          >
             <Icon name="lock" />
             一時共有を終了する
           </button>

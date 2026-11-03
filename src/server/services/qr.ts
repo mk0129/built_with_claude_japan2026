@@ -151,34 +151,41 @@ export async function approveGrant(grantId: string, patientId: string, db: Db = 
     if (g.expiresAt.getTime() <= now.getTime()) throw conflict("GRANT_EXPIRED");
     if (!g.claimedByUserId || !g.claimedOrgId) throw conflict("GRANT_NOT_CLAIMED");
 
-    const [s] = await tx
-      .insert(consultationSessions)
-      .values({
-        patientId,
-        clinicianId: g.claimedByUserId,
-        orgId: g.claimedOrgId,
-        qrGrantId: g.id,
-        startedAt: now,
-        expiresAt: new Date(now.getTime() + CONSULTATION_TTL_MS),
-      })
-      .returning({ id: consultationSessions.id });
+    const sid = await startConsultationSession(tx as unknown as Db, { patientId, clinicianId: g.claimedByUserId, orgId: g.claimedOrgId, qrGrantId: g.id, now });
 
     const updated = await tx
       .update(qrGrants)
-      .set({ decision: "approved", decidedAt: now, consultationSessionId: s.id })
+      .set({ decision: "approved", decidedAt: now, consultationSessionId: sid })
       .where(and(eq(qrGrants.id, g.id), eq(qrGrants.decision, "pending")))
       .returning({ id: qrGrants.id });
     if (updated.length !== 1) throw conflict("GRANT_RACE");
-
-    await onConsultationStarted({ sessionId: s.id, patientId, orgId: g.claimedOrgId, startedAt: now }, tx as unknown as Db);
-    await audit(
-      { actorUserId: patientId, orgId: g.claimedOrgId, action: "consultation.approve", resourceType: "consultation_session", resourceId: s.id, consultationSessionId: s.id, outcome: "ok" },
-      tx as unknown as Db,
-    );
-    return s.id;
+    return sid;
   });
   return { consultationSessionId: sessionId };
 }
+
+/**
+ * 患者の承認後に 60 分の診察セッションを作る（患者発行 QR・医療者発行 QR の共通処理。呼び出し側のトランザクション内で使う）。
+ * 宿題スナップショットのフックと監査記録まで行う。
+ */
+export async function startConsultationSession(
+  tx: Db,
+  input: { patientId: string; clinicianId: string; orgId: string; qrGrantId: string; now: Date },
+): Promise<string> {
+  const { patientId, clinicianId, orgId, qrGrantId, now } = input;
+  const [s] = await tx
+    .insert(consultationSessions)
+    .values({ patientId, clinicianId, orgId, qrGrantId, startedAt: now, expiresAt: new Date(now.getTime() + CONSULTATION_TTL_MS) })
+    .returning({ id: consultationSessions.id });
+  await onConsultationStarted({ sessionId: s.id, patientId, orgId, startedAt: now }, tx);
+  await audit(
+    { actorUserId: patientId, orgId, action: "consultation.approve", resourceType: "consultation_session", resourceId: s.id, consultationSessionId: s.id, outcome: "ok" },
+    tx,
+  );
+  return s.id;
+}
+
+export { newToken, newCode };
 
 export async function denyGrant(grantId: string, patientId: string, db: Db = getDb()) {
   const [g] = await db.select().from(qrGrants).where(eq(qrGrants.id, grantId)).limit(1);
