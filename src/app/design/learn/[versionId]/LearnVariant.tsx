@@ -26,7 +26,7 @@ const VARIANT_LABEL: Record<Variant, string> = {
  * 3 案の共通方針（現行からの変更点）:
  * - 読み上げは見出し直下のコンパクトな行に置く（画面末尾の大きなボタンは廃止）
  * - 図の監修注記・出典は図の直下の 1 行にまとめ、「図について」で開く（毎回の長文注記をやめる）
- * - 複数図の「順番を表すものではない」注記はタブ行の補足 1 行にする（FigureSet の compactNote。既定値は従来表示のまま）
+ * - 複数図の「順番ではない」注記は本番 FigureSet の短文表示（常時表示）
  * 並び順だけが案ごとに異なる。
  */
 export function LearnVariant({ variant, title, slides, initialSeq, questionCount }: { variant: Variant; title: string; slides: Slide[]; initialSeq: number; questionCount: number }) {
@@ -150,7 +150,7 @@ function FigureBlock({ figures }: { figures: FigureView[] }) {
   const sources = Array.from(new Set(visible.map((f) => f.sourceNote).filter(Boolean))) as string[];
   return (
     <div className="space-y-1 design-figure">
-      <FigureSet figures={visible.map((f) => ({ ...f, reviewScopeNote: null, sourceNote: null }))} mode="patient" layout="tabs" compactNote />
+      <FigureSet figures={visible.map((f) => ({ ...f, reviewScopeNote: null, sourceNote: null }))} mode="patient" layout="tabs" />
       {(notes.length > 0 || sources.length > 0) && (
         <details className="text-xs text-ink-soft">
           <summary className="cursor-pointer min-h-11 flex items-center">図について（監修・出典）</summary>

@@ -107,17 +107,26 @@ export function MedicalFigure({ figure, mode }: { figure: FigureView; mode: "pat
           )}
         </div>
       )}
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-ink-soft">
-        {mode === "admin" ? (
+      {mode === "admin" ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-ink-soft">
           <span className={`pill ${figure.reviewStatus === "approved" ? "bg-wakakusa" : "bg-suna"}`}>
             {figure.type === "medical" ? "模式図 ・ " : "挿絵 ・ "}
             {STATUS_LABEL[figure.reviewStatus]}（{figure.assetId} v{figure.version}）
           </span>
-        ) : (
-          <span>{figure.type === "medical" ? (figure.reviewScopeNote ?? "模式図") : ""}</span>
-        )}
-        {figure.sourceNote && <span>出典: {figure.sourceNote}</span>}
-      </div>
+          {figure.sourceNote && <span>出典: {figure.sourceNote}</span>}
+        </div>
+      ) : (
+        // 患者向け: 監修情報と出典は折りたたみ（caption の学習上の注意は上で常時表示）
+        (figure.type === "medical" || figure.sourceNote) && (
+          <details className="text-xs text-ink-soft" data-figure-about>
+            <summary className="cursor-pointer min-h-11 flex items-center">図について（監修・出典）</summary>
+            <div className="space-y-1 pb-1">
+              {figure.type === "medical" && <p>{figure.reviewScopeNote ?? "模式図"}</p>}
+              {figure.sourceNote && <p>出典: {figure.sourceNote}</p>}
+            </div>
+          </details>
+        )
+      )}
     </figure>
   );
 }

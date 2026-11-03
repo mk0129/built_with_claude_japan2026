@@ -9,17 +9,17 @@ import { MedicalFigure } from "./MedicalFigure";
  * - tabs: 1 枚ずつ切り替える（既定）。タブには図の主題を表示し、番号や矢印は付けない
  * 複数のときは「順番や段階を表すものではない」旨を必ず添える。
  */
-export function FigureSet({ figures, mode, layout = "tabs", compactNote = false }: { figures: FigureView[]; mode: "patient" | "admin"; layout?: "tabs" | "stack"; compactNote?: boolean }) {
+export function FigureSet({ figures, mode, layout = "tabs" }: { figures: FigureView[]; mode: "patient" | "admin"; layout?: "tabs" | "stack" }) {
   const visible = mode === "patient" ? figures.filter((f) => f.reviewStatus === "approved" && f.src) : figures;
   const [active, setActive] = useState(0);
   if (visible.length === 0) return null;
   if (visible.length === 1) return <MedicalFigure figure={visible[0]} mode={mode} />;
 
-  // compactNote: 比較案（デザイン検討）用の 1 行表示。既定（false）は従来どおりの注記
-  const note = compactNote ? (
-    <p className="text-xs text-ink-soft">※ {visible.length} つの図は別々の情報です（順番ではありません）</p>
-  ) : (
-    <p className="text-sm text-ink-soft">これらの図は、病期を考えるときに確認する別々の情報です。順番や進み方を表すものではありません。</p>
+  // 学習上重要な注意なので常時表示（折りたたまない）。短く、進行順序ではないことを明確に
+  const note = (
+    <p className="text-sm font-bold text-ink-soft" data-figure-note>
+      {visible.length} つの図は別々の情報です。病気が進む順番ではありません。
+    </p>
   );
   if (layout === "stack") {
     return (

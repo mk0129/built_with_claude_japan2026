@@ -21,7 +21,18 @@ type View = {
   progress: { phase: string; lastSlideSeq: number };
 };
 
-/** 教材（C2）: 見出し → 命題 → 図解（承認済みのみ） → 短い本文 → くわしく → 読み上げ → 固定の前へ/次へ */
+/** 本文を「最初の 1 文」と「残り」に分ける（文の切れ目は「。」） */
+function splitFirstSentence(body: string): { first: string; rest: string | null } {
+  const parts = body.split(/(?<=。)/).map((s) => s.trim()).filter(Boolean);
+  if (parts.length <= 1) return { first: body.trim(), rest: null };
+  return { first: parts[0], rest: parts.slice(1).join("") };
+}
+
+/**
+ * 教材（C2・2026-11-03 折衷案）:
+ * 見出し → 要点（結論） → 読み上げ → 本文の最初の 1 文（補足） → 医学図解（承認済みのみ） → くわしく読む（残りの本文 + 補足） → 固定の前へ/次へ
+ * 要点と読み上げが最初の表示に入り、図解は本文 1 文の下に続く。
+ */
 export function LearnClient({ view, initialSeq }: { view: View; initialSeq: number }) {
   const router = useRouter();
   const [seq, setSeq] = useState(initialSeq);
@@ -43,6 +54,8 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
   }
 
   const voice = `${slide.title}。${slide.proposition ? slide.proposition + "。" : ""}${slide.voiceText}`;
+  const { first, rest } = splitFirstSentence(slide.bodyMd);
+  const more = [rest, slide.detailMd].filter(Boolean).join("\n");
 
   return (
     <>
@@ -94,22 +107,25 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
         <article className="space-y-4" aria-live="polite">
           <h1 className="text-2xl font-bold leading-snug">{slide.title}</h1>
           {slide.proposition && <p className="text-xl font-bold leading-relaxed">{slide.proposition}</p>}
+          <SpeakButton text={voice} compact />
 
-          {/* 承認済みの図解だけが描画される。無い場合はこの領域は空になり、本文が続く */}
+          <p className="whitespace-pre-wrap leading-[1.8] text-[1.05rem]" data-learn-body>
+            {first}
+          </p>
+
+          {/* 承認済みの図解だけが描画される。無い場合はこの領域は空になり、くわしくが続く */}
           <FigureSet figures={slide.figures} mode="patient" layout="tabs" />
 
-          <p className="whitespace-pre-wrap leading-[1.8] text-[1.05rem]">{slide.bodyMd}</p>
-          {slide.detailMd && (
+          {more && (
             <details className="group">
               <summary className="cursor-pointer min-h-12 flex items-center gap-2 font-bold text-accent">
                 <span aria-hidden className="group-open:hidden">＋</span>
                 <span aria-hidden className="hidden group-open:inline">－</span>
                 くわしく読む
               </summary>
-              <p className="whitespace-pre-wrap leading-[1.8] text-ink-soft mt-1">{slide.detailMd}</p>
+              <p className="whitespace-pre-wrap leading-[1.8] mt-1">{more}</p>
             </details>
           )}
-          <SpeakButton text={voice} />
         </article>
       </main>
 

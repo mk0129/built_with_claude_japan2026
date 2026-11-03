@@ -1,0 +1,50 @@
+[
+  {
+    "viewport": "390",
+    "layout": "tabs",
+    "images": 1,
+    "slide1Height": 2476,
+    "labelsOutside": []
+  },
+  {
+    "viewport": "390",
+    "layout": "stack",
+    "images": 3,
+    "slide1Height": 4681,
+    "labelsOutside": []
+  },
+  {
+    "viewport": "430",
+    "layout": "tabs",
+    "images": 1,
+    "slide1Height": 2391,
+    "labelsOutside": []
+  },
+  {
+    "viewport": "430",
+    "layout": "stack",
+    "images": 3,
+    "slide1Height": 4444,
+    "labelsOutside": []
+  },
+  {
+    "viewport": "1180",
+    "layout": "tabs",
+    "images": 1,
+    "slide1Height": 2306,
+    "labelsOutside": []
+  },
+  {
+    "viewport": "1180",
+    "layout": "stack",
+    "images": 3,
+    "slide1Height": 4655,
+    "labelsOutside": []
+  },
+  {
+    "patientImageRoute": 403,
+    "publicPath": 200,
+    "approved": true,
+    "clinicianImageRoute": 403
+  }
+]
