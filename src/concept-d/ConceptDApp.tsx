@@ -12,6 +12,7 @@ import { useClinicianLive, usePatientLive, type ClinicianOrg } from "./live"
 import { usePatientLearning } from "./learning"
 import { useClinicianRecord } from "./record"
 import { usePatientHealth, usePatientNotes } from "./health"
+import { useStudio } from "./studio"
 import { DPrototype, Icon, Logo, type DViewport } from "./PatientD"
 import { initialActiveSymptomIds, initialHealthRecords, type HealthRecord } from "./healthData"
 import { UrlInitContext, type UrlInit } from "./urlState"
@@ -112,13 +113,16 @@ export function ClinicianDApp({ sessionId = null, orgs = [] }: { sessionId?: str
   const live = useClinicianLive(sessionId, orgs, showNotice)
   // 患者が承認した有効な一時共有の間だけ、診察サマリーと処方の実データを読む（Step 2）
   const record = useClinicianRecord(live.sessionId, live.state === "active", showNotice)
+  // 教材スタジオ（Step 5）: 申請先の医療機関で、教材編集・承認の権限があるときだけ使える（権限はサーバーで検証）
+  const studio = useStudio(live.org?.orgId ?? null, live.state === "active", showNotice)
   return (
     <div className="cd-app-stage">
-      <ProtoFlag long="教材スタジオは架空データ（未接続）" short="スタジオは架空データ" />
+      {/* Step 5 で医療者画面もすべて実データになったため、「架空データ」の表示は出さない */}
       <ClinicianD
         variant="app"
         live={live}
         record={record}
+        studio={studio}
         viewport={wide ? "1180" : "820"}
         healthRecords={s.healthRecords}
         activeSymptomIds={s.activeSymptomIds}
@@ -134,15 +138,6 @@ export function ClinicianDApp({ sessionId = null, orgs = [] }: { sessionId?: str
   )
 }
 
-/** 実データ未接続の範囲の明示（Phase 2 の各 Step で API に接続するまで表示する） */
-function ProtoFlag({ long, short }: { long: string; short: string }) {
-  return (
-    <div className="proto-flag" role="note" data-proto-flag>
-      <span className="long">{long}</span>
-      <span className="short">{short}</span>
-    </div>
-  )
-}
 
 /** 開発用: Figma の Concept D プロトタイプ（検証シナリオ・テスト状態・表示幅切り替え）。患者の体調記録は医療者画面と共有 */
 export function ConceptDDev() {

@@ -145,3 +145,7 @@
 .cd-summary-narrative .cd-summary-evidence { margin-top: 10px; }
 .cd-summary-narrative > small { display: block; margin: 4px 0 6px; color: #8b6b38; font-size: 11px; }
 .cd-summary-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 8px 0 0 !important; }
+
+/* Phase 2 Step 5: 教材スタジオの処理中表示と、デモ承認の注記（Figma の文字サイズ・色に合わせた最小限の追加） */
+.cd-studio-busy { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; background: #f4f7f7; color: #3f7180; font-size: 13px; font-weight: 700; }
+.cd-demo-approval-note { display: flex; gap: 8px; align-items: flex-start; margin: 14px 0 0; color: #8b6b38; font-size: 12px; line-height: 1.6; }

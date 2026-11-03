@@ -1,6 +1,7 @@
-import { useEffect, useState, type ReactNode } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import type { ClinicianLive } from "./live"
 import type { ClinicianRecord, LiveConcern, LiveLibraryItem } from "./record"
+import { SAFETY_KINDS, type Draft, type StudioLive } from "./studio"
 import {
   currentVisitDate,
   formatShortDate,
@@ -339,6 +340,7 @@ export default function ClinicianD({
   variant = "prototype",
   live,
   record,
+  studio,
   viewport,
   healthRecords,
   activeSymptomIds,
@@ -350,6 +352,8 @@ export default function ClinicianD({
   live?: ClinicianLive
   /** 本番（Step 2）: 診察サマリー・情報処方の実 API。なければ Figma の架空データ */
   record?: ClinicianRecord
+  /** 本番（Step 5）: 教材スタジオの実 API。なければ Figma の架空の制作手順 */
+  studio?: StudioLive
   viewport: ClinicianDViewport
   healthRecords: HealthRecord[]
   activeSymptomIds: string[]
@@ -612,6 +616,9 @@ export default function ClinicianD({
                   step={studioStep}
                   setStep={setStudioStep}
                   notify={notify}
+                  live={studio}
+                  staffName={live?.org?.displayName}
+                  onPublished={() => void record?.reload()}
                 />
               )}
             </main>
@@ -3316,10 +3323,17 @@ function Studio({
   step,
   setStep,
   notify,
+  live,
+  staffName,
+  onPublished,
 }: {
   step: number
   setStep: (step: number) => void
   notify: (message: string) => void
+  /** 本番（Step 5）: 教材制作の実 API */
+  live?: StudioLive
+  staffName?: string
+  onPublished?: () => void
 }) {
   const [sourceReady, setSourceReady] = useState(false)
   const [aiAllowed, setAiAllowed] = useState(true)
@@ -3337,15 +3351,79 @@ function Studio({
     false,
     false,
   ])
-  const [publishState, setPublishState] =
+  const [publishStateLocal, setPublishState] =
     useState<"editing" | "review" | "published" | "returned">("editing")
+  // ---- 本番（Step 5）の入力 ----
+  const [file, setFile] = useState<File | null>(null)
+  const [srcMeta, setSrcMeta] = useState({ title: "", rightsHolder: "", evidenceNote: "" })
+  const [perm, setPerm] = useState({ allowDerive: true, allowPublish: true, allowShare: false })
+  const [piiChecked, setPiiChecked] = useState(false)
+  const [brief, setBrief] = useState({ theme: "", audience: "", objective: "" })
+  const [mustChecked, setMustChecked] = useState<Record<string, boolean>>({})
+  const [mustText, setMustText] = useState<Record<string, string>>({})
+  const d = live?.draft ?? null
+  const liveState: "editing" | "review" | "published" | "returned" = !d
+    ? "editing"
+    : d.version.status === "published"
+      ? "published"
+      : d.version.status === "in_review"
+        ? "review"
+        : d.version.status === "retired"
+          ? "returned"
+          : d.version.reviewComment
+            ? "returned"
+            : "editing"
+  const publishState = live ? liveState : publishStateLocal
 
-  const canNext =
-    step === 1
+  const canNext = live
+    ? step === 1
+      ? !!(live.sourceId || file) && aiAllowed && licenseChecked && piiChecked && !!srcMeta.rightsHolder.trim() && !!srcMeta.evidenceNote.trim()
+      : step === 2
+        ? approach === "claude" || (!!brief.theme.trim() && !!brief.objective.trim())
+        : step === 3
+          ? live.outlines.length > 0
+          : step === 4
+            ? live.candidates.every((c) => mustChecked[c.id])
+            : step === 5
+              ? !!d
+              : true
+    : step === 1
       ? sourceReady && aiAllowed && licenseChecked
       : step === 4
         ? mustCover.every(Boolean)
         : true
+  /** 本番の「次へ」: 各手順で実際の処理を行い、終わったら次の手順へ */
+  const nextLive = async () => {
+    if (!live) return
+    if (step === 1) {
+      if (!live.sourceId && file) {
+        const id = await live.upload(file, { title: srcMeta.title, rightsHolder: srcMeta.rightsHolder, evidenceNote: srcMeta.evidenceNote, perm: { allowAi: aiAllowed, ...perm }, piiAttestedNone: piiChecked })
+        if (!id) return
+      }
+      return setStep(2)
+    }
+    if (step === 2) {
+      if (approach === "claude") {
+        if (await live.requestOutlines()) setStep(3)
+        return
+      }
+      const objectives = brief.objective.split(/\n/).map((x) => x.trim()).filter(Boolean).slice(0, 3)
+      if (await live.requestFreeform({ theme: brief.theme.trim(), audience: brief.audience.trim(), objectives })) setStep(5)
+      return
+    }
+    if (step === 4) {
+      const must = live.candidates.map((c) => ({
+        id: c.id,
+        text: (mustText[c.id] ?? c.text).trim() || c.text,
+        kind: c.kind,
+        sourceRef: c.sourceRef,
+        status: (mustChecked[c.id] ? "required" : "needs_review") as "required" | "needs_review",
+      }))
+      if (await live.requestDraft(proposal - 1, must)) setStep(5)
+      return
+    }
+    setStep(step + 1)
+  }
   return (
     <div className="cd-content cd-studio">
       <div className="cd-title-row">
@@ -3374,7 +3452,15 @@ function Studio({
                   ? "差し戻し"
                   : "編集中"}
           </Badge>
-          <span>自動保存 たった今</span>
+          <span>
+            {live
+              ? live.savedAt
+                ? `自動保存 ${live.savedAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`
+                : d
+                  ? "下書き"
+                  : "未作成"
+              : "自動保存 たった今"}
+          </span>
         </div>
       </div>
       <div className="cd-stepper">
@@ -3394,19 +3480,60 @@ function Studio({
           </button>
         ))}
       </div>
+      {live && live.allowed === false ? (
+        <div className="cd-studio-body">
+          <div className="cd-studio-step">
+            <div className="cd-step-heading">
+              <Badge tone="gray">権限</Badge>
+              <h2>教材スタジオを使う権限がありません</h2>
+              <p>教材の作成は「教材編集」、承認・公開は「教材承認」の役割を持つ医療者が行います。</p>
+            </div>
+          </div>
+        </div>
+      ) : (
       <div className="cd-studio-body">
+        {live && live.busy && (
+          <p className="cd-studio-busy" data-studio-busy>
+            {live.busy === "upload"
+              ? "原資料を登録しています…"
+              : live.busy === "outline"
+                ? `Claudeが構成案を作成しています…（${live.outlineJob?.progress ?? "待機中"}）`
+                : live.busy === "draft"
+                  ? `Claudeが下書きを作成しています…（${live.draftJob?.progress ?? "待機中"}）`
+                  : "処理しています…"}
+          </p>
+        )}
         {step === 1 && (
           <SourceStep
-            sourceReady={sourceReady}
+            sourceReady={live ? !!(live.sourceId || file) : sourceReady}
             setSourceReady={setSourceReady}
             aiAllowed={aiAllowed}
             setAiAllowed={setAiAllowed}
             licenseChecked={licenseChecked}
             setLicenseChecked={setLicenseChecked}
+            live={
+              live
+                ? {
+                    file,
+                    setFile,
+                    uploaded: live.sourceInfo,
+                    remove: () => {
+                      setFile(null)
+                      live.removeSource()
+                    },
+                    meta: srcMeta,
+                    setMeta: setSrcMeta,
+                    perm,
+                    setPerm,
+                    pii: piiChecked,
+                    setPii: setPiiChecked,
+                  }
+                : undefined
+            }
           />
         )}
         {step === 2 && (
-          <ApproachStep approach={approach} setApproach={setApproach} />
+          <ApproachStep approach={approach} setApproach={setApproach} live={live ? { brief, setBrief } : undefined} />
         )}
         {step === 3 && (
           <ProposalStep
@@ -3414,6 +3541,7 @@ function Studio({
             setSelected={setProposal}
             expanded={expandedProposal}
             setExpanded={setExpandedProposal}
+            live={live ? { outlines: live.outlines, sourceTitle: live.sourceInfo?.title ?? "原資料" } : undefined}
           />
         )}
         {step === 4 && (
@@ -3422,6 +3550,23 @@ function Studio({
             setChecked={setMustCover}
             sourceShown={sourceShown}
             setSourceShown={setSourceShown}
+            live={
+              live
+                ? {
+                    candidates: live.candidates,
+                    checked: mustChecked,
+                    setChecked: setMustChecked,
+                    text: mustText,
+                    setText: setMustText,
+                    meta: {
+                      title: live.sourceInfo?.title ?? "",
+                      rightsHolder: srcMeta.rightsHolder,
+                      registrant: staffName ?? "",
+                      license: [perm.allowPublish ? "施設内公開" : "公開不可", perm.allowDerive ? "改変可" : "改変不可", perm.allowShare ? "施設外共有可" : "施設外共有不可"].join("・"),
+                    },
+                  }
+                : undefined
+            }
           />
         )}
         {step === 5 && (
@@ -3430,15 +3575,22 @@ function Studio({
             setEditingPage={setEditingPage}
             imageState={imageState}
             setImageState={setImageState}
+            live={live && d ? { draft: d, save: live.saveDraft } : undefined}
           />
         )}
         {step === 6 && (
           <PreviewStep
             onClose={() => setStep(5)}
-            onComplete={() => {
+            onComplete={async () => {
+              if (live) {
+                if (d?.version.status === "draft" && !(await live.submit())) return
+                setStep(7)
+                return
+              }
               setPublishState("review")
               setStep(7)
             }}
+            live={live && d ? { draft: d } : undefined}
           />
         )}
         {step === 7 && (
@@ -3448,9 +3600,36 @@ function Studio({
             state={publishState}
             setState={setPublishState}
             notify={notify}
+            live={
+              live && d
+                ? {
+                    draft: d,
+                    busy: !!live.busy,
+                    approve: async (ack: boolean) => {
+                      if (await live.approve(ack, ack ? "最終確認で安全上の重要事項と相談の目安を確認した" : null)) {
+                        notify("医学的承認が完了し、教材を公開しました")
+                        onPublished?.()
+                      }
+                    },
+                    returnToDraft: async () => {
+                      if (await live.returnToDraft("最終確認で修正が必要")) {
+                        notify("修正のため差し戻しました")
+                        setStep(5)
+                      }
+                    },
+                    retire: async () => {
+                      if (await live.retire()) {
+                        notify("公開を停止しました（患者の新しい処方候補には表示されません）")
+                        onPublished?.()
+                      }
+                    },
+                  }
+                : undefined
+            }
           />
         )}
       </div>
+      )}
       {step < 7 && (
         <div className="cd-wizard-actions">
           <button
@@ -3464,17 +3643,24 @@ function Studio({
             {step === 1 && !aiAllowed && (
               <span>AI処理が許可されていないため進めません</span>
             )}
-            {step === 4 && !mustCover.every(Boolean) && (
+            {live && step === 1 && aiAllowed && (!licenseChecked || !piiChecked) && (
+              <span>利用許諾と個人情報の確認が必要です</span>
+            )}
+            {step === 4 && (live ? !live.candidates.every((c) => mustChecked[c.id]) : !mustCover.every(Boolean)) && (
               <span>Must-coverの未確認項目があります</span>
             )}
             <button
               className="cd-primary"
-              disabled={!canNext}
-              onClick={() => setStep(step + 1)}
+              disabled={!canNext || !!live?.busy || (!!live && live.allowed === false)}
+              onClick={() => (live ? void nextLive() : setStep(step + 1))}
             >
               {step === 2 && approach === "claude"
                 ? "Claudeに構成案を依頼"
-                : "次へ進む"}
+                : live && step === 2
+                  ? "Claudeに下書きを依頼"
+                  : live && step === 4
+                    ? "確認した内容で下書きを作成"
+                    : "次へ進む"}
               <CIcon name="arrow" />
             </button>
           </div>
@@ -3491,6 +3677,7 @@ function SourceStep({
   setAiAllowed,
   licenseChecked,
   setLicenseChecked,
+  live,
 }: {
   sourceReady: boolean
   setSourceReady: (value: boolean) => void
@@ -3498,7 +3685,21 @@ function SourceStep({
   setAiAllowed: (value: boolean) => void
   licenseChecked: boolean
   setLicenseChecked: (value: boolean) => void
+  /** 本番: 実際のファイル・資料名・許諾元・許諾の根拠・利用条件・個人情報を含まないことの確認 */
+  live?: {
+    file: File | null
+    setFile: (file: File | null) => void
+    uploaded: { title: string; filename: string; size: number; charCount: number; warnings: string[] } | null
+    remove: () => void
+    meta: { title: string; rightsHolder: string; evidenceNote: string }
+    setMeta: (meta: { title: string; rightsHolder: string; evidenceNote: string }) => void
+    perm: { allowDerive: boolean; allowPublish: boolean; allowShare: boolean }
+    setPerm: (perm: { allowDerive: boolean; allowPublish: boolean; allowShare: boolean }) => void
+    pii: boolean
+    setPii: (value: boolean) => void
+  }
 }) {
+  const fileRef = useRef<HTMLInputElement>(null)
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
@@ -3508,7 +3709,47 @@ function SourceStep({
       </div>
       <div className="cd-source-layout">
         <section className="cd-panel">
-          {!sourceReady ? (
+          {live && (
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".pdf,.txt,.md,.docx,.pptx"
+              style={{ display: "none" }}
+              data-source-file
+              onChange={(event) => {
+                const f = event.target.files?.[0] ?? null
+                live.setFile(f)
+                if (f && !live.meta.title) live.setMeta({ ...live.meta, title: f.name.replace(/\.[^.]+$/, "") })
+              }}
+            />
+          )}
+          {live && sourceReady ? (
+            <div className="cd-file-ready">
+              <span>
+                <CIcon name="file" size={28} />
+              </span>
+              <div>
+                <b>{live.uploaded?.filename ?? live.file?.name}</b>
+                <small>
+                  {(((live.uploaded?.size ?? live.file?.size ?? 0) / 1024 / 1024) || 0).toFixed(1)}MB ·{" "}
+                  {live.uploaded ? `${live.uploaded.charCount}文字を読み取り済み` : "登録前（「次へ進む」で登録）"}
+                </small>
+                {live.uploaded?.warnings.map((w) => (
+                  <small key={w} style={{ color: "#a0523f" }}>
+                    {w}
+                  </small>
+                ))}
+              </div>
+              <button onClick={live.remove}>削除</button>
+            </div>
+          ) : live ? (
+            <button className="cd-upload" onClick={() => fileRef.current?.click()}>
+              <CIcon name="upload" size={32} />
+              <b>PDF・テキスト資料を登録</b>
+              <span>クリックしてファイルを選択</span>
+              <small>PDF / Word / PowerPoint / TXT · 最大15MB</small>
+            </button>
+          ) : !sourceReady ? (
             <button className="cd-upload" onClick={() => setSourceReady(true)}>
               <CIcon name="upload" size={32} />
               <b>PDF・テキスト資料を登録</b>
@@ -3527,6 +3768,22 @@ function SourceStep({
               <button onClick={() => setSourceReady(false)}>削除</button>
             </div>
           )}
+          {live ? (
+            <div className="cd-form-grid">
+              <label>
+                資料名
+                <input value={live.meta.title} disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, title: event.target.value })} />
+              </label>
+              <label>
+                作成元（許諾元）
+                <input value={live.meta.rightsHolder} disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, rightsHolder: event.target.value })} />
+              </label>
+              <label className="wide">
+                利用許諾の根拠（確認した内容）
+                <textarea value={live.meta.evidenceNote} disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, evidenceNote: event.target.value })} />
+              </label>
+            </div>
+          ) : (
           <div className="cd-form-grid">
             <label>
               資料名
@@ -3541,6 +3798,7 @@ function SourceStep({
               <textarea defaultValue="乳房手術後の上肢運動と生活上の注意に関する医療者向け資料" />
             </label>
           </div>
+          )}
         </section>
         <aside className="cd-panel cd-permissions">
           <h3>利用条件</h3>
@@ -3551,6 +3809,14 @@ function SourceStep({
             setValue={setAiAllowed}
             critical
           />
+          {live ? (
+            <>
+              <ToggleRow label="内容の改変" description="患者向けへの要約・編集" value={live.perm.allowDerive} setValue={(v) => live.setPerm({ ...live.perm, allowDerive: v })} />
+              <ToggleRow label="Web公開" description="shioriで患者へ公開" value={live.perm.allowPublish} setValue={(v) => live.setPerm({ ...live.perm, allowPublish: v })} />
+              <ToggleRow label="施設外共有" description="共通教材として他施設で利用" value={live.perm.allowShare} setValue={(v) => live.setPerm({ ...live.perm, allowShare: v })} />
+            </>
+          ) : (
+            <>
           <ToggleRow label="内容の改変" description="患者向けへの要約・編集" />
           <ToggleRow label="Web公開" description="shioriで患者へ公開" />
           <ToggleRow
@@ -3558,6 +3824,8 @@ function SourceStep({
             description="共通教材として他施設で利用"
             defaultValue={false}
           />
+            </>
+          )}
           {!aiAllowed && (
             <p className="cd-permission-warning">
               <CIcon name="alert" />
@@ -3575,6 +3843,16 @@ function SourceStep({
               <small>登録者が資料の利用条件を確認します</small>
             </span>
           </label>
+          {live && (
+            // 本番: 患者個人情報を含まないことの確認（含む資料は AI 処理しない）
+            <label className="cd-license-check">
+              <input type="checkbox" checked={live.pii} onChange={(event) => live.setPii(event.target.checked)} />
+              <span>
+                <b>患者個人情報を含みません</b>
+                <small>含む資料はClaudeに送信しません</small>
+              </span>
+            </label>
+          )}
         </aside>
       </div>
     </div>
@@ -3621,9 +3899,12 @@ function ToggleRow({
 function ApproachStep({
   approach,
   setApproach,
+  live,
 }: {
   approach: "claude" | "manual"
   setApproach: (value: "claude" | "manual") => void
+  /** 本番: テーマ・対象者・学習目標（1 行に 1 つ、3 つまで） */
+  live?: { brief: { theme: string; audience: string; objective: string }; setBrief: (b: { theme: string; audience: string; objective: string }) => void }
 }) {
   return (
     <div className="cd-studio-step">
@@ -3657,7 +3938,23 @@ function ApproachStep({
           <i>{approach === "manual" && <CIcon name="check" />}</i>
         </button>
       </div>
-      {approach === "manual" && (
+      {approach === "manual" && live && (
+        <div className="cd-panel cd-manual-brief">
+          <label>
+            テーマ
+            <input value={live.brief.theme} onChange={(event) => live.setBrief({ ...live.brief, theme: event.target.value })} />
+          </label>
+          <label>
+            対象者
+            <input value={live.brief.audience} onChange={(event) => live.setBrief({ ...live.brief, audience: event.target.value })} />
+          </label>
+          <label className="wide">
+            学習目標（1行に1つ・3つまで）
+            <textarea value={live.brief.objective} onChange={(event) => live.setBrief({ ...live.brief, objective: event.target.value })} />
+          </label>
+        </div>
+      )}
+      {approach === "manual" && !live && (
         <div className="cd-panel cd-manual-brief">
           <label>
             テーマ
@@ -3706,12 +4003,27 @@ function ProposalStep({
   setSelected,
   expanded,
   setExpanded,
+  live,
 }: {
   selected: number
   setSelected: (value: number) => void
   expanded: number | null
   setExpanded: (value: number | null) => void
+  /** 本番: Claude が原資料から作った構成案（下書き） */
+  live?: { outlines: import("./studio").Outline[]; sourceTitle: string }
 }) {
+  const items = live
+    ? live.outlines.map((o) => ({
+        title: o.title,
+        target: o.targetReader,
+        goal: o.learningObjectives.join(" / "),
+        pages: `${o.slideTitles.length}画面 · 約${Math.max(1, Math.round(o.slideTitles.length * 1.5 + 1))}分`,
+        focus: o.rationale.length > 14 ? `${o.rationale.slice(0, 14)}…` : o.rationale,
+        slideTitles: o.slideTitles,
+        refs: [...new Set(o.sourceRefs.map((r) => r.section).filter(Boolean))].slice(0, 3).join("、"),
+        rationale: o.rationale,
+      }))
+    : proposals.map((p) => ({ ...p, slideTitles: ["手術後の腕の変化", "無理のない動かし方", "傷を守る生活の工夫", "医療機関へ相談する目安"], refs: "原資料 p.12–18, p.26", rationale: "" }))
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
@@ -3720,7 +4032,7 @@ function ProposalStep({
         <p>提案は下書きです。採用と医学的な判断は医療者が行います。</p>
       </div>
       <div className="cd-proposal-grid">
-        {proposals.map((item, index) => (
+        {items.map((item, index) => (
           <article
             key={item.title}
             className={selected === index + 1 ? "selected" : ""}
@@ -3751,12 +4063,12 @@ function ProposalStep({
               <div className="cd-proposal-expanded">
                 <b>画面構成</b>
                 <ol>
-                  <li>手術後の腕の変化</li>
-                  <li>無理のない動かし方</li>
-                  <li>傷を守る生活の工夫</li>
-                  <li>医療機関へ相談する目安</li>
+                  {item.slideTitles.map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
                 </ol>
-                <small>主な出典：原資料 p.12–18, p.26</small>
+                {item.rationale && <small>{item.rationale}</small>}
+                <small>主な出典：{live ? `${live.sourceTitle}${item.refs ? `（${item.refs}）` : ""}` : item.refs}</small>
               </div>
             )}
             <button
@@ -3787,12 +4099,87 @@ function MustCoverStep({
   setChecked,
   sourceShown,
   setSourceShown,
+  live,
 }: {
   checked: boolean[]
   setChecked: (value: boolean[]) => void
   sourceShown: number | null
   setSourceShown: (value: number | null) => void
+  /** 本番: Claude が原資料から挙げた必須事項の候補（医療者が確認・修正し、確認した項目を必須として下書きに含める） */
+  live?: {
+    candidates: import("./studio").MustCandidate[]
+    checked: Record<string, boolean>
+    setChecked: (v: Record<string, boolean>) => void
+    text: Record<string, string>
+    setText: (v: Record<string, string>) => void
+    meta: { title: string; rightsHolder: string; registrant: string; license: string }
+  }
 }) {
+  if (live) {
+    const kindLabel: Record<string, string> = { emergency: "すぐに連絡・受診", visit: "受診・連絡の目安", prohibition: "してはいけないこと", caution: "注意", fact: "前提となる事実" }
+    return (
+      <div className="cd-studio-step">
+        <div className="cd-step-heading">
+          <Badge>Step 4</Badge>
+          <h2>Must-coverを確認</h2>
+          <p>患者が学ぶべき医学的内容を選択し、原資料と照合します。</p>
+        </div>
+        <div className="cd-must-layout">
+          <section className="cd-panel">
+            <div className="cd-panel-head">
+              <h3>必須事項の候補</h3>
+              <Badge tone="amber">未確認 {live.candidates.filter((c) => !live.checked[c.id]).length}件</Badge>
+            </div>
+            <div className="cd-must-list">
+              {live.candidates.length === 0 && <p>Claudeから必須事項の候補はありませんでした。</p>}
+              {live.candidates.map((c, index) => {
+                const safety = SAFETY_KINDS.includes(c.kind)
+                return (
+                  <div key={c.id} className={safety ? "safety" : ""} data-must-item>
+                    <label>
+                      <input type="checkbox" checked={!!live.checked[c.id]} onChange={() => live.setChecked({ ...live.checked, [c.id]: !live.checked[c.id] })} />
+                      <span>
+                        {safety && <Badge tone="red">安全上重要</Badge>}
+                        <textarea value={live.text[c.id] ?? c.text} onChange={(event) => live.setText({ ...live.text, [c.id]: event.target.value })} />
+                        <small>
+                          {kindLabel[c.kind]} · {c.sourceRef.section || "原資料"}
+                        </small>
+                      </span>
+                    </label>
+                    <button onClick={() => setSourceShown(sourceShown === index ? null : index)}>
+                      <CIcon name="eye" />
+                      原文と照合
+                    </button>
+                    {sourceShown === index && (
+                      <blockquote>
+                        <b>{live.meta.title}{c.sourceRef.section ? ` · ${c.sourceRef.section}` : ""}</b>
+                        <p>{c.sourceRef.quote || "（引用なし）"}</p>
+                      </blockquote>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+          <aside className="cd-panel cd-metadata-separation">
+            <h3>教材内容に含めない情報</h3>
+            <p>資料管理用のメタデータは、患者向け本文と分けて保持します。</p>
+            <dl>
+              <dt>原資料</dt>
+              <dd>{live.meta.title}</dd>
+              <dt>作成元（許諾元）</dt>
+              <dd>{live.meta.rightsHolder || "未登録"}</dd>
+              <dt>登録者</dt>
+              <dd>{live.meta.registrant || "—"}</dd>
+              <dt>利用許諾</dt>
+              <dd>{live.meta.license}</dd>
+            </dl>
+            <p>チェックした項目は「この教材で必須」、外した項目は「医療者の確認が必要」として下書きに渡します。</p>
+          </aside>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
@@ -3873,13 +4260,17 @@ function EditStep({
   setEditingPage,
   imageState,
   setImageState,
+  live,
 }: {
   editingPage: number
   setEditingPage: (value: number) => void
   imageState: string
   setImageState: (value: string) => void
+  /** 本番: Claude の下書き（本文・確認問題）を医療者が編集し、自動保存 */
+  live?: { draft: Draft; save: (d: Draft) => Promise<void> }
 }) {
   const [evidenceShown, setEvidenceShown] = useState(false)
+  if (live) return <LiveEditStep key={`${live.draft.version.id}:${live.draft.version.status}`} draft={live.draft} save={live.save} page={editingPage} setPage={setEditingPage} />
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
@@ -4058,15 +4449,240 @@ function EditStep({
   )
 }
 
+/** 本番の教材編集（Figma の EditStep と同じ DOM）。入力欄を離れたときに自動保存 */
+function LiveEditStep({ draft, save, page, setPage }: { draft: Draft; save: (d: Draft) => Promise<void>; page: number; setPage: (p: number) => void }) {
+  const [local, setLocal] = useState(draft)
+  const [evidenceShown, setEvidenceShown] = useState(false)
+  const n = local.slides.length
+  const quizPage = n + 1
+  const cur = page <= n ? local.slides[page - 1] : null
+  const editable = local.version.status === "draft"
+  const setSlide = (patch: Partial<Draft["slides"][number]>) =>
+    setLocal({ ...local, slides: local.slides.map((sl, i) => (i === page - 1 ? { ...sl, ...patch } : sl)) })
+  const setQuestion = (qi: number, patch: Partial<Draft["questions"][number]>) =>
+    setLocal({ ...local, questions: local.questions.map((q, i) => (i === qi ? { ...q, ...patch } : q)) })
+  const commit = () => editable && void save(local)
+  const ref = cur?.sourceRefs[0]
+  return (
+    <div className="cd-studio-step">
+      <div className="cd-step-heading">
+        <Badge>Step 5</Badge>
+        <h2>教材と確認問題を編集</h2>
+        <p>1画面1主題で本文・図解・確認問題を編集します。{!editable && "（承認待ち・公開後は編集できません）"}</p>
+      </div>
+      <div className="cd-editor">
+        <aside>
+          <h3>教材の画面</h3>
+          {local.slides.map((sl, i) => (
+            <button key={sl.seq} className={page === i + 1 ? "active" : ""} onClick={() => setPage(i + 1)}>
+              <span>{i + 1}</span>
+              <div>
+                <b>{sl.title}</b>
+                <small>{page === i + 1 ? "編集中" : "下書き保存済み"}</small>
+              </div>
+            </button>
+          ))}
+          <button className={page === quizPage ? "active quiz" : "quiz"} onClick={() => setPage(quizPage)}>
+            <span>Q</span>
+            <div>
+              <b>理解確認</b>
+              <small>{local.questions.length}問 · 3択＋わからない</small>
+            </div>
+          </button>
+        </aside>
+        <section className="cd-panel cd-edit-form" data-studio-editor>
+          {cur ? (
+            <>
+              <div className="cd-edit-top">
+                <span>
+                  画面 {page} / {n}
+                </span>
+                <Badge tone="gray">自動保存</Badge>
+              </div>
+              <label>
+                見出し
+                <input value={cur.title} disabled={!editable} onChange={(e) => setSlide({ title: e.target.value })} onBlur={commit} />
+              </label>
+              <label>
+                要点
+                <textarea value={cur.proposition ?? ""} disabled={!editable} onChange={(e) => setSlide({ proposition: e.target.value })} onBlur={commit} />
+              </label>
+              <label>
+                本文
+                <textarea className="large" value={cur.bodyMd} disabled={!editable} onChange={(e) => setSlide({ bodyMd: e.target.value })} onBlur={commit} />
+              </label>
+              <div className="cd-illustration-editor">
+                <div>
+                  <span>MEDICAL ILLUSTRATION</span>
+                  <CIcon name="book" size={30} />
+                  <b>医学図解の挿入枠</b>
+                  <small>完成画像は自動トリミングしません</small>
+                </div>
+                <section>
+                  <label>
+                    図解の状態
+                    <select value="未設定" disabled>
+                      <option>未設定</option>
+                    </select>
+                  </label>
+                  <label>
+                    図解の扱い
+                    <small>医学図解は別途登録し、内容の監修（承認）後にだけ患者へ表示します。</small>
+                  </label>
+                </section>
+              </div>
+              <div className="cd-evidence-source">
+                <CIcon name="file" />
+                <span>
+                  <b>原資料の根拠</b>
+                  <small>{ref ? ref.section || "引用あり" : "根拠の引用なし（要確認）"}</small>
+                </span>
+                <button disabled={!ref} onClick={() => setEvidenceShown(!evidenceShown)}>
+                  {evidenceShown ? "原文を閉じる" : "原文を表示"}
+                </button>
+              </div>
+              {evidenceShown && ref && (
+                <blockquote className="cd-editor-source">
+                  <b>{local.sources.find((x) => x.id === ref.sourceId)?.title ?? "原資料"}{ref.section ? ` · ${ref.section}` : ""}</b>
+                  <p>{ref.quote}</p>
+                </blockquote>
+              )}
+            </>
+          ) : (
+            local.questions.map((q, qi) => (
+              <div className="cd-question-editor" key={q.seq}>
+                <div className="cd-edit-top">
+                  <span>理解確認 {qi + 1}問目</span>
+                  <Badge tone="gray">下書き</Badge>
+                </div>
+                <label>
+                  設問
+                  <textarea value={q.stem} disabled={!editable} onChange={(e) => setQuestion(qi, { stem: e.target.value })} onBlur={commit} />
+                </label>
+                <div className="cd-option-editor">
+                  {q.options.map((option, oi) => (
+                    <label key={oi}>
+                      <input
+                        type="radio"
+                        name={`correct-${qi}`}
+                        checked={q.correctIndex === oi}
+                        disabled={!editable}
+                        onChange={() => {
+                          const next = { ...local, questions: local.questions.map((x, i) => (i === qi ? { ...x, correctIndex: oi } : x)) }
+                          setLocal(next)
+                          if (editable) void save(next)
+                        }}
+                      />
+                      <span>{["A", "B", "C"][oi]}</span>
+                      <input
+                        value={option}
+                        disabled={!editable}
+                        onChange={(e) => setQuestion(qi, { options: q.options.map((o, i) => (i === oi ? e.target.value : o)) as [string, string, string] })}
+                        onBlur={commit}
+                      />
+                    </label>
+                  ))}
+                  <div>
+                    <span>?</span>
+                    <b>わからない</b>
+                    <small>患者には常に表示</small>
+                  </div>
+                </div>
+                <label>
+                  正答後・誤答後の解説
+                  <textarea className="large" value={q.explanation} disabled={!editable} onChange={(e) => setQuestion(qi, { explanation: e.target.value })} onBlur={commit} />
+                </label>
+              </div>
+            ))
+          )}
+        </section>
+      </div>
+    </div>
+  )
+}
+
 function PreviewStep({
   onClose,
   onComplete,
+  live,
 }: {
   onClose: () => void
   onComplete: () => void
+  /** 本番: 下書きをそのまま患者向けの学習画面と同じ構成で表示（学習記録は作らない） */
+  live?: { draft: Draft }
 }) {
-  const [page, setPage] = useState(2)
+  const [page, setPage] = useState(live ? 1 : 2)
   const [audio, setAudio] = useState(false)
+  if (live) {
+    const slides = live.draft.slides
+    const sl = slides[page - 1]
+    return (
+      <div className="cd-studio-step">
+        <div className="cd-step-heading">
+          <Badge>Step 6</Badge>
+          <h2>患者表示をプレビュー</h2>
+          <p>患者向けConcept Dと同じ学習画面で確認します。</p>
+        </div>
+        <div className="cd-preview-layout">
+          <section className="cd-preview-info">
+            <h3>プレビューの確認項目</h3>
+            <label>
+              <input type="checkbox" /> 成人患者に読みやすい表現
+            </label>
+            <label>
+              <input type="checkbox" /> 1画面1主題
+            </label>
+            <label>
+              <input type="checkbox" /> 医学図解とcaption
+            </label>
+            <label>
+              <input type="checkbox" /> 安全上の重要事項
+            </label>
+            <p>
+              <CIcon name="shield" />
+              プレビュー操作は患者の学習進捗や回答履歴を変更しません。
+            </p>
+          </section>
+          <div className="cd-patient-preview" data-studio-preview>
+            <header>
+              <button onClick={onClose}>閉じる</button>
+              <span>
+                {page} / {slides.length}
+              </span>
+              <button onClick={() => setAudio(!audio)}>{audio ? "音声停止" : "音声"}</button>
+            </header>
+            <i>
+              <i style={{ width: `${slides.length ? (page / slides.length) * 100 : 0}%` }} />
+            </i>
+            <main>
+              <p>{live.draft.material.title}</p>
+              <h2>{sl?.title}</h2>
+              <p>{sl?.proposition || sl?.bodyMd}</p>
+              {audio && <div className="cd-preview-audio">読み上げはスライドの本文を端末の読み上げ機能で再生します</div>}
+              <div className="cd-preview-image">
+                <span>MEDICAL ILLUSTRATION</span>
+                <CIcon name="book" size={30} />
+                <b>監修済み図解を配置</b>
+              </div>
+              <small>図解は監修済みの画像だけを表示します（未設定）</small>
+              <aside>
+                <b>本文</b>
+                <p>{sl?.bodyMd}</p>
+              </aside>
+            </main>
+            <footer>
+              <button disabled={page === 1} onClick={() => setPage(Math.max(1, page - 1))}>
+                前へ
+              </button>
+              <button className="cd-primary" onClick={() => (page >= slides.length ? onComplete() : setPage(Math.min(slides.length, page + 1)))}>
+                {page >= slides.length ? (live.draft.version.status === "draft" ? "承認依頼へ" : "承認確認へ") : "次へ"}
+              </button>
+            </footer>
+          </div>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
@@ -4153,14 +4769,18 @@ function ApprovalStep({
   state,
   setState,
   notify,
+  live,
 }: {
   checks: boolean[]
   setChecks: (checks: boolean[]) => void
   state: "editing" | "review" | "published" | "returned"
   setState: (state: "editing" | "review" | "published" | "returned") => void
   notify: (message: string) => void
+  /** 本番: 実際の承認・公開・差し戻し・公開停止（承認権限はサーバーで検証） */
+  live?: { draft: Draft; busy: boolean; approve: (acknowledgeSafety: boolean) => Promise<void>; returnToDraft: () => Promise<void>; retire: () => Promise<void> }
 }) {
   const allChecked = checks.every(Boolean)
+  const safetyOpen = live ? live.draft.preCheck.mustCover.safetyUnconfirmed : []
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
@@ -4198,17 +4818,26 @@ function ApprovalStep({
           <div className="cd-approval-meta">
             <div>
               <span>作成者</span>
-              <b>山田 太郎 医師</b>
+              <b>{live ? live.draft.creatorName : "山田 太郎 医師"}</b>
             </div>
             <div>
               <span>承認権限</span>
-              <b>施設内教材 承認者</b>
+              <b>{live ? (live.draft.role.canApprove ? "施設内教材 承認者" : "承認権限なし") : "施設内教材 承認者"}</b>
             </div>
             <div>
               <span>公開範囲</span>
-              <b>当院の患者のみ</b>
+              <b>{live ? (live.draft.material.scope === "org" ? "当院の患者のみ" : "共通教材") : "当院の患者のみ"}</b>
             </div>
           </div>
+          {live && (
+            // デモの承認者は架空。本番の医学的監修ではないことを明示
+            <p className="cd-demo-approval-note">
+              <CIcon name="alert" />
+              デモの承認者は架空の承認者です。この承認は本番の医学的監修を意味しません。
+              {safetyOpen.length > 0 && ` 安全上の重要事項 ${safetyOpen.length}件が未確認のため、「安全上の重要事項と相談の目安を確認した」の確認をもって承認します。`}
+              {live.draft.approvalBlock && ` ${live.draft.approvalBlock}`}
+            </p>
+          )}
         </section>
         <aside className="cd-panel cd-publish-panel">
           <div className="cd-publish-icon">
@@ -4242,6 +4871,30 @@ function ApprovalStep({
               ? "承認済み教材として、情報処方ライブラリに追加されました。"
               : "すべての確認を完了し、明示的に承認してください。"}
           </p>
+          {live ? (
+            state !== "published" ? (
+              live.draft.version.status === "in_review" && (
+                <>
+                  <button
+                    className="cd-primary"
+                    disabled={!allChecked || live.busy || !live.draft.role.canApprove || !!live.draft.approvalBlock}
+                    onClick={() => void live.approve(safetyOpen.length > 0)}
+                  >
+                    <CIcon name="check" />
+                    医学的に承認して公開
+                  </button>
+                  <button className="cd-return" disabled={live.busy || !live.draft.role.canApprove} onClick={() => void live.returnToDraft()}>
+                    修正のため差し戻す
+                  </button>
+                </>
+              )
+            ) : (
+              <button className="cd-secondary" disabled={live.busy} onClick={() => void live.retire()}>
+                公開を停止
+              </button>
+            )
+          ) : (
+            <>
           {state !== "published" && (
             <>
               <button
@@ -4270,6 +4923,8 @@ function ApprovalStep({
             >
               公開を停止して編集へ戻す
             </button>
+          )}
+            </>
           )}
         </aside>
       </div>
