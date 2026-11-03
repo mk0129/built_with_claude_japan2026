@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, inArray, isNull, or } from "drizzle-orm";
 import { getDb, type Db } from "@/server/db/client";
-import { materialSlides, materialVersions, materials, organizations, quizQuestions, sourceDocuments, sourcePermissions, user, type SourceRef } from "@/server/db/schema";
+import { MUST_COVER_SAFETY_KINDS, materialSlides, materialVersions, materials, organizations, quizQuestions, sourceDocuments, sourcePermissions, user, type MustCoverItem, type MustCoverStatus, type SourceRef } from "@/server/db/schema";
 import { badRequest, conflict, forbidden, notFound } from "@/server/authz/errors";
 import { listMemberships, type Principal } from "@/server/authz/principal";
 import { audit } from "./audit";
@@ -56,11 +56,79 @@ export async function getDraftForEditor(p: Principal, versionId: string, db: Db 
       slides: slides.map((s) => ({ title: s.title, proposition: s.proposition ?? "", body: s.bodyMd, detail: s.detailMd ?? "", sourceRefs: s.sourceRefs as { sourceId: string; section: string; quote: string }[] })),
       questions: questions.map((q) => ({ stem: q.stem, options: q.options, correctIndex: q.correctIndex, explanation: q.explanation, relatedSlide: q.relatedSlideSeq ?? 1, sourceRefs: q.sourceRefs as { sourceId: string; section: string; quote: string }[] })),
       notCoveredBySource: [],
+      coverage: [],
     },
     sources,
   );
   const approvalBlock = approvalBlocker(p, m, v, role.canApprove, sources.map((s) => s.perm));
-  return { version: v, material: m, slides, questions, sources, creatorName: creator?.name ?? "", role: { canEdit: true, canApprove: role.canApprove }, check, approvalBlock };
+  const preCheck = buildPreCheck(slides, questions, sources, v.mustCover, check.warnings);
+  return { version: v, material: m, slides, questions, sources, creatorName: creator?.name ?? "", role: { canEdit: true, canApprove: role.canApprove }, check, approvalBlock, preCheck };
+}
+
+/**
+ * 承認前の点検サマリー（UX-07 / GEN-05）。機械チェックは候補の抽出であり、医学的妥当性と網羅の最終判断は医療者が行う。
+ * safetyUnconfirmed: 安全上の重要事項（緊急連絡・受診・禁止）で、医療者の確認が済んでいないもの（「別教材で扱う」は除く）
+ */
+export type PreCheck = ReturnType<typeof buildPreCheck>;
+function buildPreCheck(
+  slides: (typeof materialSlides.$inferSelect)[],
+  questions: (typeof quizQuestions.$inferSelect)[],
+  sources: { id: string; extractedText: string | null }[],
+  mustCover: MustCoverItem[],
+  warnings: string[],
+) {
+  const norm = (s: string) => s.replace(/\s+/g, "").replace(/[「」『』]/g, "");
+  const texts = new Map(sources.map((s) => [s.id, norm(s.extractedText ?? "")]));
+  const refs = [...slides.flatMap((s) => s.sourceRefs as SourceRef[]), ...questions.flatMap((q) => q.sourceRefs as SourceRef[])];
+  const found = refs.filter((r) => r.quote && (texts.get(r.sourceId) ?? "").includes(norm(r.quote))).length;
+  const slidesWithoutRefs = slides.filter((s) => (s.sourceRefs as SourceRef[]).length === 0).map((s) => s.seq);
+  const questionsWithoutRefs = questions.filter((q) => (q.sourceRefs as SourceRef[]).length === 0).map((q) => q.seq);
+  const sectionMix = warnings.filter((w) => /複数の見出し/.test(w)).length;
+  const required = mustCover.filter((i) => i.status === "required");
+  const needsReview = mustCover.filter((i) => i.status === "needs_review");
+  const safetyUnconfirmed = mustCover.filter((i) => i.status !== "other_material" && MUST_COVER_SAFETY_KINDS.includes(i.kind) && !i.confirmed);
+  const unconfirmed = mustCover.filter((i) => i.status !== "other_material" && !i.confirmed);
+  return {
+    refs: { total: refs.length, found, missing: refs.length - found },
+    slidesWithoutRefs,
+    questionsWithoutRefs,
+    sectionMix,
+    mustCover: {
+      total: mustCover.length,
+      required: required.length,
+      autoMatched: required.filter((i) => i.autoMatched).length,
+      confirmed: mustCover.filter((i) => i.status !== "other_material" && i.confirmed).length,
+      needsReview: needsReview.length,
+      unconfirmed: unconfirmed.length,
+      safetyUnconfirmed: safetyUnconfirmed.map((i) => ({ id: i.id, text: i.text, kind: i.kind })),
+    },
+  };
+}
+
+export type MustCoverUpdate = { id: string; text?: string; status?: MustCoverStatus; confirmed?: boolean; note?: string | null }[];
+
+/**
+ * 必須事項の分類・確認の更新（編集者・承認者）。draft と in_review で可能（承認者が承認前に確認する）。
+ * 「確認済み」は医療者の氏名と日時を記録する。機械照合（autoMatched）は変更できない。
+ */
+export async function updateMustCover(p: Principal, versionId: string, updates: MustCoverUpdate, db: Db = getDb()) {
+  const { v, m } = await loadVersion(versionId, db);
+  await roleFor(p, m);
+  if (v.status !== "draft" && v.status !== "in_review") throw conflict("NOT_EDITABLE");
+  const now = new Date().toISOString();
+  const next = v.mustCover.map((item) => {
+    const u = updates.find((x) => x.id === item.id);
+    if (!u) return item;
+    const out = { ...item };
+    if (u.text !== undefined) out.text = u.text;
+    if (u.status !== undefined) out.status = u.status;
+    if (u.confirmed === true) out.confirmed = { byUserId: p.userId, byName: p.name, at: now, note: u.note ?? null };
+    if (u.confirmed === false) out.confirmed = null;
+    return out;
+  });
+  await db.update(materialVersions).set({ mustCover: next }).where(eq(materialVersions.id, versionId));
+  await audit({ actorUserId: p.userId, action: "material.must_cover.update", resourceType: "material_version", resourceId: versionId, outcome: "ok" }, db);
+  return next;
 }
 
 function approvalBlocker(
@@ -129,7 +197,7 @@ export async function returnToDraft(p: Principal, versionId: string, comment: st
 }
 
 /** 承認して公開（ライブラリ登録）。共通は別人承認、病院独自は自己承認可 */
-export async function approveAndPublish(p: Principal, versionId: string, db: Db = getDb()) {
+export async function approveAndPublish(p: Principal, versionId: string, opts: { acknowledgeSafety?: boolean; note?: string | null } = {}, db: Db = getDb()) {
   const { v, m } = await loadVersion(versionId, db);
   const role = await roleFor(p, m);
   const perms = v.sourceDocumentIds.length ? await db.select().from(sourcePermissions).where(inArray(sourcePermissions.sourceId, v.sourceDocumentIds)) : [];
@@ -141,8 +209,18 @@ export async function approveAndPublish(p: Principal, versionId: string, db: Db 
     if (block.includes("提出されていません")) throw conflict("NOT_IN_REVIEW", block);
     throw forbidden("SOURCE_PERMISSION_MISSING", block);
   }
+  // GEN-05: 安全上の重要事項（緊急連絡・受診・禁止）が未確認なら、明示的な了承（理由の記録）なしには承認しない
+  const safetyUnconfirmed = v.mustCover.filter((i) => i.status !== "other_material" && MUST_COVER_SAFETY_KINDS.includes(i.kind) && !i.confirmed);
+  if (safetyUnconfirmed.length > 0 && !opts.acknowledgeSafety) {
+    await audit({ actorUserId: p.userId, action: "material.approve", resourceType: "material_version", resourceId: versionId, outcome: "denied" }, db);
+    throw conflict("SAFETY_UNCONFIRMED", `安全上の重要事項が未確認です: ${safetyUnconfirmed.map((i) => i.text).join(" / ")}`);
+  }
   const now = new Date();
   await db.transaction(async (tx) => {
+    if (safetyUnconfirmed.length > 0) {
+      const note = `【未確認の重要事項を了承して承認】${opts.note?.trim() || "（理由の記載なし）"}: ${safetyUnconfirmed.map((i) => i.text).join(" / ")}`;
+      await tx.update(materialVersions).set({ reviewComment: [v.reviewComment, note].filter(Boolean).join("\n") }).where(eq(materialVersions.id, versionId));
+    }
     // 既存の公開版があれば retire（superseded）にする
     if (m.currentPublishedVersionId && m.currentPublishedVersionId !== versionId) {
       await tx.update(materialVersions).set({ status: "retired", retiredAt: now, retireReason: "superseded" }).where(eq(materialVersions.id, m.currentPublishedVersionId));
@@ -150,8 +228,8 @@ export async function approveAndPublish(p: Principal, versionId: string, db: Db 
     await tx.update(materialVersions).set({ status: "published", approvedByUserId: p.userId, approvedAt: now, publishedAt: now }).where(eq(materialVersions.id, versionId));
     await tx.update(materials).set({ currentPublishedVersionId: versionId }).where(eq(materials.id, m.id));
   });
-  await audit({ actorUserId: p.userId, orgId: role.membership.orgId, action: "material.approve_publish", resourceType: "material_version", resourceId: versionId, outcome: "ok" }, db);
-  return { versionId, scope: m.scope };
+  await audit({ actorUserId: p.userId, orgId: role.membership.orgId, action: safetyUnconfirmed.length > 0 ? "material.approve_publish.safety_acknowledged" : "material.approve_publish", resourceType: "material_version", resourceId: versionId, outcome: "ok" }, db);
+  return { versionId, scope: m.scope, safetyAcknowledged: safetyUnconfirmed.length > 0 };
 }
 
 /** 公開停止（承認者）。新規処方不可になる（既存の学習履歴は残る） */

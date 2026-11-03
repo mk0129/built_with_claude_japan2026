@@ -1,5 +1,5 @@
 import { test } from "@playwright/test";
-import { VIEWPORTS, demoLogin, expect, newPage, showQrCode } from "./helpers";
+import { VIEWPORTS, demoLogin, expect, newPage, showQrCode, openRegisterForm } from "./helpers";
 
 /**
  * Day 4 教材スタジオの通し操作（原資料登録 → 生成 → 編集 → 承認 → 処方 → 患者が学習）。
@@ -24,6 +24,7 @@ test("原資料の登録から患者への処方まで", async ({ browser }) => 
 
   // A. 原資料の登録と許諾
   const stamp = Date.now().toString().slice(-5);
+  await openRegisterForm(s);
   await s.getByLabel("原資料ファイル").setInputFiles("tests/fixtures/sources/hormone_therapy_demo.docx");
   await s.getByLabel("資料名").fill(`ホルモン療法を続けるために（デモ ${stamp}）`);
   await s.getByLabel("許諾元（著作権者・作成部署）").fill("さくら総合病院（架空）乳腺外科");
@@ -42,6 +43,9 @@ test("原資料の登録から患者への処方まで", async ({ browser }) => 
   await s.getByLabel("テーマ").fill("ホルモン療法を自己判断でやめないために");
   await s.getByLabel(/学習目標/).fill("続ける期間の考え方を知る\nつらい症状は相談できると知る");
   await s.getByRole("button", { name: "この内容で下書きを作る" }).click();
+  // ステップ 3: 必須事項の確認（構成案が無いので候補は空。そのまま生成に進む）
+  await expect(s.getByRole("heading", { name: "ステップ 3", exact: false }).or(s.getByText(/ステップ 3: 必須事項を確認/))).toBeVisible();
+  await s.getByRole("button", { name: /件を含めて教材・クイズを生成する/ }).click();
   const open = s.getByRole("link", { name: /下書きを確認・編集する/ }).first();
   await expect(open).toBeVisible({ timeout: 180_000 });
   await shot(s, "d4_04_job_done");
@@ -102,6 +106,7 @@ test("権限: 一般医療者はスタジオに入れず、AI 不可の資料は
   const t = await newPage(browser, VIEWPORTS.phone390);
   await demoLogin(t.page, "staff", "田中 恵");
   await t.page.goto("/staff/studio");
+  await openRegisterForm(t.page);
   await t.page.getByLabel("原資料ファイル").setInputFiles("tests/fixtures/sources/hormone_therapy_demo.docx");
   await t.page.getByLabel("許諾元（著作権者・作成部署）").fill("デモ");
   await t.page.getByLabel("許諾の根拠・確認内容").fill("AI 処理は未許可（デモ）");

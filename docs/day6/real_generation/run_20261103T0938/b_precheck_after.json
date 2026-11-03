@@ -1,0 +1,19 @@
+{
+  "refs": {
+    "total": 27,
+    "found": 27,
+    "missing": 0
+  },
+  "slidesWithoutRefs": [],
+  "questionsWithoutRefs": [],
+  "sectionMix": 2,
+  "mustCover": {
+    "total": 8,
+    "required": 3,
+    "autoMatched": 3,
+    "confirmed": 6,
+    "needsReview": 3,
+    "unconfirmed": 0,
+    "safetyUnconfirmed": []
+  }
+}

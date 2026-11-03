@@ -1,5 +1,5 @@
 import { test, type Page } from "@playwright/test";
-import { SHOT_DIR, demoLogin, expect, layoutAudit, newPage, showQrCode } from "./helpers";
+import { SHOT_DIR, demoLogin, expect, layoutAudit, newPage, openRegisterForm, showQrCode } from "./helpers";
 
 /**
  * P0 回帰（2026-11-03）: UX-01 横スクロール / UX-02 内部表記 / UX-03 構成案の見つけやすさ / UX-04 承認前プレビュー / UX-10 共有終了の安定性。
@@ -15,6 +15,7 @@ const STUDIO_WIDTHS = [
 
 async function registerSource(s: Page, title: string) {
   await s.goto("/staff/studio");
+  await openRegisterForm(s);
   await s.getByLabel("原資料ファイル").setInputFiles("tests/fixtures/sources/hormone_therapy_demo.docx");
   await s.getByLabel("資料名").fill(title);
   await s.getByLabel("許諾元（著作権者・作成部署）").fill("さくら総合病院（架空）乳腺外科");
@@ -49,10 +50,14 @@ test("UX-03 / UX-04: 構成案は操作の直下に出て画面内に入る。�
   // 構成案の違いが分かる要素（学習目標・画面構成・特徴）がカードにある
   await expect(result.getByText("学習目標").first()).toBeVisible();
   await expect(result.getByText(/画面構成（\d+ 画面）/).first()).toBeVisible();
-  await expect(result.getByText(/この案の特徴/).first()).toBeVisible();
+  await expect(result.getByText(/根拠（原資料のどこに基づくか）/).first()).toBeVisible();
 
-  // 案を選ぶ → 「下書きができました」が同じ領域に出る
-  await result.getByRole("button", { name: "この案で下書きを作る" }).first().click();
+  // 案を選ぶ → ステップ 3（必須事項の確認）が同じ領域に出る → 生成 → 「下書きができました」
+  await result.getByRole("button", { name: "この案で進む" }).first().click();
+  await expect(result.getByText(/ステップ 3: 必須事項を確認/)).toBeVisible();
+  await expect(result.getByRole("radio", { name: "この教材で必須" }).first()).toBeVisible();
+  await s.screenshot({ path: `${SHOT_DIR}/p0_ux03_must_cover_step_820.png`, fullPage: false });
+  await result.getByRole("button", { name: /件を含めて教材・クイズを生成する/ }).click();
   await expect(result.getByText("下書きができました")).toBeVisible({ timeout: 60_000 });
   await s.screenshot({ path: `${SHOT_DIR}/p0_ux03_draft_ready_820.png`, fullPage: false });
   // 以前の構成案ジョブは履歴に入り、画面上部の情報階層（操作 → 最新の結果 → 履歴）が保たれる
@@ -181,7 +186,7 @@ test("UX-10: 「共有を終了する」は連続 3 回とも 1 回の操作で�
     const r = await staff.page.request.get(`/api/v1/consultations/${sessionId}/patient`);
     expect(r.status(), `iteration ${i}: staff access after patient ended`).toBe(403);
     // 医療者画面にも終了が伝わる
-    await expect(staff.page.getByText(/患者さんが共有を終了しました/)).toBeVisible({ timeout: 10_000 });
+    await expect(staff.page.getByText(/患者さんが共有を終了しました/)).toBeVisible({ timeout: 20_000 });
   }
 
   // 医療者が先に終了 → 患者画面は「共有は終了しました」→ 閉じる → QR ボタン

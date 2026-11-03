@@ -1,0 +1,45 @@
+{
+  "refs": {
+    "total": 27,
+    "found": 27,
+    "missing": 0
+  },
+  "slidesWithoutRefs": [],
+  "questionsWithoutRefs": [],
+  "sectionMix": 2,
+  "mustCover": {
+    "total": 8,
+    "required": 3,
+    "autoMatched": 3,
+    "confirmed": 0,
+    "needsReview": 3,
+    "unconfirmed": 6,
+    "safetyUnconfirmed": [
+      {
+        "id": "mc-pkaqj90a",
+        "text": "片方の足が急に腫れる・痛む、急に息苦しくなる、胸が痛むときは、血栓の可能性があるため、次の診察を待たずに病院へ連絡します。",
+        "kind": "emergency"
+      },
+      {
+        "id": "mc-nqf5qpxu",
+        "text": "タモキシフェンを飲んでいて不正出血があったときは、早めに病院へ連絡します。",
+        "kind": "emergency"
+      },
+      {
+        "id": "mc-glme87l1",
+        "text": "不正出血があるときは、早めに担当医に伝え、婦人科を受診します。",
+        "kind": "visit"
+      },
+      {
+        "id": "mc-ux6kyx8b",
+        "text": "自己判断で薬をやめたり、量を減らしたりしません。やめたいときは理由を担当医や薬剤師に伝えます。",
+        "kind": "prohibition"
+      },
+      {
+        "id": "mc-t69ry7m0",
+        "text": "飲み忘れたときに、2回分をまとめて飲んではいけません。迷うときは薬剤師に確認します。",
+        "kind": "prohibition"
+      }
+    ]
+  }
+}

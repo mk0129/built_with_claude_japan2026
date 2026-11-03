@@ -88,6 +88,7 @@ describe("永続ジョブ（自動再試行・リース回収・上限）", () =
     slides: [1, 2, 3].map((i) => ({ title: `s${i}`, proposition: "p", body: "b", detail: "", sourceRefs: [{ sourceId: s, section: "", quote: "5年以上の長い期間続けることが多い治療です" }] })),
     questions: [1, 2].map((i) => ({ stem: `q${i}`, options: ["a", "b", "c"], correctIndex: 0, explanation: "e", relatedSlide: 1, sourceRefs: [{ sourceId: s, section: "", quote: "5年以上の長い期間続けることが多い治療です" }] })),
     notCoveredBySource: [],
+    coverage: [],
   });
 
   beforeAll(async () => {

@@ -8,7 +8,7 @@ import { aiGenerationJobs, materials } from "@/server/db/schema";
 import { AppError } from "@/server/authz/errors";
 import { uploadSource, type PermissionInput } from "@/server/services/sources";
 import { createJob, getJob, retryJob, type MaterialOutput, type OutlineOutput } from "@/server/services/ai-generation";
-import { approveAndPublish, getDraftForEditor, submitForReview, updateDraft } from "@/server/services/authoring";
+import { updateMustCover, approveAndPublish, getDraftForEditor, submitForReview, updateDraft } from "@/server/services/authoring";
 import { listVisibleMaterials } from "@/server/services/materials";
 import { requireActiveConsultation } from "@/server/authz/consultation";
 import { prescribe } from "@/server/services/prescription";
@@ -34,6 +34,7 @@ const outline = (sid: string): OutlineOutput => ({
   outlines: [
     { title: "ホルモン療法を続けるために", primaryDomain: "drug_therapy", targetReader: "ホルモン療法を始める方", learningObjectives: ["続ける期間の考え方を知る"], slideTitles: ["ホルモン療法とは", "続ける期間", "体の変化", "まとめ"], rationale: "1〜5 章に基づく", sourceRefs: [{ sourceId: sid, section: "2", quote: "5年以上の長い期間続けることが多い治療です" }] },
   ],
+  mustCoverCandidates: [],
   notCoveredBySource: [],
 });
 const material = (sid: string, quote = "女性ホルモンの影響を受けて増えやすい性質があります"): MaterialOutput => ({
@@ -51,6 +52,7 @@ const material = (sid: string, quote = "女性ホルモンの影響を受けて�
     { stem: "つらい症状があるときは？", options: ["我慢する", "次の診察で伝える", "薬をやめる"], correctIndex: 1, explanation: "我慢せず次の診察で伝えます。", relatedSlide: 3, sourceRefs: [{ sourceId: sid, section: "3", quote: "我慢せずに次の診察で伝えてください" }] },
   ],
   notCoveredBySource: [],
+  coverage: [],
 });
 
 async function expectAppError(p: Promise<unknown>, status: number, code?: string) {
@@ -184,6 +186,56 @@ describe("Claude による教材生成（B / C）と承認・公開（C）", () 
     expect(view.slides).toHaveLength(3);
     expect(view.questionCount).toBe(2);
     await endConsultation(sessionId, uid(PATIENT_B));
+  });
+
+  it("GEN-05: 必須事項は分類ごとに扱われ、機械照合は参考、安全上の重要事項が未確認なら承認は 409。確認または了承（理由記録）で承認できる", async () => {
+    const tanaka = staff("nurse.tanaka@example.com");
+    const sato = staff("approver.sato@example.com");
+    const src = await uploadSource(tanaka, { title: "必須事項（デモ）", filename: "mc.docx", mime: DOCX_MIME, body: DOCX, piiAttestedNone: true, permissions: okPerm });
+    const o = await createJob(tanaka, null, { mode: "outline", sourceIds: [src.sourceId] });
+    const mustCover = [
+      // 引用が教材の出典（fixture の quote）と一致する → autoMatched=true
+      { id: "mc-1", text: "連絡する目安を知る", kind: "visit" as const, sourceRef: { sourceId: src.sourceId, quote: "女性ホルモンの影響を受けて増えやすい性質があります" }, status: "required" as const },
+      // 引用が教材に無い → autoMatched=false（Claude の申告があっても網羅とはしない）
+      { id: "mc-2", text: "片足の腫れや息苦しさは連絡する", kind: "prohibition" as const, sourceRef: { sourceId: src.sourceId, quote: "急に強い症状が出たときは、病院から案内された連絡先に連絡してください" }, status: "required" as const },
+      // 別教材で扱う → 照合も確認も求めない
+      { id: "mc-3", text: "妊娠・避妊", kind: "caution" as const, sourceRef: { sourceId: src.sourceId, quote: "治療中は妊娠を避ける必要があります" }, status: "other_material" as const },
+      // 医療者の確認が必要（安全上の種別ではない）
+      { id: "mc-4", text: "期間の考え方", kind: "fact" as const, sourceRef: { sourceId: src.sourceId, quote: "5年以上の長い期間続けることが多い治療です" }, status: "needs_review" as const },
+    ];
+    const gj = await createJob(tanaka, null, { mode: "generate", sourceIds: [src.sourceId], fromJobId: o.jobId, outlineIndex: 0, mustCover });
+    const versionId = (await getJob(tanaka, gj.jobId)).outputVersionId!;
+    const d = await getDraftForEditor(tanaka, versionId);
+    const byId = Object.fromEntries(d.version.mustCover.map((i) => [i.id, i]));
+    expect(byId["mc-1"].autoMatched).toBe(true);
+    expect(byId["mc-2"].autoMatched).toBe(false);
+    expect(byId["mc-3"].autoMatched).toBeNull();
+    expect(d.preCheck.mustCover.required).toBe(2);
+    expect(d.preCheck.mustCover.needsReview).toBe(1);
+    // 安全上の重要事項（visit / prohibition）が未確認 → 2 件。fact の未確認は含まれない
+    expect(d.preCheck.mustCover.safetyUnconfirmed.map((i) => i.id).sort()).toEqual(["mc-1", "mc-2"]);
+
+    await submitForReview(tanaka, versionId);
+    // 未確認のままでは承認できない（機械照合 true でも医療者の確認が必要）
+    await expectAppError(approveAndPublish(sato, versionId), 409, "SAFETY_UNCONFIRMED");
+    // 一般医療者は必須事項を変更できない
+    await expectAppError(updateMustCover(staff("dr.yamada@example.com"), versionId, [{ id: "mc-1", confirmed: true }]), 403);
+    // 承認者が確認（in_review でも可）
+    const after = await updateMustCover(sato, versionId, [{ id: "mc-1", confirmed: true, note: "画面 1 で扱っている" }, { id: "mc-2", confirmed: true }]);
+    expect(after.find((i) => i.id === "mc-1")?.confirmed?.byUserId).toBe(sato.userId);
+    expect((await getDraftForEditor(sato, versionId)).preCheck.mustCover.safetyUnconfirmed).toEqual([]);
+    const r = await approveAndPublish(sato, versionId);
+    expect(r?.safetyAcknowledged).toBe(false);
+
+    // 了承（理由の記録）で承認する経路
+    const src2 = await uploadSource(tanaka, { title: "必須事項 2", filename: "mc2.docx", mime: DOCX_MIME, body: DOCX, piiAttestedNone: true, permissions: okPerm });
+    const o2 = await createJob(tanaka, null, { mode: "outline", sourceIds: [src2.sourceId] });
+    const g2 = await createJob(tanaka, null, { mode: "generate", sourceIds: [src2.sourceId], fromJobId: o2.jobId, outlineIndex: 0, mustCover: [mustCover[1]] });
+    const v2 = (await getJob(tanaka, g2.jobId)).outputVersionId!;
+    await submitForReview(tanaka, v2);
+    const r2 = await approveAndPublish(sato, v2, { acknowledgeSafety: true, note: "別教材で扱うことを確認" });
+    expect(r2?.safetyAcknowledged).toBe(true);
+    expect((await getDraftForEditor(sato, v2)).version.reviewComment).toContain("未確認の重要事項を了承して承認");
   });
 
   it("T07: 病院独自教材は承認権限があれば作成者本人が自己承認できる（C 方式）", async () => {

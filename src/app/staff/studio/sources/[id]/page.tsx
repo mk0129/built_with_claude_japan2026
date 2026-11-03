@@ -49,6 +49,7 @@ export default async function SourcePage({ params }: { params: Promise<{ id: str
     outputTokens: j.outputTokenCount,
     outputVersionId: j.outputVersionId,
     outlines: j.mode === "outline" && j.status === "succeeded" ? ((j.outputPayload as OutlineOutput).outlines ?? []) : [],
+    mustCoverCandidates: j.mode === "outline" && j.status === "succeeded" ? ((j.outputPayload as OutlineOutput).mustCoverCandidates ?? []) : [],
     notCovered: ((j.outputPayload as { notCoveredBySource?: string[] } | null)?.notCoveredBySource ?? []) as string[],
     warnings: ((j.outputPayload as { validationWarnings?: string[] } | null)?.validationWarnings ?? []) as string[],
   }));

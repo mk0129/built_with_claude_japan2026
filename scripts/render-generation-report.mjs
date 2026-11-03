@@ -126,6 +126,53 @@ for (const key of ["B", "C"]) {
   w();
 }
 
+// GEN-05: 必須事項と本文の対応（医療者の分類・確認を含む）
+w(`## 4-必須事項. Must-cover items と本文の対応（GEN-05）`);
+w();
+w(`機械照合は「項目の引用が教材の出典引用と重なるか」だけを見る参考情報。網羅と医学的妥当性の最終判断は医療者（confirmed）。`);
+w();
+for (const key of ["B", "C"]) {
+  const pub = published[key];
+  const items = pub?.version?.mustCover ?? [];
+  const before = load(`${key.toLowerCase()}_precheck_before`);
+  const after = load(`${key.toLowerCase()}_precheck_after`);
+  w(`### ${key} 方式: ${items.length} 件${before ? `（承認前の未確認: 安全上 ${before.mustCover?.safetyUnconfirmed?.length ?? 0} 件 → 確認後 ${after?.mustCover?.safetyUnconfirmed?.length ?? "—"} 件）` : ""}`);
+  if (!items.length) {
+    w(`- なし（必須事項なしで生成）`);
+    w();
+    continue;
+  }
+  w();
+  w(`| # | 種別 | 分類 | 必須事項 | 原資料 | Claude の申告 | 機械照合 | 医療者の確認 |`);
+  w(`|---|---|---|---|---|---|---|---|`);
+  items.forEach((i, n) => {
+    const p = paraOf(i.sourceRef?.quote);
+    const cov = [i.coverage?.slides?.length ? `画面 ${i.coverage.slides.join(",")}` : "", i.coverage?.questions?.length ? `問 ${i.coverage.questions.join(",")}` : ""].filter(Boolean).join(" ") || "対応なし";
+    w(`| ${n + 1} | ${i.kind} | ${i.status} | ${esc(i.text)} | ${p ? `¶${p}` : "—"} | ${cov} | ${i.autoMatched === true ? "引用あり" : i.autoMatched === false ? "引用なし" : "—"} | ${i.confirmed ? `済（${esc(i.confirmed.byName)}）` : "未"} |`);
+  });
+  w();
+}
+
+// GEN-01〜03 の観点（機械的な観察。医学的判断は医師）
+w(`## 4-GEN. GEN-01〜03 の観察（機械的な集計。判断は医師）`);
+w();
+const ACTION_RE = /(連絡|受診|救急|相談|やめ|中止|減ら)/;
+for (const key of ["B", "C"]) {
+  const g = jobs[key]?.outputPayload;
+  if (!g) continue;
+  const actionParas = paras.map((p, i) => [i + 1, p]).filter(([, p]) => /(連絡してください|受診してください|次の診察を待たずに|やめたり|中止)/.test(p));
+  const citedAction = actionParas.filter(([n]) => [...g.slides.flatMap((s) => s.sourceRefs), ...g.questions.flatMap((q) => q.sourceRefs)].some((r) => paraOf(r.quote) === n));
+  const situational = g.questions.filter((q) => /(とき|場合|どうし|どのように)/.test(q.stem));
+  const obviousDistractors = g.questions.flatMap((q) => q.options.filter((o, k) => k !== q.correctIndex && /(必ず|全員|絶対|誰にも|放置|気にしない|黙って)/.test(o)));
+  const sectionMix = (g.validationWarnings ?? []).filter((w) => /複数の見出し/.test(w));
+  const unsafeExplained = g.questions.filter((q) => q.options.some((o, k) => k !== q.correctIndex && ACTION_RE.test(o)) && /(相談|連絡|受診|担当医|薬剤師)/.test(q.explanation)).length;
+  w(`### ${key} 方式`);
+  w(`- GEN-01 受診・連絡・禁止の行動が書かれた原資料段落 ${actionParas.length} 件のうち、教材で引用されたもの ${citedAction.length} 件${actionParas.length ? `（未引用: ${actionParas.filter(([n]) => !citedAction.some(([m]) => m === n)).map(([n]) => `¶${n}`).join(", ") || "なし"}）` : ""}`);
+  w(`- GEN-02 出典が複数の見出しにまたがる画面: ${sectionMix.length} 件${sectionMix.length ? `（${sectionMix.map(esc).join(" / ")}）` : ""}`);
+  w(`- GEN-03 状況判断型の設問（「とき／場合／どうし」を含む）: ${situational.length} / ${g.questions.length} 問、明らかすぎる誤答の候補（必ず／全員／絶対 等）: ${obviousDistractors.length} 件${obviousDistractors.length ? `（${obviousDistractors.map(esc).join(" / ")}）` : ""}、行動を含む誤答に解説で正しい対応が示された設問: ${unsafeExplained} 問`);
+  w();
+}
+
 w(`## 4-共通. 引用されなかった原資料の段落（重要情報の欠落の確認候補）`);
 w();
 const uncited = paras.map((p, i) => [i + 1, p]).filter(([n]) => !allCited.has(n));

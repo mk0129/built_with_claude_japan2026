@@ -7,6 +7,7 @@ import { getDb } from "@/server/db/client";
 import { aiGenerationJobs } from "@/server/db/schema";
 import { GeneratorBadge } from "../../GeneratorBadge";
 import { Editor, type EditorData } from "./Editor";
+import { Stepper } from "../../Stepper";
 import { STATUS_LABEL, fmt, modelLabel, staffPrincipal } from "../../shared";
 
 /** 教材の編集・承認画面（原資料と並べて確認） */
@@ -25,6 +26,8 @@ export default async function MaterialEditorPage({ params }: { params: Promise<{
     approvalBlock: d.approvalBlock,
     reviewComment: d.version.reviewComment,
     warnings: d.check.warnings,
+    mustCover: d.version.mustCover,
+    preCheck: d.preCheck,
     draft: {
       title: d.material.title,
       summary: d.version.summary ?? "",
@@ -42,6 +45,7 @@ export default async function MaterialEditorPage({ params }: { params: Promise<{
         <Link href="/staff/studio" className="tap-link">
           ← 教材スタジオ
         </Link>
+        <Stepper current={d.version.status === "published" ? 7 : 6} done={[1, 2, 3, 4, 5]} />
         <h1 className="text-2xl font-bold">{d.material.title}</h1>
         <p className="text-sm text-ink-soft">
           <span className="pill mr-2">{STATUS_LABEL[d.version.status] ?? d.version.status}</span>

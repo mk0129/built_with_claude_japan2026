@@ -3,11 +3,28 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, errorText } from "@/lib/api";
-import { DOMAIN_LABEL } from "@/lib/labels";
+import { DOMAIN_LABEL, MUST_COVER_KIND_LABEL, MUST_COVER_STATUS_LABEL } from "@/lib/labels";
 
 type Ref = { sourceId: string; section?: string; quote?: string };
 type Slide = { title: string; proposition: string; body: string; detail: string; sourceRefs: Ref[] };
 type Question = { stem: string; options: string[]; correctIndex: number; explanation: string; relatedSlide: number; sourceRefs: Ref[] };
+export type MustCoverView = {
+  id: string;
+  text: string;
+  kind: string;
+  sourceRef: Ref;
+  status: "required" | "other_material" | "needs_review";
+  coverage: { slides: number[]; questions: number[] };
+  autoMatched: boolean | null;
+  confirmed: { byUserId: string; byName: string; at: string; note: string | null } | null;
+};
+export type PreCheckView = {
+  refs: { total: number; found: number; missing: number };
+  slidesWithoutRefs: number[];
+  questionsWithoutRefs: number[];
+  sectionMix: number;
+  mustCover: { total: number; required: number; autoMatched: number; confirmed: number; needsReview: number; unconfirmed: number; safetyUnconfirmed: { id: string; text: string; kind: string }[] };
+};
 export type EditorData = {
   versionId: string;
   status: string;
@@ -16,6 +33,8 @@ export type EditorData = {
   approvalBlock: string | null;
   reviewComment: string | null;
   warnings: string[];
+  mustCover: MustCoverView[];
+  preCheck: PreCheckView;
   draft: { title: string; summary: string; primaryDomain: string; learningObjectives: string[]; slides: Slide[]; questions: Question[] };
   sources: { id: string; title: string; text: string; warning: string | null }[];
   domains: string[];
@@ -33,6 +52,10 @@ export function Editor({ data }: { data: EditorData }) {
   const editable = data.status === "draft";
   const srcText = useMemo(() => Object.fromEntries(data.sources.map((s) => [s.id, norm(s.text)])), [data.sources]);
   const [focusQuote, setFocusQuote] = useState<string | null>(null);
+  const [ackSafety, setAckSafety] = useState(false);
+  const [ackNote, setAckNote] = useState("");
+  const safetyUnconfirmed = data.preCheck.mustCover.safetyUnconfirmed;
+  const canChangeMustCover = data.status === "draft" || data.status === "in_review";
 
   const set = (next: typeof d) => {
     setD(next);
@@ -88,6 +111,7 @@ export function Editor({ data }: { data: EditorData }) {
             ))}
           </div>
         )}
+        <PreCheckPanel data={data} canChange={canChangeMustCover} busy={busy} onBusy={setBusy} onMsg={setMsg} onDone={() => router.refresh()} />
         <p className="text-sm text-ink-soft">
           全画面と確認問題を原資料と見比べたうえで、末尾で{editable ? "保存・承認依頼" : data.canApprove && data.status === "in_review" ? "承認または差し戻し" : "操作"}を行います。{" "}
           <a href="#actions" className="underline">
@@ -201,12 +225,33 @@ export function Editor({ data }: { data: EditorData }) {
               )}
               {data.canApprove && (
                 <>
+                  {safetyUnconfirmed.length > 0 && (
+                    <div className="rounded-xl border-2 border-danger bg-sakura/40 p-3 space-y-2 text-sm" role="alert" aria-label="安全上の重要事項が未確認">
+                      <p className="font-bold text-danger">安全上の重要事項が未確認です（{safetyUnconfirmed.length} 件）。承認の前に、上部の「承認前の点検」で内容を確認してください。</p>
+                      <ul className="list-disc pl-5">
+                        {safetyUnconfirmed.map((i) => (
+                          <li key={i.id}>
+                            {MUST_COVER_KIND_LABEL[i.kind] ?? i.kind}: {i.text}
+                          </li>
+                        ))}
+                      </ul>
+                      <label className="flex items-start gap-2">
+                        <input type="checkbox" className="w-5 h-5 mt-0.5" checked={ackSafety} onChange={(e) => setAckSafety(e.target.checked)} />
+                        <span>未確認の重要事項があることを理解したうえで承認する（理由を記録します）</span>
+                      </label>
+                      {ackSafety && <input className="input min-h-11" placeholder="理由（例: 別教材で扱うことを確認済み）" value={ackNote} onChange={(e) => setAckNote(e.target.value)} maxLength={500} aria-label="未確認のまま承認する理由" />}
+                    </div>
+                  )}
                   <input className="input min-h-11" placeholder="差し戻しコメント" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={1000} aria-label="差し戻しコメント" />
                   <div className="grid sm:grid-cols-2 gap-2">
                     <button className="btn min-h-11" disabled={busy} onClick={() => act(`${base}/return`, { comment }, "差し戻しました")}>
                       差し戻す
                     </button>
-                    <button className="btn btn-primary min-h-11" disabled={busy || !!data.approvalBlock} onClick={() => act(`${base}/approve`, {}, "承認し、ライブラリに公開しました")}>
+                    <button
+                      className="btn btn-primary min-h-11"
+                      disabled={busy || !!data.approvalBlock || (safetyUnconfirmed.length > 0 && !ackSafety)}
+                      onClick={() => act(`${base}/approve`, safetyUnconfirmed.length > 0 ? { acknowledgeSafety: true, note: ackNote } : {}, "承認し、ライブラリに公開しました")}
+                    >
                       承認して公開する
                     </button>
                   </div>
@@ -255,5 +300,141 @@ function SourceText({ text, quote }: { text: string; quote: string | null }) {
       </mark>
       {text.slice(idx + quote.length)}
     </pre>
+  );
+}
+
+/**
+ * 承認前の点検（UX-07 / GEN-05）。機械チェックは候補の抽出であり、網羅と医学的妥当性の最終判断は医療者が行う。
+ * - 引用の一致 / 出典なし / 主題の混在（GEN-02）
+ * - 必須事項: 分類（この教材で必須 / 別教材で扱う / 医療者の確認が必要）、Claude が申告した対応画面、機械照合、医療者の確認
+ * - 安全上の重要事項（緊急連絡・受診・禁止）が未確認なら強い警告。「別教材で扱う」は対象範囲外として区別する
+ */
+function PreCheckPanel({ data, canChange, busy, onBusy, onMsg, onDone }: { data: EditorData; canChange: boolean; busy: boolean; onBusy: (b: boolean) => void; onMsg: (m: { ok: boolean; text: string } | null) => void; onDone: () => void }) {
+  const pc = data.preCheck;
+  const mc = pc.mustCover;
+  const [items, setItems] = useState(data.mustCover);
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  async function update(updates: { id: string; text?: string; status?: string; confirmed?: boolean; note?: string | null }[]) {
+    onBusy(true);
+    onMsg(null);
+    try {
+      const r = await api<{ mustCover: MustCoverView[] }>(`/api/v1/studio/materials/${data.versionId}/must-cover`, { json: { updates }, method: "PUT" });
+      setItems(r.mustCover);
+      onDone();
+    } catch (e) {
+      onMsg({ ok: false, text: errorText(e) });
+    } finally {
+      onBusy(false);
+    }
+  }
+  const safety = new Set(["emergency", "visit", "prohibition"]);
+  const safetyUnconfirmed = items.filter((i) => i.status !== "other_material" && safety.has(i.kind) && !i.confirmed);
+  const otherMaterial = items.filter((i) => i.status === "other_material");
+  return (
+    <section className="card space-y-3 border-2 border-line" aria-label="承認前の点検" data-testid="precheck">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-bold text-lg">承認前の点検</h2>
+        <p className="text-xs text-ink-soft">機械チェックは参考情報です。網羅と医学的妥当性の最終確認は医療者が行います。</p>
+      </div>
+      <dl className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+        <div className="rounded-xl bg-suna p-3">
+          <dt className="text-xs text-ink-soft">引用が原資料に一致</dt>
+          <dd className="text-xl font-bold">
+            {pc.refs.found} / {pc.refs.total}
+          </dd>
+          {pc.refs.missing > 0 && <dd className="text-xs text-danger">見つからない引用 {pc.refs.missing}</dd>}
+        </div>
+        <div className="rounded-xl bg-suna p-3">
+          <dt className="text-xs text-ink-soft">出典のない画面・設問</dt>
+          <dd className="text-xl font-bold">{pc.slidesWithoutRefs.length + pc.questionsWithoutRefs.length}</dd>
+          {(pc.slidesWithoutRefs.length > 0 || pc.questionsWithoutRefs.length > 0) && (
+            <dd className="text-xs text-ink-soft">
+              {pc.slidesWithoutRefs.length > 0 ? `画面 ${pc.slidesWithoutRefs.join(", ")}` : ""}
+              {pc.questionsWithoutRefs.length > 0 ? ` 問 ${pc.questionsWithoutRefs.join(", ")}` : ""}
+            </dd>
+          )}
+        </div>
+        <div className="rounded-xl bg-suna p-3">
+          <dt className="text-xs text-ink-soft">主題の混在（1 画面 1 主題）</dt>
+          <dd className="text-xl font-bold">{pc.sectionMix}</dd>
+          <dd className="text-xs text-ink-soft">出典の見出しが複数の画面</dd>
+        </div>
+        <div className={`rounded-xl p-3 ${safetyUnconfirmed.length > 0 ? "bg-sakura" : "bg-suna"}`}>
+          <dt className="text-xs text-ink-soft">必須事項の確認</dt>
+          <dd className="text-xl font-bold">
+            {items.filter((i) => i.status !== "other_material" && i.confirmed).length} / {items.filter((i) => i.status !== "other_material").length}
+          </dd>
+          <dd className="text-xs text-ink-soft">機械照合 {mc.autoMatched} / {mc.required}（参考）</dd>
+        </div>
+      </dl>
+      {safetyUnconfirmed.length > 0 && (
+        <div className="rounded-xl border-2 border-danger bg-sakura/40 p-3 text-sm" role="alert">
+          <p className="font-bold text-danger">安全上の重要事項が未確認です（{safetyUnconfirmed.length} 件）。本文を原資料と照合し、下の一覧で「確認済み」にしてください。</p>
+        </div>
+      )}
+      {items.length === 0 ? (
+        <p className="text-sm text-ink-muted">必須事項は設定されていません（手動作成、または必須事項なしで生成）。</p>
+      ) : (
+        <div className="space-y-2">
+          <h3 className="font-bold text-sm">必須事項と本文の対応（{items.length} 件{otherMaterial.length > 0 ? ` ・ 別教材で扱う ${otherMaterial.length} 件` : ""}）</h3>
+          <ul className="divide-y divide-line">
+            {items.map((i, idx) => {
+              const isSafety = safety.has(i.kind);
+              const covered = i.coverage.slides.length > 0 || i.coverage.questions.length > 0;
+              return (
+                <li key={i.id} className={`py-2 space-y-1.5 text-sm ${i.status === "other_material" ? "opacity-70" : ""}`} aria-label={`必須事項 ${idx + 1}`}>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`pill ${isSafety ? "bg-sakura text-ink font-bold" : ""}`}>{MUST_COVER_KIND_LABEL[i.kind] ?? i.kind}</span>
+                    {canChange ? (
+                      <select className="input min-h-9 w-auto text-xs py-0" value={i.status} disabled={busy} onChange={(e) => update([{ id: i.id, status: e.target.value }])} aria-label={`必須事項 ${idx + 1} の分類`}>
+                        {Object.entries(MUST_COVER_STATUS_LABEL).map(([k, v]) => (
+                          <option key={k} value={k}>
+                            {v}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="pill">{MUST_COVER_STATUS_LABEL[i.status]}</span>
+                    )}
+                  </div>
+                  <p className="font-bold leading-snug">{i.text}</p>
+                  {i.sourceRef.quote && <p className="text-xs text-ink-soft">原資料: 「{i.sourceRef.quote}」</p>}
+                  {i.status !== "other_material" && (
+                    <p className="text-xs flex flex-wrap gap-x-3">
+                      <span>
+                        Claude の申告: {covered ? `${i.coverage.slides.length ? `画面 ${i.coverage.slides.join(", ")}` : ""}${i.coverage.questions.length ? ` 問 ${i.coverage.questions.join(", ")}` : ""}` : "対応なし"}
+                      </span>
+                      <span className={i.autoMatched ? "text-accent" : i.autoMatched === false ? "text-danger" : "text-ink-muted"}>機械照合: {i.autoMatched ? "引用あり（参考）" : i.autoMatched === false ? "引用なし" : "—"}</span>
+                    </p>
+                  )}
+                  {i.status === "other_material" ? (
+                    <p className="text-xs text-ink-soft">別教材で扱う（この教材の対象範囲外）</p>
+                  ) : i.confirmed ? (
+                    <p className="text-xs text-accent">
+                      ✓ 医療者が確認済み: {i.confirmed.byName} ・ {new Date(i.confirmed.at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
+                      {i.confirmed.note ? ` ・ ${i.confirmed.note}` : ""}
+                      {canChange && (
+                        <button type="button" className="underline ml-2" disabled={busy} onClick={() => update([{ id: i.id, confirmed: false }])}>
+                          取り消す
+                        </button>
+                      )}
+                    </p>
+                  ) : (
+                    canChange && (
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <input className="input min-h-9 text-xs flex-1 min-w-[10rem]" placeholder="確認メモ（任意。例: 画面 4 の本文で扱っている）" value={notes[i.id] ?? ""} onChange={(e) => setNotes({ ...notes, [i.id]: e.target.value })} maxLength={500} aria-label={`必須事項 ${idx + 1} の確認メモ`} />
+                        <button type="button" className={`btn min-h-9 text-xs ${isSafety ? "btn-primary" : ""}`} disabled={busy} onClick={() => update([{ id: i.id, confirmed: true, note: notes[i.id] || null }])}>
+                          本文と照合して確認済みにする
+                        </button>
+                      </div>
+                    )
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </section>
   );
 }

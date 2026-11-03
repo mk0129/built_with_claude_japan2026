@@ -44,6 +44,20 @@ export const RESPONSE_LABEL: Record<string, string> = {
   other: "その他",
 };
 
+/** GEN-05 必須事項の種別・分類 */
+export const MUST_COVER_KIND_LABEL: Record<string, string> = {
+  emergency: "すぐに連絡・受診",
+  visit: "受診・連絡の目安",
+  prohibition: "してはいけないこと",
+  caution: "注意",
+  fact: "前提となる事実",
+};
+export const MUST_COVER_STATUS_LABEL: Record<string, string> = {
+  required: "この教材で必須",
+  other_material: "別教材で扱う",
+  needs_review: "医療者の確認が必要",
+};
+
 /** 表示時のみ四捨五入（D26） */
 export function fmtScore(v: number | null | undefined): string {
   return v === null || v === undefined ? "未評価" : `${Math.round(v)} 点`;

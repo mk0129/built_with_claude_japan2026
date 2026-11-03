@@ -52,6 +52,12 @@ export async function layoutAudit(page: Page) {
 
 export { expect };
 
+/** スタジオホームの「原資料を登録する」が折りたたまれていれば開く */
+export async function openRegisterForm(page: Page) {
+  const toggle = page.locator("#register").getByRole("button", { name: /原資料の登録フォームを/ });
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
+}
+
 /**
  * 共有画面で QR を出し、6 桁コードを返す。共有中のセッションが残っていれば終了する。
  * 医療者側が直前に終了していると、患者画面は「共有中」→「共有は終了しました（閉じる）」へ切り替わるため、その状態も扱う（UX-10）。

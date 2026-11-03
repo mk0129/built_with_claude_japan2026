@@ -210,9 +210,32 @@ export const materialVersions = pgTable(
     submittedAt: ts("submitted_at"),
     reviewComment: text("review_comment"),
     changeNote: text("change_note"),
+    // GEN-05 Must-cover: 必須事項（Claude の候補を医療者が分類・確認）。機械照合は参考情報で、網羅の最終判断は医療者
+    mustCover: jsonb("must_cover").$type<MustCoverItem[]>().notNull().default([]),
   },
   (t) => [uniqueIndex("material_versions_no_uq").on(t.materialId, t.versionNo)],
 );
+
+/** 必須事項の種別。emergency / visit / prohibition は安全上の重要事項（未確認なら承認前に強い警告） */
+export const MUST_COVER_KINDS = ["emergency", "visit", "prohibition", "caution", "fact"] as const;
+export type MustCoverKind = (typeof MUST_COVER_KINDS)[number];
+export const MUST_COVER_SAFETY_KINDS: MustCoverKind[] = ["emergency", "visit", "prohibition"];
+/** 医療者の分類: この教材で必須 / 別教材で扱う / 医療者による確認が必要 */
+export const MUST_COVER_STATUSES = ["required", "other_material", "needs_review"] as const;
+export type MustCoverStatus = (typeof MUST_COVER_STATUSES)[number];
+export type MustCoverItem = {
+  id: string;
+  text: string;
+  kind: MustCoverKind;
+  sourceRef: SourceRef;
+  status: MustCoverStatus;
+  /** Claude が申告した対応（参考情報） */
+  coverage: { slides: number[]; questions: number[] };
+  /** 引用が教材の出典に含まれるかの機械照合（参考情報。null = 未照合） */
+  autoMatched: boolean | null;
+  /** 医療者による網羅・妥当性の確認 */
+  confirmed: { byUserId: string; byName: string; at: string; note: string | null } | null;
+};
 
 /** 情報処方テンプレート（例: 初回診断時セット）。共通 or 病院独自 */
 export const prescriptionTemplates = pgTable("prescription_templates", {

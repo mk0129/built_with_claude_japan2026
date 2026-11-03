@@ -1,0 +1,1 @@
+ALTER TABLE "material_versions" ADD COLUMN "must_cover" jsonb DEFAULT '[]'::jsonb NOT NULL;

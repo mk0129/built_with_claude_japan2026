@@ -5,6 +5,7 @@ import { listAllFiguresForVersion, requireMaterialRole } from "@/server/services
 import { FigureSet } from "@/components/patient/FigureSet";
 import { FigureReviewActions } from "./FigureReviewActions";
 import { STATUS_LABEL } from "@/app/staff/studio/shared";
+import { Stepper } from "@/app/staff/studio/Stepper";
 
 /**
  * 管理者プレビュー（教材編集者・承認者のみ）。
@@ -27,7 +28,8 @@ export default async function MaterialPreviewPage({ params, searchParams }: { pa
         {pending > 0 ? ` ・ 未承認の図解 ${pending} 件は患者には表示されません。` : ""}
         {role.canApprove ? " 承認者として図解の監修状態を変更できます。" : ""}
       </div>
-      <header>
+      <header className="space-y-2">
+        <Stepper current={c.status === "published" ? 7 : 5} done={[1, 2, 3, 4]} />
         <div className="flex flex-wrap gap-x-3">
           <Link href={`/staff/studio/materials/${versionId}`} className="tap-link">
             ← 編集・承認画面へ

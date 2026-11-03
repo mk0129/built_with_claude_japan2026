@@ -1,0 +1,561 @@
+{
+  "version": {
+    "id": "6dbba393-fee3-46d6-b2f5-af4f6e4f170b",
+    "materialId": "622dcdd1-96c5-4bf5-bc50-d2ab5f80e6f3",
+    "versionNo": 1,
+    "status": "published",
+    "revisionClass": "initial",
+    "evaluationGroupId": "b6454f1e-128b-488b-9486-5ba522bcabd6",
+    "summary": "ホルモン療法中に起こりやすい副作用と、薬による違いを説明します。次の診察を待たずに病院へ連絡する症状と、気持ちの変化も相談してよいことをまとめた下書きです。担当医の監修前の資料です。",
+    "learningObjectives": [
+      "起こりやすい副作用と、薬による違いを知る",
+      "すぐに病院へ連絡する症状を知る",
+      "気持ちの変化も相談してよいことを知る"
+    ],
+    "sourceDocumentIds": [
+      "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+    ],
+    "aiGenerationJobId": "d04d25f8-4ff4-454d-9f27-220a2a8ede88",
+    "createdByUserId": "vI8NuR9IluueN5M2kGTXX8ucksDppHEI",
+    "createdAt": "2026-11-03T00:40:32.518Z",
+    "approvedByUserId": "4BuZXQo8O94jercHLifbo4nUud8btOUd",
+    "approvedAt": "2026-11-03T00:41:41.898Z",
+    "publishedAt": "2026-11-03T00:41:41.898Z",
+    "retiredAt": null,
+    "retireReason": null,
+    "submittedByUserId": "vI8NuR9IluueN5M2kGTXX8ucksDppHEI",
+    "submittedAt": "2026-11-03T00:41:35.545Z",
+    "reviewComment": null,
+    "changeNote": "Claude（claude-sonnet-5-5）による下書き。医療者の監修前。",
+    "mustCover": [
+      {
+        "id": "mc-pkaqj90a",
+        "kind": "emergency",
+        "text": "片方の足が急に腫れる・痛む、急に息苦しくなる、胸が痛むときは、血栓の可能性があるため、次の診察を待たずに病院へ連絡します。",
+        "status": "required",
+        "coverage": {
+          "slides": [
+            3
+          ],
+          "questions": [
+            2
+          ]
+        },
+        "confirmed": {
+          "at": "2026-11-03T00:41:38.605Z",
+          "note": null,
+          "byName": "佐藤 一郎",
+          "byUserId": "4BuZXQo8O94jercHLifbo4nUud8btOUd"
+        },
+        "sourceRef": {
+          "quote": "片方の足が急に腫れる、痛む。急に息苦しくなる、胸が痛む。",
+          "section": "5. すぐに病院へ連絡してほしい症状",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        "autoMatched": true
+      },
+      {
+        "id": "mc-nqf5qpxu",
+        "kind": "emergency",
+        "text": "タモキシフェンを飲んでいて不正出血があったときは、早めに病院へ連絡します。",
+        "status": "required",
+        "coverage": {
+          "slides": [
+            3
+          ],
+          "questions": [
+            1
+          ]
+        },
+        "confirmed": {
+          "at": "2026-11-03T00:41:38.726Z",
+          "note": null,
+          "byName": "佐藤 一郎",
+          "byUserId": "4BuZXQo8O94jercHLifbo4nUud8btOUd"
+        },
+        "sourceRef": {
+          "quote": "タモキシフェンを服用中に不正出血があった場合も、早めに連絡してください。",
+          "section": "5. すぐに病院へ連絡してほしい症状",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        "autoMatched": true
+      },
+      {
+        "id": "mc-glme87l1",
+        "kind": "visit",
+        "text": "不正出血があるときは、早めに担当医に伝え、婦人科を受診します。",
+        "status": "required",
+        "coverage": {
+          "slides": [
+            3
+          ],
+          "questions": [
+            1
+          ]
+        },
+        "confirmed": {
+          "at": "2026-11-03T00:41:39.158Z",
+          "note": null,
+          "byName": "佐藤 一郎",
+          "byUserId": "4BuZXQo8O94jercHLifbo4nUud8btOUd"
+        },
+        "sourceRef": {
+          "quote": "不正出血があるときは、早めに担当医に伝え、婦人科を受診してください。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        "autoMatched": true
+      },
+      {
+        "id": "mc-ux6kyx8b",
+        "kind": "prohibition",
+        "text": "自己判断で薬をやめたり、量を減らしたりしません。やめたいときは理由を担当医や薬剤師に伝えます。",
+        "status": "needs_review",
+        "coverage": {
+          "slides": [],
+          "questions": []
+        },
+        "confirmed": {
+          "at": "2026-11-03T00:41:39.592Z",
+          "note": null,
+          "byName": "佐藤 一郎",
+          "byUserId": "4BuZXQo8O94jercHLifbo4nUud8btOUd"
+        },
+        "sourceRef": {
+          "quote": "自己判断で薬をやめたり、量を減らしたりしないでください。",
+          "section": "3. 治療の期間",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        "autoMatched": null
+      },
+      {
+        "id": "mc-t69ry7m0",
+        "kind": "prohibition",
+        "text": "飲み忘れたときに、2回分をまとめて飲んではいけません。迷うときは薬剤師に確認します。",
+        "status": "needs_review",
+        "coverage": {
+          "slides": [],
+          "questions": []
+        },
+        "confirmed": {
+          "at": "2026-11-03T00:41:40.025Z",
+          "note": null,
+          "byName": "佐藤 一郎",
+          "byUserId": "4BuZXQo8O94jercHLifbo4nUud8btOUd"
+        },
+        "sourceRef": {
+          "quote": "2回分をまとめて飲むことはせず、対応に迷うときは薬剤師に確認してください。",
+          "section": "6. 飲み忘れたとき",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        "autoMatched": null
+      },
+      {
+        "id": "mc-y8p2ay1f",
+        "kind": "caution",
+        "text": "治療中は、ホルモンを含まない方法で避妊します。将来の妊娠を希望する方は、治療を始める前に担当医に相談します。",
+        "status": "other_material",
+        "coverage": {
+          "slides": [],
+          "questions": []
+        },
+        "confirmed": null,
+        "sourceRef": {
+          "quote": "避妊の方法は、ホルモンを含まない方法を選びます。",
+          "section": "7. 妊娠・避妊について",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        "autoMatched": null
+      },
+      {
+        "id": "mc-bfzt3a4o",
+        "kind": "caution",
+        "text": "市販薬やサプリメント（大豆イソフラボンなど）を使いたいときや、他の病院で薬をもらうときは、事前に担当医か薬剤師に相談します。",
+        "status": "other_material",
+        "coverage": {
+          "slides": [],
+          "questions": []
+        },
+        "confirmed": null,
+        "sourceRef": {
+          "quote": "市販薬やサプリメント（大豆イソフラボンなど）を使いたいときは、事前に担当医か薬剤師に相談してください。",
+          "section": "8. ほかの薬やサプリメント",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        "autoMatched": null
+      },
+      {
+        "id": "mc-1vd6v1c5",
+        "kind": "fact",
+        "text": "症状がなくても、ホルモン療法を続けることに意味があります。",
+        "status": "needs_review",
+        "coverage": {
+          "slides": [],
+          "questions": []
+        },
+        "confirmed": {
+          "at": "2026-11-03T00:41:40.461Z",
+          "note": null,
+          "byName": "佐藤 一郎",
+          "byUserId": "4BuZXQo8O94jercHLifbo4nUud8btOUd"
+        },
+        "sourceRef": {
+          "quote": "症状がなくても続けることに意味があります。",
+          "section": "1. ホルモン療法の目的",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        "autoMatched": null
+      }
+    ]
+  },
+  "material": {
+    "id": "622dcdd1-96c5-4bf5-bc50-d2ab5f80e6f3",
+    "scope": "org",
+    "ownerOrgId": "93e813f1-aabe-404b-a965-c892b699851d",
+    "primaryDomain": "side_effects_daily_life",
+    "tags": [
+      "side_effects_daily_life"
+    ],
+    "title": "ホルモン療法の副作用と、すぐ連絡が必要な症状（院内版 41493）",
+    "currentPublishedVersionId": "6dbba393-fee3-46d6-b2f5-af4f6e4f170b",
+    "createdAt": "2026-11-03T00:40:32.518Z"
+  },
+  "slides": [
+    {
+      "id": "4ce07f95-e532-41be-a843-cb6fdffda2ff",
+      "materialVersionId": "6dbba393-fee3-46d6-b2f5-af4f6e4f170b",
+      "seq": 1,
+      "title": "どの薬でも起こりやすい症状",
+      "bodyMd": "多くは、治療を続けるうちに軽くなります。つらいときは、がまんせずに相談してください。",
+      "imageRef": null,
+      "voiceText": "多くは、治療を続けるうちに軽くなります。つらいときは、がまんせずに相談してください。",
+      "sourceRefs": [
+        {
+          "quote": "ほてり、発汗、のぼせは、どの薬でも起こりやすい症状です。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "多くは治療を続けるうちに軽くなりますが、つらいときは相談してください。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "自己判断で薬をやめたり、量を減らしたりしないでください。",
+          "section": "3. 治療の期間",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        }
+      ],
+      "proposition": "ほてり、発汗、のぼせは、どの薬でも起こりやすい症状です。",
+      "detailMd": "つらくても、自己判断で薬をやめたり、量を減らしたりしないでください。やめたいと感じたときは、その理由を担当医や薬剤師に伝えてください。"
+    },
+    {
+      "id": "98ac2f7e-ab0c-4ab8-9e92-5aedbcaa12dd",
+      "materialVersionId": "6dbba393-fee3-46d6-b2f5-af4f6e4f170b",
+      "seq": 2,
+      "title": "薬によって気をつける副作用",
+      "bodyMd": "アロマターゼ阻害薬では、関節の痛みやこわばりが起こることがあります。骨密度（骨の強さの目安）が下がりやすくなるため、定期的に検査をします。タモキシフェンでは、子宮体がんのリスクがわずかに高くなることが知られています。また、まれに血栓（血のかたまり）ができることがあります。",
+      "imageRef": null,
+      "voiceText": "アロマターゼ阻害薬では、関節の痛みやこわばりが起こることがあります。骨密度（骨の強さの目安）が下がりやすくなるため、定期的に検査をします。タモキシフェンでは、子宮体がんのリスクがわずかに高くなることが知られています。また、まれに血栓（血のかたまり）ができることがあります。",
+      "sourceRefs": [
+        {
+          "quote": "アロマターゼ阻害薬では、関節の痛みやこわばりが起こることがあります。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "骨密度が下がりやすくなるため、定期的に骨密度の検査を行います。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "タモキシフェンでは、子宮体がんのリスクがわずかに高くなることが知られています。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "まれに血栓（血のかたまり）ができることがあります。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        }
+      ],
+      "proposition": "薬の種類によって、気をつける副作用が違います。",
+      "detailMd": "どの薬をどの組み合わせで使うかは、担当医が決めます。"
+    },
+    {
+      "id": "d1decaa9-6299-45ae-a25d-7c16dbd57267",
+      "materialVersionId": "6dbba393-fee3-46d6-b2f5-af4f6e4f170b",
+      "seq": 3,
+      "title": "すぐに病院へ連絡してほしい症状",
+      "bodyMd": "片方の足が急に腫れる・痛む、急に息苦しくなる、胸が痛む、のどれかがあるときです。タモキシフェンを飲んでいて不正出血があったときも、早めに連絡します。不正出血があるときは、担当医に伝えて婦人科を受診します。",
+      "imageRef": null,
+      "voiceText": "片方の足が急に腫れる・痛む、急に息苦しくなる、胸が痛む、のどれかがあるときです。タモキシフェンを飲んでいて不正出血があったときも、早めに連絡します。不正出血があるときは、担当医に伝えて婦人科を受診します。",
+      "sourceRefs": [
+        {
+          "quote": "片方の足が急に腫れる、痛む。急に息苦しくなる、胸が痛む。",
+          "section": "5. すぐに病院へ連絡してほしい症状",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "これらは血栓の可能性があるため、次の診察を待たずに病院へ連絡してください。",
+          "section": "5. すぐに病院へ連絡してほしい症状",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "タモキシフェンを服用中に不正出血があった場合も、早めに連絡してください。",
+          "section": "5. すぐに病院へ連絡してほしい症状",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "不正出血があるときは、早めに担当医に伝え、婦人科を受診してください。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "夜間や休日は、病院から案内された連絡先に電話してください。",
+          "section": "5. すぐに病院へ連絡してほしい症状",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        }
+      ],
+      "proposition": "血栓の可能性がある症状のときは、次の診察を待たずに病院へ連絡します。",
+      "detailMd": "夜間や休日は、病院から案内された連絡先に電話します。"
+    },
+    {
+      "id": "a4c06d26-d84b-4223-8e67-eec6b29310d8",
+      "materialVersionId": "6dbba393-fee3-46d6-b2f5-af4f6e4f170b",
+      "seq": 4,
+      "title": "気持ちの変化も相談してよい",
+      "bodyMd": "そのように感じる方もいます。体のことだけでなく、気持ちの変化も相談の対象です。",
+      "imageRef": null,
+      "voiceText": "そのように感じる方もいます。体のことだけでなく、気持ちの変化も相談の対象です。",
+      "sourceRefs": [
+        {
+          "quote": "気分の落ち込みや眠りにくさを感じる方もいます。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "体のことだけでなく、気持ちの変化も相談の対象です。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        }
+      ],
+      "proposition": "気分の落ち込みや眠りにくさも、相談してよい症状です。",
+      "detailMd": null
+    },
+    {
+      "id": "8cb130ea-b933-4adc-8197-f8d4b158ea3e",
+      "materialVersionId": "6dbba393-fee3-46d6-b2f5-af4f6e4f170b",
+      "seq": 5,
+      "title": "この資料を読んだあとに",
+      "bodyMd": "この資料は一般的な説明です。わからないことや不安なことは、次の診察で質問できます。",
+      "imageRef": null,
+      "voiceText": "この資料は一般的な説明です。わからないことや不安なことは、次の診察で質問できます。",
+      "sourceRefs": [
+        {
+          "quote": "あなたの治療内容と期間については、担当医の説明が優先されます。",
+          "section": "9. 最後に",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "わからないことや不安なことは、次の診察で遠慮なく質問してください。",
+          "section": "9. 最後に",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        }
+      ],
+      "proposition": "あなたの治療内容と期間は、担当医の説明が優先されます。",
+      "detailMd": null
+    }
+  ],
+  "questions": [
+    {
+      "id": "8cfe9d94-f3a2-407a-b97b-cdb17e6558e9",
+      "materialVersionId": "6dbba393-fee3-46d6-b2f5-af4f6e4f170b",
+      "seq": 1,
+      "stem": "タモキシフェンを飲んでいます。不正出血がありました。出血は少なく、次の診察はまだ先です。どうしますか。",
+      "options": [
+        "次の診察まで様子を見て、そのときに伝える",
+        "出血が少ないので、連絡しなくてよいと考える",
+        "早めに病院へ連絡し、担当医に伝えて婦人科を受診する"
+      ],
+      "correctIndex": 2,
+      "explanation": "原資料では、タモキシフェンを服用中の不正出血は早めに連絡し、担当医に伝えて婦人科を受診するとされています。次の診察まで待つことや、連絡しなくてよいと考えることは、資料の内容に合いません。出血の量による判断の目安は原資料に書かれていません。",
+      "relatedSlideSeq": 3,
+      "sourceRefs": [
+        {
+          "quote": "タモキシフェンを服用中に不正出血があった場合も、早めに連絡してください。",
+          "section": "5. すぐに病院へ連絡してほしい症状",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "不正出血があるときは、早めに担当医に伝え、婦人科を受診してください。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        }
+      ]
+    },
+    {
+      "id": "78b83bb0-13db-49a9-95e0-0415d4e64b13",
+      "materialVersionId": "6dbba393-fee3-46d6-b2f5-af4f6e4f170b",
+      "seq": 2,
+      "stem": "片方の足が急に腫れて痛みます。次の診察は先の予定です。どうしますか。",
+      "options": [
+        "しばらく様子を見て、続くようなら次の診察で伝える",
+        "ホルモン療法の副作用のひとつなので、連絡せずにがまんする",
+        "次の診察を待たずに、病院へ連絡する"
+      ],
+      "correctIndex": 2,
+      "explanation": "片方の足が急に腫れる・痛む症状は、血栓の可能性があります。原資料では、次の診察を待たずに病院へ連絡するとされています。夜間や休日は、病院から案内された連絡先に電話します。様子を見ることやがまんすることは、資料の内容に合いません。",
+      "relatedSlideSeq": 3,
+      "sourceRefs": [
+        {
+          "quote": "片方の足が急に腫れる、痛む。急に息苦しくなる、胸が痛む。",
+          "section": "5. すぐに病院へ連絡してほしい症状",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "これらは血栓の可能性があるため、次の診察を待たずに病院へ連絡してください。",
+          "section": "5. すぐに病院へ連絡してほしい症状",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        }
+      ]
+    },
+    {
+      "id": "6b19e4e2-5112-4778-b10e-623091ec6283",
+      "materialVersionId": "6dbba393-fee3-46d6-b2f5-af4f6e4f170b",
+      "seq": 3,
+      "stem": "ほてりや発汗がつらく、薬をやめたいと感じています。どうしますか。",
+      "options": [
+        "つらくても何も伝えず、がまんして続ける",
+        "自分で量を減らして、様子を見る",
+        "やめたい理由を、担当医や薬剤師に伝えて相談する"
+      ],
+      "correctIndex": 2,
+      "explanation": "ほてりや発汗は多くが治療を続けるうちに軽くなりますが、つらいときは相談してよいとされています。自己判断で薬をやめたり、量を減らしたりしてはいけません。やめたいと感じたときは、その理由を担当医や薬剤師に伝えます。何も伝えずにがまんすることも、資料の趣旨に合いません。",
+      "relatedSlideSeq": 1,
+      "sourceRefs": [
+        {
+          "quote": "多くは治療を続けるうちに軽くなりますが、つらいときは相談してください。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "自己判断で薬をやめたり、量を減らしたりしないでください。",
+          "section": "3. 治療の期間",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "やめたいと感じたときは、その理由を担当医や薬剤師に伝えてください。",
+          "section": "3. 治療の期間",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        }
+      ]
+    },
+    {
+      "id": "0453aa00-fb7e-4daa-8753-3e23e4a88888",
+      "materialVersionId": "6dbba393-fee3-46d6-b2f5-af4f6e4f170b",
+      "seq": 4,
+      "stem": "原資料で、どの薬でも起こりやすいとされている症状はどれですか。",
+      "options": [
+        "関節の痛みやこわばり",
+        "ほてり、発汗、のぼせ",
+        "子宮体がんのリスクが高くなること"
+      ],
+      "correctIndex": 1,
+      "explanation": "ほてり、発汗、のぼせは、どの薬でも起こりやすい症状とされています。関節の痛みやこわばりはアロマターゼ阻害薬の項目に、子宮体がんのリスクはタモキシフェンの項目に書かれています。",
+      "relatedSlideSeq": 1,
+      "sourceRefs": [
+        {
+          "quote": "ほてり、発汗、のぼせは、どの薬でも起こりやすい症状です。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "アロマターゼ阻害薬では、関節の痛みやこわばりが起こることがあります。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        }
+      ]
+    },
+    {
+      "id": "08cbb236-8c7b-4af0-820e-2b67da86124b",
+      "materialVersionId": "6dbba393-fee3-46d6-b2f5-af4f6e4f170b",
+      "seq": 5,
+      "stem": "最近、気分が落ち込み、眠りにくい日が続いています。体の症状ではありません。どうしますか。",
+      "options": [
+        "体の症状ではないので、診察では話さない",
+        "気持ちの変化も相談の対象なので、担当医などに伝える",
+        "治療とは関係ないので、相談しない"
+      ],
+      "correctIndex": 1,
+      "explanation": "原資料では、気分の落ち込みや眠りにくさを感じる方もいること、体のことだけでなく気持ちの変化も相談の対象であることが書かれています。気持ちの変化も遠慮せず相談してかまいません。",
+      "relatedSlideSeq": 4,
+      "sourceRefs": [
+        {
+          "quote": "気分の落ち込みや眠りにくさを感じる方もいます。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        },
+        {
+          "quote": "体のことだけでなく、気持ちの変化も相談の対象です。",
+          "section": "4. 起こりやすい副作用",
+          "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d"
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d",
+      "title": "乳がんのホルモン療法を受ける方へ（架空・検証 41493）",
+      "extractedText": "乳がんのホルモン療法を受ける方へ（患者さん向け説明資料・デモ）\n\nあおば記念病院（架空） 乳腺センター・薬剤部 作成（2026年版）。この資料はハッカソンの動作検証のために作成したオリジナルの説明資料です。実在の病院・患者とは関係なく、実際の診療には使用しないでください。\n\n1. ホルモン療法の目的\n\n乳がんの多くは、女性ホルモン（エストロゲン）の刺激を受けて増える性質を持っています。この性質があるかどうかは、手術や検査で取り出したがんの組織を調べて判断します。ホルモン受容体が陽性の場合、ホルモン療法の対象になります。\n\n手術のあとに行うホルモン療法の目的は、目に見えないがん細胞が残っていた場合に、それが増えるのを抑え、再発のリスクを下げることです。症状がなくても続けることに意味があります。\n\n2. 主な薬の種類\n\n抗エストロゲン薬（タモキシフェンなど）は、がん細胞がエストロゲンを受け取るのを妨げる飲み薬です。閉経前の方にも閉経後の方にも使われます。\n\nアロマターゼ阻害薬は、閉経後の体でエストロゲンが作られるのを抑える飲み薬です。主に閉経後の方に使われます。\n\nLH-RHアゴニストは、閉経前の方の卵巣の働きを一時的に抑える注射です。4週ごと、または12週ごとに注射します。飲み薬と組み合わせて使うことがあります。\n\nどの薬をどの組み合わせで使うかは、閉経の状態、がんの性質、ほかの治療の内容などをもとに担当医が決めます。\n\n3. 治療の期間\n\n手術のあとのホルモン療法は、5年間続けることが基本です。再発のリスクなどに応じて、10年まで延長することもあります。期間は一人ひとり異なるため、担当医と相談して決めます。\n\n自己判断で薬をやめたり、量を減らしたりしないでください。やめたいと感じたときは、その理由を担当医や薬剤師に伝えてください。\n\n4. 起こりやすい副作用\n\nほてり、発汗、のぼせは、どの薬でも起こりやすい症状です。多くは治療を続けるうちに軽くなりますが、つらいときは相談してください。\n\nアロマターゼ阻害薬では、関節の痛みやこわばりが起こることがあります。また、骨密度が下がりやすくなるため、定期的に骨密度の検査を行います。\n\nタモキシフェンでは、子宮体がんのリスクがわずかに高くなることが知られています。不正出血があるときは、早めに担当医に伝え、婦人科を受診してください。また、まれに血栓（血のかたまり）ができることがあります。\n\n気分の落ち込みや眠りにくさを感じる方もいます。体のことだけでなく、気持ちの変化も相談の対象です。\n\n5. すぐに病院へ連絡してほしい症状\n\n片方の足が急に腫れる、痛む。急に息苦しくなる、胸が痛む。これらは血栓の可能性があるため、次の診察を待たずに病院へ連絡してください。\n\nタモキシフェンを服用中に不正出血があった場合も、早めに連絡してください。夜間や休日は、病院から案内された連絡先に電話してください。\n\n6. 飲み忘れたとき\n\n飲み忘れに気づいたときの対応は、薬の種類によって異なります。2回分をまとめて飲むことはせず、対応に迷うときは薬剤師に確認してください。\n\n毎日同じ時間に飲む、スマートフォンのアラームを使う、お薬カレンダーを使うなど、自分に合う工夫を見つけましょう。\n\n7. 妊娠・避妊について\n\nホルモン療法の薬は、おなかの赤ちゃんに影響する可能性があるため、治療中は妊娠を避ける必要があります。避妊の方法は、ホルモンを含まない方法を選びます。将来の妊娠を希望する方は、治療を始める前に担当医に相談してください。\n\n8. ほかの薬やサプリメント\n\n一部の抗うつ薬など、タモキシフェンの効果に影響する薬があります。他の病院で薬をもらうときや、市販薬やサプリメント（大豆イソフラボンなど）を使いたいときは、事前に担当医か薬剤師に相談してください。\n\n9. 最後に\n\nこの資料は一般的な説明です。あなたの治療内容と期間については、担当医の説明が優先されます。わからないことや不安なことは、次の診察で遠慮なく質問してください。\n\n",
+      "extractionWarning": null,
+      "perm": {
+        "sourceId": "3e15b91f-cb53-4bee-96bf-d471c3ff6a4d",
+        "allowStore": true,
+        "allowAi": true,
+        "allowDerive": true,
+        "allowPublish": true,
+        "allowShare": false,
+        "rightsHolder": "あおば記念病院（架空）乳腺センター・薬剤部",
+        "evidenceNote": "ハッカソン検証用に作成したオリジナル資料（架空）。AI 処理・改変・院内公開を許可。患者情報なし。",
+        "restrictions": null,
+        "checkedByUserId": "vI8NuR9IluueN5M2kGTXX8ucksDppHEI",
+        "checkedAt": "2026-11-03T00:39:03.110Z",
+        "expiresAt": null
+      }
+    }
+  ],
+  "creatorName": "田中 恵",
+  "role": {
+    "canEdit": true,
+    "canApprove": true
+  },
+  "check": {
+    "errors": [],
+    "warnings": [
+      "画面 1: 出典が複数の見出しにまたがります（4. 起こりやすい副作用 / 3. 治療の期間）。1 画面 1 主題か確認してください",
+      "画面 3: 出典が複数の見出しにまたがります（5. すぐに病院へ連絡してほしい症状 / 4. 起こりやすい副作用）。1 画面 1 主題か確認してください"
+    ]
+  },
+  "approvalBlock": "承認待ちに提出されていません",
+  "preCheck": {
+    "refs": {
+      "total": 27,
+      "found": 27,
+      "missing": 0
+    },
+    "slidesWithoutRefs": [],
+    "questionsWithoutRefs": [],
+    "sectionMix": 2,
+    "mustCover": {
+      "total": 8,
+      "required": 3,
+      "autoMatched": 3,
+      "confirmed": 6,
+      "needsReview": 3,
+      "unconfirmed": 0,
+      "safetyUnconfirmed": []
+    }
+  }
+}

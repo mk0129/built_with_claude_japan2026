@@ -34,6 +34,8 @@ export function errorText(e: unknown): string {
       NOT_ORG_MEMBER: "この医療機関に所属していません",
       ROLE_REQUIRED: "この操作の権限がありません",
       SESSION_NOT_ACTIVE: "セッションはすでに終了しています",
+      SAFETY_UNCONFIRMED: "安全上の重要事項が未確認です。必須事項を確認するか、理由を記録したうえで承認してください",
+      NOT_EDITABLE: "この状態では変更できません",
     };
     return map[e.code] ?? `${e.code}${e.message && e.message !== e.code ? `: ${e.message}` : ""}`;
   }

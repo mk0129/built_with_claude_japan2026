@@ -1,6 +1,6 @@
 import { test } from "@playwright/test";
 import { writeFileSync } from "node:fs";
-import { SHOT_DIR, demoLogin, expect, layoutAudit, newPage } from "./helpers";
+import { SHOT_DIR, demoLogin, expect, layoutAudit, newPage, openRegisterForm } from "./helpers";
 
 /**
  * UX 監査用: 既存スペックで撮っていない画面（教材スタジオのスマホ・タブレット幅、
@@ -27,6 +27,7 @@ test("UX 監査: スタジオとクイズの幅別スクリーンショット", 
   await demoLogin(s, "staff", "佐藤 一郎");
   await s.goto("/staff/studio");
   const stamp = Date.now().toString().slice(-5);
+  await openRegisterForm(s);
   await s.getByLabel("原資料ファイル").setInputFiles("tests/fixtures/sources/hormone_therapy_demo.docx");
   await s.getByLabel("資料名").fill(`ホルモン療法を続けるために（UX ${stamp}）`);
   await s.getByLabel("許諾元（著作権者・作成部署）").fill("さくら総合病院（架空）乳腺外科");
@@ -38,8 +39,9 @@ test("UX 監査: スタジオとクイズの幅別スクリーンショット", 
   await s.waitForURL(/\/staff\/studio\/sources\//);
   const sourceUrl = s.url();
   await s.getByRole("button", { name: "構成案を作る" }).click();
-  await expect(s.getByRole("button", { name: "この案で下書きを作る" }).first()).toBeVisible({ timeout: 60_000 });
-  await s.getByRole("button", { name: "この案で下書きを作る" }).first().click();
+  await expect(s.getByRole("button", { name: "この案で進む" }).first()).toBeVisible({ timeout: 60_000 });
+  await s.getByRole("button", { name: "この案で進む" }).first().click();
+  await s.getByRole("button", { name: /件を含めて教材・クイズを生成する/ }).click();
   const open = s.getByRole("link", { name: /下書きを確認・編集する/ }).first();
   await expect(open).toBeVisible({ timeout: 60_000 });
   await open.click();
