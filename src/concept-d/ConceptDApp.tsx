@@ -114,7 +114,7 @@ export function ClinicianDApp({ sessionId = null, orgs = [] }: { sessionId?: str
   const record = useClinicianRecord(live.sessionId, live.state === "active", showNotice)
   return (
     <div className="cd-app-stage">
-      <ProtoFlag long="在宅経過は未接続（Step 4）・教材スタジオは架空データ" short="在宅経過は未接続・スタジオは架空" />
+      <ProtoFlag long="教材スタジオは架空データ（未接続）" short="スタジオは架空データ" />
       <ClinicianD
         variant="app"
         live={live}

@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, errorText } from "@/lib/api";
 import { SELECTION_LABEL } from "@/lib/labels";
 import { areaOf, estimateMinutes, FIGMA_AREA, shortDate } from "./learning";
+import { toFigma, type ApiRecord } from "./health";
 
 type Phase = "not_started" | "reading" | "quiz" | "completed";
 export type SummaryApi = {
@@ -213,9 +214,16 @@ export type LiveLibraryItem = {
 
 export type ClinicianRecord = ReturnType<typeof useClinicianRecord>;
 
+type SymptomSettings = { active: string[]; hidden: string[]; customNames: Record<string, string> };
+
 export function useClinicianRecord(sessionId: string | null, active: boolean, notify: (message: string) => void) {
-  const [summary, setSummary] = useState<SummaryApi | null>(null);
-  const [materials, setMaterials] = useState<MaterialApi[] | null>(null);
+  // 読み込んだ共有（セッション ID）と一緒に持ち、別の共有・共有終了後には使わない
+  const [data, setData] = useState<{
+    sid: string;
+    summary: SummaryApi;
+    materials: MaterialApi[];
+    health: { records: ApiRecord[]; symptoms: SymptomSettings };
+  } | null>(null);
   const notifyRef = useRef(notify);
   useEffect(() => {
     notifyRef.current = notify;
@@ -225,23 +233,27 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
   const reload = useCallback(async () => {
     if (!sid) return;
     try {
-      const [s, m] = await Promise.all([
+      const [s, m, h] = await Promise.all([
         api<SummaryApi>(`/api/v1/consultations/${sid}/patient`),
         api<{ items: MaterialApi[] }>(`/api/v1/consultations/${sid}/materials`),
+        api<{ records: ApiRecord[]; symptoms: SymptomSettings }>(`/api/v1/consultations/${sid}/health`),
       ]);
-      setSummary(s);
-      setMaterials(m.items);
+      setData({ sid, summary: s, materials: m.items, health: h });
     } catch (e) {
       notifyRef.current(errorText(e));
     }
   }, [sid]);
   useEffect(() => {
-    // 共有が始まったら読み込む（外部 API との同期）
+    // 共有が始まったら読み込む。共有が終わったら（sid なし）画面に保持した患者情報を消す
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void reload();
-  }, [reload]);
+    if (!sid) setData(null);
+    else void reload();
+  }, [sid, reload]);
 
-  const view = sid && summary ? summary : null;
+  const current = sid && data?.sid === sid ? data : null;
+  const summary = current?.summary ?? null;
+  const materials = current?.materials ?? null;
+  const view = summary;
   const concerns = view ? toConcerns(view) : null;
   const nowIds = new Set(view?.currentSet?.items.map((i) => i.materialId) ?? []);
   const beforeIds = new Set(view?.learning.filter((l) => l.prescribed).map((l) => l.materialId) ?? []);
@@ -301,6 +313,10 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
 
   return {
     loaded: !!view,
+    sessionId: current?.sid ?? null,
+    /** 在宅経過表（Step 4）: 患者の体調記録（Figma の HealthRecord と同じ形）と症状の表示設定 */
+    healthRecords: current ? current.health.records.map(toFigma) : [],
+    symptomSettings: current?.health.symptoms ?? { active: [], hidden: [], customNames: {} },
     summary: view,
     questions: concerns?.questions ?? [],
     checks: concerns?.checks ?? [],

@@ -580,7 +580,15 @@ export default function ClinicianD({
                   record={record}
                 />
               )}
-              {workspace === "course" && record && <NotConnected title="在宅経過" step="Step 3・4" />}
+              {workspace === "course" && record && (
+                // 本番（Step 4）: 患者が共有した実際の体調記録
+                <HomeCourse
+                  live
+                  records={record.healthRecords}
+                  activeSymptomIds={record.symptomSettings.active}
+                  customSymptomNames={record.symptomSettings.customNames}
+                />
+              )}
               {workspace === "course" && !record && (
                 <HomeCourse
                   records={healthRecords}
@@ -1039,23 +1047,6 @@ function dateRange(start: string, end: string) {
   return result
 }
 
-/** 本番で未接続の画面（架空データを表示しない） */
-function NotConnected({ title, step }: { title: string; step: string }) {
-  return (
-    <div className="cd-content">
-      <div className="cd-page-head">
-        <div>
-          <p className="cd-eyebrow">NOT CONNECTED</p>
-          <h1>{title}</h1>
-          <p>
-            この画面は{step}で実データに接続します。それまでは架空データを表示しません。
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 /**
  * 本番（Step 2）の「前回外来からの経過」: 学習記録と質問だけを、保存された記録から構成する。
  * 体調記録（バイタル・自覚症状）は Step 3・4 で接続するまで「未接続」と表示し、架空の値は出さない。
@@ -1248,6 +1239,18 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
       </p>
     </section>
   )
+}
+
+/** 本番用: 端末の現地日付で日付の列を作る（Figma の dateRange は UTC に変換するため、日本時間では 1 日ずれる） */
+function dateRangeLocal(start: string, end: string) {
+  const result: string[] = []
+  const cursor = new Date(`${start}T00:00:00`)
+  const last = new Date(`${end}T00:00:00`)
+  while (cursor <= last) {
+    result.push(localDate(cursor))
+    cursor.setDate(cursor.getDate() + 1)
+  }
+  return result
 }
 
 function IntervisitSummary({ records }: { records: HealthRecord[] }) {
@@ -1515,37 +1518,70 @@ function IntervisitSummary({ records }: { records: HealthRecord[] }) {
   )
 }
 
+/** 端末の現地日付（YYYY-MM-DD） */
+const localDate = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+
 function HomeCourse({
   records,
   activeSymptomIds,
   customSymptomNames,
+  live = false,
 }: {
   records: HealthRecord[]
   activeSymptomIds: string[]
   customSymptomNames: Record<string, string>
+  /**
+   * 本番（Step 4）: 患者が共有した実際の記録。期間は今日までの 7/14/28 日か指定期間（前回外来日は DB にないため
+   * 「前回外来から」は出さない）。同じ日の複数回の測定はすべて残し、セルには最後の値と件数、詳細に全件を示す。
+   */
+  live?: boolean
 }) {
-  const [period, setPeriod] = useState<"7" | "14" | "28" | "visit">("visit")
+  const [period, setPeriod] = useState<"7" | "14" | "28" | "visit" | "custom">(live ? "14" : "visit")
+  const today = localDate(new Date())
+  const [customStart, setCustomStart] = useState(() => {
+    const d = new Date()
+    d.setDate(d.getDate() - 13)
+    return localDate(d)
+  })
+  const [customEnd, setCustomEnd] = useState(today)
   const [view, setView] = useState<"table" | "vitals" | "symptom">("table")
-  const [chartSymptom, setChartSymptom] = useState("numbness")
+  const [chartSymptomRaw, setChartSymptom] = useState("numbness")
+  // 本番: 選んだ症状に記録がなければ、記録のある最初の症状
+  const hasSymptom = (id: string) => records.some((record) => record.symptoms[id])
+  const chartSymptom =
+    live && !hasSymptom(chartSymptomRaw)
+      ? ([...activeSymptomIds, ...records.flatMap((record) => Object.keys(record.symptoms))].find(hasSymptom) ?? chartSymptomRaw)
+      : chartSymptomRaw
   const [selected, setSelected] = useState<{
     record?: HealthRecord
     label: string
     value: string
+    /** 本番: その日の同じ項目の全測定（時刻・値） */
+    entries?: { at: string; value: string; detail?: string }[]
   } | null>(null)
-  const end = currentVisitDate
+  const end = live ? (period === "custom" ? customEnd : today) : currentVisitDate
   const dayCount = period === "visit" ? 29 : Number(period)
   const startDate =
     period === "visit"
       ? previousVisitDate
-      : (() => {
-          const date = new Date(`${end}T00:00:00`)
-          date.setDate(date.getDate() - dayCount + 1)
-          return date.toISOString().slice(0, 10)
-        })()
-  const dates = dateRange(startDate, end)
+      : period === "custom"
+        ? customStart
+        : (() => {
+            const date = new Date(`${end}T00:00:00`)
+            date.setDate(date.getDate() - dayCount + 1)
+            return live ? localDate(date) : date.toISOString().slice(0, 10)
+          })()
+  const dates = startDate <= end ? (live ? dateRangeLocal(startDate, end) : dateRange(startDate, end)) : []
   const recordByDate = Object.fromEntries(
     records.map((record) => [record.measuredAt.slice(0, 10), record]),
   )
+  // 本番: 日付ごとの全記録（時刻順）
+  const recordsByDate: Record<string, HealthRecord[]> = {}
+  for (const record of [...records].sort((a, b) => a.measuredAt.localeCompare(b.measuredAt)))
+    (recordsByDate[record.measuredAt.slice(0, 10)] ??= []).push(record)
+  const timeOf = (record: HealthRecord) =>
+    new Date(record.measuredAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })
   const symptomIds = Array.from(
     new Set([
       ...activeSymptomIds,
@@ -1641,12 +1677,20 @@ function HomeCourse({
       </div>
       <div className="cd-course-controls">
         <div>
-          {[
-            ["7", "7日"],
-            ["14", "14日"],
-            ["28", "28日"],
-            ["visit", "前回外来から"],
-          ].map(([value, label]) => (
+          {(live
+            ? [
+                ["7", "7日"],
+                ["14", "14日"],
+                ["28", "28日"],
+                ["custom", "指定期間"],
+              ]
+            : [
+                ["7", "7日"],
+                ["14", "14日"],
+                ["28", "28日"],
+                ["visit", "前回外来から"],
+              ]
+          ).map(([value, label]) => (
             <button
               key={value}
               className={period === value ? "active" : ""}
@@ -1658,14 +1702,31 @@ function HomeCourse({
         </div>
         <p>
           記録日{" "}
-          {
-            records.filter(
-              (record) => record.measuredAt.slice(0, 10) >= startDate,
-            ).length
-          }
-          日 / {dates.length}日 · — は未記録
+          {live
+            ? dates.filter((date) => recordsByDate[date]).length
+            : records.filter(
+                (record) => record.measuredAt.slice(0, 10) >= startDate,
+              ).length}
+          日 / {dates.length}日
+          {live
+            ? ` · ${dates.reduce((n, date) => n + (recordsByDate[date]?.length ?? 0), 0)}件`
+            : ""}{" "}
+          · — は未記録
         </p>
       </div>
+      {live && period === "custom" && (
+        <div className="cd-period-editor">
+          <label>
+            開始日
+            <input type="date" value={customStart} max={customEnd} onChange={(event) => setCustomStart(event.target.value)} />
+          </label>
+          <label>
+            終了日
+            <input type="date" value={customEnd} min={customStart} max={today} onChange={(event) => setCustomEnd(event.target.value)} />
+          </label>
+          <p>期間は医療者が選択します。前回外来日は推測しません。</p>
+        </div>
+      )}
       {view === "table" ? (
         <>
           <div className="cd-course-table-wrap">
@@ -1697,6 +1758,28 @@ function HomeCourse({
                       <small>{row.unit}</small>
                     </th>
                     {dates.map((date) => {
+                      if (live) {
+                        const measured = (recordsByDate[date] ?? []).filter((record) => row.value(record) !== undefined)
+                        const last = measured[measured.length - 1]
+                        return (
+                          <td key={date}>
+                            <button
+                              disabled={!last}
+                              onClick={() =>
+                                setSelected({
+                                  record: last,
+                                  label: row.label,
+                                  value: `${row.value(last)} ${row.unit}`,
+                                  entries: measured.map((record) => ({ at: timeOf(record), value: `${row.value(record)} ${row.unit}` })),
+                                })
+                              }
+                            >
+                              {last ? row.value(last) : "—"}
+                              {measured.length > 1 && <sup>×{measured.length}</sup>}
+                            </button>
+                          </td>
+                        )
+                      }
                       const record = recordByDate[date]
                       const value = row.value(record)
                       return (
@@ -1728,6 +1811,43 @@ function HomeCourse({
                       <small>患者自己申告</small>
                     </th>
                     {dates.map((date) => {
+                      if (live) {
+                        const answered = (recordsByDate[date] ?? []).filter((record) => record.symptoms[id])
+                        const last = answered[answered.length - 1]
+                        const e = last?.symptoms[id]
+                        return (
+                          <td key={date}>
+                            <button
+                              className={e ? `severity s${e.severity}` : ""}
+                              disabled={!e}
+                              onClick={() =>
+                                setSelected({
+                                  record: last,
+                                  label: symptomLabel(id),
+                                  value: `${e?.severity} / 4（${e ? severityLabels[e.severity] : "未記録"}）`,
+                                  entries: answered.map((record) => {
+                                    const x = record.symptoms[id]
+                                    return {
+                                      at: timeOf(record),
+                                      value: `${x.severity} / 4（${severityLabels[x.severity]}）`,
+                                      detail: [
+                                        x.count != null ? `回数 ${x.count}` : "",
+                                        x.location ? `部位 ${x.location}` : "",
+                                        x.interference ? `支障 ${x.interference}` : "",
+                                      ]
+                                        .filter(Boolean)
+                                        .join(" · "),
+                                    }
+                                  }),
+                                })
+                              }
+                            >
+                              {e ? e.severity : "—"}
+                              {answered.length > 1 && <sup>×{answered.length}</sup>}
+                            </button>
+                          </td>
+                        )
+                      }
                       const record = recordByDate[date]
                       const entry = record?.symptoms[id]
                       return (
@@ -1776,6 +1896,7 @@ function HomeCourse({
           records={chartRecords}
           startDate={startDate}
           endDate={end}
+          breakGaps={live}
         />
       ) : (
         <section className="cd-course-chart cd-panel">
@@ -1853,6 +1974,19 @@ function HomeCourse({
                 ? new Date(selected.record.measuredAt).toLocaleString("ja-JP")
                 : "—"}
             </dd>
+            {selected.entries && selected.entries.length > 0 && (
+              <>
+                <dt>この日の記録</dt>
+                <dd data-day-entries>
+                  {selected.entries.map((entry, index) => (
+                    <span key={index} style={{ display: "block" }}>
+                      {entry.at} {entry.value}
+                      {entry.detail ? ` · ${entry.detail}` : ""}
+                    </span>
+                  ))}
+                </dd>
+              </>
+            )}
           </dl>
           <p>
             患者本人が自宅で入力した値です。自動補正・自動判定はしていません。
@@ -1927,10 +2061,13 @@ function VitalCombinedGraph({
   records,
   startDate,
   endDate,
+  breakGaps = false,
 }: {
   records: HealthRecord[]
   startDate: string
   endDate: string
+  /** 本番: その指標を測らなかった日をはさむ 2 点は線で結ばない（欠測期間を連続測定のように描かない） */
+  breakGaps?: boolean
 }) {
   const [visible, setVisible] = useState<Record<VitalMetricKey, boolean>>({
     temperature: true,
@@ -2099,7 +2236,7 @@ function VitalCombinedGraph({
               />
             )
           })}
-          {dateRange(startDate, endDate)
+          {(breakGaps ? dateRangeLocal(startDate, endDate) : dateRange(startDate, endDate))
             .filter(
               (_, index, all) =>
                 index % Math.max(Math.floor(all.length / 6), 1) === 0,
@@ -2144,8 +2281,11 @@ function VitalCombinedGraph({
               index: number
               value: number
             } | undefined
+            const dayIndex = (iso: string) => Math.floor(new Date(`${iso.slice(0, 10)}T00:00:00`).getTime() / 86400000)
             values.forEach((item) => {
-              const connects = Boolean(previous)
+              const connects =
+                Boolean(previous) &&
+                (!breakGaps || dayIndex(item.record.measuredAt) - dayIndex(previous!.record.measuredAt) <= 1)
               pathParts.push(
                 `${connects ? "L" : "M"} ${xFor(item.record.measuredAt)} ${yFor(
                   item.value,

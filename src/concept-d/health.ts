@@ -9,7 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, errorText } from "@/lib/api";
 import type { HealthRecord, SymptomEntry } from "./healthData";
 
-type ApiRecord = {
+export type ApiRecord = {
   id: string;
   measuredAt: string;
   createdAt: string;
@@ -28,7 +28,7 @@ export const toLocalInput = (d: Date | string) => {
 const und = <T,>(v: T | null) => (v == null ? undefined : v);
 
 /** API の記録 → Figma の HealthRecord（未測定は undefined、未回答の症状はキーなし = 欠測） */
-function toFigma(r: ApiRecord): HealthRecord & { updatedAt: string; createdAt: string } {
+export function toFigma(r: ApiRecord): HealthRecord & { updatedAt: string; createdAt: string } {
   return {
     id: r.id,
     measuredAt: toLocalInput(r.measuredAt),
