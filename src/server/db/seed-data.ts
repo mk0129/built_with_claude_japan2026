@@ -20,6 +20,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
   { email: "patient1@example.com", name: "佐藤 花子", kind: "patient", label: "患者A（架空）" },
   { email: "patient2@example.com", name: "鈴木 美咲", kind: "patient", label: "患者B（架空）" },
   { email: "patient3@example.com", name: "高橋 由美", kind: "patient", label: "患者C（架空・外来間サマリーの通し確認用）" },
+  { email: "patient4@example.com", name: "伊藤 涼子", kind: "patient", label: "患者D（架空・デモ全体の通し確認用）" },
   {
     email: "dr.yamada@example.com",
     name: "山田 太郎",
@@ -82,9 +83,9 @@ export const DEMO_MATERIALS: { title: string; primaryDomain: string; scope: "com
   { title: "乳房の手術の種類と選び方", primaryDomain: "surgery", scope: "common", summary: "乳房温存手術と乳房全切除の違い、センチネルリンパ節生検について。" },
   { title: "手術後の生活と気をつけること", primaryDomain: "surgery", scope: "common", summary: "退院後の創部ケア、リンパ浮腫の予防、日常動作の目安。" },
   { title: "薬物療法の種類（化学療法・ホルモン療法・分子標的）", primaryDomain: "drug_therapy", scope: "common", summary: "それぞれの薬の目的と、治療の流れ。" },
-  { title: "化学療法中の副作用とセルフケア", primaryDomain: "side_effects_daily_life", scope: "common", summary: "吐き気・倦怠感・脱毛・感染予防など、ご自宅での対処の基本。" },
+  { title: "化学療法中の副作用とセルフケア", primaryDomain: "side_effects_daily_life", scope: "common", summary: "よくある副作用の観察点と自宅での対処、すぐに病院へ連絡するサイン、仕事や生活の工夫。" },
   { title: "放射線治療の進め方と皮膚のケア", primaryDomain: "radiation", scope: "common", summary: "治療のスケジュール、皮膚炎を和らげる工夫。" },
-  { title: "こころのケアと相談先", primaryDomain: "mental_care_support", scope: "common", summary: "不安との付き合い方、がん相談支援センターなどの相談先。" },
+  { title: "こころのケアと相談先", primaryDomain: "mental_care_support", scope: "common", summary: "不安や落ち込みのサイン、治療・気持ち・仕事・お金のことを相談できる窓口。" },
   { title: "さくら総合病院 外来化学療法室のご案内", primaryDomain: "drug_therapy", scope: "org", ownerOrgSlug: "sakura-general", summary: "当院の外来化学療法室の流れと持ち物（架空）。" },
   { title: "さくら総合病院 術後リンパ浮腫外来", primaryDomain: "side_effects_daily_life", scope: "org", ownerOrgSlug: "sakura-general", summary: "当院のリンパ浮腫外来の受診方法（架空）。" },
 ];

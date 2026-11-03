@@ -358,6 +358,7 @@ function DImageSlot({
   onExpand,
   compact = false,
   image,
+  fit = "contain",
 }: {
   kind: "medical" | "editorial"
   caption: string
@@ -365,11 +366,13 @@ function DImageSlot({
   compact?: boolean
   /** 本番: 医療者が承認した図解（承認済みの画像だけが API から届く）。なければ Figma の「画像準備中」 */
   image?: { src: string; alt: string }
+  /** サムネイルは枠いっぱいに表示（cover）。医学図解は切り取らない（contain） */
+  fit?: "contain" | "cover"
 }) {
   const placeholderContent = image ? (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={image.src} alt={image.alt} style={{ width: "100%", height: "100%", objectFit: "contain", background: "#fff" }} />
+      <img src={image.src} alt={image.alt} style={{ width: "100%", height: "100%", objectFit: fit, background: "#fff" }} />
       {onExpand && (
         <span className="d-expand">
           <Icon name="search" size={16} />
@@ -469,6 +472,8 @@ function DLessonCard({
         compact
         kind={imageKind(lesson)}
         caption=""
+        image={lesson.thumbnail ?? undefined}
+        fit="cover"
       />
       <span className="d-lesson-card-body">
         <span className="d-card-top">
@@ -2610,7 +2615,9 @@ function DDetail({
       <DImageSlot
         kind={imageKind(lesson)}
         caption="教材内容を補助する監修済み画像を配置する領域"
-        onExpand={onZoom}
+        onExpand={lesson.thumbnail ? undefined : onZoom}
+        image={lesson.thumbnail ?? undefined}
+        fit="cover"
       />
       <div className="d-detail-meta">
         <DStatus lesson={lesson} />

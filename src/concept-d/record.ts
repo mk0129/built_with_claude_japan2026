@@ -11,6 +11,7 @@ import { api, errorText } from "@/lib/api";
 import { SELECTION_LABEL } from "@/lib/labels";
 import { areaOf, estimateMinutes, FIGMA_AREA, shortDate } from "./learning";
 import { toFigma, type ApiRecord } from "./health";
+import { thumbnailFor } from "./thumbnails";
 
 type Phase = "not_started" | "reading" | "quiz" | "completed";
 export type SummaryApi = {
@@ -210,6 +211,7 @@ export type LiveLibraryItem = {
   prescribedNow: boolean;
   /** 以前の診察で処方済み（再処方できる） */
   prescribedBefore: boolean;
+  thumbnail: { src: string; alt: string } | null;
 };
 
 export type ClinicianRecord = ReturnType<typeof useClinicianRecord>;
@@ -364,6 +366,7 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
           scope: m.scope === "org" ? "施設内教材" : "共通教材",
           prescribedNow: nowIds.has(m.materialId),
           prescribedBefore: !nowIds.has(m.materialId) && beforeIds.has(m.materialId),
+          thumbnail: thumbnailFor(m.title),
         }))
       : null;
 

@@ -6,6 +6,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, errorText } from "@/lib/api";
+import { thumbnailFor } from "./thumbnails";
 
 /** DB の学習領域 → Figma の学習領域名（表示名だけの対応。並びは Figma のまま） */
 export const FIGMA_AREA: Record<string, string> = {
@@ -70,6 +71,8 @@ export type LiveLesson = {
   /** 前回までに処方された（今回の処方ではない） */
   previouslyPrescribed: boolean
   selfLearning: boolean
+  /** 登録済みの完成サムネイル（なければ Figma の「画像準備中」） */
+  thumbnail: { src: string; alt: string } | null
 };
 
 export function toLesson(i: LibraryApiItem): LiveLesson {
@@ -95,6 +98,7 @@ export function toLesson(i: LibraryApiItem): LiveLesson {
     note: i.prescribed?.note ?? null,
     previouslyPrescribed: !!i.prescribed && !i.prescribed.latest,
     selfLearning: i.selfLearning,
+    thumbnail: thumbnailFor(i.title),
   };
 }
 
