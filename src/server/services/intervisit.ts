@@ -243,7 +243,7 @@ export async function buildIntervisit(
       kind: "prescription",
       at: r.prescribedAt.toISOString(),
       day: localDay(r.prescribedAt),
-      label: `処方：${r.title}（第${r.versionNo}版）`,
+      label: `処方：「${r.title}」（第${r.versionNo}版）`,
       ref: { table: "prescription_items", id: r.itemId },
       data: { materialId: r.materialId, versionId: r.versionId, versionNo: r.versionNo, title: r.title, prescribedBy: r.prescribedBy },
     });
@@ -253,7 +253,7 @@ export async function buildIntervisit(
       kind: "learning_start",
       at: p.startedAt!.toISOString(),
       day: localDay(p.startedAt!),
-      label: `学習開始：${p.title}`,
+      label: `学習開始：「${p.title}」`,
       ref: { table: "learning_progress", id: p.id },
       data: { materialId: p.materialId, versionId: p.versionId, versionNo: p.versionNo, title: p.title },
     });
@@ -264,7 +264,7 @@ export async function buildIntervisit(
       kind: "learning_complete",
       at: a.completedAt!.toISOString(),
       day: localDay(a.completedAt!),
-      label: `学習完了（理解確認まで）：${v?.title ?? "教材"}`,
+      label: `学習完了（理解確認まで）：「${v?.title ?? "教材"}」`,
       ref: { table: "quiz_attempts", id: a.id },
       data: { materialId: v?.materialId, versionId: a.versionId, versionNo: v?.versionNo, title: v?.title },
     });
@@ -277,7 +277,7 @@ export async function buildIntervisit(
       kind: "answer",
       at: a.answeredAt.toISOString(),
       day: localDay(a.answeredAt),
-      label: `理解確認（${result}）：${a.stem}`,
+      label: `理解確認（${result}）：「${a.stem}」`,
       ref: { table: "quiz_answers", id: a.id },
       data: {
         result,

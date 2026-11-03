@@ -12,6 +12,7 @@ import { listMissedQuestions } from "./learning";
 import { listQuestionsForClinician } from "./questions";
 import { listLatestAnswers, objectivesByVersion } from "./learning-record";
 import { listVisitNotesForClinician } from "./notes";
+import { clearIntervisitCache } from "./intervisit-ai";
 
 export type ConsultationView = {
   id: string;
@@ -111,6 +112,8 @@ export async function endConsultation(sessionId: string, userId: string, db: Db 
     .update(consultationSessions)
     .set({ endedAt: new Date(), endedBy: by })
     .where(and(eq(consultationSessions.id, sessionId), isNull(consultationSessions.endedAt)));
+  // 外来間サマリーのキャッシュ（患者の情報を含む）も消す
+  clearIntervisitCache(sessionId);
   await audit({ actorUserId: userId, orgId: v.orgId, action: `consultation.end.${by}`, resourceType: "consultation_session", resourceId: sessionId, consultationSessionId: sessionId, outcome: "ok" }, db);
   return { alreadyEnded: false };
 }

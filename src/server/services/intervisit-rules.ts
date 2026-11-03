@@ -100,7 +100,7 @@ export function ruleSummary(iv: Intervisit): SummaryItem[] {
   for (const q of iv.questions)
     items.push({
       section: "患者からの質問",
-      text: `${d(q.createdAt)}（${q.kind}${q.materialTitle ? `・${q.materialTitle}` : ""}）：「${q.body}」`,
+      text: `${d(q.createdAt)}（${q.kind}${q.materialTitle ? `・「${q.materialTitle}」` : ""}）：「${q.body}」`,
       sourceIds: [q.sourceId],
     });
 

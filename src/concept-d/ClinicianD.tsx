@@ -1,7 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react"
 import type { ClinicianLive } from "./live"
 import type { ClinicianRecord, LiveConcern, LiveLibraryItem } from "./record"
-import { shortDate } from "./learning"
 import {
   currentVisitDate,
   formatShortDate,
@@ -1059,8 +1058,11 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
   const [period, setPeriod] = useState<{ from: string; to: string } | null>(null)
   const [draft, setDraft] = useState<{ from: string; to: string } | null>(null)
   const [openItem, setOpenItem] = useState<number | null>(null)
+  const [showRule, setShowRule] = useState(false)
   useEffect(() => {
     void record.loadIntervisit(period)
+    // 要約は構造化データと同じ期間で 1 回生成（同じデータならサーバーが再利用。元データが変わっていれば再生成）
+    void record.loadAiSummary(period)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period?.from, period?.to, record.sessionId])
   const data = record.intervisit
@@ -1076,7 +1078,13 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
       </section>
     )
   const iv = data.intervisit
-  const items = data.ruleSummary
+  const periodKey = period ? `?from=${period.from}&to=${period.to}` : ""
+  const ai = record.aiSummary && record.aiSummary.key === periodKey ? record.aiSummary.data : null
+  // 表示する要約: AI（検証済み）→ なければルールベース。医療者はルールベースに切り替えて見比べられる
+  const useAi = !!ai && ai.status === "ai" && !showRule
+  const items = useAi ? ai!.items : data.ruleSummary
+  const sources = useAi ? ai!.sources : data.sources
+  const kind = useAi ? (ai!.generator === "claude" ? "claude" : "fake") : "rule"
   const md = (iso: string) => {
     const d = new Date(iso)
     return `${d.getMonth() + 1}/${d.getDate()}`
@@ -1089,7 +1097,6 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
   const unknown = iv.learning.flatMap((l) => l.answersInPeriod).filter((a) => a.result === "わからない").length
   const wrong = iv.learning.flatMap((l) => l.answersInPeriod).filter((a) => a.result === "誤答").length
   const toggle = (value: "vitals" | "symptoms" | "learning" | "questions") => setExpanded(expanded === value ? null : value)
-  const sections = ["体調の変化", "学習の状況", "患者からの質問"] as const
   return (
     <section className="cd-intervisit" data-intervisit>
       <div className="cd-intervisit-head">
@@ -1136,9 +1143,22 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
         </div>
       )}
       <div className="cd-medical-summary">
-        <div className="cd-summary-narrative" data-summary-kind="rule">
-          <b>構造化サマリー（記録から自動整理・ルールベース）</b>
-          {sections.map((section) => {
+        <div className="cd-summary-narrative" data-summary-kind={kind}>
+          <b>
+            {kind === "claude"
+              ? "AI外来間サマリー（Claude・架空データ・記録で検証済み）"
+              : kind === "fake"
+                ? "AI外来間サマリー（開発用の擬似生成・Claudeではありません）"
+                : "構造化サマリー（記録から自動整理・ルールベース）"}
+          </b>
+          {record.aiLoading && !ai && <small data-ai-status="loading">AI要約を生成しています。その間は構造化サマリーを表示しています。</small>}
+          {ai && ai.status === "fallback" && (
+            <small data-ai-status="fallback">AI要約は表示していません：{ai.fallbackReason}</small>
+          )}
+          {ai && ai.status === "ai" && ai.rejected.length > 0 && !showRule && (
+            <small data-ai-status="partial">元データで検証できなかった{ai.rejected.length}項目は表示していません。</small>
+          )}
+          {(["体調の変化", "学習の状況", "患者からの質問", "時系列の経過"] as const).map((section) => {
             const list = items.map((item, index) => ({ item, index })).filter((x) => x.item.section === section)
             return (
               <p key={section}>
@@ -1161,16 +1181,39 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
               <small>根拠の記録（{items[openItem].sourceIds.length}件）</small>
               {items[openItem].sourceIds.map((id) => (
                 <p key={id} data-source-id={id}>
-                  {data.sources[id]?.at ? `${dt(data.sources[id].at!)} · ` : ""}
-                  {data.sources[id]?.label ?? id}
+                  {sources[id]?.at ? `${dt(sources[id].at!)} · ` : ""}
+                  {sources[id]?.label ?? id}
                 </p>
               ))}
             </div>
           )}
+          <p className="cd-summary-actions">
+            {ai && ai.status === "ai" && (
+              <button
+                className="cd-text-back"
+                onClick={() => {
+                  setOpenItem(null)
+                  setShowRule(!showRule)
+                }}
+              >
+                {showRule ? "AI要約を表示" : "ルールベースの構造化サマリーを表示"}
+              </button>
+            )}
+            <button
+              className="cd-text-back"
+              disabled={record.aiLoading}
+              onClick={() => {
+                setOpenItem(null)
+                void record.loadAiSummary(period, { regenerate: true })
+              }}
+            >
+              {record.aiLoading ? "生成中…" : "AI要約を再生成"}
+            </button>
+          </p>
         </div>
         <p className="cd-summary-safety">
           <CIcon name="shield" />
-          保存された記録だけから構成。欠測を「症状なし」「改善」とは扱わず、原因・治療との因果関係・CTCAE Gradeを判定しません。
+          保存された記録だけから構成。各文を押すと根拠の記録を表示します。欠測を「症状なし」「改善」とは扱わず、原因・治療との因果関係・CTCAE Grade・診断・治療の提案を出しません。AI要約は数値・日付・引用を元データで検証し、通らない文は表示しません。
         </p>
       </div>
       <div className="cd-intervisit-cards">

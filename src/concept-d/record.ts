@@ -237,6 +237,20 @@ export type IntervisitApi = {
   sources: Record<string, { label: string; at?: string }>;
 };
 
+/** Claude の外来間要約（Step 4-C）。status = fallback のときはルールベースの要約 */
+export type AiSummaryApi = {
+  status: "ai" | "fallback";
+  generator: "claude" | "fake" | "mock" | "rule";
+  model: string | null;
+  items: SummaryItem[];
+  rejected: { index: number; reason: string }[];
+  fallbackReason: string | null;
+  dataHash: string;
+  generatedAt: string;
+  cached: boolean;
+  sources: Record<string, { label: string; at?: string }>;
+};
+
 type SymptomSettings = { active: string[]; hidden: string[]; customNames: Record<string, string> };
 
 export function useClinicianRecord(sessionId: string | null, active: boolean, notify: (message: string) => void) {
@@ -294,10 +308,36 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     },
     [sid],
   );
+  // Claude の外来間要約（期間ごと。サーバー側で同じデータなら再利用）
+  const [ai, setAi] = useState<{ sid: string; key: string; data: AiSummaryApi } | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const loadAiSummary = useCallback(
+    async (period: { from: string; to: string } | null, opts: { regenerate?: boolean } = {}) => {
+      if (!sid) return;
+      const key = period ? `?from=${period.from}&to=${period.to}` : "";
+      // 開発用: URL の aisim=invalid|error で AI の失敗を再現（擬似生成のときだけサーバーが受け付ける）
+      const sim = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("aisim") : null;
+      setAiLoading(true);
+      try {
+        const d = await api<AiSummaryApi>(`/api/v1/consultations/${sid}/intervisit/summary`, {
+          json: { ...(period ?? {}), regenerate: !!opts.regenerate, ...(sim === "invalid" || sim === "error" ? { simulate: sim } : {}) },
+        });
+        setAi({ sid, key, data: d });
+      } catch (e) {
+        notifyRef.current(errorText(e));
+      } finally {
+        setAiLoading(false);
+      }
+    },
+    [sid],
+  );
   useEffect(() => {
-    // 共有が終わったら外来間のデータも消す
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!sid) setIv(null);
+    // 共有が終わったら外来間のデータ・要約も消す
+    if (!sid) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIv(null);
+      setAi(null);
+    }
   }, [sid]);
   const summary = current?.summary ?? null;
   const materials = current?.materials ?? null;
@@ -366,6 +406,10 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     intervisit: sid && iv?.sid === sid ? iv.data : null,
     intervisitLoading: ivLoading,
     loadIntervisit,
+    /** Claude の外来間要約（Step 4-C） */
+    aiSummary: sid && ai?.sid === sid ? ai : null,
+    aiLoading,
+    loadAiSummary,
     /** 在宅経過表（Step 4）: 患者の体調記録（Figma の HealthRecord と同じ形）と症状の表示設定 */
     healthRecords: current ? current.health.records.map(toFigma) : [],
     symptomSettings: current?.health.symptoms ?? { active: [], hidden: [], customNames: {} },

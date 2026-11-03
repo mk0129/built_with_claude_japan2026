@@ -143,3 +143,5 @@
 }
 .cd-summary-sentence.active { background: rgba(63, 113, 128, .1); border-radius: 3px; }
 .cd-summary-narrative .cd-summary-evidence { margin-top: 10px; }
+.cd-summary-narrative > small { display: block; margin: 4px 0 6px; color: #8b6b38; font-size: 11px; }
+.cd-summary-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 8px 0 0 !important; }
