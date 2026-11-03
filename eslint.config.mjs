@@ -11,6 +11,8 @@ const eslintConfig = defineConfig([
     ".next/**",
     ".next-e2e*/**",
     ".next-try/**",
+    // 退避した旧 UI（参照用。配信・テストの対象外）
+    "legacy/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

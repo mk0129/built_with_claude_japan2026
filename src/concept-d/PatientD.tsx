@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react"
+import { useUrlState } from "./urlState"
 import {
   currentVisitDate,
   formatShortDate,
@@ -13,6 +14,7 @@ import {
 } from "./healthData"
 
 type DPage = "home" | "prescriptions" | "library" | "category" | "search" | "detail" | "learn" | "quiz" | "explanation" | "result" | "history" | "health" | "notes" | "share"
+const D_PAGES: readonly DPage[] = ["home", "prescriptions", "library", "category", "search", "detail", "learn", "quiz", "explanation", "result", "history", "health", "notes", "share"]
 export type DViewport = "390" | "430" | "tablet"
 
 export function Icon({ name, size = 20 }: { name: string; size?: number }) {
@@ -550,10 +552,11 @@ export function DPrototype({
   customSymptomNames: Record<string, string>
   setCustomSymptomNames: (names: Record<string, string>) => void
 }) {
-  const [page, setPage] = useState<DPage>("home")
+  // 画面・教材・領域は URL に持つ（再読み込みで同じ画面に戻る）
+  const [page, setPage] = useUrlState<DPage>("view", "home", D_PAGES)
   const [scenario, setScenario] = useState(2)
-  const [selectedId, setSelectedId] = useState(1)
-  const [selectedCategory, setSelectedCategory] = useState("手術")
+  const [selectedId, setSelectedId] = useUrlState<number>("lesson", 1)
+  const [selectedCategory, setSelectedCategory] = useUrlState<string>("area", "手術")
   const [query, setQuery] = useState("")
   const [sourceFilter, setSourceFilter] = useState("すべて")
   const [statusFilter, setStatusFilter] = useState("すべて")
@@ -810,7 +813,15 @@ export function DPrototype({
     return (
       <DShare
         sharing={sharing}
-        setSharing={setSharing}
+        setSharing={
+          // 本番では共有中を装わない（QR の読み取りと一時共有は Phase 2 で既存 API に接続）。開発用画面は Figma どおり
+          variant === "app"
+            ? (value: boolean) =>
+                value
+                  ? notify("QRの読み取りと一時共有は準備中です（実データ未接続）")
+                  : setSharing(false)
+            : setSharing
+        }
         onBack={() => setPage("home")}
       />
     )

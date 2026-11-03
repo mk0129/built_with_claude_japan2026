@@ -400,7 +400,12 @@ export default function ClinicianD({
         className={`cd-device cd-${viewport}${variant === "app" ? " cd-device-app" : ""}`}
       >
         {session !== "active" ? (
-          <SessionGate state={session} setState={setSession} notify={notify} />
+          <SessionGate
+            state={session}
+            setState={setSession}
+            notify={notify}
+            variant={variant}
+          />
         ) : (
           <div className="cd-app">
             <aside className="cd-sidebar">
@@ -478,6 +483,8 @@ export default function ClinicianD({
                   {extendRequested ? (
                     <>
                       <Badge tone="amber">患者の再承認待ち</Badge>
+                      {/* 架空の再承認ボタンは開発用画面（prototype）だけに出す。本番は患者の実際の再承認を待つ（Phase 2 で接続） */}
+                      {variant === "prototype" && (
                       <button
                         onClick={() => {
                           setExtendRequested(false)
@@ -488,6 +495,7 @@ export default function ClinicianD({
                       >
                         プロトタイプ：再承認
                       </button>
+                      )}
                     </>
                   ) : (
                     <button onClick={() => setExtendRequested(true)}>
@@ -637,10 +645,12 @@ function SessionGate({
   state,
   setState,
   notify,
+  variant = "prototype",
 }: {
   state: SessionState
   setState: (state: SessionState) => void
   notify: (message: string) => void
+  variant?: "app" | "prototype"
 }) {
   const [method, setMethod] = useState<"qr" | "code">("qr")
   const [code, setCode] = useState("")
@@ -785,9 +795,12 @@ function SessionGate({
                 共有開始
               </span>
             </div>
+            {/* 架空の承認ボタンは開発用画面（prototype）だけに出す。本番は患者の実際の承認を待つ（Phase 2 で接続） */}
+            {variant === "prototype" && (
             <button className="cd-primary" onClick={() => setState("active")}>
               プロトタイプ：患者が承認
             </button>
+            )}
             <button
               className="cd-secondary"
               onClick={() => setState("request")}

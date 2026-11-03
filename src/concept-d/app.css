@@ -1,8 +1,17 @@
 /*
- * 実アプリ表示（variant="app"）だけに当てる最小の上書き。
- * Figma の端末枠（.d-device / .cd-device）を画面そのものにする。Figma 自身の 700px 以下の表示（枠なし・角丸なし・影なし）と同じ扱いで、
- * 中身の文字・余白・色は変更しない。
+ * 本番表示（variant="app"）の外側だけを決める CSS。端末内（Figma の .d-* / .cd-*）には触れない。
+ * - Figma の設計幅を保つ: 患者はスマートフォン（700px 以下）とタブレット 768px、医療者は 1180px と 820px。
+ *   画面が設計幅より広いときは、Figma のステージと同じ背景・余白・角丸・影で中央に置く（引き伸ばさない）。
+ * - 画面が設計幅以下のときは端末枠を外して画面いっぱいにする（Figma 自身の 700px 以下の扱いと同じ）。
+ * - 高さは Figma の固定値（患者 844/900、医療者 800）ではなく画面の高さに合わせる（端末内は Figma どおりスクロール）。
  */
+
+/* 患者 */
+.d-app-stage {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: radial-gradient(circle at 50% 0%, #fff 0, #eaf1f1 62%);
+}
 .d-device.d-device-app,
 .d-device.d-device-app.viewport-430,
 .d-device.d-device-app.viewport-tablet {
@@ -13,12 +22,71 @@
   box-shadow: none;
   transition: none;
 }
-.cd-wrap:has(> .cd-device-app) { width: 100%; min-width: 820px; gap: 0; }
+@media (min-width: 816px) {
+  .d-app-stage { padding: 24px; }
+  .d-device.d-device-app.viewport-tablet {
+    width: 768px;
+    height: calc(100vh - 48px);
+    height: calc(100dvh - 48px);
+    border-radius: 24px;
+    box-shadow: var(--shadow), 0 0 0 8px #dce4e4;
+  }
+}
+
+/* 医療者 */
+.cd-app-stage {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #e9eeee;
+}
+.cd-wrap:has(> .cd-device-app) { gap: 0; }
 .cd-device.cd-device-app {
-  width: 100%;
-  min-width: 820px;
   height: 100vh;
   height: 100dvh;
   border-radius: 0;
   box-shadow: none;
+}
+@media (min-width: 1228px) {
+  .cd-app-stage { padding: 24px; }
+  .cd-device.cd-device-app.cd-1180 {
+    height: calc(100vh - 48px);
+    height: calc(100dvh - 48px);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+  }
+}
+@media (min-width: 868px) and (max-width: 1179px) {
+  .cd-app-stage { padding: 24px; }
+  .cd-device.cd-device-app.cd-820 {
+    height: calc(100vh - 48px);
+    height: calc(100dvh - 48px);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+  }
+}
+
+/* 未接続の明示（レイアウトに影響しない重ね表示。操作を妨げない） */
+.proto-flag {
+  position: fixed;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 90;
+  padding: 2px 9px;
+  border: 1px solid #e3cfa8;
+  border-radius: 99px;
+  background: rgba(253, 248, 238, .94);
+  color: #8b6b38;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.6;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.proto-flag .short { display: none; }
+/* スマートフォン: ヘッダー中央の空き（ロゴと「共有する」の間）に短い文言で置く */
+@media (max-width: 700px) {
+  .proto-flag { top: 23px; padding: 1px 7px; font-size: 9px; }
+  .proto-flag .long { display: none; }
+  .proto-flag .short { display: inline; }
 }

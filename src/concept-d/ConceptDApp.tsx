@@ -10,6 +10,7 @@ import { useState, useSyncExternalStore } from "react"
 import ClinicianD, { type ClinicianDViewport } from "./ClinicianD"
 import { DPrototype, Icon, Logo, type DViewport } from "./PatientD"
 import { initialActiveSymptomIds, initialHealthRecords, type HealthRecord } from "./healthData"
+import { UrlInitContext, type UrlInit } from "./urlState"
 
 type DMode = "patient" | "clinician"
 
@@ -59,11 +60,13 @@ function useMedia(query: string, serverValue: boolean) {
 }
 
 /** 患者: 700px 以下はスマートフォン表示（Figma の 390/430 は幅以外同一）、それより広い画面はタブレット表示 */
-export function PatientDApp() {
+export function PatientDApp({ initial = {} }: { initial?: UrlInit }) {
   const s = useConceptDState()
   const tablet = useMedia("(min-width: 701px)", false)
   return (
-    <>
+    <UrlInitContext.Provider value={initial}>
+    <div className="d-app-stage">
+      <ProtoFlag />
       <DPrototype
         variant="app"
         viewport={tablet ? "tablet" : "390"}
@@ -76,16 +79,18 @@ export function PatientDApp() {
         setCustomSymptomNames={s.setCustomSymptomNames}
       />
       {s.toastNode}
-    </>
+    </div>
+    </UrlInitContext.Provider>
   )
 }
 
-/** 医療者: 1000px 以上は Figma の 1180 表示、それ未満は 820 表示 */
+/** 医療者: 1180px 以上は Figma の 1180 表示、それ未満は 820 表示（どちらも幅は Figma の設計幅のまま） */
 export function ClinicianDApp() {
   const s = useConceptDState()
-  const wide = useMedia("(min-width: 1000px)", true)
+  const wide = useMedia("(min-width: 1180px)", true)
   return (
-    <>
+    <div className="cd-app-stage">
+      <ProtoFlag />
       <ClinicianD
         variant="app"
         viewport={wide ? "1180" : "820"}
@@ -94,7 +99,17 @@ export function ClinicianDApp() {
         customSymptomNames={s.customSymptomNames}
       />
       {s.toastNode}
-    </>
+    </div>
+  )
+}
+
+/** 実データ未接続の明示（Phase 2 で API に接続するまで表示する） */
+function ProtoFlag() {
+  return (
+    <div className="proto-flag" role="note" data-proto-flag>
+      <span className="long">プロトタイプ表示・架空データ（実データ未接続）</span>
+      <span className="short">架空データ・未接続</span>
+    </div>
   )
 }
 

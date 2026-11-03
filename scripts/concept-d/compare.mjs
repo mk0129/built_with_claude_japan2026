@@ -6,6 +6,8 @@
  *   OUT         : 出力先（既定 docs/design/concept_d/compare）
  *   ONLY        : 画面 ID の部分一致で絞り込み（例 ONLY=P0）
  * 比較対象は Figma のプロトタイプ外枠ではなく端末内の実アプリ（患者 .d-device / 医療者 .cd-device）。
+ * shiori 側は正式 URL（患者 /home、医療者 /staff）。医療者の一時共有中の画面は、本番に架空の承認ボタンがないため開発用 /d/dev で撮る。
+ * shiori の「架空データ・未接続」表示（.proto-flag、重ね表示）は比較時だけ隠す。
  * Figma 側は 700px 以下で端末枠が外れる（角丸・影なし）ため、患者はその表示幅で撮る。医療者は 1180/820 の端末をそのまま撮る。
  */
 import { chromium } from "playwright";
@@ -89,6 +91,9 @@ const CLINICIAN = [
 const HIDE_FRAME = ".prototype-bar,.concept-summary,.cd-testbar{display:none!important}.cd-device{border-radius:0!important}";
 /** 期限切れなど、Figma でもテスト状態の切り替えでしか出ない画面。shiori 側は開発用 /d/dev の同じ切り替えを使う */
 const TEST_STATES = { C21_expired: "expired" };
+/** 本番（/staff）で撮る医療者の画面。それ以外（一時共有中）は /d/dev。C04 は本番で架空の承認ボタンを外したため、差分が出るのが正しい */
+const CLINICIAN_PROD = new Set(["C01_gate", "C02_request_qr", "C03_request_code", "C04_waiting"]);
+const HIDE_FLAG = ".proto-flag{display:none!important}";
 
 async function figmaPage(browser, vp, mode, clinicianVp, testState) {
   const ctx = await browser.newContext({ viewport: vp, deviceScaleFactor: 1, locale: "ja-JP" });
@@ -104,17 +109,21 @@ async function figmaPage(browser, vp, mode, clinicianVp, testState) {
   return { ctx, p, root: p.locator(mode === "patient" ? ".d-device" : ".cd-device") };
 }
 
-async function shioriPage(browser, vp, mode, cookies, testState, devVp) {
-  const ctx = await browser.newContext({ viewport: testState ? devVp : vp, deviceScaleFactor: 1, locale: "ja-JP" });
+async function shioriPage(browser, vp, mode, cookies, testState, devVp, useDev) {
+  const dev = !!testState || useDev;
+  const ctx = await browser.newContext({ viewport: dev ? devVp : vp, deviceScaleFactor: 1, locale: "ja-JP" });
   await ctx.addCookies(cookies);
   const p = await ctx.newPage();
-  if (testState) {
+  if (dev) {
     await p.goto(`${SHIORI}/d/dev`);
     await p.locator(".view-switch").first().getByRole("button", { name: "医療者" }).click();
     await p.locator(".d-viewport-switch").getByRole("button", { name: `${vp.width}px` }).click();
-    await p.locator(".cd-testbar select").first().selectOption(testState);
+    if (testState) await p.locator(".cd-testbar select").first().selectOption(testState);
     await p.addStyleTag({ content: HIDE_FRAME });
-  } else await p.goto(`${SHIORI}/d/${mode}`);
+  } else {
+    await p.goto(`${SHIORI}${mode === "patient" ? "/home" : "/staff"}`);
+    await p.addStyleTag({ content: HIDE_FLAG });
+  }
   return { ctx, p, root: p.locator(mode === "patient" ? ".d-device" : ".cd-device") };
 }
 
@@ -186,6 +195,47 @@ const runs = [
   ...["1180", "820"].map((w) => ({ mode: "clinician", vp: { width: +w, height: 800 }, figmaVp: { width: Math.max(+w + 80, 1280), height: 1000 }, tag: w, list: CLINICIAN, scroll: ".cd-main, .cd-gate main" })),
 ];
 
+// 広い画面（PC）: Figma の設計幅のまま中央に置かれることを確認する。shiori は端末の高さが Figma と同じになるビューポートで撮る
+// （患者タブレット 768×900 → 1440×948、医療者 1180×800 → 1440×848）。Figma 側は外枠のバーだけ隠す（角丸と影は両方にある）
+if (!ONLY || "W".includes(ONLY[0])) {
+  const wide = [
+    { name: "W01_patient_home_tablet", mode: "patient", vp: { width: 1440, height: 948 }, steps: [] },
+    { name: "W02_patient_library_tablet", mode: "patient", vp: { width: 1440, height: 948 }, steps: [click("教材を探す", { within: ".d-nav" })] },
+    { name: "W03_clinician_gate_1440", mode: "clinician", vp: { width: 1440, height: 848 }, steps: [] },
+    { name: "W04_clinician_request_1440", mode: "clinician", vp: { width: 1440, height: 848 }, steps: [click("患者との接続を開始")] },
+  ];
+  for (const w of wide) {
+    if (ONLY && !w.name.includes(ONLY)) continue;
+    const shots = {};
+    for (const side of ["figma", "shiori"]) {
+      const ctx = await browser.newContext({ viewport: side === "figma" ? { width: 1440, height: 1200 } : w.vp, deviceScaleFactor: 1, locale: "ja-JP" });
+      if (side === "shiori") await ctx.addCookies(w.mode === "patient" ? patientCookies : staffCookies);
+      const p = await ctx.newPage();
+      if (side === "figma") {
+        await p.goto(FIGMA);
+        if (w.mode === "patient") await p.locator(".d-viewport-switch").getByRole("button", { name: "タブレット" }).click();
+        else await p.locator(".view-switch").first().getByRole("button", { name: "医療者" }).click();
+        await p.addStyleTag({ content: ".prototype-bar,.concept-summary,.cd-testbar,.d-scenario-bar{display:none!important}" });
+      } else {
+        await p.goto(`${SHIORI}${w.mode === "patient" ? "/home" : "/staff"}`);
+        await p.addStyleTag({ content: HIDE_FLAG });
+      }
+      const root = p.locator(w.mode === "patient" ? ".d-device" : ".cd-device");
+      await root.waitFor();
+      await settle(p);
+      for (const s of w.steps) await s(p, root);
+      await settle(p);
+      const f = join(OUT, side, `${w.name}.png`);
+      await root.screenshot({ path: f, animations: "disabled", caret: "hide" });
+      shots[side] = { f, box: await root.boundingBox() };
+      await ctx.close();
+    }
+    const r = diff(shots.figma.f, shots.shiori.f, join(OUT, "diff", `${w.name}.png`));
+    results.push({ key: w.name, ...r, figmaBox: shots.figma.box, shioriBox: shots.shiori.box });
+    console.log(`${w.name}: ${r.diffPx}px (${r.ratio}) ${r.size} figma@${JSON.stringify(shots.figma.box)} shiori@${JSON.stringify(shots.shiori.box)}`);
+  }
+}
+
 for (const run of runs) {
   for (const [id, steps] of run.list) {
     const name = `${id}_${run.tag}`;
@@ -195,7 +245,7 @@ for (const run of runs) {
       const { ctx, p, root } =
         side === "figma"
           ? await figmaPage(browser, run.figmaVp ?? run.vp, run.mode, run.tag, TEST_STATES[id])
-          : await shioriPage(browser, run.vp, run.mode, run.mode === "patient" ? patientCookies : staffCookies, TEST_STATES[id], run.figmaVp);
+          : await shioriPage(browser, run.vp, run.mode, run.mode === "patient" ? patientCookies : staffCookies, TEST_STATES[id], run.figmaVp, run.mode === "clinician" && !CLINICIAN_PROD.has(id));
       try {
         await root.waitFor();
         await settle(p);

@@ -1,8 +1,13 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getPageUser } from "@/server/auth/session";
 
 const APP = process.env.NEXT_PUBLIC_APP_NAME ?? "しおり（仮）";
 
-export default function Landing() {
+/** 入口。ログイン済みなら正式 UI（患者 /home、医療者 /staff）へ。Figma Make に入口画面のデザインがないため、未ログイン時は従来の入口を使う */
+export default async function Landing() {
+  const u = await getPageUser();
+  if (u) redirect(u.kind === "patient" ? "/home" : "/staff");
   return (
     <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-10 overflow-hidden">
       <div className="blob bg-sakura w-72 h-72 -top-10 -left-16" />
