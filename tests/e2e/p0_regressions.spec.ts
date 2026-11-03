@@ -49,7 +49,7 @@ test("UX-03 / UX-04: 構成案は操作の直下に出て画面内に入る。�
   await s.screenshot({ path: `${SHOT_DIR}/p0_ux03_outline_result_820.png`, fullPage: false });
   // 構成案の違いが分かる要素（学習目標・画面構成・特徴）がカードにある
   await expect(result.getByText("この教材で学ぶこと").first()).toBeVisible();
-  await result.getByText("画面構成と根拠を見る").first().click();
+  await result.getByText("詳細を開く").first().click();
   await expect(result.getByText(/画面構成（\d+）/).first()).toBeVisible();
   await expect(result.getByText(/根拠（原資料のどこに基づくか）/).first()).toBeVisible();
 
@@ -87,11 +87,25 @@ test("UX-03 / UX-04: 構成案は操作の直下に出て画面内に入る。�
   await expect(s.getByRole("link", { name: /編集・承認画面へ/ })).toBeVisible();
   await s.screenshot({ path: `${SHOT_DIR}/p0_ux04_draft_preview_820.png`, fullPage: true });
 
+  // Phase D: プレビューは患者の学習コンポーネントを端末枠で表示する。進捗は保存せず、確認問題へは進めない
+  const learnPosts: string[] = [];
+  s.on("request", (r) => {
+    if (r.method() !== "GET" && r.url().includes("/api/v1/learn/")) learnPosts.push(r.url());
+  });
+  const phone = s.locator(".rsd-phone");
+  await expect(phone.getByRole("heading", { level: 2 }).first()).toBeVisible();
+  while (await phone.getByRole("button", { name: /次のページへ/ }).isVisible()) await phone.getByRole("button", { name: /次のページへ/ }).click();
+  await expect(phone.getByRole("button", { name: /確認問題へ/ })).toBeDisabled();
+  expect(learnPosts, "プレビューで学習進捗を保存しない").toEqual([]);
+
   // 一般の医療者（編集権限なし）はプレビュー API も画面も不可
   const plain = await newPage(browser, { width: 820, height: 1180 });
   await demoLogin(plain.page, "staff", "山田 太郎");
   const r1 = await plain.page.request.get(`/api/v1/admin/materials/${versionId}/preview`);
   expect(r1.status()).toBe(403);
+  // 画面も開けない（患者の学習コンポーネントが表示されない）
+  await plain.page.goto(`/staff/materials/${versionId}/preview`);
+  await expect(plain.page.locator(".rsd-phone")).toHaveCount(0);
   await plain.ctx.close();
 
   // 患者は未承認の下書きを学習 API で取得できない（公開判定は変更していない）

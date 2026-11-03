@@ -134,7 +134,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
   await s.getByText("理解確認スコア（参考）").click();
   await expect(s.getByText(/前回の宿題/)).toBeVisible();
   await shot(s, "21_staff_dashboard_second_visit");
-  await s.getByRole("button", { name: "対応を記録" }).first().click();
+  await s.getByRole("button", { name: /^対応する/ }).first().click();
   await shot(s, "21b_staff_question_record_form");
   await s.getByRole("button", { name: /対応済みとして記録する/ }).click();
   await expect(s.getByText(/未確認の質問 0/)).toBeVisible({ timeout: 15_000 });

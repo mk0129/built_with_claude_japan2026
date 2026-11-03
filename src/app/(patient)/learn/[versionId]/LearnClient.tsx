@@ -33,7 +33,13 @@ function splitFirstSentence(body: string): { first: string; rest: string | null 
  * 図解（3 タブ・大きな 1 枚・caption）→ 注記 → くわしい説明・監修情報 → 固定の「戻る／次のページへ」。
  * 進捗の自動保存・音声・確認問題への遷移は従来どおり。図解は承認済みのものだけが渡される。
  */
-export function LearnClient({ view, initialSeq }: { view: View; initialSeq: number }) {
+/**
+ * preview: 医療者の患者画面プレビュー（編集者・承認者のみのページから使う）。
+ * 進捗の保存や確認問題への遷移は行わず、未承認の図解も「監修待ち」と明示して表示する。患者向け API は呼ばない。
+ */
+export type LearnPreview = { backHref: string };
+
+export function LearnClient({ view, initialSeq, preview }: { view: View; initialSeq: number; preview?: LearnPreview }) {
   const router = useRouter();
   const [seq, setSeq] = useState(initialSeq);
   const [showToc, setShowToc] = useState(false);
@@ -41,31 +47,35 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
   const slide = view.slides[seq - 1];
   const total = view.slides.length;
   const saved = useRef<number | null>(null);
+  const mainRef = useRef<HTMLElement>(null);
 
-  // 画面移動ごとに自動保存（LEARN-02）
+  // 画面移動ごとに自動保存（LEARN-02）。プレビューでは保存しない
   useEffect(() => {
+    if (preview) return;
     if (saved.current === seq) return;
     saved.current = seq;
     void api(`/api/v1/learn/${view.versionId}/progress`, { json: { lastSlideSeq: seq, phase: "reading" } }).catch(() => {});
-  }, [seq, view.versionId]);
+  }, [seq, view.versionId, preview]);
 
   function go(n: number) {
     setSeq(Math.min(Math.max(n, 1), total));
     setFigIdx(0);
     window.scrollTo({ top: 0 });
+    mainRef.current?.closest(".rsd-phone-scroll")?.scrollTo({ top: 0 });
   }
 
   const voice = `${slide.title}。${slide.proposition ? slide.proposition + "。" : ""}${slide.voiceText}`;
   const { first, rest } = splitFirstSentence(slide.bodyMd);
   const detail = [rest, slide.detailMd].filter(Boolean).join("\n");
-  const figures = slide.figures.filter((f) => f.reviewStatus === "approved" && f.src);
+  // 患者には承認済みの図解だけが渡される。プレビューでは未承認も表示し、監修待ちを明示する
+  const figures = slide.figures.filter((f) => f.src && (preview || f.reviewStatus === "approved"));
   const fig = figures[Math.min(figIdx, Math.max(0, figures.length - 1))] ?? null;
   const supervision = figures.map((f) => [f.reviewScopeNote, f.sourceNote ? `出典: ${f.sourceNote}` : null, f.longDescription].filter(Boolean).join(" ")).filter(Boolean);
 
   return (
     <>
       <header className="rs-header">
-        <Link href="/home" className="rs-icon-btn -ml-2" aria-label="ホームへ戻る">
+        <Link href={preview?.backHref ?? "/home"} className="rs-icon-btn -ml-2" aria-label={preview ? "編集画面へ戻る" : "ホームへ戻る"}>
           <Icon name="back" />
         </Link>
         <span className="rs-heading-small flex-1 text-center px-1">{view.title}</span>
@@ -76,7 +86,7 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
           <FontSizeToggle variant="icon" />
         </div>
       </header>
-      <main className="rs-content" style={{ paddingTop: 18 }}>
+      <main ref={mainRef} className="rs-content" style={{ paddingTop: 18 }}>
         <div className="rs-progress" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={seq} aria-label={`${total} 画面中 ${seq} 画面目`}>
           <div style={{ width: `${(seq / total) * 100}%` }} />
         </div>
@@ -104,10 +114,10 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
             </ol>
           </nav>
         )}
-        {!view.isCurrentVersion && <p className="rs-muted mt-2">この教材には新しい版があります。内容は処方時の版です。</p>}
+        {!preview && !view.isCurrentVersion && <p className="rs-muted mt-2">この教材には新しい版があります。内容は処方時の版です。</p>}
 
         <article aria-live="polite">
-          <h1 className="rs-h1">{slide.title}</h1>
+          {preview ? <h2 className="rs-h1">{slide.title}</h2> : <h1 className="rs-h1">{slide.title}</h1>}
           {slide.proposition && <div className="rs-prop">{slide.proposition}</div>}
           <SpeakButton text={voice} variant="reset" />
           <p className="rs-short" data-learn-body>
@@ -147,7 +157,10 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
                   ))}
                 </ol>
               )}
-              <figcaption className="rs-figcaption">{fig.caption ?? fig.altText}</figcaption>
+              <figcaption className="rs-figcaption">
+                {preview && fig.reviewStatus !== "approved" && <span className="rs-pill mr-1">監修待ち（患者には表示されません）</span>}
+                {fig.caption ?? fig.altText}
+              </figcaption>
             </figure>
           )}
           {figures.length > 1 && (
@@ -184,13 +197,17 @@ export function LearnClient({ view, initialSeq }: { view: View; initialSeq: numb
               戻る
             </button>
           ) : (
-            <Link href="/home" className="rs-btn outline">
+            <Link href={preview?.backHref ?? "/home"} className="rs-btn outline">
               戻る
             </Link>
           )}
           {seq < total ? (
             <button className="rs-btn primary flex-1" onClick={() => go(seq + 1)}>
               次のページへ <Icon name="arrow" size="sm" />
+            </button>
+          ) : preview ? (
+            <button className="rs-btn primary flex-1" disabled title="プレビューでは確認問題へ進めません">
+              確認問題へ（{view.questionCount}問）
             </button>
           ) : (
             <button

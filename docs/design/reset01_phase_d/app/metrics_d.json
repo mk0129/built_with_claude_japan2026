@@ -1,0 +1,85 @@
+{
+  "editorUrl": "http://localhost:3205/staff/studio/materials/fb2cdc30-0f37-44f4-a6b4-cbc187a21861",
+  "previewUrl": "http://localhost:3205/staff/materials/fb2cdc30-0f37-44f4-a6b4-cbc187a21861/preview",
+  "studio3_1180": {
+    "grid": {
+      "top": 345,
+      "w": 920,
+      "h": 459
+    },
+    "cards": [
+      459,
+      459,
+      459
+    ],
+    "overflowX": 0
+  },
+  "studio3_820": {
+    "grid": {
+      "top": 443,
+      "w": 788,
+      "h": 868
+    },
+    "cards": [
+      417,
+      417,
+      438
+    ],
+    "overflowX": 0
+  },
+  "studio3_430": {
+    "grid": {
+      "top": 504,
+      "w": 398,
+      "h": 1299
+    },
+    "cards": [
+      417,
+      417,
+      438
+    ],
+    "overflowX": 0
+  },
+  "studio3_390": {
+    "grid": {
+      "top": 554,
+      "w": 358,
+      "h": 1299
+    },
+    "cards": [
+      417,
+      417,
+      438
+    ],
+    "overflowX": 0
+  },
+  "editor_1180": {
+    "overflowX": 0
+  },
+  "preview_1180": {
+    "overflowX": 0
+  },
+  "editor_820": {
+    "overflowX": 0
+  },
+  "preview_820": {
+    "overflowX": 40
+  },
+  "editor_430": {
+    "overflowX": 0
+  },
+  "preview_430": {
+    "overflowX": 430
+  },
+  "editor_390": {
+    "overflowX": 0
+  },
+  "preview_390": {
+    "overflowX": 470
+  },
+  "preview_cta_in_frame": {
+    "frameBottom": 1137,
+    "ctaBottom": 770,
+    "inside": true
+  }
+}

@@ -87,8 +87,8 @@ export function PrescriptionPanel({
         {basket.length > 0 && <span className="rsd-tag coral ml-2">候補 {basket.length}</span>}
         {currentSet && currentSet.items.length > 0 && <span className="rsd-tag sage ml-1">処方済 {currentSet.items.length}</span>}
       </h2>
-      <button className="btn" onClick={onToggle} aria-expanded={open}>
-        {open ? "閉じる" : "開く"}
+      <button className={`btn ${open ? "" : "btn-primary"}`} onClick={onToggle} aria-expanded={open}>
+        {open ? "閉じる" : basket.length > 0 ? `開く（候補 ${basket.length}）` : "開く"}
       </button>
     </div>
   );

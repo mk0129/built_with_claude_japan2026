@@ -303,20 +303,37 @@ function OutlineResult({ job, busy, canGenerate, picked, onPick, onNext, compact
                 <span className="rsd-tag">{o.slideTitles.length}画面 ・ 約{Math.max(2, Math.round(o.slideTitles.length * 1.2 + 2))}分</span>
               </div>
               <h3>{o.title}</h3>
-              <div className="target">
-                <Icon name="person" size="sm" /> {o.targetReader}
-                {o.primaryDomain ? ` ・ ${DOMAIN_LABEL[o.primaryDomain] ?? o.primaryDomain}` : ""}
+              {/* 初期表示: 対象者は 1 行に省略（全文は「詳細を開く」に。データは省略・削除しない） */}
+              <div className="target" title={o.targetReader}>
+                <Icon name="person" size="sm" />
+                <span className="rsd-clamp1">{o.targetReader}</span>
               </div>
               <div className="font-bold" style={{ fontSize: 13, margin: "2px 0 3px" }}>
                 この教材で学ぶこと
               </div>
-              {o.learningObjectives.map((g) => (
+              {o.learningObjectives.slice(0, 3).map((g) => (
                 <div key={g} className="rsd-goal">
-                  <Icon name="checkcircle" size="sm" /> {g}
+                  <Icon name="checkcircle" size="sm" /> <span className="rsd-clamp2">{g}</span>
                 </div>
               ))}
+              {o.learningObjectives.length > 3 && <div className="rsd-muted">ほか {o.learningObjectives.length - 3} 件（詳細を開く）</div>}
               <details>
-                <summary>画面構成と根拠を見る</summary>
+                <summary>詳細を開く</summary>
+                <p className="font-bold" style={{ margin: "6px 0 2px" }}>対象者</p>
+                <p>
+                  {o.targetReader}
+                  {o.primaryDomain ? ` ・ 領域: ${DOMAIN_LABEL[o.primaryDomain] ?? o.primaryDomain}` : ""}
+                </p>
+                {o.learningObjectives.length > 3 && (
+                  <>
+                    <p className="font-bold" style={{ margin: "6px 0 2px" }}>学習目標（{o.learningObjectives.length}）</p>
+                    <ul className="list-disc pl-5">
+                      {o.learningObjectives.map((g) => (
+                        <li key={g}>{g}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
                 <p className="font-bold" style={{ margin: "6px 0 2px" }}>画面構成（{o.slideTitles.length}）</p>
                 <ol className="list-decimal pl-5">
                   {o.slideTitles.map((t) => (

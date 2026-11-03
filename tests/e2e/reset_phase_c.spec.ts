@@ -42,6 +42,16 @@ const bottomCheck = (page: Page) =>
     return { text: (last.textContent ?? "").slice(0, 30), bottom: Math.round(b.bottom), vh: window.innerHeight, coveredByFixed: !!el && !last.contains(el) && ["fixed", "sticky"].includes(getComputedStyle(el.closest("[class]") ?? el).position) };
   });
 
+/** 画面幅を超えている要素（横スクロールの原因調査用） */
+const wideElements = (page: Page) =>
+  page.evaluate(() => {
+    const cw = document.documentElement.clientWidth;
+    return Array.from(document.querySelectorAll("main *"))
+      .filter((e) => e.getBoundingClientRect().right > cw + 1 && !e.closest("[style*='overflow'], .rsd-sidebar"))
+      .slice(0, 6)
+      .map((e) => `${e.tagName.toLowerCase()}.${e.className.toString().slice(0, 30)}:${(e.textContent ?? "").trim().slice(0, 15)}@${Math.round(e.getBoundingClientRect().right)}`);
+  });
+
 async function prepPatient(page: Page) {
   await demoLogin(page, "patient", "佐藤 花子");
   await page.goto("/home");
@@ -119,13 +129,13 @@ test("Phase C: 診察画面の撮影・計測", async ({ browser }) => {
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "閉じる" }).first().click({ timeout: 3000 }).catch(() => {});
     // 対応を記録フォーム
-    await page.getByRole("button", { name: "対応を記録" }).first().click();
+    await page.getByRole("button", { name: /^対応する/ }).first().click();
     await page.waitForTimeout(200);
     await page.screenshot({ path: `${OUT}/app_consult_${vp.name}_record.png`, fullPage: false });
     if (vp.width <= 430) {
       await setZoom(page, true);
       await page.screenshot({ path: `${OUT}/app_consult_${vp.name}_zoom125.png`, fullPage: false });
-      metrics[`consult_${vp.name}_zoom125`] = { ...(await layoutAudit(page)), bottom: await bottomCheck(page) };
+      metrics[`consult_${vp.name}_zoom125`] = { ...(await layoutAudit(page)), bottom: await bottomCheck(page), wide: await wideElements(page) };
       await setZoom(page, false);
     }
     await ctx.close();
@@ -193,7 +203,7 @@ test("Phase C: 教材スタジオ（構成案）の撮影・計測", async ({ br
     // 2 案目を選び、詳細を展開
     const picks = page.getByRole("button", { name: /この案を選ぶ|選択中/ });
     await picks.nth(Math.min(1, (await picks.count()) - 1)).click();
-    await page.getByText("画面構成と根拠を見る").first().click();
+    await page.getByText("詳細を開く").first().click();
     await page.waitForTimeout(200);
     await page.screenshot({ path: `${OUT}/app_studio_${vp.name}_selected_full.png`, fullPage: true });
     if (vp.width <= 430) {

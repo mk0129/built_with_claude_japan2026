@@ -29,7 +29,7 @@ type Missed = {
   nUnknown: number;
   questions: { seq: number; stem: string; isUnknown: boolean; selectedIndex: number | null; options: string[]; correctIndex: number }[];
 };
-type Incomplete = { materialId: string; title: string; phase: string; orgName: string; setCreatedAt: string };
+type Incomplete = { materialId: string; title: string; phase: string; orgName: string; setCreatedAt: string; lastSlideSeq?: number };
 type Summary = {
   patient: { id: string; displayName: string };
   previousConsultations: { id: string; orgName: string; startedAt: string }[];
@@ -210,19 +210,29 @@ function TodayCard({ sessionId, s, onChanged, onPrescribe }: { sessionId: string
           </div>
           <div className="min-w-0 flex-1">
             <h3>もう一度説明したいこと</h3>
-            <ul className="space-y-3">
+            <ul className="rsd-lines">
               {s.missed.map((m) => (
-                <li key={m.materialId}>
-                  <div className="rsd-row" style={{ justifyContent: "space-between" }}>
-                    <p className="important font-bold">
+                <li key={m.materialId} className="rsd-line">
+                  <div className="min-w-0 flex-1">
+                    <p className="important font-bold truncate">
                       {m.title}
                       {m.isOldVersion && <span className="rsd-tag ml-1">旧版</span>}
-                      <span className="rsd-muted font-normal"> ・ まちがい {m.nWrong} ・ わからない {m.nUnknown} ・ {fmtDate(m.completedAt)}</span>
                     </p>
-                    <button className="btn btn-soft" onClick={() => onPrescribe(m.materialId)}>
-                      再処方を候補へ
-                    </button>
+                    <p className="rsd-muted">
+                      まちがい {m.nWrong} ・ わからない {m.nUnknown} ・ {fmtDate(m.completedAt)}
+                    </p>
                   </div>
+                  <button className="btn btn-soft" onClick={() => onPrescribe(m.materialId)}>
+                    再処方を候補へ
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <details className="rsd-sub">
+              <summary>誤答・わからないの内容を見る（{s.missed.reduce((a, m) => a + m.questions.length, 0)} 問）</summary>
+              {s.missed.map((m) => (
+                <div key={m.materialId} className="mt-2">
+                  <p className="font-bold">{m.title}</p>
                   <ul className="mt-1 space-y-1">
                     {m.questions.map((q) => (
                       <li key={q.seq} className="flex gap-2 items-start">
@@ -238,9 +248,9 @@ function TodayCard({ sessionId, s, onChanged, onPrescribe }: { sessionId: string
                       </li>
                     ))}
                   </ul>
-                </li>
+                </div>
               ))}
-            </ul>
+            </details>
           </div>
         </div>
       )}
@@ -252,12 +262,16 @@ function TodayCard({ sessionId, s, onChanged, onPrescribe }: { sessionId: string
           </div>
           <div className="min-w-0 flex-1">
             <h3>学習途中の教材</h3>
-            <ul className="space-y-2">
+            <ul className="rsd-lines">
               {s.incompleteMaterials.map((i) => (
-                <li key={i.materialId} className="rsd-row" style={{ justifyContent: "space-between" }}>
-                  <p>
-                    <span className="important font-bold">「{i.title}」</span>　{PHASE_LABEL[i.phase]} ・ {fmtDate(i.setCreatedAt)} {i.orgName}
-                  </p>
+                <li key={i.materialId} className="rsd-line">
+                  <div className="min-w-0 flex-1">
+                    <p className="important font-bold truncate">{i.title}</p>
+                    <p className="rsd-muted">
+                      {PHASE_LABEL[i.phase] ?? i.phase}
+                      {i.lastSlideSeq ? ` ・ ${i.lastSlideSeq} 画面まで` : ""} ・ {fmtDate(i.setCreatedAt)} {i.orgName}
+                    </p>
+                  </div>
                   <button className="btn btn-ghost" onClick={() => onPrescribe(i.materialId)}>
                     再処方を候補へ
                   </button>
@@ -285,7 +299,10 @@ function TodayCard({ sessionId, s, onChanged, onPrescribe }: { sessionId: string
   );
 }
 
-/** 質問 1 件。主アクションは「対応を記録」。確認済み／対応済みは展開した中で明示的に選ぶ（誤タップ防止） */
+/**
+ * 質問 1 件（B 案）: 一覧では見出し・状態・本文 2 行だけを見せ、「対応する」で全文・対応履歴・記録フォーム・関連教材を展開する。
+ * 質問の原文は変更・削除しない。確認済み／対応済みは展開した中で明示的に選ぶ（誤タップ防止）
+ */
 function QuestionRow({ sessionId, q, onChanged, onPrescribe }: { sessionId: string; q: Question; onChanged: () => void; onPrescribe: (id: string) => void }) {
   const [open, setOpen] = useState(false);
   const [responseType, setResponseType] = useState("verbal_explanation");
@@ -305,64 +322,84 @@ function QuestionRow({ sessionId, q, onChanged, onPrescribe }: { sessionId: stri
     }
   }
   const isQuestion = !!q.freeText || q.selection === "have_question" || q.selection === "explain_again";
+  const panelId = `q-${q.feedbackId}`;
+  const text = q.freeText ?? `「${SELECTION_LABEL[q.selection]}」（本文なし）`;
+  const history = q.actions.filter((a) => a.status === "resolved");
   return (
-    <div className="rsd-infoline">
+    <div className="rsd-infoline" data-question-row data-status={q.status}>
       <div className={`rsd-mark ${q.status === "unread" ? "coral" : ""}`}>
         <Icon name="message" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="rsd-row" style={{ justifyContent: "space-between" }}>
-          <h3>患者からの質問</h3>
-          <span className={`rsd-tag ${q.status === "unread" ? "coral" : q.status === "resolved" ? "sage" : ""}`}>{STATUS_LABEL[q.status]}</span>
+        <div className="rsd-row" style={{ justifyContent: "space-between", flexWrap: "nowrap" }}>
+          <h3 className="min-w-0">患者からの質問</h3>
+          <span className={`rsd-tag shrink-0 ${q.status === "unread" ? "coral" : q.status === "resolved" ? "sage" : ""}`} data-question-status>
+            {STATUS_LABEL[q.status]}
+          </span>
         </div>
-        <p className="rsd-muted">
-          {fmtDate(q.createdAt)} ・ {q.materialTitle} ・ 「{SELECTION_LABEL[q.selection]}」
+        <p className="rsd-muted rsd-clamp1">
+          {fmtDate(q.createdAt)} ・ {q.materialTitle}
         </p>
-        {q.freeText && <p className={`important ${open ? "" : "line-clamp-3"}`}>{q.freeText}</p>}
-        {q.actions
-          .filter((a) => a.status === "resolved")
-          .map((a, i) => (
-            <p key={i} className="rsd-muted">
-              {fmtDate(a.createdAt)} {a.orgName}: {a.responseType ? RESPONSE_LABEL[a.responseType] : ""}
-              {a.note ? `（${a.note}）` : ""}
-            </p>
-          ))}
-        <div className="rsd-row" style={{ marginTop: 10 }}>
-          {q.status !== "resolved" && isQuestion && (
-            <button className="btn btn-primary" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-              {open ? "閉じる" : "対応を記録"}
-            </button>
-          )}
-          <button className="btn btn-soft" onClick={() => onPrescribe(q.materialId)}>
-            関連教材を候補へ
-          </button>
-        </div>
+        {!open && <p className="important rsd-clamp2" data-question-text>{text}</p>}
         {open && (
-          <div className="grid gap-2 rounded-xl p-3 border border-line mt-3" style={{ background: "#f6fafc" }}>
-            <p className="font-bold">この質問の状態を記録する</p>
-            {q.status === "unread" && (
-              <button className="btn" disabled={busy} onClick={() => setStatus("reviewed")}>
-                確認済みにする（まだ対応はしていない）
-              </button>
+          <div className="rsd-qpanel" id={panelId}>
+            <p className="important" data-question-text>{text}</p>
+            <p className="rsd-muted">
+              患者の選択: 「{SELECTION_LABEL[q.selection]}」 ・ 教材: {q.materialTitle} ・ 状態: {STATUS_LABEL[q.status]}
+            </p>
+            {history.length > 0 && (
+              <div className="rsd-muted">
+                <p className="font-bold">対応履歴</p>
+                {history.map((a, i) => (
+                  <p key={i}>
+                    {fmtDate(a.createdAt)} {a.orgName}: {a.responseType ? RESPONSE_LABEL[a.responseType] : ""}
+                    {a.note ? `（${a.note}）` : ""}
+                  </p>
+                ))}
+              </div>
             )}
-            <label className="rsd-muted" htmlFor={`rt-${q.feedbackId}`}>
-              対応の方法
-            </label>
-            <select id={`rt-${q.feedbackId}`} className="input" value={responseType} onChange={(e) => setResponseType(e.target.value)}>
-              {Object.entries(RESPONSE_LABEL).map(([k, v]) => (
-                <option key={k} value={k}>
-                  {v}
-                </option>
-              ))}
-            </select>
-            <input className="input" placeholder="一言メモ（任意）" value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} aria-label="一言メモ" />
-            <button className="btn btn-primary" disabled={busy} onClick={() => setStatus("resolved")}>
-              対応済みとして記録する
-            </button>
-            <p className="rsd-muted">「対応済み」は患者さんの疑問が解消したことを意味しません。記録は履歴として残り、後から追記できます。</p>
+            {q.status !== "resolved" && isQuestion && (
+              <div className="grid gap-2" aria-label="この質問の状態を記録する">
+                {q.status === "unread" && (
+                  <button className="btn" disabled={busy} onClick={() => setStatus("reviewed")}>
+                    確認済みにする（まだ対応はしていない）
+                  </button>
+                )}
+                <label className="rsd-muted" htmlFor={`rt-${q.feedbackId}`}>
+                  対応の方法
+                </label>
+                <select id={`rt-${q.feedbackId}`} className="input" value={responseType} onChange={(e) => setResponseType(e.target.value)}>
+                  {Object.entries(RESPONSE_LABEL).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+                <input className="input" placeholder="一言メモ（任意）" value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} aria-label="一言メモ" />
+              </div>
+            )}
+            <div className="rsd-row" style={{ flexWrap: "wrap" }}>
+              {q.status !== "resolved" && isQuestion && (
+                <button className="btn btn-primary" disabled={busy} onClick={() => setStatus("resolved")}>
+                  対応済みとして記録する
+                </button>
+              )}
+              <button className="btn btn-soft" onClick={() => onPrescribe(q.materialId)}>
+                関連教材を候補へ
+              </button>
+              <button className="btn" style={{ marginLeft: "auto" }} onClick={() => setOpen(false)} aria-expanded={true} aria-controls={panelId}>
+                閉じる
+              </button>
+            </div>
+            {q.status !== "resolved" && <p className="rsd-muted">「対応済み」は患者さんの疑問が解消したことを意味しません。記録は履歴として残り、後から追記できます。</p>}
           </div>
         )}
       </div>
+      {!open && (
+        <button className="rsd-expand" onClick={() => setOpen(true)} aria-expanded={false} aria-controls={panelId} aria-label={`対応する: ${text.slice(0, 20)}`}>
+          {q.status === "resolved" ? "履歴" : "対応する"} <Icon name="next" size="sm" />
+        </button>
+      )}
     </div>
   );
 }

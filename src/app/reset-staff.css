@@ -462,7 +462,8 @@
 .rsd-outline .target {
   font-size: 13px;
   color: #597481;
-  margin-bottom: 17px;
+  margin-bottom: 12px;
+  min-width: 0;
   line-height: 1.5;
   display: flex;
   gap: 6px;
@@ -596,4 +597,238 @@
   .rsd-outlinegrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* ---- Phase D: 診察の質問行（B 案）、一覧行、展開パネル ---- */
+.rsd-clamp2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.rsd-clamp1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.rsd-expand {
+  flex: 0 0 auto;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 12px;
+  border-radius: 11px;
+  border: 1px solid #cfdbe2;
+  background: #fff;
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.rsd-expand:hover {
+  background: #f5f8fa;
+}
+.rsd-qpanel {
+  margin-top: 8px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f6fafc;
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+}
+.rsd-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.rsd-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+.rsd-sub {
+  margin-top: 8px;
+}
+.rsd-sub > summary {
+  cursor: pointer;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 13px;
+}
+@media (max-width: 480px) {
+  .rsd-line {
+    flex-wrap: wrap;
+  }
+  .rsd-line .btn {
+    margin-left: 48px;
+  }
+}
+
+/* ---- Phase D: 編集・承認 ---- */
+.rsd-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+.rsd-stat {
+  border-radius: 13px;
+  background: #f6fafc;
+  border: 1px solid #e7edf0;
+  padding: 11px 12px;
+  font-size: 12px;
+  color: #597481;
+}
+.rsd-stat dt {
+  font-weight: 700;
+}
+.rsd-stat .num {
+  font-family: Georgia, "Noto Serif JP", serif;
+  font-size: 22px;
+  color: var(--ink);
+  margin: 2px 0;
+}
+.rsd-stat dd {
+  margin: 0;
+}
+.rsd-stat.warn {
+  background: #fbf3ea;
+  border-color: #efd9c6;
+}
+.rsd-stat.danger {
+  background: #fbeeea;
+  border-color: var(--danger);
+}
+.rsd-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 13px;
+  background: #f6fafc;
+  border: 1px solid #e7edf0;
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+.rsd-checklist li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.rsd-checklist li.ok {
+  color: #416a5e;
+}
+.rsd-checklist li.warn {
+  color: #8a5a0a;
+}
+.rsd-checklist li.danger {
+  color: var(--danger);
+  font-weight: 700;
+}
+.rsd-link {
+  color: var(--blue);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 1023px) {
+  .rsd-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---- Phase D: 患者画面プレビュー（患者コンポーネントを端末枠に入れる） ---- */
+.rsd-preview-grid {
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.rsd-preview-grid > * {
+  min-width: 0;
+}
+.rsd-preview-phone {
+  position: sticky;
+  top: 16px;
+}
+.rsd-phone {
+  width: 100%;
+  max-width: 390px;
+  height: 760px;
+  border: 6px solid #22323f;
+  border-radius: 34px;
+  overflow: hidden;
+  background: #fff;
+  position: relative;
+  /* position: fixed の要素（固定 CTA）を枠内に収める */
+  transform: translateZ(0);
+  box-shadow: 0 14px 36px #2a587122;
+}
+.rsd-phone-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.rsd-phone .rs-page {
+  min-height: 100%;
+}
+.rsd-preview-slide {
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 1023px) {
+  .rsd-preview-grid {
+    grid-template-columns: 1fr;
+  }
+  .rsd-preview-phone {
+    position: static;
+  }
+  .rsd-phone {
+    margin: 0 auto;
+    height: 700px;
+  }
+}
+.rsd-qpanel > *,
+.rsd-qpanel .input {
+  min-width: 0;
+  max-width: 100%;
+}
+.rsd-qpanel .input {
+  width: 100%;
+}
+.rsd-qpanel p {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 639px) {
+  .rsd-infoline[data-question-row] {
+    flex-wrap: wrap;
+  }
+  .rsd-infoline[data-question-row] > .min-w-0 {
+    flex-basis: calc(100% - 53px);
+  }
+  .rsd-infoline[data-question-row] > .rsd-expand {
+    margin-left: 53px;
+  }
+}
+.rsd-qpanel .btn {
+  white-space: normal;
+  max-width: 100%;
+  text-align: center;
+}
+.rsd-grid > * {
+  min-width: 0;
 }

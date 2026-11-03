@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, errorText } from "@/lib/api";
 import { DOMAIN_LABEL, MUST_COVER_KIND_LABEL, MUST_COVER_STATUS_LABEL } from "@/lib/labels";
+import { Icon } from "@/components/reset/Icons";
 
 type Ref = { sourceId: string; section?: string; quote?: string };
 type Slide = { title: string; proposition: string; body: string; detail: string; sourceRefs: Ref[] };
@@ -103,22 +104,23 @@ export function Editor({ data }: { data: EditorData }) {
   return (
     <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)] gap-4 items-start">
       <div className="space-y-4 min-w-0">
-        {data.reviewComment && <p className="rounded-xl bg-suna text-[#8a5a0a] text-sm px-3 py-2">差し戻しコメント: {data.reviewComment}</p>}
+        {data.reviewComment && <p className="rsd-status warn" style={{ display: "flex" }}>差し戻しコメント: {data.reviewComment}</p>}
         {data.warnings.length > 0 && (
-          <div className="rounded-xl bg-suna text-[#8a5a0a] text-sm px-3 py-2" role="status">
+          <div className="rsd-status warn" style={{ display: "grid", gap: 2 }} role="status">
             {data.warnings.map((w) => (
               <p key={w}>⚠ {w}</p>
             ))}
           </div>
         )}
         <PreCheckPanel data={data} canChange={canChangeMustCover} busy={busy} onBusy={setBusy} onMsg={setMsg} onDone={() => router.refresh()} />
-        <p className="text-sm text-ink-soft">
+        <p className="rsd-muted">
           全画面と確認問題を原資料と見比べたうえで、末尾で{editable ? "保存・承認依頼" : data.canApprove && data.status === "in_review" ? "承認または差し戻し" : "操作"}を行います。{" "}
-          <a href="#actions" className="underline">
+          <a href="#actions" className="rsd-link">
             操作へ移動
           </a>
         </p>
-        <section className="card space-y-2">
+        <section className="rsd-card space-y-2" aria-label="教材の基本情報">
+          <h2>基本情報</h2>
           <label className="block text-sm font-bold">
             タイトル
             <input className="input min-h-11 mt-1" value={d.title} disabled={!editable} onChange={(e) => set({ ...d, title: e.target.value })} maxLength={120} />
@@ -144,9 +146,12 @@ export function Editor({ data }: { data: EditorData }) {
         </section>
 
         {d.slides.map((s, i) => (
-          <section key={i} className="card space-y-2" aria-label={`画面 ${i + 1}`}>
+          <section key={i} className="rsd-card space-y-2" aria-label={`画面 ${i + 1}`}>
             <div className="flex justify-between items-center">
-              <h2 className="font-bold">画面 {i + 1} / {d.slides.length}</h2>
+              <h2>
+                <span className="rsd-eyebrow" style={{ display: "block", marginBottom: 2 }}>患者画面</span>
+                画面 {i + 1} / {d.slides.length}
+              </h2>
               {editable && d.slides.length > 3 && (
                 <button type="button" className="btn btn-ghost min-h-11 text-sm" onClick={() => set({ ...d, slides: d.slides.filter((_, j) => j !== i) })}>
                   この画面を削除
@@ -162,9 +167,12 @@ export function Editor({ data }: { data: EditorData }) {
         ))}
 
         {d.questions.map((q, i) => (
-          <section key={i} className="card space-y-2" aria-label={`確認問題 ${i + 1}`}>
+          <section key={i} className="rsd-card space-y-2" aria-label={`確認問題 ${i + 1}`}>
             <div className="flex justify-between items-center">
-              <h2 className="font-bold">確認問題 {i + 1} / {d.questions.length}（3 択＋「わからない」は自動で付きます）</h2>
+              <h2>
+                <span className="rsd-eyebrow" style={{ display: "block", marginBottom: 2 }}>理解度の確認</span>
+                確認問題 {i + 1} / {d.questions.length} <span className="rsd-muted font-normal">（3 択＋「わからない」は自動で付きます）</span>
+              </h2>
               {editable && d.questions.length > 2 && (
                 <button type="button" className="btn btn-ghost min-h-11 text-sm" onClick={() => set({ ...d, questions: d.questions.filter((_, j) => j !== i) })}>
                   削除
@@ -196,37 +204,42 @@ export function Editor({ data }: { data: EditorData }) {
           </section>
         ))}
 
-        <section id="actions" className="card space-y-3 scroll-mt-4" aria-label="操作">
-          {msg && <p className={`text-sm ${msg.ok ? "text-accent font-bold" : "text-danger"}`} role="status">{msg.text}</p>}
+        <section id="actions" className="rsd-card space-y-3 scroll-mt-4" aria-label="操作">
+          <h2>{data.status === "draft" ? "保存と承認依頼" : data.status === "in_review" ? "承認・差し戻し" : data.status === "published" ? "公開中の教材" : "操作"}</h2>
+          {msg && <p className={`text-sm ${msg.ok ? "font-bold" : "text-danger"}`} style={msg.ok ? { color: "var(--sage)" } : undefined} role="status">{msg.text}</p>}
           {data.status !== "published" && (
-            <div className="flex flex-wrap gap-2 items-center">
-              <Link href={`/staff/materials/${data.versionId}/preview`} className="btn min-h-11 text-sm inline-flex items-center">
+            <ApprovalChecklist data={data} />
+          )}
+          {data.status !== "published" && (
+            <p className="rsd-muted">
+              <Link href={`/staff/materials/${data.versionId}/preview`} className="rsd-link">
                 患者画面でプレビュー
               </Link>
-              <p className="text-xs text-ink-soft">承認前でも、患者さんに見える形で確認できます（患者さんには公開されません）。</p>
-            </div>
+              　承認前でも、患者さんに見える形で確認できます（患者さんには公開されません）。
+            </p>
           )}
           {editable && (
-            <div className="grid sm:grid-cols-2 gap-2">
-              <button className="btn min-h-11" disabled={busy || !dirty} onClick={save}>
+            <div className="rsd-row" style={{ justifyContent: "flex-end", flexWrap: "wrap" }}>
+              <button className="btn" disabled={busy || !dirty} onClick={save}>
                 {dirty ? "下書きを保存" : "保存済み"}
               </button>
-              <button className="btn btn-primary min-h-11" disabled={busy || dirty} onClick={() => act(`${base}/submit`, {}, "承認依頼を出しました")} title={dirty ? "先に保存してください" : ""}>
-                承認を依頼する
+              <button className="btn btn-primary" style={{ minHeight: 47 }} disabled={busy || dirty} onClick={() => act(`${base}/submit`, {}, "承認依頼を出しました")} title={dirty ? "先に保存してください" : ""}>
+                承認を依頼する <Icon name="arrow" size="sm" />
               </button>
             </div>
           )}
           {data.status === "in_review" && (
             <>
               {data.approvalBlock ? (
-                <p className="text-sm rounded-xl bg-suna text-[#8a5a0a] px-3 py-2">承認できません: {data.approvalBlock}</p>
+                <p className="rsd-status warn" style={{ display: "flex" }}>承認できません: {data.approvalBlock}</p>
               ) : (
-                <p className="text-sm text-ink-soft">承認すると{data.scope === "common" ? "共通" : "病院独自"}ライブラリに公開され、処方できるようになります。</p>
+                <p className="rsd-muted">承認すると{data.scope === "common" ? "共通" : "病院独自"}ライブラリに公開され、処方できるようになります。</p>
               )}
+              {!data.canApprove && <p className="rsd-muted">承認権限のある医療者が確認します。承認までお待ちください。</p>}
               {data.canApprove && (
                 <>
                   {safetyUnconfirmed.length > 0 && (
-                    <div className="rounded-xl border-2 border-danger bg-sakura/40 p-3 space-y-2 text-sm" role="alert" aria-label="安全上の重要事項が未確認">
+                    <div className="rsd-card space-y-2" style={{ borderColor: "var(--danger)", padding: 14 }} role="alert" aria-label="安全上の重要事項が未確認">
                       <p className="font-bold text-danger">安全上の重要事項が未確認です（{safetyUnconfirmed.length} 件）。承認の前に、上部の「承認前の点検」で内容を確認してください。</p>
                       <ul className="list-disc pl-5">
                         {safetyUnconfirmed.map((i) => (
@@ -239,20 +252,21 @@ export function Editor({ data }: { data: EditorData }) {
                         <input type="checkbox" className="w-5 h-5 mt-0.5" checked={ackSafety} onChange={(e) => setAckSafety(e.target.checked)} />
                         <span>未確認の重要事項があることを理解したうえで承認する（理由を記録します）</span>
                       </label>
-                      {ackSafety && <input className="input min-h-11" placeholder="理由（例: 別教材で扱うことを確認済み）" value={ackNote} onChange={(e) => setAckNote(e.target.value)} maxLength={500} aria-label="未確認のまま承認する理由" />}
+                      {ackSafety && <input className="input" placeholder="理由（例: 別教材で扱うことを確認済み）" value={ackNote} onChange={(e) => setAckNote(e.target.value)} maxLength={500} aria-label="未確認のまま承認する理由" />}
                     </div>
                   )}
-                  <input className="input min-h-11" placeholder="差し戻しコメント" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={1000} aria-label="差し戻しコメント" />
-                  <div className="grid sm:grid-cols-2 gap-2">
-                    <button className="btn min-h-11" disabled={busy} onClick={() => act(`${base}/return`, { comment }, "差し戻しました")}>
+                  <input className="input" placeholder="差し戻しコメント" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={1000} aria-label="差し戻しコメント" />
+                  <div className="rsd-row" style={{ justifyContent: "flex-end", flexWrap: "wrap" }}>
+                    <button className="btn" disabled={busy} onClick={() => act(`${base}/return`, { comment }, "差し戻しました")}>
                       差し戻す
                     </button>
                     <button
-                      className="btn btn-primary min-h-11"
+                      className="btn btn-primary"
+                      style={{ minHeight: 47 }}
                       disabled={busy || !!data.approvalBlock || (safetyUnconfirmed.length > 0 && !ackSafety)}
                       onClick={() => act(`${base}/approve`, safetyUnconfirmed.length > 0 ? { acknowledgeSafety: true, note: ackNote } : {}, "承認し、ライブラリに公開しました")}
                     >
-                      承認して公開する
+                      <Icon name="check" size="sm" /> 承認して公開する
                     </button>
                   </div>
                 </>
@@ -260,13 +274,13 @@ export function Editor({ data }: { data: EditorData }) {
             </>
           )}
           {data.status === "published" && (
-            <div className="flex flex-wrap gap-2 items-center">
-              <p className="text-sm font-bold text-accent">公開中です。診察画面の処方候補に表示されます。</p>
-              <Link href={`/staff/materials/${data.versionId}/preview`} className="btn min-h-11 text-sm inline-flex items-center">
+            <div className="rsd-row" style={{ flexWrap: "wrap" }}>
+              <p className="font-bold" style={{ color: "var(--sage)" }}>公開中です。診察画面の処方候補に表示されます。</p>
+              <Link href={`/staff/materials/${data.versionId}/preview`} className="btn">
                 患者画面でプレビュー
               </Link>
               {data.canApprove && (
-                <button className="btn btn-ghost min-h-11 text-sm" disabled={busy} onClick={() => act(`${base}/retire`, {}, "公開を停止しました")}>
+                <button className="btn btn-ghost" disabled={busy} onClick={() => act(`${base}/retire`, {}, "公開を停止しました")}>
                   公開を停止
                 </button>
               )}
@@ -275,11 +289,14 @@ export function Editor({ data }: { data: EditorData }) {
         </section>
       </div>
 
-      <aside className="card space-y-2 lg:sticky lg:top-2 lg:max-h-[calc(100vh-1rem)] overflow-auto min-w-0" aria-label="原資料">
-        <h2 className="font-bold text-lg">原資料と比較</h2>
+      <aside className="rsd-card space-y-2 lg:sticky lg:top-2 lg:max-h-[calc(100vh-1rem)] overflow-auto min-w-0" aria-label="原資料">
+        <h2>原資料と比較</h2>
+        <p className="rsd-muted">出典の「✓ 出典」を押すと該当箇所へ移動します。</p>
         {data.sources.map((s) => (
           <div key={s.id} className="space-y-1">
-            <p className="font-bold text-sm">{s.title}</p>
+            <p className="rsd-source-pill" style={{ display: "inline-flex" }}>
+              <Icon name="file" size="sm" /> {s.title}
+            </p>
             {s.warning && <p className="text-xs text-[#8a5a0a] whitespace-pre-wrap">⚠ {s.warning}</p>}
             <SourceText text={s.text} quote={focusQuote} />
           </div>
@@ -295,7 +312,7 @@ function SourceText({ text, quote }: { text: string; quote: string | null }) {
   return (
     <pre className="whitespace-pre-wrap text-sm leading-relaxed">
       {text.slice(0, idx)}
-      <mark ref={(el) => el?.scrollIntoView({ block: "center", behavior: "smooth" })} className="bg-suna font-bold">
+      <mark ref={(el) => el?.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })} className="bg-suna font-bold">
         {quote}
       </mark>
       {text.slice(idx + quote.length)}
@@ -330,53 +347,61 @@ function PreCheckPanel({ data, canChange, busy, onBusy, onMsg, onDone }: { data:
   const safety = new Set(["emergency", "visit", "prohibition"]);
   const safetyUnconfirmed = items.filter((i) => i.status !== "other_material" && safety.has(i.kind) && !i.confirmed);
   const otherMaterial = items.filter((i) => i.status === "other_material");
+  const unconfirmedCount = items.filter((i) => i.status !== "other_material" && !i.confirmed).length;
   return (
-    <section className="card space-y-3 border-2 border-line" aria-label="承認前の点検" data-testid="precheck">
+    <section className="rsd-card space-y-3" aria-label="承認前の点検" data-testid="precheck">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-bold text-lg">承認前の点検</h2>
-        <p className="text-xs text-ink-soft">機械チェックは参考情報です。網羅と医学的妥当性の最終確認は医療者が行います。</p>
+        <h2 style={{ marginBottom: 0 }}>承認前の点検</h2>
+        <p className="rsd-muted">機械チェックは参考情報です。網羅と医学的妥当性の最終確認は医療者が行います。</p>
       </div>
-      <dl className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-        <div className="rounded-xl bg-suna p-3">
-          <dt className="text-xs text-ink-soft">引用が原資料に一致</dt>
-          <dd className="text-xl font-bold">
+      <dl className="rsd-stats">
+        <div className={`rsd-stat ${pc.refs.missing > 0 ? "warn" : ""}`}>
+          <dt>引用が原資料に一致</dt>
+          <dd className="num">
             {pc.refs.found} / {pc.refs.total}
           </dd>
-          {pc.refs.missing > 0 && <dd className="text-xs text-danger">見つからない引用 {pc.refs.missing}</dd>}
+          {pc.refs.missing > 0 && <dd className="text-danger">見つからない引用 {pc.refs.missing}</dd>}
         </div>
-        <div className="rounded-xl bg-suna p-3">
-          <dt className="text-xs text-ink-soft">出典のない画面・設問</dt>
-          <dd className="text-xl font-bold">{pc.slidesWithoutRefs.length + pc.questionsWithoutRefs.length}</dd>
+        <div className={`rsd-stat ${pc.slidesWithoutRefs.length + pc.questionsWithoutRefs.length > 0 ? "warn" : ""}`}>
+          <dt>出典のない画面・設問</dt>
+          <dd className="num">{pc.slidesWithoutRefs.length + pc.questionsWithoutRefs.length}</dd>
           {(pc.slidesWithoutRefs.length > 0 || pc.questionsWithoutRefs.length > 0) && (
-            <dd className="text-xs text-ink-soft">
+            <dd>
               {pc.slidesWithoutRefs.length > 0 ? `画面 ${pc.slidesWithoutRefs.join(", ")}` : ""}
               {pc.questionsWithoutRefs.length > 0 ? ` 問 ${pc.questionsWithoutRefs.join(", ")}` : ""}
             </dd>
           )}
         </div>
-        <div className="rounded-xl bg-suna p-3">
-          <dt className="text-xs text-ink-soft">主題の混在（1 画面 1 主題）</dt>
-          <dd className="text-xl font-bold">{pc.sectionMix}</dd>
-          <dd className="text-xs text-ink-soft">出典の見出しが複数の画面</dd>
+        <div className={`rsd-stat ${pc.sectionMix > 0 ? "warn" : ""}`}>
+          <dt>主題の混在（1 画面 1 主題）</dt>
+          <dd className="num">{pc.sectionMix}</dd>
+          <dd>出典の見出しが複数の画面</dd>
         </div>
-        <div className={`rounded-xl p-3 ${safetyUnconfirmed.length > 0 ? "bg-sakura" : "bg-suna"}`}>
-          <dt className="text-xs text-ink-soft">必須事項の確認</dt>
-          <dd className="text-xl font-bold">
+        <div className={`rsd-stat ${safetyUnconfirmed.length > 0 ? "danger" : unconfirmedCount > 0 ? "warn" : ""}`}>
+          <dt>必須事項の確認</dt>
+          <dd className="num">
             {items.filter((i) => i.status !== "other_material" && i.confirmed).length} / {items.filter((i) => i.status !== "other_material").length}
           </dd>
-          <dd className="text-xs text-ink-soft">機械照合 {mc.autoMatched} / {mc.required}（参考）</dd>
+          <dd>機械照合 {mc.autoMatched} / {mc.required}（参考）</dd>
         </div>
       </dl>
       {safetyUnconfirmed.length > 0 && (
-        <div className="rounded-xl border-2 border-danger bg-sakura/40 p-3 text-sm" role="alert">
+        <div className="rsd-card" style={{ borderColor: "var(--danger)", padding: 14 }} role="alert">
           <p className="font-bold text-danger">安全上の重要事項が未確認です（{safetyUnconfirmed.length} 件）。本文を原資料と照合し、下の一覧で「確認済み」にしてください。</p>
         </div>
       )}
       {items.length === 0 ? (
-        <p className="text-sm text-ink-muted">必須事項は設定されていません（手動作成、または必須事項なしで生成）。</p>
+        <p className="rsd-muted">必須事項は設定されていません（手動作成、または必須事項なしで生成）。</p>
       ) : (
         <div className="space-y-2">
-          <h3 className="font-bold text-sm">必須事項と本文の対応（{items.length} 件{otherMaterial.length > 0 ? ` ・ 別教材で扱う ${otherMaterial.length} 件` : ""}）</h3>
+          <div className="rsd-row" style={{ justifyContent: "space-between", flexWrap: "wrap" }}>
+            <h3 className="font-bold" style={{ fontSize: 15 }}>必須事項と本文の対応（{items.length} 件{otherMaterial.length > 0 ? ` ・ 別教材で扱う ${otherMaterial.length} 件` : ""}）</h3>
+            <div className="rsd-row" style={{ gap: 6 }}>
+              <span className="rsd-tag sage">確認済み {items.filter((i) => i.status !== "other_material" && i.confirmed).length}</span>
+              <span className={`rsd-tag ${unconfirmedCount > 0 ? "coral" : ""}`}>未確認 {unconfirmedCount}</span>
+              {otherMaterial.length > 0 && <span className="rsd-tag">別教材 {otherMaterial.length}</span>}
+            </div>
+          </div>
           <ul className="divide-y divide-line">
             {items.map((i, idx) => {
               const isSafety = safety.has(i.kind);
@@ -384,7 +409,8 @@ function PreCheckPanel({ data, canChange, busy, onBusy, onMsg, onDone }: { data:
               return (
                 <li key={i.id} className={`py-2 space-y-1.5 text-sm ${i.status === "other_material" ? "opacity-70" : ""}`} aria-label={`必須事項 ${idx + 1}`}>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`pill ${isSafety ? "bg-sakura text-ink font-bold" : ""}`}>{MUST_COVER_KIND_LABEL[i.kind] ?? i.kind}</span>
+                    <span className={`rsd-tag ${isSafety ? "coral" : ""}`}>{MUST_COVER_KIND_LABEL[i.kind] ?? i.kind}</span>
+                    {i.status !== "other_material" && <span className={`rsd-tag ${i.confirmed ? "sage" : ""}`}>{i.confirmed ? "確認済み" : "未確認"}</span>}
                     {canChange ? (
                       <select className="input min-h-9 w-auto text-xs py-0" value={i.status} disabled={busy} onChange={(e) => update([{ id: i.id, status: e.target.value }])} aria-label={`必須事項 ${idx + 1} の分類`}>
                         {Object.entries(MUST_COVER_STATUS_LABEL).map(([k, v]) => (
@@ -394,7 +420,7 @@ function PreCheckPanel({ data, canChange, busy, onBusy, onMsg, onDone }: { data:
                         ))}
                       </select>
                     ) : (
-                      <span className="pill">{MUST_COVER_STATUS_LABEL[i.status]}</span>
+                      <span className="rsd-tag">{MUST_COVER_STATUS_LABEL[i.status]}</span>
                     )}
                   </div>
                   <p className="font-bold leading-snug">{i.text}</p>
@@ -410,7 +436,7 @@ function PreCheckPanel({ data, canChange, busy, onBusy, onMsg, onDone }: { data:
                   {i.status === "other_material" ? (
                     <p className="text-xs text-ink-soft">別教材で扱う（この教材の対象範囲外）</p>
                   ) : i.confirmed ? (
-                    <p className="text-xs text-accent">
+                    <p className="text-xs" style={{ color: "var(--sage)" }}>
                       ✓ 医療者が確認済み: {i.confirmed.byName} ・ {new Date(i.confirmed.at).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
                       {i.confirmed.note ? ` ・ ${i.confirmed.note}` : ""}
                       {canChange && (
@@ -436,5 +462,26 @@ function PreCheckPanel({ data, canChange, busy, onBusy, onMsg, onDone }: { data:
         </div>
       )}
     </section>
+  );
+}
+
+/** 承認の条件を一覧で示す（表示のみ。実際の可否はサーバーの approvalBlock と安全上の未確認で決まる） */
+function ApprovalChecklist({ data }: { data: EditorData }) {
+  const pc = data.preCheck;
+  const mc = pc.mustCover;
+  const rows: { ok: boolean; warn?: boolean; text: string }[] = [
+    { ok: pc.refs.missing === 0, text: pc.refs.missing === 0 ? `引用 ${pc.refs.found} / ${pc.refs.total} 件が原資料に一致` : `原資料に見つからない引用が ${pc.refs.missing} 件` },
+    { ok: pc.slidesWithoutRefs.length + pc.questionsWithoutRefs.length === 0, text: pc.slidesWithoutRefs.length + pc.questionsWithoutRefs.length === 0 ? "すべての画面・設問に出典がある" : `出典のない画面・設問 ${pc.slidesWithoutRefs.length + pc.questionsWithoutRefs.length} 件` },
+    { ok: mc.unconfirmed === 0, warn: mc.safetyUnconfirmed.length > 0, text: mc.total === 0 ? "必須事項の設定なし" : mc.unconfirmed === 0 ? `必須事項 ${mc.confirmed} / ${mc.total - (mc.total - mc.required - mc.needsReview)} 件を医療者が確認済み` : `必須事項の未確認 ${mc.unconfirmed} 件${mc.safetyUnconfirmed.length > 0 ? `（うち安全上の重要事項 ${mc.safetyUnconfirmed.length} 件）` : ""}` },
+    { ok: !data.approvalBlock, text: data.approvalBlock ? `承認条件: ${data.approvalBlock}` : "医学的な最終確認は承認者が行います" },
+  ];
+  return (
+    <ul className="rsd-checklist" aria-label="承認の条件">
+      {rows.map((r, i) => (
+        <li key={i} className={r.ok ? "ok" : r.warn ? "danger" : "warn"}>
+          <Icon name={r.ok ? "checkcircle" : "help"} size="sm" /> {r.text}
+        </li>
+      ))}
+    </ul>
   );
 }

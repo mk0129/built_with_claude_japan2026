@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/server/db/client";
 import { aiGenerationJobs } from "@/server/db/schema";
 import { GeneratorBadge } from "../../GeneratorBadge";
+import { Icon } from "@/components/reset/Icons";
 import { Editor, type EditorData } from "./Editor";
 import { Stepper } from "../../Stepper";
 import { STATUS_LABEL, fmt, modelLabel, staffPrincipal } from "../../shared";
@@ -41,33 +42,32 @@ export default async function MaterialEditorPage({ params }: { params: Promise<{
   };
   return (
     <main className="space-y-4">
-      <header className="space-y-1">
-        <Link href="/staff/studio" className="tap-link">
-          ← 教材スタジオ
-        </Link>
-        <Stepper current={d.version.status === "published" ? 7 : 6} done={[1, 2, 3, 4, 5]} />
-        <h1 className="text-2xl font-bold">{d.material.title}</h1>
-        <p className="text-sm text-ink-soft">
-          <span className="pill mr-2">{STATUS_LABEL[d.version.status] ?? d.version.status}</span>
-          {d.material.scope === "common" ? "共通教材" : "病院独自教材"} ・ 版 {d.version.versionNo} ・ 作成 {d.creatorName} ・ {fmt(d.version.createdAt)}
-          {job ? (
-            <>
-              {" ・ "}
-              <GeneratorBadge generator={job.generator} /> {modelLabel(job.generator, job.model)}
-            </>
-          ) : (
-            ""
-          )}
-          {d.version.approvedAt ? ` ・ 承認 ${fmt(d.version.approvedAt)}` : ""}
-        </p>
-        {d.version.changeNote && <p className="text-xs text-ink-muted">{d.version.changeNote}</p>}
-        <div className="flex flex-wrap gap-2 items-center pt-1">
-          <Link href={`/staff/materials/${versionId}/preview`} className="btn min-h-11 text-sm inline-flex items-center">
-            患者画面でプレビュー
+      <header className="rsd-row" style={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div className="min-w-0">
+          <div className="rsd-eyebrow">医療者がつくる患者教育</div>
+          <h1 className="rsd-h1">{d.material.title}</h1>
+          <div className="rsd-row" style={{ gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+            <span className={`rsd-tag ${d.version.status === "published" ? "sage" : d.version.status === "in_review" ? "coral" : ""}`}>{STATUS_LABEL[d.version.status] ?? d.version.status}</span>
+            <span className="rsd-tag">{d.material.scope === "common" ? "共通教材" : "病院独自教材"}</span>
+            <span className="rsd-tag">版 {d.version.versionNo}</span>
+            {job && <GeneratorBadge generator={job.generator} />}
+            <span className="rsd-muted">
+              作成 {d.creatorName} ・ {fmt(d.version.createdAt)}
+              {job && modelLabel(job.generator, job.model) ? ` ・ ${modelLabel(job.generator, job.model)}` : ""}
+              {d.version.approvedAt ? ` ・ 承認 ${fmt(d.version.approvedAt)}` : ""}
+            </span>
+          </div>
+          {d.version.changeNote && <p className="rsd-muted" style={{ marginTop: 4 }}>{d.version.changeNote}</p>}
+        </div>
+        <div className="rsd-row" style={{ flexWrap: "nowrap", alignItems: "stretch" }}>
+          <Link href={`/staff/materials/${versionId}/preview`} className="rsd-tallbtn">
+            <Icon name="play" size="sm" />
+            患者画面で確認
           </Link>
-          <span className="text-xs text-ink-soft">{d.version.status === "published" ? "患者さんに届いている表示です。" : "承認前でも確認できます。患者さんには公開されません。"}</span>
         </div>
       </header>
+      <Stepper current={d.version.status === "published" ? 7 : d.version.status === "in_review" ? 6 : 4} done={d.version.status === "published" ? [1, 2, 3, 4, 5, 6] : d.version.status === "in_review" ? [1, 2, 3, 4, 5] : [1, 2, 3]} />
+      <p className="rsd-muted">{d.version.status === "published" ? "患者さんに届いている表示です。" : "承認前でも「患者画面で確認」から患者と同じ画面を確認できます。患者さんには公開されません。"}</p>
       <Editor data={data} />
     </main>
   );
