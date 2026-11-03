@@ -122,7 +122,7 @@ export async function seedDemoHistory(
   const T_SELFCARE = "化学療法中の副作用とセルフケア";
   const v2 = await visit(10, [T_DRUGS, T_SELFCARE], "v2");
   await completeAttempt(db, ids.patientId, v2.versions.get(T_DRUGS)!, ["c", "c", "u"], v2.at(2, 20, 40));
-  await db.insert(learningProgress).values({ patientId: ids.patientId, materialVersionId: v2.versions.get(T_SELFCARE)!, lastSlideSeq: 2, phase: "reading", updatedAt: v2.at(4, 21, 15) });
+  await db.insert(learningProgress).values({ patientId: ids.patientId, materialVersionId: v2.versions.get(T_SELFCARE)!, lastSlideSeq: 2, phase: "reading", startedAt: v2.at(4, 21, 5), updatedAt: v2.at(4, 21, 15) });
   await db.insert(patientFeedback).values({
     patientId: ids.patientId,
     materialVersionId: v2.versions.get(T_SELFCARE)!,
@@ -166,6 +166,6 @@ async function completeAttempt(db: Db, patientId: string, versionId: string, pat
     .where(eq(quizAttempts.id, attempt.id));
   await db
     .insert(learningProgress)
-    .values({ patientId, materialVersionId: versionId, lastSlideSeq: 0, phase: "completed", updatedAt: completedAt })
+    .values({ patientId, materialVersionId: versionId, lastSlideSeq: 0, phase: "completed", startedAt: new Date(startedAt.getTime() - 10 * 60 * 1000), updatedAt: completedAt })
     .onConflictDoUpdate({ target: [learningProgress.patientId, learningProgress.materialVersionId], set: { phase: "completed", updatedAt: completedAt } });
 }

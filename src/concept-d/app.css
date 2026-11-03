@@ -125,3 +125,21 @@
 .d-record-actions .d-text-action { margin: 0; min-height: 36px; }
 /* Phase 2 Step 3: 診察ノートの保存日時・元の教材（質問文の下に小さく） */
 .d-note-meta { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+
+/* Phase 2 Step 4: 外来間サマリーの各文（押すと根拠の記録を表示）。見た目は Figma の本文のまま、下線だけ点線で示す */
+.cd-summary-sentence {
+  display: inline;
+  padding: 0;
+  margin: 0 2px 0 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline dotted rgba(63, 113, 128, .45);
+  text-underline-offset: 3px;
+}
+.cd-summary-sentence.active { background: rgba(63, 113, 128, .1); border-radius: 3px; }
+.cd-summary-narrative .cd-summary-evidence { margin-top: 10px; }

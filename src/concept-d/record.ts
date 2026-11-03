@@ -214,6 +214,29 @@ export type LiveLibraryItem = {
 
 export type ClinicianRecord = ReturnType<typeof useClinicianRecord>;
 
+/** 外来間の構造化データ（Step 4-B）。表示に使う項目だけ */
+export type SummaryItem = { section: "体調の変化" | "学習の状況" | "患者からの質問" | "時系列の経過"; text: string; sourceIds: string[] };
+export type IntervisitApi = {
+  intervisit: {
+    period: { from: string; to: string; days: number; isDefault: boolean; label: string };
+    previousShareAt: string | null;
+    fmt: { from: string; to: string };
+    vitals: {
+      recordCount: number;
+      recordDays: number;
+      totalDays: number;
+      missingDays: string[];
+      metrics: Record<string, { label: string; unit: string; count: number; min: { at: string; value: number } | null; max: { at: string; value: number } | null; values: { at: string; value: number; sourceId: string }[] }>;
+    };
+    symptoms: { key: string; name: string; count: number; min: number; max: number; changed: boolean; newInPeriod: boolean; stoppedRecording: boolean; entries: { at: string; severity: number; sourceId: string }[] }[];
+    learning: { versionId: string; title: string; versionNo: number; status: string; answersInPeriod: { sourceId: string; result: string; stem: string; at: string }[] }[];
+    questions: { sourceId: string; kind: string; body: string; createdAt: string; materialTitle: string | null }[];
+    events: { id: string; kind: string; at: string; day: string; label: string }[];
+  };
+  ruleSummary: SummaryItem[];
+  sources: Record<string, { label: string; at?: string }>;
+};
+
 type SymptomSettings = { active: string[]; hidden: string[]; customNames: Record<string, string> };
 
 export function useClinicianRecord(sessionId: string | null, active: boolean, notify: (message: string) => void) {
@@ -251,6 +274,31 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
   }, [sid, reload]);
 
   const current = sid && data?.sid === sid ? data : null;
+
+  // 外来間の構造化データ（期間ごと）
+  const [iv, setIv] = useState<{ sid: string; key: string; data: IntervisitApi } | null>(null);
+  const [ivLoading, setIvLoading] = useState(false);
+  const loadIntervisit = useCallback(
+    async (period?: { from: string; to: string } | null) => {
+      if (!sid) return;
+      const q = period ? `?from=${period.from}&to=${period.to}` : "";
+      setIvLoading(true);
+      try {
+        const d = await api<IntervisitApi>(`/api/v1/consultations/${sid}/intervisit${q}`);
+        setIv({ sid, key: q, data: d });
+      } catch (e) {
+        notifyRef.current(errorText(e));
+      } finally {
+        setIvLoading(false);
+      }
+    },
+    [sid],
+  );
+  useEffect(() => {
+    // 共有が終わったら外来間のデータも消す
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!sid) setIv(null);
+  }, [sid]);
   const summary = current?.summary ?? null;
   const materials = current?.materials ?? null;
   const view = summary;
@@ -314,6 +362,10 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
   return {
     loaded: !!view,
     sessionId: current?.sid ?? null,
+    /** 外来間の構造化データとルールベースの要約（Step 4-B） */
+    intervisit: sid && iv?.sid === sid ? iv.data : null,
+    intervisitLoading: ivLoading,
+    loadIntervisit,
     /** 在宅経過表（Step 4）: 患者の体調記録（Figma の HealthRecord と同じ形）と症状の表示設定 */
     healthRecords: current ? current.health.records.map(toFigma) : [],
     symptomSettings: current?.health.symptoms ?? { active: [], hidden: [], customNames: {} },

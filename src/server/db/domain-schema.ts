@@ -426,6 +426,8 @@ export const learningProgress = pgTable(
     materialVersionId: uuid("material_version_id").notNull().references(() => materialVersions.id),
     lastSlideSeq: integer("last_slide_seq").notNull().default(0),
     phase: learningPhase("phase").notNull().default("not_started"),
+    // Step 4: 学習を始めた日時（最初に進捗を保存した日時）。この列を追加する前の記録は不明（NULL）のまま推測しない
+    startedAt: ts("started_at").defaultNow(),
     updatedAt: ts("updated_at").notNull().defaultNow(),
   },
   (t) => [uniqueIndex("learning_progress_uq").on(t.patientId, t.materialVersionId)],

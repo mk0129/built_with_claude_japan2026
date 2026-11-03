@@ -4,6 +4,7 @@ import { figureAssets, figurePlacements, materialSlides, materialVersions, mater
 import { DEMO_ACCOUNTS, DEMO_MATERIALS, DEMO_ORGS } from "./seed-data";
 import { SEED_CONTENT, SEED_TEMPLATES } from "./seed-content";
 import { seedDemoHistory } from "./seed-history";
+import { seedDemoHealth } from "./seed-health";
 
 /**
  * 架空データの投入（冪等）。
@@ -193,6 +194,8 @@ export async function seed(db: Db = getDb()) {
       orgId: orgIdBySlug.get("sakura-general")!,
       materialIdByTitle,
     });
+    // 患者A の架空の体調記録・診察ノート（外来間サマリーのデモ用。Step 4）
+    await seedDemoHealth(db, userIdByEmail.get("patient1@example.com")!);
   }
 
   return { orgs: orgIdBySlug, users: userIdByEmail, materials: materialIdByTitle };

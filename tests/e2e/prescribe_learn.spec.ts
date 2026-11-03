@@ -136,8 +136,8 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   await expect(s.locator(".cd-area-compact")).toContainText("検査・診断");
   await expect(s.locator(".cd-area-compact button").filter({ hasText: "検査・診断" })).toContainText("0 / 2");
   await s.locator(".cd-intervisit-cards article").filter({ hasText: "学習履歴" }).getByRole("button").click();
-  await expect(s.locator("[data-learning-evidence]")).toContainText(`処方：${MATERIAL}（学習途中）`);
-  await expect(s.locator(".cd-intervisit")).toContainText("体調記録の経過表・要約は未接続");
+  await expect(s.locator("[data-learning-evidence]")).toContainText(`${MATERIAL}（第1版）：学習途中`);
+  await expect(s.locator("[data-intervisit]")).toContainText("直近14日間の経過");
   // 詳しく確認 → 再処方候補（同じ診察ではまだ処方していないので追加できる）
   await unknown.getByRole("button", { name: "詳しく確認" }).click();
   await expect(s.locator(".cd-answer-compare")).toContainText("わからない");

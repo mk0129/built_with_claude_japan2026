@@ -1048,110 +1048,198 @@ function dateRange(start: string, end: string) {
 }
 
 /**
- * 本番（Step 2）の「前回外来からの経過」: 学習記録と質問だけを、保存された記録から構成する。
- * 体調記録（バイタル・自覚症状）は Step 3・4 で接続するまで「未接続」と表示し、架空の値は出さない。
+ * 本番（Step 4）の外来間の経過。Figma の IntervisitSummary と同じ DOM・クラスで、サーバーが統合した構造化データ
+ * （体調・学習・理解確認・質問）と要約を表示する。前回外来日は DB にないため「前回外来から」とは書かず、
+ * 期間（既定は直近 14 日、医療者が変更可）と「前回共有日」を明記する。要約の各文から根拠の元データを開ける。
  */
 function LiveIntervisit({ record }: { record: ClinicianRecord }) {
-  const [expanded, setExpanded] = useState<"learning" | "questions" | null>(null)
+  const [expanded, setExpanded] = useState<"vitals" | "symptoms" | "learning" | "questions" | null>(null)
   const [timelineOpen, setTimelineOpen] = useState(false)
-  const s = record.summary!
-  const prev = s.previousConsultations[0]
-  const rx = s.learning.filter((item) => item.prescribed)
-  const done = rx.filter((item) => item.phase === "completed").length
-  const doing = rx.filter((item) => item.phase === "reading" || item.phase === "quiz").length
-  const notStarted = rx.filter((item) => item.phase === "not_started").length
-  const wrong = s.answers.filter((a) => !a.isCorrect && !a.isUnknown).length
-  const unknown = s.answers.filter((a) => a.isUnknown).length
-  // 診察ノートの質問（Step 3）と学習後の質問を合わせた件数・原文
-  const allQuestions = [
-    ...s.visitNotes.map((n) => ({ key: n.id, text: n.body, date: n.updatedAt, label: n.materialTitle ?? "診察ノート" })),
-    ...s.questions.map((q) => ({ key: q.feedbackId, text: q.freeText ?? "（自由記述なし）", date: q.createdAt, label: q.materialTitle })),
-  ].sort((a, b) => b.date.localeCompare(a.date))
-  const events = [
-    ...s.learning
-      .filter((item) => item.prescribedAt)
-      .map((item) => ({ date: item.prescribedAt!, type: "learning", title: `処方：${item.title}`, detail: item.prescribedOrgName ?? "" })),
-    ...s.learning
-      .filter((item) => item.completedAt)
-      .map((item) => ({ date: item.completedAt!, type: "learning", title: `学習済み：${item.title}`, detail: "理解確認まで完了" })),
-    ...s.answers
-      .filter((a) => !a.isCorrect)
-      .map((a) => ({ date: a.answeredAt, type: "learning", title: `回答「${a.isUnknown ? "わからない" : a.selectedText}」`, detail: `${a.materialTitle} · ${a.stem}` })),
-    ...allQuestions.map((q) => ({ date: q.date, type: "question", title: q.text, detail: q.label })),
-  ].sort((a, b) => a.date.localeCompare(b.date))
+  const [periodEdit, setPeriodEdit] = useState(false)
+  const [period, setPeriod] = useState<{ from: string; to: string } | null>(null)
+  const [draft, setDraft] = useState<{ from: string; to: string } | null>(null)
+  const [openItem, setOpenItem] = useState<number | null>(null)
+  useEffect(() => {
+    void record.loadIntervisit(period)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period?.from, period?.to, record.sessionId])
+  const data = record.intervisit
+  if (!data)
+    return (
+      <section className="cd-intervisit">
+        <div className="cd-intervisit-head">
+          <div>
+            <p className="cd-eyebrow">SINCE LAST SHARE</p>
+            <h2>経過を読み込んでいます…</h2>
+          </div>
+        </div>
+      </section>
+    )
+  const iv = data.intervisit
+  const items = data.ruleSummary
+  const md = (iso: string) => {
+    const d = new Date(iso)
+    return `${d.getMonth() + 1}/${d.getDate()}`
+  }
+  const dt = (iso: string) =>
+    new Date(iso).toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })
+  const temp = iv.vitals.metrics.temperature
+  const lastTemp = temp?.values[temp.values.length - 1]
+  const topSymptom = [...iv.symptoms].sort((a, b) => b.max - a.max)[0]
+  const unknown = iv.learning.flatMap((l) => l.answersInPeriod).filter((a) => a.result === "わからない").length
+  const wrong = iv.learning.flatMap((l) => l.answersInPeriod).filter((a) => a.result === "誤答").length
+  const toggle = (value: "vitals" | "symptoms" | "learning" | "questions") => setExpanded(expanded === value ? null : value)
+  const sections = ["体調の変化", "学習の状況", "患者からの質問"] as const
   return (
-    <section className="cd-intervisit">
+    <section className="cd-intervisit" data-intervisit>
       <div className="cd-intervisit-head">
         <div>
-          <p className="cd-eyebrow">SINCE LAST VISIT</p>
-          <h2>前回外来からの経過</h2>
+          <p className="cd-eyebrow">{iv.period.isDefault ? "LAST 14 DAYS" : "SELECTED PERIOD"}</p>
+          <h2>{iv.period.label}の経過</h2>
           <span>
-            {prev ? `${shortDate(prev.startedAt)} 前回の共有` : "前回の共有記録なし"} 〜 {shortDate(new Date())} 今回
+            {iv.fmt.from}〜{iv.fmt.to}（{iv.period.days}日間） ·{" "}
+            {iv.previousShareAt ? `前回共有日 ${md(iv.previousShareAt)}（前回外来日ではありません）` : "前回の共有記録なし"}
           </span>
         </div>
+        <button
+          onClick={() => {
+            setDraft(period ?? { from: iv.period.from, to: iv.period.to })
+            setPeriodEdit(!periodEdit)
+          }}
+        >
+          <CIcon name="visit" />
+          期間を確認・変更
+        </button>
       </div>
+      {periodEdit && draft && (
+        <div className="cd-period-editor">
+          <label>
+            開始日
+            <input type="date" value={draft.from} max={draft.to} onChange={(event) => setDraft({ ...draft, from: event.target.value })} />
+          </label>
+          <label>
+            終了日
+            <input type="date" value={draft.to} min={draft.from} onChange={(event) => setDraft({ ...draft, to: event.target.value })} />
+          </label>
+          <p>
+            前回外来日が確認できないため、期間は医療者が選択します。日付を推測しません。{" "}
+            <button
+              className="cd-text-back"
+              onClick={() => {
+                setPeriod(draft)
+                setPeriodEdit(false)
+              }}
+            >
+              この期間で表示
+            </button>
+          </p>
+        </div>
+      )}
       <div className="cd-medical-summary">
-        <div className="cd-summary-narrative">
-          <b>保存された学習記録と質問</b>
-          <p>
-            <strong>体調の変化：</strong>
-            体調記録の経過表・要約は未接続です（Step 4 で表示）。
-          </p>
-          <p>
-            <strong>学習の状況：</strong>
-            {rx.length
-              ? `処方された教材${rx.length}件のうち、学習済み${done}件・学習途中${doing}件・未学習${notStarted}件。`
-              : "処方された教材はありません。"}
-            {s.answers.length
-              ? `理解確認の回答${s.answers.length}件のうち、誤答${wrong}件・「わからない」${unknown}件。`
-              : "理解確認への回答はありません。"}
-          </p>
-          <p>
-            <strong>患者からの質問：</strong>
-            {allQuestions.length ? `${allQuestions.length}件（下の「患者が診察で聞きたいこと」に原文）` : "ありません"}
-          </p>
+        <div className="cd-summary-narrative" data-summary-kind="rule">
+          <b>構造化サマリー（記録から自動整理・ルールベース）</b>
+          {sections.map((section) => {
+            const list = items.map((item, index) => ({ item, index })).filter((x) => x.item.section === section)
+            return (
+              <p key={section}>
+                <strong>{section}：</strong>
+                {list.map(({ item, index }) => (
+                  <button
+                    key={index}
+                    className={`cd-summary-sentence${openItem === index ? " active" : ""}`}
+                    onClick={() => setOpenItem(openItem === index ? null : index)}
+                    data-summary-item={index}
+                  >
+                    {item.text}
+                  </button>
+                ))}
+              </p>
+            )
+          })}
+          {openItem !== null && items[openItem] && (
+            <div className="cd-summary-evidence" data-summary-sources>
+              <small>根拠の記録（{items[openItem].sourceIds.length}件）</small>
+              {items[openItem].sourceIds.map((id) => (
+                <p key={id} data-source-id={id}>
+                  {data.sources[id]?.at ? `${dt(data.sources[id].at!)} · ` : ""}
+                  {data.sources[id]?.label ?? id}
+                </p>
+              ))}
+            </div>
+          )}
         </div>
         <p className="cd-summary-safety">
           <CIcon name="shield" />
-          保存された学習記録と質問のみから構成。点数で理解を断定せず、原因・治療との因果関係・CTCAE Gradeを自動判定しません。
+          保存された記録だけから構成。欠測を「症状なし」「改善」とは扱わず、原因・治療との因果関係・CTCAE Gradeを判定しません。
         </p>
       </div>
       <div className="cd-intervisit-cards">
-        <article>
-          <button disabled>
+        <article className={expanded === "vitals" ? "active" : ""}>
+          <button onClick={() => toggle("vitals")}>
             <span className="blue">
               <CIcon name="pulse" />
             </span>
             <div>
               <small>バイタル</small>
-              <b>未接続</b>
-              <p>経過表はStep 4で表示</p>
+              <b>
+                {iv.vitals.recordDays}日記録 · {iv.vitals.recordCount}件
+              </b>
+              <p>最新 {lastTemp ? `${md(lastTemp.at)} ${lastTemp.value}℃` : "体温の記録なし"}</p>
             </div>
-            <span />
+            <span>{expanded === "vitals" ? "閉じる" : "根拠"}</span>
           </button>
+          {expanded === "vitals" && (
+            <div className="cd-summary-evidence">
+              {Object.values(iv.vitals.metrics).map((m) => (
+                <p key={m.label}>
+                  {m.label}{" "}
+                  {m.count && m.min && m.max
+                    ? `${m.count}回 · ${m.min.value}〜${m.max.value} ${m.unit}`
+                    : "未記録"}
+                </p>
+              ))}
+              <small>記録のない日（{iv.vitals.missingDays.length}日）は欠測です。正常・異常の判定はしていません。</small>
+            </div>
+          )}
         </article>
-        <article>
-          <button disabled>
+        <article className={expanded === "symptoms" ? "active" : ""}>
+          <button onClick={() => toggle("symptoms")}>
             <span className="amber">
               <CIcon name="help" />
             </span>
             <div>
               <small>自覚症状</small>
-              <b>未接続</b>
-              <p>経過表はStep 4で表示</p>
+              <b>{topSymptom ? `${topSymptom.name} 最大 ${topSymptom.max} / 4` : "記録なし"}</b>
+              <p>
+                {topSymptom
+                  ? topSymptom.entries.map((e) => `${md(e.at)} ${e.severity}`).slice(-3).join(" → ")
+                  : "期間内の回答はありません"}
+              </p>
             </div>
-            <span />
+            <span>{expanded === "symptoms" ? "閉じる" : "根拠"}</span>
           </button>
+          {expanded === "symptoms" && (
+            <div className="cd-summary-evidence">
+              {iv.symptoms.map((sym) => (
+                <p key={sym.key}>
+                  {sym.name}：{sym.entries.map((e) => `${md(e.at)} ${e.severity}/4`).join("、")}
+                  {sym.newInPeriod ? "（期間内に初めて記録）" : ""}
+                  {sym.stoppedRecording ? "（その後の記録では未回答）" : ""}
+                </p>
+              ))}
+              <small>0〜4は患者本人による程度で、CTCAE Gradeではありません。未記録日を「症状なし」や改善とは扱いません。</small>
+            </div>
+          )}
         </article>
         <article className={expanded === "learning" ? "active" : ""}>
-          <button onClick={() => setExpanded(expanded === "learning" ? null : "learning")}>
+          <button onClick={() => toggle("learning")}>
             <span className="green">
               <CIcon name="book" />
             </span>
             <div>
               <small>学習履歴</small>
               <b>
-                完了{done} · 途中{doing}
+                完了{iv.learning.filter((l) => l.status === "完了").length} · 途中{iv.learning.filter((l) => l.status === "学習途中").length}
               </b>
               <p>
                 誤答{wrong} · 「わからない」{unknown}
@@ -1161,43 +1249,40 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
           </button>
           {expanded === "learning" && (
             <div className="cd-summary-evidence" data-learning-evidence>
-              {rx.map((item) => (
-                <p key={item.materialId}>
-                  {item.prescribedAt ? `${shortDate(item.prescribedAt)} 処方` : "処方"}：{item.title}（
-                  {item.phase === "completed" ? "学習済み" : item.phase === "not_started" ? "未学習" : "学習途中"}）
+              {iv.learning.map((l) => (
+                <p key={l.versionId}>
+                  {l.title}（第{l.versionNo}版）：{l.status}
+                  {l.answersInPeriod
+                    .filter((a) => a.result !== "正答")
+                    .map((a) => ` · ${md(a.at)} ${a.result}「${a.stem}」`)
+                    .join("")}
                 </p>
               ))}
-              {s.answers
-                .filter((a) => !a.isCorrect)
-                .map((a) => (
-                  <p key={`${a.attemptId}${a.questionId}`}>
-                    {shortDate(a.answeredAt)} 回答：「{a.isUnknown ? "わからない" : a.selectedText}」— {a.stem}
-                  </p>
-                ))}
-              {rx.length === 0 && s.answers.length === 0 && <p>記録はありません</p>}
+              {iv.learning.length === 0 && <p>記録はありません</p>}
             </div>
           )}
         </article>
         <article className={expanded === "questions" ? "active" : ""}>
-          <button onClick={() => setExpanded(expanded === "questions" ? null : "questions")}>
+          <button onClick={() => toggle("questions")}>
             <span className="purple">
               <CIcon name="note" />
             </span>
             <div>
               <small>患者の質問</small>
-              <b>{allQuestions.length ? `${shortDate(allQuestions[0].date)}に保存` : "なし"}</b>
-              <p>{allQuestions.length ? `${allQuestions.length}件` : "質問はありません"}</p>
+              <b>{iv.questions.length ? `${md(iv.questions[iv.questions.length - 1].createdAt)}に保存` : "なし"}</b>
+              <p>{iv.questions.length ? `期間内 ${iv.questions.length}件` : "期間内の質問はありません"}</p>
             </div>
             <span>{expanded === "questions" ? "閉じる" : "原文"}</span>
           </button>
           {expanded === "questions" && (
             <div className="cd-summary-evidence">
-              {allQuestions.map((q) => (
-                <p key={q.key}>
-                  「{q.text}」 · {q.label}
+              {iv.questions.map((q) => (
+                <p key={q.sourceId}>
+                  「{q.body}」 · {q.kind}
+                  {q.materialTitle ? `・${q.materialTitle}` : ""} · {md(q.createdAt)}
                 </p>
               ))}
-              {allQuestions.length === 0 && <p>質問はありません</p>}
+              {iv.questions.length === 0 && <p>質問はありません</p>}
             </div>
           )}
         </article>
@@ -1206,28 +1291,30 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
         <button onClick={() => setTimelineOpen(!timelineOpen)}>
           <span>
             <CIcon name="clock" />
-            <b>学習・質問のタイムライン</b>
+            <b>症状・学習・質問の統合タイムライン</b>
           </span>
           {timelineOpen ? "閉じる" : "表示"}
         </button>
         {timelineOpen && (
-          <div>
-            {events.map((event, index) => (
-              <article key={`${event.date}-${index}`}>
-                <time>{shortDate(event.date)}</time>
-                <span className={event.type}>
-                  <CIcon name={event.type === "question" ? "note" : "book"} />
+          <div data-timeline>
+            {iv.events.map((event) => (
+              <article key={event.id} data-event-id={event.id}>
+                <time>{md(event.at)}</time>
+                <span className={event.kind === "symptom" || event.kind === "vital" ? "symptom" : event.kind === "note" || event.kind === "feedback" ? "question" : "learning"}>
+                  <CIcon
+                    name={event.kind === "symptom" || event.kind === "vital" ? "pulse" : event.kind === "note" || event.kind === "feedback" ? "note" : "book"}
+                  />
                 </span>
                 <div>
-                  <b>{event.title}</b>
-                  <small>{event.detail}</small>
+                  <b>{event.label}</b>
+                  <small>{dt(event.at)}</small>
                 </div>
               </article>
             ))}
-            {events.length === 0 && (
+            {iv.events.length === 0 && (
               <article>
                 <div>
-                  <b>記録はありません</b>
+                  <b>期間内の記録はありません</b>
                 </div>
               </article>
             )}
@@ -1235,7 +1322,7 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
         )}
       </div>
       <p className="cd-summary-limit">
-        学習していない日・回答していない設問は欠測です。この要約は診療判断を補助する参考情報で、正式な診療記録ではありません。
+        記録がない日は欠測です。この要約は診療判断を補助する参考情報で、正式な診療記録ではありません。
       </p>
     </section>
   )
