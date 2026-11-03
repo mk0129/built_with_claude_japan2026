@@ -47,7 +47,7 @@ test("Phase A: 患者ホームと教材学習の撮影・計測", async ({ brows
       const homeBottom = await page.evaluate(() => {
         window.scrollTo(0, document.documentElement.scrollHeight);
         const main = document.querySelector("main")!;
-        const last = Array.from(main.querySelectorAll("p, li, button, a")).filter((e) => e.getBoundingClientRect().height > 0).at(-1)!;
+        const last = Array.from(main.querySelectorAll("p, li, button, a")).filter((e) => e.getBoundingClientRect().height > 0 && !e.closest("details:not([open])")).at(-1)!;
         const b = last.getBoundingClientRect();
         const el = document.elementFromPoint(b.left + b.width / 2, b.bottom - 2);
         const r = { text: (last.textContent ?? "").slice(0, 30), bottom: Math.round(b.bottom), vh: window.innerHeight, coveredByFixed: !!el && !last.contains(el) && !!el.closest(".rs-cta, .rs-tabs") };
@@ -110,7 +110,7 @@ test("Phase A: 患者ホームと教材学習の撮影・計測", async ({ brows
       const covered = await page.evaluate(() => {
         window.scrollTo(0, document.documentElement.scrollHeight);
         const main = document.querySelector("main")!;
-        const last = Array.from(main.querySelectorAll("p, li, summary, button, a")).filter((e) => e.getBoundingClientRect().height > 0).at(-1)!;
+        const last = Array.from(main.querySelectorAll("p, li, summary, button, a")).filter((e) => e.getBoundingClientRect().height > 0 && !e.closest("details:not([open])")).at(-1)!;
         const b = last.getBoundingClientRect();
         const el = document.elementFromPoint(b.left + b.width / 2, b.bottom - 2);
         return { text: (last.textContent ?? "").slice(0, 30), bottom: Math.round(b.bottom), vh: window.innerHeight, coveredByFixed: !!el && !last.contains(el) && !!el.closest(".rs-cta, .rs-tabs") };

@@ -33,7 +33,7 @@ test("C2 患者画面の幅別スクリーンショット", async ({ browser }) 
     // 結果（完了済みの挑戦）
     const quizUrl = page.url().replace("/learn/", "/quiz/").split("?")[0];
     await page.goto(quizUrl);
-    await expect(page.getByText(/確認を終えました|確認問題 1/)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/ここまで学べました|QUESTION 01/)).toBeVisible({ timeout: 10_000 });
     await page.waitForLoadState("networkidle");
     expect((await layoutAudit(page)).overflowX, `result ${vp.name}`).toBeLessThanOrEqual(0);
     await page.screenshot({ path: `${SHOT_DIR}/c2_result_${vp.name}.png`, fullPage: true });

@@ -55,12 +55,13 @@ test("主要ボタンが下部ナビに隠れない（375 / 390 / 430）", async
     await page.goto(href!.replace("/learn/", "/quiz/"));
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(500);
-    const unanswered = page.getByRole("button", { name: /^ア/ });
+    const unanswered = page.getByRole("radio", { name: /^ア/ });
     if ((await unanswered.count()) > 0 && (await unanswered.isEnabled({ timeout: 1000 }).catch(() => false))) {
       await unanswered.click();
-      await expect(page.getByText(/正解です|こちらが正解です/).first()).toBeVisible({ timeout: 10_000 });
+      await page.getByRole("button", { name: /回答を確認する/ }).click();
+      await expect(page.getByText(/確認できました|一緒に振り返りましょう/).first()).toBeVisible({ timeout: 10_000 });
     }
-    const quiz = await assertReachable(page, /次の問題へ|結果を見る|もう一度挑戦する/);
+    const quiz = await assertReachable(page, /次の問題へ|学びの結果を見る|今日の学びを終える/);
     expect(quiz.navPresent, "クイズ画面に下部ナビが出ている").toBe(false);
     await page.screenshot({ path: `${SHOT_DIR}/cta_${vp.name}_quiz.png` });
     report.push({ viewport: vp, home, learn, quiz });

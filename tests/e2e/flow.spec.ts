@@ -73,38 +73,47 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
   await p.waitForURL(/\/quiz\//);
   const quizUrl = p.url();
 
-  // 7. クイズ: 回答 → 中断 → 再開 → 完了 → 再挑戦
-  await expect(p.getByText(/確認問題 1 \/ 3/)).toBeVisible();
+  // 7. クイズ: 選択 → 回答を確認 → 中断 → 再開 → 完了 → 再挑戦
+  const confirmAnswer = async () => {
+    await p.getByRole("button", { name: /回答を確認する/ }).click();
+    await expect(p.getByText(/確認できました|一緒に振り返りましょう|を記録しました/).first()).toBeVisible({ timeout: 10_000 });
+  };
+  await expect(p.getByText(/QUESTION 01/)).toBeVisible();
   await shot(p, "14_patient_quiz_q1");
-  await p.getByRole("button", { name: /^ア/ }).click();
-  await expect(p.getByText(/正解です|こちらが正解です|を記録しました/).first()).toBeVisible();
+  await p.getByRole("radio", { name: /^ア/ }).click();
+  await confirmAnswer();
   await shot(p, "15_patient_quiz_feedback");
   await p.getByRole("button", { name: /次の問題へ/ }).click();
-  await p.getByRole("button", { name: "わからない" }).click();
+  await p.getByRole("radio", { name: "わからない" }).click();
+  await confirmAnswer();
   await shot(p, "16_patient_quiz_unknown");
   // 中断: ホームへ戻って再開
   await p.goto("/home");
   await expect(p.getByRole("link", { name: /確認問題の続きから/ })).toBeVisible();
   await shot(p, "17_patient_home_resume");
   await p.goto(quizUrl);
-  await expect(p.getByText(/確認問題 3 \/ 3/)).toBeVisible();
-  await p.getByRole("button", { name: /^イ/ }).click();
-  await p.getByRole("button", { name: /結果を見る/ }).click();
-  await expect(p.getByText(/確認を終えました/)).toBeVisible();
+  await expect(p.getByText(/QUESTION 03/)).toBeVisible();
+  await p.getByRole("radio", { name: /^イ/ }).click();
+  await confirmAnswer();
+  await p.getByRole("button", { name: /学びの結果を見る/ }).click();
+  await expect(p.getByText(/ここまで学べました/)).toBeVisible();
   await expect(p.getByText(/もう一度確認したいこと/)).toBeVisible();
   await shot(p, "18_patient_quiz_result");
   // 復習に戻る導線 → 再挑戦
   await p.getByRole("button", { name: /もう一度挑戦する/ }).click();
-  await expect(p.getByText(/確認問題 1 \/ 3/)).toBeVisible();
+  await expect(p.getByText(/QUESTION 01/)).toBeVisible();
   for (let i = 0; i < 3; i++) {
-    await p.getByRole("button", { name: /^ア/ }).click();
-    await p.getByRole("button", { name: /次の問題へ|結果を見る/ }).click();
+    await p.getByRole("radio", { name: /^ア/ }).click();
+    await confirmAnswer();
+    await p.getByRole("button", { name: /次の問題へ|学びの結果を見る/ }).click();
   }
-  await expect(p.getByText(/確認を終えました/)).toBeVisible();
+  await expect(p.getByText(/ここまで学べました/)).toBeVisible();
+  // 質問の明示的な保存: テーマを選ぶ → 自分の言葉に直す → 気持ち（任意）→ 「次の診察に残す」
+  await p.getByTestId("ask-theme-free").click();
+  await p.getByLabel("次の診察で聞きたいこと").fill("再発の心配について次に聞きたいです");
   await p.getByRole("button", { name: "質問がある" }).click();
-  await p.getByLabel(/質問や気になったこと/).fill("再発の心配について次に聞きたいです");
   await p.getByRole("button", { name: /次の診察に残す/ }).click();
-  await expect(p.getByText(/ありがとうございます/)).toBeVisible();
+  await expect(p.getByText(/次の診察に残しました/)).toBeVisible();
   await shot(p, "19_patient_feedback_sent");
   await p.goto("/scores");
   await shot(p, "20_patient_scores");

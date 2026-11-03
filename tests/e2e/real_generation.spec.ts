@@ -196,12 +196,14 @@ test("実 API: B 方式・C 方式の生成から患者の学習まで", async (
   await p.waitForURL(/\/quiz\//);
   await shot(p, "d5_10_patient_quiz_q1");
   for (let i = 0; i < 6; i++) {
-    if (await p.getByText(/確認を終えました/).isVisible()) break;
-    await p.getByRole("button", { name: /^ア/ }).click();
+    if (await p.getByText(/ここまで学べました/).isVisible()) break;
+    await p.getByRole("radio", { name: /^ア/ }).click();
+    await p.getByRole("button", { name: /回答を確認する/ }).click();
+    await expect(p.getByText(/確認できました|一緒に振り返りましょう|を記録しました/).first()).toBeVisible({ timeout: 10_000 });
     await shot(p, `d5_10_patient_quiz_feedback_${i + 1}`);
-    await p.getByRole("button", { name: /次の問題へ|結果を見る/ }).click();
+    await p.getByRole("button", { name: /次の問題へ|学びの結果を見る/ }).click();
   }
-  await expect(p.getByText(/確認を終えました/)).toBeVisible();
+  await expect(p.getByText(/ここまで学べました/)).toBeVisible();
   await shot(p, "d5_11_patient_quiz_result");
   save("meta", { real: REAL, stamp, finishedAt: new Date().toISOString(), screenshots: SHOT });
   for (const c of [editor, approver, patient]) await c.ctx.close();

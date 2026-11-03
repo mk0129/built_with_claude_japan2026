@@ -77,14 +77,16 @@ test("UX 監査: スタジオとクイズの幅別スクリーンショット", 
     await snap(page, `patient_learn_${vp.name}_viewport`, false);
     await page.goto(quizUrl);
     const retry = page.getByRole("button", { name: /もう一度挑戦する/ });
-    await expect(retry.or(page.getByText(/確認問題 \d+ \//))).toBeVisible({ timeout: 10_000 });
+    await expect(retry.or(page.getByText(/QUESTION \d+/))).toBeVisible({ timeout: 10_000 });
     if (await retry.isVisible()) {
       await snap(page, `patient_quiz_result_${vp.name}`);
       await retry.click();
     }
-    await expect(page.getByText(/確認問題 \d+ \//)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/QUESTION \d+/)).toBeVisible({ timeout: 10_000 });
     await snap(page, `patient_quiz_q_${vp.name}`, false);
-    await page.getByRole("button", { name: /^イ/ }).click();
+    await page.getByRole("radio", { name: /^イ/ }).click();
+    await page.getByRole("button", { name: /回答を確認する/ }).click();
+    await expect(page.getByText(/確認できました|一緒に振り返りましょう|を記録しました/).first()).toBeVisible({ timeout: 10_000 });
     await snap(page, `patient_quiz_feedback_${vp.name}`, false);
     await c.close();
   }

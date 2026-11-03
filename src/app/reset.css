@@ -707,3 +707,325 @@ html[data-textsize="large"] .reset-shell .rs-listen .left {
 html[data-textsize="large"] .reset-shell .rs-tab {
   font-size: 13px;
 }
+
+/* ---- クイズ（Experience Reset 01 .quiz-*, .choice, .feedback） ---- */
+.rs-quiz-progress {
+  height: 5px;
+  background: #dce8ee;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0 0 30px;
+}
+.rs-quiz-progress > div {
+  height: 100%;
+  background: var(--blue);
+}
+.rs-qnum {
+  font-family: Georgia, "Noto Serif JP", serif;
+  font-size: 15px;
+  line-height: 1.1;
+  color: var(--blue);
+  letter-spacing: 1.5px;
+  margin-bottom: 9px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.rs-qnum .count {
+  font-family: var(--font-noto), "Noto Sans JP", sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #8ca1af;
+  letter-spacing: 0;
+}
+.rs-qtitle {
+  font-size: 22px;
+  font-weight: 850;
+  line-height: 1.56;
+  letter-spacing: -0.05em;
+  margin: 0 0 22px;
+}
+.rs-choice {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: #fff;
+  border: 1px solid #e2eaf0;
+  border-radius: 15px;
+  min-height: 77px;
+  padding: 14px;
+  margin-bottom: 9px;
+  text-align: left;
+  width: 100%;
+  color: #274250;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 650;
+  cursor: pointer;
+}
+.rs-choice .circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #acc2cc;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rs-choice[data-state="selected"],
+.rs-choice[data-state="pending"] {
+  border: 2px solid var(--blue);
+  padding: 13px;
+  background: #edf4f8;
+}
+.rs-choice[data-state="selected"] .circle,
+.rs-choice[data-state="pending"] .circle {
+  border-color: var(--blue);
+}
+.rs-choice[data-state="selected"] .circle::before,
+.rs-choice[data-state="pending"] .circle::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--blue);
+}
+.rs-choice[data-state="correct"] {
+  border: 2px solid var(--sage);
+  padding: 13px;
+  background: var(--sagePale);
+}
+.rs-choice[data-state="correct"] .circle {
+  border-color: var(--sage);
+  background: var(--sage);
+  color: #fff;
+}
+.rs-choice[data-state="wrong"] {
+  border: 2px solid var(--coral);
+  padding: 13px;
+  background: var(--coralPale);
+}
+.rs-choice[data-state="wrong"] .circle {
+  border-color: var(--coral);
+}
+.rs-choice[data-state="dim"] {
+  color: #7f94a1;
+}
+.rs-choice.unknown {
+  border-style: dashed;
+  background: transparent;
+  color: #59778a;
+}
+.rs-choice:disabled {
+  cursor: default;
+}
+.rs-choice .tag {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.rs-feedback {
+  padding: 14px 16px;
+  border-radius: 15px;
+  background: #eaf4ef;
+  color: #335e54;
+  font-size: 15px;
+  line-height: 1.65;
+  margin-top: 13px;
+}
+.rs-feedback.review {
+  background: #fbf3ee;
+  color: #6e4f41;
+}
+.rs-feedback a {
+  text-decoration: underline;
+  font-weight: 700;
+}
+/* ---- 学びの結果（.result-*, .question-box, .chip, .to-review） ---- */
+.rs-result-heading {
+  text-align: center;
+  padding: 15px 0 8px;
+}
+.rs-result-icon {
+  margin: 0 auto 12px;
+  width: 55px;
+  height: 55px;
+  background: #e8f2ec;
+  color: #497567;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rs-result-heading h1 {
+  font-size: 24px;
+  letter-spacing: -0.055em;
+  margin: 0 0 8px;
+  font-weight: 850;
+  line-height: 1.38;
+}
+.rs-result-heading p {
+  font-size: 14px;
+  color: #667f8e;
+  line-height: 1.7;
+  margin: 0;
+}
+.rs-counts {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 19px;
+}
+.rs-count {
+  flex: 1;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #e6eef0;
+  border-radius: 15px;
+  padding: 11px 5px 8px;
+}
+.rs-count .num {
+  font-family: Georgia, "Noto Serif JP", serif;
+  font-size: 29px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+.rs-count .lab {
+  font-size: 12px;
+  color: #6d828c;
+  margin-top: 5px;
+  font-weight: 750;
+}
+.rs-qbox {
+  border: 1px solid #f1dcd2;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #fff 10%, #fdf7f2);
+  padding: 18px;
+  margin: 0 0 17px;
+}
+.rs-qbox .rs-eyebrow {
+  margin-bottom: 10px;
+}
+.rs-qbox h2 {
+  font-size: 17px;
+  line-height: 1.5;
+  margin: 0 0 6px;
+  font-weight: 800;
+}
+.rs-qbox > p {
+  color: #617787;
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0 0 13px;
+}
+.rs-chiprow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.rs-chip {
+  border: 1px solid #d7e3e9;
+  border-radius: 30px;
+  background: #fff;
+  padding: 9px 12px;
+  color: #536a79;
+  font-size: 14px;
+  font-weight: 750;
+  min-height: 40px;
+  cursor: pointer;
+}
+.rs-chip[aria-pressed="true"] {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+.rs-qinput {
+  resize: vertical;
+  width: 100%;
+  border: 1px solid #dce8ed;
+  border-radius: 13px;
+  min-height: 84px;
+  margin: 12px 0 0;
+  padding: 11px;
+  color: #34515e;
+  font-size: 15px;
+  line-height: 1.7;
+  background: #fff;
+}
+.rs-mood {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.rs-mood .rs-chip {
+  font-size: 13px;
+  min-height: 36px;
+  padding: 6px 10px;
+}
+.rs-saved {
+  color: #417367;
+  font-weight: 750;
+  font-size: 14px;
+  margin-top: 12px;
+}
+.rs-to-review {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid #e2eaf0;
+  border-radius: 15px;
+  color: inherit;
+}
+.rs-to-review + .rs-to-review {
+  margin-top: 8px;
+}
+.rs-to-review .book-icon {
+  color: var(--blue);
+  background: #eef4f8;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex: none;
+}
+.rs-to-review h3 {
+  margin: 0 0 3px;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+.rs-to-review p {
+  margin: 0;
+  font-size: 13px;
+  color: #66808c;
+  line-height: 1.5;
+}
+.rs-link {
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 14px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: underline;
+}
+html[data-textsize="large"] .reset-shell .rs-qtitle {
+  font-size: 24px;
+}
+html[data-textsize="large"] .reset-shell .rs-choice,
+html[data-textsize="large"] .reset-shell .rs-feedback,
+html[data-textsize="large"] .reset-shell .rs-qinput,
+html[data-textsize="large"] .reset-shell .rs-to-review h3 {
+  font-size: 18px;
+}
+html[data-textsize="large"] .reset-shell .rs-chip,
+html[data-textsize="large"] .reset-shell .rs-result-heading p,
+html[data-textsize="large"] .reset-shell .rs-qbox > p,
+html[data-textsize="large"] .reset-shell .rs-to-review p,
+html[data-textsize="large"] .reset-shell .rs-count .lab,
+html[data-textsize="large"] .reset-shell .rs-link {
+  font-size: 16px;
+}

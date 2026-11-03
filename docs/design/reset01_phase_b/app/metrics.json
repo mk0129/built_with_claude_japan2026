@@ -1,0 +1,802 @@
+{
+  "quiz_390": {
+    "progress": {
+      "top": 78,
+      "left": 18,
+      "w": 354,
+      "h": 5
+    },
+    "number": {
+      "top": 113,
+      "left": 18,
+      "w": 354,
+      "h": 17
+    },
+    "title": {
+      "top": 139,
+      "left": 18,
+      "w": 354,
+      "h": 69
+    },
+    "choice1": {
+      "top": 229,
+      "left": 18,
+      "w": 354,
+      "h": 77
+    },
+    "unknown": {
+      "top": 487,
+      "left": 18,
+      "w": 354,
+      "h": 77
+    },
+    "cta": {
+      "top": 760,
+      "left": 0,
+      "w": 390,
+      "h": 84
+    },
+    "ctaBtn": {
+      "top": 771,
+      "left": 18,
+      "w": 354,
+      "h": 55
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [
+      "ア",
+      "イ",
+      "ウ"
+    ],
+    "fontSize": "18px"
+  },
+  "quiz_390_answered": {
+    "feedback": {
+      "top": 577,
+      "left": 18,
+      "w": 354,
+      "h": 152
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [
+      "ア",
+      "イ",
+      "ウ"
+    ],
+    "fontSize": "18px"
+  },
+  "result_390": {
+    "icon": {
+      "top": 83,
+      "left": 168,
+      "w": 55,
+      "h": 55
+    },
+    "h1": {
+      "top": 150,
+      "left": 18,
+      "w": 354,
+      "h": 33
+    },
+    "counts": {
+      "top": 259,
+      "left": 18,
+      "w": 354,
+      "h": 79
+    },
+    "qbox": {
+      "top": 357,
+      "left": 18,
+      "w": 354,
+      "h": 365
+    },
+    "chips": {
+      "top": 526,
+      "left": 37,
+      "w": 316,
+      "h": 98
+    },
+    "sectionLabel": {
+      "top": 739,
+      "left": 18,
+      "w": 354,
+      "h": 27
+    },
+    "toReview": {
+      "top": 778,
+      "left": 18,
+      "w": 354,
+      "h": 94
+    },
+    "cta": {
+      "top": 760,
+      "left": 0,
+      "w": 390,
+      "h": 84
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "result_390_bottom": {
+    "text": "説明をはじめから読み直す図解をもう一度見ながら確認できます",
+    "tag": "A",
+    "bottom": 662,
+    "vh": 844,
+    "ctaTop": 760,
+    "hit": "rs-item-row",
+    "pagePad": "84px",
+    "coveredByFixed": false
+  },
+  "quiz_390_large": {
+    "progress": {
+      "top": 78,
+      "left": 18,
+      "w": 354,
+      "h": 5
+    },
+    "number": {
+      "top": 113,
+      "left": 18,
+      "w": 354,
+      "h": 17
+    },
+    "title": {
+      "top": 139,
+      "left": 18,
+      "w": 354,
+      "h": 112
+    },
+    "choice1": {
+      "top": 273,
+      "left": 18,
+      "w": 354,
+      "h": 77
+    },
+    "unknown": {
+      "top": 531,
+      "left": 18,
+      "w": 354,
+      "h": 77
+    },
+    "cta": {
+      "top": 760,
+      "left": 0,
+      "w": 390,
+      "h": 84
+    },
+    "ctaBtn": {
+      "top": 771,
+      "left": 18,
+      "w": 354,
+      "h": 55
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [
+      "ア",
+      "イ",
+      "ウ"
+    ],
+    "fontSize": "21px"
+  },
+  "quiz_390_large_answered": {
+    "feedback": {
+      "top": 621,
+      "left": 18,
+      "w": 354,
+      "h": 176
+    },
+    "overflowX": 0,
+    "small": [
+      "a:この説明を読み直す@162x26"
+    ],
+    "clipped": [
+      "ア",
+      "イ",
+      "ウ"
+    ],
+    "fontSize": "21px"
+  },
+  "result_390_large": {
+    "icon": {
+      "top": 83,
+      "left": 168,
+      "w": 55,
+      "h": 55
+    },
+    "h1": {
+      "top": 150,
+      "left": 18,
+      "w": 354,
+      "h": 33
+    },
+    "counts": {
+      "top": 265,
+      "left": 18,
+      "w": 354,
+      "h": 87
+    },
+    "qbox": {
+      "top": 371,
+      "left": 18,
+      "w": 354,
+      "h": 393
+    },
+    "chips": {
+      "top": 550,
+      "left": 37,
+      "w": 316,
+      "h": 106
+    },
+    "sectionLabel": {
+      "top": 781,
+      "left": 18,
+      "w": 354,
+      "h": 27
+    },
+    "toReview": {
+      "top": 820,
+      "left": 18,
+      "w": 354,
+      "h": 131
+    },
+    "cta": {
+      "top": 760,
+      "left": 0,
+      "w": 390,
+      "h": 84
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "21px"
+  },
+  "result_390_large_bottom": {
+    "text": "説明をはじめから読み直す図解をもう一度見ながら確認できます",
+    "tag": "A",
+    "bottom": 662,
+    "vh": 844,
+    "ctaTop": 760,
+    "hit": "rs-item-row",
+    "pagePad": "84px",
+    "coveredByFixed": false
+  },
+  "quiz_430": {
+    "progress": {
+      "top": 78,
+      "left": 18,
+      "w": 394,
+      "h": 5
+    },
+    "number": {
+      "top": 113,
+      "left": 18,
+      "w": 394,
+      "h": 17
+    },
+    "title": {
+      "top": 139,
+      "left": 18,
+      "w": 394,
+      "h": 69
+    },
+    "choice1": {
+      "top": 229,
+      "left": 18,
+      "w": 394,
+      "h": 77
+    },
+    "unknown": {
+      "top": 487,
+      "left": 18,
+      "w": 394,
+      "h": 77
+    },
+    "cta": {
+      "top": 848,
+      "left": 0,
+      "w": 430,
+      "h": 84
+    },
+    "ctaBtn": {
+      "top": 859,
+      "left": 18,
+      "w": 394,
+      "h": 55
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [
+      "ア",
+      "イ",
+      "ウ"
+    ],
+    "fontSize": "18px"
+  },
+  "quiz_430_answered": {
+    "feedback": {
+      "top": 577,
+      "left": 18,
+      "w": 394,
+      "h": 127
+    },
+    "overflowX": 0,
+    "small": [
+      "a:この説明を読み直す@135x21"
+    ],
+    "clipped": [
+      "ア",
+      "イ",
+      "ウ"
+    ],
+    "fontSize": "18px"
+  },
+  "result_430": {
+    "icon": {
+      "top": 83,
+      "left": 188,
+      "w": 55,
+      "h": 55
+    },
+    "h1": {
+      "top": 150,
+      "left": 18,
+      "w": 394,
+      "h": 33
+    },
+    "counts": {
+      "top": 259,
+      "left": 18,
+      "w": 394,
+      "h": 79
+    },
+    "qbox": {
+      "top": 357,
+      "left": 18,
+      "w": 394,
+      "h": 340
+    },
+    "chips": {
+      "top": 500,
+      "left": 37,
+      "w": 356,
+      "h": 98
+    },
+    "sectionLabel": {
+      "top": 714,
+      "left": 18,
+      "w": 394,
+      "h": 27
+    },
+    "toReview": {
+      "top": 753,
+      "left": 18,
+      "w": 394,
+      "h": 94
+    },
+    "cta": {
+      "top": 848,
+      "left": 0,
+      "w": 430,
+      "h": 84
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "result_430_bottom": {
+    "text": "説明をはじめから読み直す図解をもう一度見ながら確認できます",
+    "tag": "A",
+    "bottom": 750,
+    "vh": 932,
+    "ctaTop": 848,
+    "hit": "rs-item-row",
+    "pagePad": "84px",
+    "coveredByFixed": false
+  },
+  "quiz_430_large": {
+    "progress": {
+      "top": 78,
+      "left": 18,
+      "w": 394,
+      "h": 5
+    },
+    "number": {
+      "top": 113,
+      "left": 18,
+      "w": 394,
+      "h": 17
+    },
+    "title": {
+      "top": 139,
+      "left": 18,
+      "w": 394,
+      "h": 75
+    },
+    "choice1": {
+      "top": 235,
+      "left": 18,
+      "w": 394,
+      "h": 77
+    },
+    "unknown": {
+      "top": 493,
+      "left": 18,
+      "w": 394,
+      "h": 77
+    },
+    "cta": {
+      "top": 848,
+      "left": 0,
+      "w": 430,
+      "h": 84
+    },
+    "ctaBtn": {
+      "top": 859,
+      "left": 18,
+      "w": 394,
+      "h": 55
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [
+      "ア",
+      "イ",
+      "ウ"
+    ],
+    "fontSize": "21px"
+  },
+  "quiz_430_large_answered": {
+    "feedback": {
+      "top": 583,
+      "left": 18,
+      "w": 394,
+      "h": 176
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [
+      "ア",
+      "イ",
+      "ウ"
+    ],
+    "fontSize": "21px"
+  },
+  "result_430_large": {
+    "icon": {
+      "top": 83,
+      "left": 188,
+      "w": 55,
+      "h": 55
+    },
+    "h1": {
+      "top": 150,
+      "left": 18,
+      "w": 394,
+      "h": 33
+    },
+    "counts": {
+      "top": 265,
+      "left": 18,
+      "w": 394,
+      "h": 87
+    },
+    "qbox": {
+      "top": 371,
+      "left": 18,
+      "w": 394,
+      "h": 367
+    },
+    "chips": {
+      "top": 524,
+      "left": 37,
+      "w": 356,
+      "h": 106
+    },
+    "sectionLabel": {
+      "top": 755,
+      "left": 18,
+      "w": 394,
+      "h": 27
+    },
+    "toReview": {
+      "top": 794,
+      "left": 18,
+      "w": 394,
+      "h": 131
+    },
+    "cta": {
+      "top": 848,
+      "left": 0,
+      "w": 430,
+      "h": 84
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "21px"
+  },
+  "result_430_large_bottom": {
+    "text": "説明をはじめから読み直す図解をもう一度見ながら確認できます",
+    "tag": "A",
+    "bottom": 750,
+    "vh": 932,
+    "ctaTop": 848,
+    "hit": "rs-item-row",
+    "pagePad": "84px",
+    "coveredByFixed": false
+  },
+  "quiz_820": {
+    "progress": {
+      "top": 78,
+      "left": 176,
+      "w": 468,
+      "h": 5
+    },
+    "number": {
+      "top": 113,
+      "left": 176,
+      "w": 468,
+      "h": 17
+    },
+    "title": {
+      "top": 139,
+      "left": 176,
+      "w": 468,
+      "h": 69
+    },
+    "choice1": {
+      "top": 229,
+      "left": 176,
+      "w": 468,
+      "h": 77
+    },
+    "unknown": {
+      "top": 487,
+      "left": 176,
+      "w": 468,
+      "h": 77
+    },
+    "cta": {
+      "top": 1096,
+      "left": 0,
+      "w": 820,
+      "h": 84
+    },
+    "ctaBtn": {
+      "top": 1107,
+      "left": 158,
+      "w": 504,
+      "h": 55
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [
+      "ア",
+      "イ",
+      "ウ"
+    ],
+    "fontSize": "18px"
+  },
+  "quiz_820_answered": {
+    "feedback": {
+      "top": 577,
+      "left": 176,
+      "w": 468,
+      "h": 127
+    },
+    "overflowX": 0,
+    "small": [
+      "a:この説明を読み直す@135x21"
+    ],
+    "clipped": [
+      "ア",
+      "イ",
+      "ウ"
+    ],
+    "fontSize": "18px"
+  },
+  "result_820": {
+    "icon": {
+      "top": 83,
+      "left": 383,
+      "w": 55,
+      "h": 55
+    },
+    "h1": {
+      "top": 150,
+      "left": 176,
+      "w": 468,
+      "h": 33
+    },
+    "counts": {
+      "top": 259,
+      "left": 176,
+      "w": 468,
+      "h": 79
+    },
+    "qbox": {
+      "top": 357,
+      "left": 176,
+      "w": 468,
+      "h": 240
+    },
+    "chips": {
+      "top": 477,
+      "left": 195,
+      "w": 430,
+      "h": 45
+    },
+    "sectionLabel": {
+      "top": 615,
+      "left": 176,
+      "w": 468,
+      "h": 27
+    },
+    "toReview": {
+      "top": 654,
+      "left": 176,
+      "w": 468,
+      "h": 94
+    },
+    "cta": {
+      "top": 1096,
+      "left": 0,
+      "w": 820,
+      "h": 84
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "result_820_bottom": {
+    "text": "説明をはじめから読み直す図解をもう一度見ながら確認できます",
+    "tag": "A",
+    "bottom": 998,
+    "vh": 1180,
+    "ctaTop": 1096,
+    "hit": "rs-item-row",
+    "pagePad": "84px",
+    "coveredByFixed": false
+  },
+  "quiz_1180": {
+    "progress": {
+      "top": 78,
+      "left": 356,
+      "w": 468,
+      "h": 5
+    },
+    "number": {
+      "top": 113,
+      "left": 356,
+      "w": 468,
+      "h": 17
+    },
+    "title": {
+      "top": 139,
+      "left": 356,
+      "w": 468,
+      "h": 69
+    },
+    "choice1": {
+      "top": 229,
+      "left": 356,
+      "w": 468,
+      "h": 77
+    },
+    "unknown": {
+      "top": 487,
+      "left": 356,
+      "w": 468,
+      "h": 77
+    },
+    "cta": {
+      "top": 736,
+      "left": 0,
+      "w": 1180,
+      "h": 84
+    },
+    "ctaBtn": {
+      "top": 747,
+      "left": 338,
+      "w": 504,
+      "h": 55
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [
+      "ア",
+      "イ",
+      "ウ"
+    ],
+    "fontSize": "18px"
+  },
+  "quiz_1180_answered": {
+    "feedback": {
+      "top": 577,
+      "left": 356,
+      "w": 468,
+      "h": 127
+    },
+    "overflowX": 0,
+    "small": [
+      "a:この説明を読み直す@135x21"
+    ],
+    "clipped": [
+      "ア",
+      "イ",
+      "ウ"
+    ],
+    "fontSize": "18px"
+  },
+  "result_1180": {
+    "icon": {
+      "top": 83,
+      "left": 563,
+      "w": 55,
+      "h": 55
+    },
+    "h1": {
+      "top": 150,
+      "left": 356,
+      "w": 468,
+      "h": 33
+    },
+    "counts": {
+      "top": 259,
+      "left": 356,
+      "w": 468,
+      "h": 79
+    },
+    "qbox": {
+      "top": 357,
+      "left": 356,
+      "w": 468,
+      "h": 240
+    },
+    "chips": {
+      "top": 477,
+      "left": 375,
+      "w": 430,
+      "h": 45
+    },
+    "sectionLabel": {
+      "top": 615,
+      "left": 356,
+      "w": 468,
+      "h": 27
+    },
+    "toReview": {
+      "top": 654,
+      "left": 356,
+      "w": 468,
+      "h": 94
+    },
+    "cta": {
+      "top": 736,
+      "left": 0,
+      "w": 1180,
+      "h": 84
+    },
+    "overflowX": 0,
+    "small": [],
+    "clipped": [],
+    "fontSize": "18px"
+  },
+  "result_1180_bottom": {
+    "text": "説明をはじめから読み直す図解をもう一度見ながら確認できます",
+    "tag": "A",
+    "bottom": 638,
+    "vh": 820,
+    "ctaTop": 736,
+    "hit": "rs-item-row",
+    "pagePad": "84px",
+    "coveredByFixed": false
+  }
+}
