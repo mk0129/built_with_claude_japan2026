@@ -338,3 +338,25 @@ html:has(nav[data-patient-tabs]) {
     transition: none !important;
   }
 }
+
+/* ---- クイズ: 回答をタップした直後（保存中）の選択状態（UX-08）。押した選択肢を即座に示す ---- */
+@layer components {
+  .btn-option[data-state="pending"] {
+    background: var(--sora);
+    border-color: var(--ink);
+    border-width: 2px;
+    font-weight: 700;
+  }
+  .btn-unknown[data-state="pending"] {
+    background: var(--sora);
+    border-style: solid;
+    border-color: var(--ink);
+    color: var(--ink);
+    font-weight: 700;
+    opacity: 1;
+  }
+}
+/* 結果画面「次の診察に残す」の 4 択: 文字拡大時は 1 列にして折り返しを防ぐ */
+html[data-textsize="large"] .ask-choices {
+  grid-template-columns: 1fr;
+}

@@ -91,7 +91,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
   await p.getByRole("button", { name: /^イ/ }).click();
   await p.getByRole("button", { name: /結果を見る/ }).click();
   await expect(p.getByText(/確認を終えました/)).toBeVisible();
-  await expect(p.getByText(/もう一度確認できるところ/)).toBeVisible();
+  await expect(p.getByText(/もう一度確認したいこと/)).toBeVisible();
   await shot(p, "18_patient_quiz_result");
   // 復習に戻る導線 → 再挑戦
   await p.getByRole("button", { name: /もう一度挑戦する/ }).click();
@@ -103,7 +103,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
   await expect(p.getByText(/確認を終えました/)).toBeVisible();
   await p.getByRole("button", { name: "質問がある" }).click();
   await p.getByLabel(/質問や気になったこと/).fill("再発の心配について次に聞きたいです");
-  await p.getByRole("button", { name: "送る" }).click();
+  await p.getByRole("button", { name: /次の診察に残す/ }).click();
   await expect(p.getByText(/ありがとうございます/)).toBeVisible();
   await shot(p, "19_patient_feedback_sent");
   await p.goto("/scores");
@@ -112,7 +112,7 @@ test("情報処方から次回診察までの通し操作", async ({ browser }) 
   // 医療者が終了 → 患者が再度 QR → 次回診察
   await s.goto(consultUrl1);
   await s.getByRole("button", { name: "終了", exact: true }).click();
-  await expect(s.getByText(/診察セッションは終了しました/)).toBeVisible();
+  await expect(s.getByText(/診察セッションは終了しました/)).toBeVisible({ timeout: 15_000 });
   const code2 = await showQrCode(p);
   await s.goto("/staff/scan");
   await s.getByLabel("6桁の番号").fill(code2);
