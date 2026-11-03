@@ -6,7 +6,8 @@ import { api, errorText } from "@/lib/api";
 
 type DemoAccount = { email: string; name: string; kind: "patient" | "staff"; label: string };
 
-export function LoginPanel({ kind, redirectTo }: { kind: "patient" | "staff"; redirectTo: string }) {
+/** switching: 別の種別でログイン中。ログイン前に今のセッションを終了してから切り替える */
+export function LoginPanel({ kind, redirectTo, switching = false }: { kind: "patient" | "staff"; redirectTo: string; switching?: boolean }) {
   const router = useRouter();
   const [demo, setDemo] = useState<DemoAccount[] | null>(null);
   const [email, setEmail] = useState("");
@@ -24,6 +25,7 @@ export function LoginPanel({ kind, redirectTo }: { kind: "patient" | "staff"; re
   async function demoLogin(a: DemoAccount) {
     setBusy(true);
     setMsg(null);
+    if (switching) await authClient.signOut().catch(() => {});
     const res = await authClient.signIn.email({ email: a.email, password: "shiori-demo-2026" });
     setBusy(false);
     if (res.error) {
@@ -50,6 +52,7 @@ export function LoginPanel({ kind, redirectTo }: { kind: "patient" | "staff"; re
   async function verifyOtp() {
     setBusy(true);
     setMsg(null);
+    if (switching) await authClient.signOut().catch(() => {});
     const res = await authClient.signIn.emailOtp({ email, otp });
     setBusy(false);
     if (res.error) {

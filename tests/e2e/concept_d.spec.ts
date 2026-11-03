@@ -145,3 +145,25 @@ test("開発用 /d/dev: 一時共有中 → 診察サマリー・質問・理解
   await expect(page.getByText("患者一覧はありません")).toBeVisible();
   await ctx.close();
 });
+
+test("同じブラウザで患者 → 医療者へ切り替えられる（/staff → 医療者ログイン）。/logout でログアウト", async ({ browser }) => {
+  const { ctx, page } = await newPage(browser, { width: 1440, height: 900 });
+  await demoLogin(page, "patient", "佐藤 花子");
+  await page.goto("/staff");
+  await expect(page).toHaveURL(/\/staff\/login/);
+  await expect(page.locator("[data-switch-note]")).toContainText("佐藤 花子");
+  await page.getByRole("button", { name: /山田 太郎/ }).first().click();
+  await page.waitForURL(/\/staff$/);
+  await expect(page.locator(".cd-device")).toBeVisible();
+  await expect(page.getByText("患者一覧はありません")).toBeVisible();
+  // 逆方向: 医療者 → 患者
+  await page.goto("/home");
+  await expect(page).toHaveURL(/\/login/);
+  await expect(page.locator("[data-switch-note]")).toContainText("山田 太郎");
+  await page.goto("/logout");
+  await page.waitForURL((u) => u.pathname === "/");
+  const r = await page.request.get("/staff", { maxRedirects: 0 });
+  expect(r.headers()["location"] ?? "").toMatch(/\/staff\/login/);
+  await ctx.close();
+});
+
