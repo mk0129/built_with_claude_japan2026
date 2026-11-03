@@ -17,6 +17,7 @@
     "db:setup:remote": "tsx --env-file-if-exists=.env.local src/server/db/setup.ts",
     "e2e": "playwright test",
     "e2e:fresh": "playwright test",
+    "intervisit:real": "tsx --env-file-if-exists=.env.local scripts/real-intervisit.ts",
     "e2e:real": "E2E_CLAUDE=real E2E_SHOT_DIR=docs/screenshots/day5_real playwright test real_generation"
   },
   "dependencies": {

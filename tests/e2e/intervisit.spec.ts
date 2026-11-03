@@ -1,0 +1,161 @@
+import { test, type Page } from "@playwright/test";
+import { demoLogin, expect, newPage } from "./helpers";
+
+/**
+ * Phase 2 Step 4: 在宅経過表・バイタル統合グラフ・外来間の構造化サマリー・AI 要約（E2E は開発用の擬似生成。実 API は別スクリプト）。
+ * 患者C（架空・履歴なし）が複数日に記録（未記録日あり・同じ日に 2 回）→ 理解確認で「わからない」→ 質問を保存 →
+ * QR 共有 → 医療者が経過表・グラフ・サマリーを確認し根拠をたどる → 元データの変更が再生成に反映 → AI 失敗時の代替表示 → 終了後は拒否。
+ */
+const pad = (n: number) => String(n).padStart(2, "0");
+const localInput = (daysAgo: number, hh: number, mm = 0) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(hh)}:${pad(mm)}`;
+};
+const md = (daysAgo: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
+};
+const vital = (p: Page, label: string) => p.locator(".d-vital-card").filter({ hasText: label }).locator("input").first();
+const severity = (p: Page, name: string, value: number) =>
+  p.locator(".d-symptom-records article").filter({ hasText: name }).locator(".d-severity-scale button").nth(value).click();
+
+async function record(p: Page, daysAgo: number, hh: number, mm: number, v: Partial<Record<"体温" | "脈拍" | "SpO₂", string>> & { bp?: [string, string] }, numbness: number) {
+  await p.locator(".d-measured-at input").fill(localInput(daysAgo, hh, mm));
+  for (const [k, val] of Object.entries(v)) if (k !== "bp") await vital(p, k).fill(val as string);
+  if (v.bp) {
+    await p.getByLabel("収縮期血圧").fill(v.bp[0]);
+    await p.getByLabel("拡張期血圧").fill(v.bp[1]);
+  }
+  await severity(p, "手足のしびれ", numbness);
+  await p.getByRole("button", { name: "この記録を保存" }).click();
+  await expect(p.locator(".toast")).toContainText("体調を記録しました");
+  await p.locator(".d-feedback-close").click();
+}
+
+test("在宅経過表・バイタル統合グラフ・外来間サマリー（構造化・AI）・根拠・再生成・代替表示・終了後の拒否", async ({ browser }) => {
+  const patient = await newPage(browser, { width: 390, height: 844 });
+  await demoLogin(patient.page, "patient", "高橋 由美");
+  const p = patient.page;
+
+  // 1〜3. 複数日の記録（5 日前・4 日前・2 日前は未記録）。3 日前は 2 回測定
+  await p.locator(".d-nav").getByRole("button", { name: "体調記録" }).click();
+  await record(p, 6, 8, 0, { 体温: "36.4", 脈拍: "70" }, 1);
+  await record(p, 3, 8, 0, { 体温: "37.4" }, 3);
+  await record(p, 3, 20, 30, { bp: ["128", "82"] }, 2);
+  await record(p, 1, 9, 0, { 体温: "36.6", "SpO₂": "97" }, 2);
+
+  // 4. 教材で「わからない」と回答
+  await p.locator(".d-nav").getByRole("button", { name: "教材を探す" }).click();
+  await p.locator(".d-category-cards button").filter({ hasText: "検査・診断" }).click();
+  await p.locator(".d-lesson-card").first().click();
+  await p.locator(".d-detail .d-bottom-action").click();
+  for (let i = 0; i < 6; i++) {
+    const t = await p.locator(".d-learning-actions .primary-button").textContent();
+    if (t?.includes("理解を確認する")) break;
+    await p.getByRole("button", { name: "次へ" }).click();
+  }
+  await p.getByRole("button", { name: "理解を確認する" }).click();
+  await p.locator(".d-answer-list button").filter({ hasText: "わからない" }).click();
+  await p.getByRole("button", { name: "この回答で確定する" }).click();
+  await expect(p.getByRole("heading", { name: "「わからない」を記録しました" })).toBeVisible();
+
+  // 5. 診察ノートに質問を保存
+  await p.goto("/home?view=notes");
+  await p.locator(".d-add-question textarea").fill("しびれは治療終了後に戻りますか？");
+  await p.getByRole("button", { name: "質問を保存" }).click();
+  await expect(p.locator(".d-saved-notes")).toContainText("しびれは治療終了後に戻りますか？");
+
+  // 6・7. 医療者が QR 接続を申請 → 患者が承認
+  const staff = await newPage(browser, { width: 1440, height: 900 });
+  await demoLogin(staff.page, "staff", "山田 太郎");
+  const s = staff.page;
+  const res = s.waitForResponse((r) => r.url().endsWith("/api/v1/connect") && r.request().method() === "POST");
+  await s.getByRole("button", { name: "患者との接続を開始" }).click();
+  const u = new URL((await (await res).json()).qrUrl);
+  await s.getByRole("button", { name: "患者へ承認を依頼する" }).click();
+  await p.goto(`${u.pathname}${u.search}`);
+  await p.locator(".d-consent input").check();
+  await p.getByRole("button", { name: "この医療者に共有を許可する" }).click();
+  await expect(s.getByRole("heading", { name: "診察サマリー" })).toBeVisible({ timeout: 10_000 });
+  const sid = new URL(s.url()).searchParams.get("s")!;
+
+  // 10. 外来間の構造化サマリー（実データから）。前回外来日ではなく期間と前回共有日を明記
+  const iv = s.locator("[data-intervisit]");
+  await expect(iv).toContainText("直近14日間の経過");
+  await expect(iv).toContainText("前回の共有記録なし");
+  // 11. AI 要約（E2E は開発用の擬似生成。見出しで Claude ではないことを明示）
+  await expect(s.locator('.cd-summary-narrative[data-summary-kind="fake"]')).toBeVisible({ timeout: 15_000 });
+  await expect(iv).toContainText("体調記録は14日中3日、4件です。");
+  await expect(iv).toContainText(`手足のしびれは${md(6)}に1/4、${md(1)}に2/4と記録されました（期間内の最大は${md(3)}の3/4、4回記録）。`);
+  await expect(iv).toContainText("「しびれは治療終了後に戻りますか？」");
+  await expect(iv).toContainText("「わからない」");
+  // 12. 各文から元データをたどれる
+  await iv.locator("[data-summary-item]").filter({ hasText: "手足のしびれは" }).first().click();
+  const src = s.locator("[data-summary-sources]");
+  await expect(src).toContainText("根拠の記録");
+  await expect(src.locator("[data-source-id^='hs:']").first()).toContainText("手足のしびれ 1/4（軽い）");
+  await expect(src.locator("[data-source-id^='hs:']").filter({ hasText: "3/4" })).toHaveCount(1);
+  await expect(src.locator("[data-source-id^='hs:']").filter({ hasText: "3/4" })).toContainText("08:00");
+
+  // 8. 在宅経過表に記録（同じ日の 2 回は件数つき、未記録は —）
+  await s.locator(".cd-sidebar").getByRole("button", { name: "在宅経過" }).click();
+  await expect(s.getByRole("heading", { name: "在宅経過表" })).toBeVisible();
+  await expect(s.locator(".cd-course-controls")).toContainText("記録日 3日 / 14日 · 4件");
+  const numbRow = s.locator(".cd-course-table tr").filter({ hasText: "手足のしびれ" });
+  await expect(numbRow).toContainText("2×2");
+  await numbRow.getByRole("button", { name: /2×2/ }).click();
+  await expect(s.locator("[data-day-entries]")).toContainText("08:00 3 / 4（強い）");
+  await expect(s.locator("[data-day-entries]")).toContainText("20:30 2 / 4（中くらい）");
+  await s.locator(".cd-course-detail").getByRole("button", { name: "閉じる" }).click();
+  // 9. 5 系列のバイタル統合グラフ（1 つの描画領域、凡例で表示切替、カーソルで実測値・単位・日時）
+  await s.getByRole("button", { name: "バイタル統合" }).click();
+  await expect(s.locator(".cd-vital-plot svg")).toHaveCount(1);
+  await expect(s.locator(".cd-vital-legend button")).toHaveCount(5);
+  await expect(s.locator(".cd-vital-plot g.metric")).toHaveCount(5);
+  await s.locator(".cd-vital-legend button").filter({ hasText: "脈拍" }).click();
+  await expect(s.locator(".cd-vital-plot g.metric")).toHaveCount(4);
+  await s.locator(".cd-vital-legend button").filter({ hasText: "脈拍" }).click();
+  await s.locator(".cd-vital-plot rect.hover-zone").nth(1).hover();
+  await expect(s.locator(".cd-vital-tooltip")).toContainText("37.4 ℃");
+  await expect(s.locator(".cd-vital-tooltip")).toContainText("未測定");
+  // 欠測期間（4・5 日前）を線で結ばない: 体温の線は 6 日前と 3 日前を結ばない
+  const tempPath = await s.locator(".cd-vital-plot g.metric.temperature path").getAttribute("d");
+  expect(tempPath?.match(/M /g)?.length).toBeGreaterThanOrEqual(2);
+
+  // 13. 元データを変更すると、再生成した要約に反映される
+  await p.goto("/home?view=health");
+  await p.getByRole("button", { name: "履歴・グラフ" }).click();
+  const target = p.locator(".d-health-list details").filter({ hasText: "37.4" });
+  await target.locator("summary").click();
+  await target.getByRole("button", { name: "この記録を編集" }).click();
+  await severity(p, "手足のしびれ", 1);
+  await p.getByRole("button", { name: "この記録を更新" }).click();
+  await expect(p.locator(".toast")).toContainText("記録を更新しました");
+  await s.locator(".cd-sidebar").getByRole("button", { name: "診察" }).click();
+  await s.getByRole("button", { name: "AI要約を再生成" }).click();
+  await expect(s.locator("[data-intervisit]")).toContainText(`手足のしびれは${md(6)}に1/4、${md(1)}に2/4と記録されました（期間内の最大は${md(3)}の2/4、4回記録）。`, { timeout: 15_000 });
+
+  // 14. AI 生成エラー・検証不合格時は安全な代替表示（ルールベース）。元データは閲覧できる
+  await s.goto(`/staff?s=${sid}&aisim=invalid`);
+  await expect(s.locator('.cd-summary-narrative[data-summary-kind="rule"]')).toBeVisible({ timeout: 15_000 });
+  await expect(s.locator("[data-ai-status='fallback']")).toContainText("AI要約は表示していません");
+  // 擬似生成の不正な出力（「改善」「39.9℃」「理解力」）は表示されない
+  await expect(s.locator(".cd-summary-narrative")).not.toContainText("改善しています");
+  await expect(s.locator(".cd-summary-narrative")).not.toContainText("39.9");
+  await expect(s.locator(".cd-summary-narrative")).not.toContainText("理解力");
+  await expect(s.locator("[data-intervisit]")).toContainText("体調記録は14日中3日、4件です。");
+  await s.goto(`/staff?s=${sid}&aisim=error`);
+  await expect(s.locator("[data-ai-status='fallback']")).toContainText("AI 要約を生成できませんでした", { timeout: 15_000 });
+
+  // 15. 共有を終了すると、医療者の患者データアクセスは拒否され、画面から患者情報が消える
+  await s.locator(".cd-app-header").getByRole("button", { name: "共有終了" }).click();
+  await expect(s.getByText("患者一覧はありません")).toBeVisible();
+  await expect(s.locator("[data-intervisit]")).toHaveCount(0);
+  for (const path of ["intervisit", "health", "patient"]) expect((await s.request.get(`/api/v1/consultations/${sid}/${path}`)).status()).toBe(403);
+  expect((await s.request.post(`/api/v1/consultations/${sid}/intervisit/summary`, { data: {} })).status()).toBe(403);
+
+  await staff.ctx.close();
+  await patient.ctx.close();
+});

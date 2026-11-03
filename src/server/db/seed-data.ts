@@ -19,6 +19,7 @@ export const DEMO_ORGS = [
 export const DEMO_ACCOUNTS: DemoAccount[] = [
   { email: "patient1@example.com", name: "佐藤 花子", kind: "patient", label: "患者A（架空）" },
   { email: "patient2@example.com", name: "鈴木 美咲", kind: "patient", label: "患者B（架空）" },
+  { email: "patient3@example.com", name: "高橋 由美", kind: "patient", label: "患者C（架空・外来間サマリーの通し確認用）" },
   {
     email: "dr.yamada@example.com",
     name: "山田 太郎",

@@ -1830,19 +1830,22 @@ function HomeCourse({
             </button>
           ))}
         </div>
+        {live ? (
+          <p>
+            記録日 {dates.filter((date) => recordsByDate[date]).length}日 / {dates.length}日 ·{" "}
+            {dates.reduce((n, date) => n + (recordsByDate[date]?.length ?? 0), 0)}件 · — は未記録
+          </p>
+        ) : (
         <p>
           記録日{" "}
-          {live
-            ? dates.filter((date) => recordsByDate[date]).length
-            : records.filter(
-                (record) => record.measuredAt.slice(0, 10) >= startDate,
-              ).length}
-          日 / {dates.length}日
-          {live
-            ? ` · ${dates.reduce((n, date) => n + (recordsByDate[date]?.length ?? 0), 0)}件`
-            : ""}{" "}
-          · — は未記録
+          {
+            records.filter(
+              (record) => record.measuredAt.slice(0, 10) >= startDate,
+            ).length
+          }
+          日 / {dates.length}日 · — は未記録
         </p>
+        )}
       </div>
       {live && period === "custom" && (
         <div className="cd-period-editor">
