@@ -1,14 +1,17 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
 import { getDb, type Db } from "@/server/db/client";
-import { consultationSessions, organizationMembers, organizations, qrGrants } from "@/server/db/schema";
-import { badRequest, conflict, forbidden, notFound } from "@/server/authz/errors";
+import { auditEvents, consultationSessions, organizationMembers, organizations, qrGrants } from "@/server/db/schema";
+import { AppError, badRequest, conflict, forbidden, notFound } from "@/server/authz/errors";
 import { requireOrgRole } from "@/server/authz/principal";
 import { audit } from "./audit";
 import { onConsultationStarted } from "./consultation-hooks";
 
 export const QR_TTL_MS = 5 * 60 * 1000;
 export const CONSULTATION_TTL_MS = 60 * 60 * 1000;
+/** 6 桁コードの試行回数制限: 医療者 1 人につき、10 分間に失敗 5 回まで（総当たり対策） */
+export const CLAIM_MAX_FAILURES = 5;
+export const CLAIM_WINDOW_MS = 10 * 60 * 1000;
 
 export function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
@@ -59,6 +62,18 @@ export async function claimGrant(
 ) {
   const membership = await requireOrgRole(input.staffUserId, input.orgId, "clinician");
   const now = new Date();
+  const [{ failures }] = await db
+    .select({ failures: sql<number>`count(*)::int` })
+    .from(auditEvents)
+    .where(
+      and(
+        eq(auditEvents.actorUserId, input.staffUserId),
+        eq(auditEvents.action, "qr.claim"),
+        eq(auditEvents.outcome, "denied"),
+        gt(auditEvents.at, new Date(now.getTime() - CLAIM_WINDOW_MS)),
+      ),
+    );
+  if (Number(failures) >= CLAIM_MAX_FAILURES) throw new AppError(429, "TOO_MANY_ATTEMPTS", "コードの入力に続けて失敗したため、10分ほど待ってから再度お試しください");
   const where = input.token
     ? eq(qrGrants.tokenHash, hashToken(input.token))
     : input.code

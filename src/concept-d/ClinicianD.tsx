@@ -494,7 +494,12 @@ export default function ClinicianD({
                     <b>
                       {live?.patientName ? `${live.patientName}さん` : "佐藤 花子さん"}
                     </b>
-                    <small>52歳 · 乳房部分切除術後 · 次回診察 6月20日</small>
+                    <small>
+                      {/* 本番: DB にない年齢・病歴・次回診察は表示しない（架空の値と実データを混ぜない） */}
+                      {live
+                        ? "年齢・病歴・次回診察：未登録"
+                        : "52歳 · 乳房部分切除術後 · 次回診察 6月20日"}
+                    </small>
                   </div>
                 </div>
                 <div className="cd-session-actions">
@@ -679,11 +684,12 @@ function SessionGate({
       <header>
         <CLogo />
         <div>
-          <span>乳腺外科</span>
+          {/* 本番: 申請を出す医療機関と医療者の表示名（DB の所属）。Figma は架空の「乳腺外科 / 山田医師」 */}
+          <span>{live ? (live.org?.orgName ?? "医療機関を選択してください") : "乳腺外科"}</span>
           <button
             onClick={() => notify("アカウントメニューはプロトタイプ対象外です")}
           >
-            山田医師
+            {live ? (live.org?.displayName ?? live.orgs[0]?.displayName ?? "医療者") : "山田医師"}
           </button>
         </div>
       </header>
@@ -732,6 +738,24 @@ function SessionGate({
             <p className="cd-eyebrow">TEMPORARY SHARE</p>
             <h1>患者へ接続を申請</h1>
             <p>患者のshioriアプリに表示される方法を選んでください。</p>
+            {live && live.orgs.length > 1 && (
+              <label className="cd-org-select">
+                申請を出す医療機関
+                <select
+                  value={live.org?.orgId ?? ""}
+                  onChange={(event) => live.chooseOrg(event.target.value)}
+                >
+                  <option value="" disabled>
+                    選んでください
+                  </option>
+                  {live.orgs.map((o) => (
+                    <option key={o.orgId} value={o.orgId}>
+                      {o.orgName}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <div className="cd-method-tabs">
               <button
                 className={method === "qr" ? "active" : ""}
@@ -781,13 +805,15 @@ function SessionGate({
                   />
                 </label>
                 <p>
-                  コードは10分間有効です。電話やメールでは送らないでください。
+                  {live
+                    ? "コードは発行から5分間・1回限り有効です。電話やメールでは送らないでください。"
+                    : "コードは10分間有効です。電話やメールでは送らないでください。"}
                 </p>
               </div>
             )}
             <button
               className="cd-primary"
-              disabled={method === "code" && code.length !== 6}
+              disabled={(method === "code" && code.length !== 6) || (!!live && !live.org)}
               onClick={() =>
                 live && method === "code" ? void live.claimCode(code) : setState("waiting")
               }

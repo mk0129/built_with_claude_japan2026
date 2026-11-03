@@ -90,3 +90,32 @@
   .proto-flag .long { display: none; }
   .proto-flag .short { display: inline; }
 }
+
+/* Phase 2 Step 1 修正: 共有画面の申請者・6 桁コード（Figma の .d-share-session を流用し、余白と全幅の行だけ追加） */
+.d-share-page > .d-share-session { margin: 0 0 16px; }
+.d-share-page > .d-share-code { margin: 14px 0 0; }
+.d-share-session > span.wide {
+  grid-column: 1 / -1;
+  border-left: 0;
+  border-top: 1px solid var(--line);
+}
+.d-share-code > span:first-child b { font-size: 22px; letter-spacing: .14em; }
+.d-share-code .d-text-action { margin: 2px 0 -10px; text-align: left; padding: 0; }
+.cd-org-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #536669;
+}
+.cd-org-select select {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid #d5e0e1;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  color: #243a3d;
+}

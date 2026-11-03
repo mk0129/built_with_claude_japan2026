@@ -7,9 +7,10 @@
  * 医療者: 接続申請（医療者が QR を表示）→ 患者の承認をポーリング → 一時共有中。6 桁コード（患者発行）も同じ画面から使える。
  * 患者: QR の URL（/home?view=share&connect=…）で申請者を確認 → 明示承認。共有中の残り時間・延長の再承認・即時終了。
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { api, errorText } from "@/lib/api";
+import { setStoredOrgId, useStoredOrgId } from "@/lib/use-stored-org";
 
 type Session = "none" | "request" | "waiting" | "active" | "expired";
 type Consultation = {
@@ -42,8 +43,10 @@ function setUrlParam(key: string, value: string | null) {
 }
 
 export type ClinicianLive = ReturnType<typeof useClinicianLive>;
+/** 接続申請を出せる医療機関（診療権限のある所属先） */
+export type ClinicianOrg = { orgId: string; orgName: string; displayName: string };
 
-export function useClinicianLive(initialSessionId: string | null, notify: (message: string) => void) {
+export function useClinicianLive(initialSessionId: string | null, orgs: ClinicianOrg[], notify: (message: string) => void) {
   const [state, setStateRaw] = useState<Session>(initialSessionId ? "active" : "none");
   const [request, setRequest] = useState<{ requestId: string; orgId: string; expiresAt: number } | null>(null);
   const [grantId, setGrantId] = useState<string | null>(null);
@@ -51,23 +54,29 @@ export function useClinicianLive(initialSessionId: string | null, notify: (messa
   const [sessionId, setSessionId] = useState<string | null>(initialSessionId);
   const [consult, setConsult] = useState<Consultation | null>(null);
   const [extensionRequested, setExtensionRequested] = useState(false);
+  // 申請を出す医療機関。複数あるときは医療者が選ぶ（端末に記憶。権限はサーバーで検証）
+  const storedOrgId = useStoredOrgId();
+  const orgId = orgs.find((o) => o.orgId === storedOrgId)?.orgId ?? (orgs.length === 1 ? orgs[0].orgId : null);
+  const org = orgs.find((o) => o.orgId === orgId) ?? null;
   const notifyRef = useRef(notify);
   useEffect(() => {
     notifyRef.current = notify;
   });
   const now = useNow(state === "active");
 
-  const issue = useCallback(async () => {
+  const issue = useCallback(async (forOrgId?: string) => {
     setQrDataUrl(null);
     setGrantId(null);
+    const target = forOrgId ?? orgId;
+    if (!target) return; // 複数の所属先があり未選択（画面で選ぶと発行する）
     try {
-      const r = await api<{ requestId: string; orgId: string; qrUrl: string; expiresAt: string }>("/api/v1/connect", { json: {} });
+      const r = await api<{ requestId: string; orgId: string; qrUrl: string; expiresAt: string }>("/api/v1/connect", { json: { orgId: target } });
       setRequest({ requestId: r.requestId, orgId: r.orgId, expiresAt: new Date(r.expiresAt).getTime() });
       setQrDataUrl(await QRCode.toDataURL(r.qrUrl, { width: 328, margin: 1, color: { dark: "#243a3d", light: "#ffffff" } }));
     } catch (e) {
       notifyRef.current(errorText(e));
     }
-  }, []);
+  }, [orgId]);
 
   const begin = useCallback((sid: string) => {
     setSessionId(sid);
@@ -163,8 +172,7 @@ export function useClinicianLive(initialSessionId: string | null, notify: (messa
   const claimCode = useCallback(
     async (code: string) => {
       try {
-        const orgId = request?.orgId;
-        if (!orgId) throw new Error("ORG");
+        if (!orgId) throw new Error("申請を出す医療機関を選んでください");
         const g = await api<{ grantId: string }>("/api/v1/qr/claim", { json: { orgId, code } });
         setGrantId(g.grantId);
         setStateRaw("waiting");
@@ -172,7 +180,19 @@ export function useClinicianLive(initialSessionId: string | null, notify: (messa
         notifyRef.current(errorText(e));
       }
     },
-    [request],
+    [orgId],
+  );
+
+  /** 医療機関の切り替え。申請中なら、古い申請を取り消して新しい医療機関で QR を出し直す */
+  const chooseOrg = useCallback(
+    (next: string) => {
+      if (request) void api(`/api/v1/connect/${request.requestId}/cancel`, { json: {} }).catch(() => {});
+      setRequest(null);
+      setQrDataUrl(null);
+      setStoredOrgId(next);
+      if (state === "request") void issue(next);
+    },
+    [request, state, issue],
   );
 
   const requestExtension = useCallback(async () => {
@@ -198,6 +218,9 @@ export function useClinicianLive(initialSessionId: string | null, notify: (messa
   return {
     state,
     setState,
+    orgs,
+    org,
+    chooseOrg,
     qrDataUrl,
     claimCode,
     patientName: consult?.patientName ?? null,
@@ -212,16 +235,21 @@ export function useClinicianLive(initialSessionId: string | null, notify: (messa
 
 export type PatientLive = ReturnType<typeof usePatientLive>;
 
+/** 承認待ちの申請（医療者の QR／患者の 6 桁コードを医療者が入力／共有中の延長） */
+type PatientPending = { kind: "connect" | "code" | "extension"; orgName: string; clinicianName: string };
+
 export function usePatientLive(connectToken: string | null, notify: (message: string) => void) {
   const [token, setToken] = useState<string | null>(connectToken);
-  const [pending, setPending] = useState<{ label: string } | null>(null);
+  const [connectReq, setConnectReq] = useState<{ orgName: string; clinicianName: string } | null>(null);
+  const [code, setCode] = useState<{ grantId: string; code: string; expiresAt: number } | null>(null);
+  const [claimed, setClaimed] = useState<{ orgName: string; clinicianName: string } | null>(null);
   const [consult, setConsult] = useState<Consultation | null>(null);
   const [tick, setTick] = useState(0);
   const notifyRef = useRef(notify);
   useEffect(() => {
     notifyRef.current = notify;
   });
-  const now = useNow(!!consult?.active);
+  const now = useNow(!!consult?.active || !!code);
   const toldExtension = useRef<string | null>(null);
 
   // QR から来たとき: 申請者を確認（承認前）
@@ -229,7 +257,7 @@ export function usePatientLive(connectToken: string | null, notify: (message: st
     if (!token) return;
     api<{ decision: string; orgName: string; clinicianName: string }>("/api/v1/connect/preview", { json: { token } })
       .then((r) => {
-        if (r.decision === "pending") setPending({ label: `${r.orgName} ${r.clinicianName}` });
+        if (r.decision === "pending") setConnectReq({ orgName: r.orgName, clinicianName: r.clinicianName });
         else {
           notifyRef.current(r.decision === "expired" ? "QRコードの有効期限が切れています。医療者に新しいQRを表示してもらってください" : "このQRコードはすでに使われています");
           setToken(null);
@@ -242,6 +270,26 @@ export function usePatientLive(connectToken: string | null, notify: (message: st
         setUrlParam("connect", null);
       });
   }, [token]);
+
+  // 6 桁コード: 医療者の入力（要求）と期限を 2 秒ごとに確認
+  useEffect(() => {
+    if (!code) return;
+    const t = window.setInterval(async () => {
+      try {
+        const g = await api<{ decision: string; claimed: { orgName: string; clinicianName: string } | null }>(`/api/v1/qr/${code.grantId}`);
+        if (g.decision === "pending") setClaimed(g.claimed);
+        else {
+          if (g.decision === "expired") notifyRef.current("6桁コードの有効期限が切れました");
+          setCode(null);
+          setClaimed(null);
+          setTick((v) => v + 1);
+        }
+      } catch {
+        /* 次の周期で再試行 */
+      }
+    }, 2000);
+    return () => window.clearInterval(t);
+  }, [code]);
 
   // 共有中のセッション（5 秒ごと）
   useEffect(() => {
@@ -272,26 +320,79 @@ export function usePatientLive(connectToken: string | null, notify: (message: st
   const sharing = !!consult?.active;
   const extensionPending = sharing && !!consult?.pendingExtension;
   const remainingMin = consult ? Math.max(0, Math.ceil((new Date(consult.expiresAt).getTime() - now) / 60000)) : 0;
+  const pending = useMemo<PatientPending | null>(
+    () =>
+      token && connectReq
+        ? { kind: "connect", ...connectReq }
+        : code && claimed
+          ? { kind: "code", ...claimed }
+          : extensionPending && consult
+            ? { kind: "extension", orgName: consult.orgName, clinicianName: consult.clinicianName }
+            : null,
+    [token, connectReq, code, claimed, extensionPending, consult],
+  );
 
-  /** Figma の「QRを読み取って共有を開始」: 申請があれば承認、延長申請があれば再承認、どちらもなければ読み取り方を案内 */
+  const clearConnect = useCallback(() => {
+    setToken(null);
+    setConnectReq(null);
+    setUrlParam("connect", null);
+  }, []);
+
+  /** 申請の承認（医療者の QR／6 桁コードの要求／延長）。申請がなければ何もしない */
   const approve = useCallback(async () => {
     try {
-      if (token && pending) {
+      if (pending?.kind === "connect" && token) {
         await api("/api/v1/connect/approve", { json: { token } });
-        setToken(null);
-        setPending(null);
-        setUrlParam("connect", null);
-      } else if (extensionPending && consult) {
+        clearConnect();
+      } else if (pending?.kind === "code" && code) {
+        await api(`/api/v1/qr/${code.grantId}/approve`, { json: {} });
+        setCode(null);
+        setClaimed(null);
+      } else if (pending?.kind === "extension" && consult) {
         await api(`/api/v1/consultations/${consult.id}/extend/decide`, { json: { approve: true } });
-      } else {
-        notifyRef.current("スマートフォンのカメラで、医療者の画面に表示されたQRコードを読み取ってください");
-        return;
-      }
+      } else return;
       setTick((v) => v + 1);
     } catch (e) {
       notifyRef.current(errorText(e));
     }
-  }, [token, pending, extensionPending, consult]);
+  }, [pending, token, code, consult, clearConnect]);
+
+  /** 申請を断る（医療者には「共有されなかった」ことだけが伝わる） */
+  const deny = useCallback(async () => {
+    try {
+      if (pending?.kind === "connect" && token) {
+        await api("/api/v1/connect/deny", { json: { token } });
+        clearConnect();
+      } else if (pending?.kind === "code" && code) {
+        await api(`/api/v1/qr/${code.grantId}/deny`, { json: {} });
+        setCode(null);
+        setClaimed(null);
+      } else if (pending?.kind === "extension" && consult) {
+        await api(`/api/v1/consultations/${consult.id}/extend/decide`, { json: { approve: false } });
+      } else return;
+      notifyRef.current(pending.kind === "extension" ? "延長しませんでした" : "共有しませんでした");
+      setTick((v) => v + 1);
+    } catch (e) {
+      notifyRef.current(errorText(e));
+    }
+  }, [pending, token, code, consult, clearConnect]);
+
+  /** 6 桁コードの発行（QR を読み取れないときの代替。5 分・1 回限り。医療者が入力した後も患者の承認が必要） */
+  const issueCode = useCallback(async () => {
+    try {
+      const g = await api<{ grantId: string; code: string; expiresAt: string }>("/api/v1/qr", { json: {} });
+      setClaimed(null);
+      setCode({ grantId: g.grantId, code: g.code, expiresAt: new Date(g.expiresAt).getTime() });
+    } catch (e) {
+      notifyRef.current(errorText(e));
+    }
+  }, []);
+
+  const cancelCode = useCallback(async () => {
+    if (code) await api(`/api/v1/qr/${code.grantId}/deny`, { json: {} }).catch(() => {});
+    setCode(null);
+    setClaimed(null);
+  }, [code]);
 
   const end = useCallback(async () => {
     if (consult) await api(`/api/v1/consultations/${consult.id}/end`, { json: {} }).catch(() => {});
@@ -299,14 +400,21 @@ export function usePatientLive(connectToken: string | null, notify: (message: st
     setTick((v) => v + 1);
   }, [consult]);
 
+  const codeRemainingSec = code ? Math.max(0, Math.floor((code.expiresAt - now) / 1000)) : 0;
   return {
     sharing,
-    pendingLabel: pending?.label ?? null,
+    pending,
+    /** 互換: 承認前の申請者の表示名 */
+    pendingLabel: pending && pending.kind !== "extension" ? `${pending.orgName} ${pending.clinicianName}` : null,
     extensionPending,
     clinicianName: consult?.clinicianName ?? null,
     clinicianLabel: consult ? `${consult.orgName} ${consult.clinicianName}` : null,
     remainingMin,
+    code: code ? { value: `${code.code.slice(0, 3)} ${code.code.slice(3)}`, remainingMin: Math.ceil(codeRemainingSec / 60) } : null,
+    issueCode,
+    cancelCode,
     approve,
+    deny,
     end,
   };
 }

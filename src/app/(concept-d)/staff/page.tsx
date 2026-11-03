@@ -2,6 +2,7 @@ import { and, desc, eq, gt, isNull } from "drizzle-orm";
 import { requirePageUser } from "@/server/auth/session";
 import { getDb } from "@/server/db/client";
 import { consultationSessions } from "@/server/db/schema";
+import { listMemberships } from "@/server/authz/principal";
 import { ClinicianDApp } from "@/concept-d/ConceptDApp";
 
 /**
@@ -20,5 +21,9 @@ export default async function StaffHome({ searchParams }: { searchParams: Promis
     .where(uuid ? and(active, eq(consultationSessions.id, uuid)) : active)
     .orderBy(desc(consultationSessions.startedAt))
     .limit(1);
-  return <ClinicianDApp sessionId={row?.id ?? null} />;
+  // 接続申請を出せる医療機関（診療権限のある所属先）。名前は Figma の「乳腺外科 / 山田医師」の位置に表示する
+  const orgs = (await listMemberships(u.id))
+    .filter((m) => m.roles.includes("clinician"))
+    .map((m) => ({ orgId: m.orgId, orgName: m.orgName, displayName: m.displayName ?? u.name }));
+  return <ClinicianDApp sessionId={row?.id ?? null} orgs={orgs} />;
 }

@@ -2741,6 +2741,72 @@ function DNotes({
   )
 }
 
+/** 本番の共有画面: 申請者（医療機関・医療者）と有効期間。申請がなければ読み取り方の案内 */
+function DShareLiveIntro({ live }: { live: PatientLive }) {
+  const p = live.pending
+  if (!p)
+    return (
+      <p className="d-share-intro">
+        医療者の画面に表示されたQRコードを、スマートフォンのカメラで読み取ってください。
+      </p>
+    )
+  return (
+    <>
+      <p className="d-share-intro">
+        {p.kind === "extension"
+          ? "共有中の医療者が、共有時間の延長を申請しています。"
+          : "次の医療者が閲覧を申請しています。共有する内容を確認してください。"}
+      </p>
+      <div className="d-share-session d-share-request" data-share-request>
+        <span>
+          <small>医療機関</small>
+          <b>{p.orgName}</b>
+        </span>
+        <span>
+          <small>医療者</small>
+          <b>{p.clinicianName}</b>
+        </span>
+        <span className="wide">
+          <small>{p.kind === "extension" ? "延長後の有効期間" : "有効期間"}</small>
+          <b>
+            {p.kind === "extension"
+              ? `承認した時点から60分（現在の残り ${live.remainingMin}分）`
+              : "承認した時点から60分。いつでも終了できます"}
+          </b>
+        </span>
+      </div>
+    </>
+  )
+}
+
+/** 本番の共有画面: QR を読み取れないときの 6 桁コード（既存の患者発行コード。5 分・1 回限り・医療者の入力後に患者が承認） */
+function DShareCode({ live }: { live: PatientLive }) {
+  if (!live.code)
+    return (
+      <button className="d-text-action" onClick={() => void live.issueCode()}>
+        QRを読み取れないときは、6桁コードで共有する
+      </button>
+    )
+  return (
+    <div className="d-share-session d-share-code" data-share-code>
+      <span>
+        <small>6桁の共有コード</small>
+        <b>{live.code.value}</b>
+      </span>
+      <span>
+        <small>有効期限</small>
+        <b>あと{live.code.remainingMin}分・1回限り</b>
+      </span>
+      <span className="wide">
+        <small>医療者の画面の「6桁コード」に入力してもらってください。入力後、あなたの承認で共有が始まります。電話やメールでは送らないでください。</small>
+        <button className="d-text-action" onClick={() => void live.cancelCode()}>
+          コードを取り消す
+        </button>
+      </span>
+    </div>
+  )
+}
+
 function DShare({
   sharing,
   setSharing,
@@ -2768,13 +2834,13 @@ function DShare({
             </span>
           </div>
           <h2>あなたの承認後に、医療者が閲覧できます</h2>
+          {live ? (
+            <DShareLiveIntro live={live} />
+          ) : (
           <p className="d-share-intro">
-            {live?.pendingLabel
-              ? `${live.pendingLabel}が閲覧を申請しています。共有する内容を確認してください。`
-              : live?.extensionPending
-                ? `${live.clinicianLabel}が共有時間の延長（60分）を申請しています。共有する内容を確認してください。`
-                : "医療者の画面に表示されたQRコードを読み取り、共有する内容を確認してください。"}
+            医療者の画面に表示されたQRコードを読み取り、共有する内容を確認してください。
           </p>
+          )}
           <div className="d-share-scope">
             <h3>共有される内容</h3>
             <span>
@@ -2794,6 +2860,9 @@ function DShare({
               体調記録（バイタル・自覚症状）
             </span>
           </div>
+          {/* 本番: 承認する申請があるときだけ確認と承認ボタンを出す（申請がないのに押せるボタンは置かない） */}
+          {(!live || live.pending) && (
+          <>
           <label className="d-consent">
             <input
               type="checkbox"
@@ -2810,9 +2879,21 @@ function DShare({
             disabled={!confirmed}
             onClick={() => (live ? void live.approve() : setSharing(true))}
           >
-            <Icon name="qr" />
-            QRを読み取って共有を開始
+            <Icon name={live ? "shield" : "qr"} />
+            {!live
+              ? "QRを読み取って共有を開始"
+              : live.pending?.kind === "extension"
+                ? "共有時間の延長を承認する"
+                : "この医療者に共有を許可する"}
           </button>
+          {live?.pending && (
+            <button className="d-text-action" onClick={() => void live.deny()}>
+              {live.pending.kind === "extension" ? "延長しない" : "共有しない"}
+            </button>
+          )}
+          </>
+          )}
+          {live && !live.pending && <DShareCode live={live} />}
           <p className="d-privacy-caption">
             患者情報はあなたが管理します。医療者側に患者一覧として保存されません。
           </p>

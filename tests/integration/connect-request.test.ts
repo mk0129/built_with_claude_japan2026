@@ -14,6 +14,7 @@ import { POST as decideRoute } from "@/app/api/v1/consultations/[id]/extend/deci
 import { POST as createQr } from "@/app/api/v1/qr/route";
 import { POST as claimRoute } from "@/app/api/v1/qr/claim/route";
 import { POST as approveGrantRoute } from "@/app/api/v1/qr/[id]/approve/route";
+import { POST as denyGrantRoute } from "@/app/api/v1/qr/[id]/deny/route";
 import { getDb } from "@/server/db/client";
 import { connectRequests, consultationSessions, qrGrants } from "@/server/db/schema";
 import { DR_KOBAYASHI, DR_YAMADA, OP_EDITOR, PATIENT_A, PATIENT_B, loginHeaders, setupDb, type Seeded } from "../helpers";
@@ -166,5 +167,43 @@ describe("医療者発行 QR の一時共有", () => {
     expect(ap.status).toBe(200);
     expect((await patientSummary(req(staff), ctx(ap.json.consultationSessionId))).status).toBe(200);
     await endRoute(req(patient, {}), ctx(ap.json.consultationSessionId));
+  });
+
+  it("複数の医療機関に所属する医療者は申請先を選ぶ。選んだ医療機関の診療権限をサーバーで検証する", async () => {
+    const staff = await loginHeaders("dr.nakamura@example.com");
+    const patient = await loginHeaders(PATIENT_B);
+    const none = await body(await createRoute(req(staff, {})));
+    expect(none).toMatchObject({ status: 400, json: { error: "ORG_REQUIRED" } });
+    // 所属していない医療機関（運営）は指定できない
+    expect((await createRoute(req(staff, { orgId: seeded.orgs.get("shiori-operator")! }))).status).toBe(403);
+    const r = await body(await createRoute(req(staff, { orgId: seeded.orgs.get("hidamari-medical")! })));
+    expect(r.status).toBe(200);
+    const pv = await body(await previewRoute(req(patient, { token: r.json.token })));
+    expect(pv.json).toMatchObject({ decision: "pending", clinicianName: "中村 医師" });
+    expect(pv.json.orgName).toContain("ひだまり医療センター");
+    const sid = (await body(await approveRoute(req(patient, { token: r.json.token })))).json.consultationSessionId as string;
+    const view = await body(await consultationRoute(req(staff), ctx(sid)));
+    expect(view.json.orgName).toContain("ひだまり医療センター");
+    await endRoute(req(patient, {}), ctx(sid));
+  });
+
+  it("6 桁コード: 患者が承認するまで共有されず、患者は断れる。入力の失敗が続くと一時的に拒否（総当たり対策）", async () => {
+    const patient = await loginHeaders(PATIENT_A);
+    const staff = await loginHeaders("nurse.tanaka@example.com");
+    const orgId = seeded.orgs.get("sakura-general")!;
+    // 医療者が入力する前は承認できない
+    const g = (await body(await createQr(req(patient, {})))).json;
+    expect((await approveGrantRoute(req(patient, {}), ctx(g.grantId))).status).toBe(409);
+    expect((await claimRoute(req(staff, { orgId, code: g.code }))).status).toBe(200);
+    // 患者が断ると共有は始まらない
+    expect((await denyGrantRoute(req(patient, {}), ctx(g.grantId))).status).toBe(200);
+    expect((await approveGrantRoute(req(patient, {}), ctx(g.grantId))).status).toBe(409);
+
+    const valid = (await body(await createQr(req(patient, {})))).json;
+    const wrong = valid.code === "000000" ? "000001" : "000000";
+    for (let i = 0; i < 5; i++) expect((await claimRoute(req(staff, { orgId, code: wrong }))).status).toBe(404);
+    // 6 回目は正しいコードでも拒否される
+    const blocked = await body(await claimRoute(req(staff, { orgId, code: valid.code })));
+    expect(blocked).toMatchObject({ status: 429, json: { error: "TOO_MANY_ATTEMPTS" } });
   });
 });

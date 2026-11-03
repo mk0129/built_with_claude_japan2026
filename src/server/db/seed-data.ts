@@ -48,6 +48,17 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     memberships: [{ orgSlug: "hidamari-medical", roles: ["clinician"], displayName: "小林 医師" }],
   },
   {
+    // 複数の医療機関に所属する医療者（接続申請を出す医療機関を選ぶ操作の確認用）
+    email: "dr.nakamura@example.com",
+    name: "中村 健",
+    kind: "staff",
+    label: "2施設に所属する医師（さくら総合病院・ひだまり医療センター）",
+    memberships: [
+      { orgSlug: "sakura-general", roles: ["clinician"], displayName: "中村 医師" },
+      { orgSlug: "hidamari-medical", roles: ["clinician"], displayName: "中村 医師" },
+    ],
+  },
+  {
     email: "op.editor@example.com",
     name: "運営 編集担当",
     kind: "staff",

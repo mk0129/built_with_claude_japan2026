@@ -8,7 +8,7 @@
  */
 import { useState, useSyncExternalStore } from "react"
 import ClinicianD, { CIcon, type ClinicianDViewport } from "./ClinicianD"
-import { useClinicianLive, usePatientLive } from "./live"
+import { useClinicianLive, usePatientLive, type ClinicianOrg } from "./live"
 import { DPrototype, Icon, Logo, type DViewport } from "./PatientD"
 import { initialActiveSymptomIds, initialHealthRecords, type HealthRecord } from "./healthData"
 import { UrlInitContext, type UrlInit } from "./urlState"
@@ -89,12 +89,12 @@ export function PatientDApp({ initial = {} }: { initial?: UrlInit }) {
 }
 
 /** 医療者: 1180px 以上は Figma の 1180 表示、それ未満は 820 表示（どちらも幅は Figma の設計幅のまま） */
-export function ClinicianDApp({ sessionId = null }: { sessionId?: string | null }) {
+export function ClinicianDApp({ sessionId = null, orgs = [] }: { sessionId?: string | null; orgs?: ClinicianOrg[] }) {
   const s = useConceptDState()
   const wide = useMedia("(min-width: 1180px)", true)
   // 一時共有の通知は Figma の医療者用トースト（.cd-toast）で出す
   const [notice, setNotice] = useState("")
-  const live = useClinicianLive(sessionId, (message) => {
+  const live = useClinicianLive(sessionId, orgs, (message) => {
     setNotice(message)
     window.setTimeout(() => setNotice(""), 2600)
   })

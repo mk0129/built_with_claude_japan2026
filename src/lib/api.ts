@@ -36,6 +36,13 @@ export function errorText(e: unknown): string {
       SESSION_NOT_ACTIVE: "セッションはすでに終了しています",
       SAFETY_UNCONFIRMED: "安全上の重要事項が未確認です。必須事項を確認するか、理由を記録したうえで承認してください",
       NOT_EDITABLE: "この状態では変更できません",
+      TOO_MANY_ATTEMPTS: "コードの入力に続けて失敗しました。10分ほど待ってから再度お試しください",
+      ORG_REQUIRED: "申請を出す医療機関を選んでください",
+      REQUEST_EXPIRED: "QRコードの有効期限が切れています。医療者に新しいQRを表示してもらってください",
+      REQUEST_ALREADY_DECIDED: "この申請はすでに処理済みです",
+      NO_PENDING_EXTENSION: "延長の申請はすでに処理されています",
+      NOT_AVAILABLE: "この教材は現在ご覧いただけません",
+      ANSWER_ALREADY_SUBMITTED: "この設問には回答済みです",
     };
     return map[e.code] ?? `${e.code}${e.message && e.message !== e.code ? `: ${e.message}` : ""}`;
   }
