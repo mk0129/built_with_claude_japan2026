@@ -47,7 +47,7 @@ npm run dev                        # http://localhost:3000
 ```
 - Claude を使わずに動かすとき: `ANTHROPIC_API_KEY=` と `CLAUDE_FAKE=1`（開発用の擬似生成。画面に「Claudeではありません」と表示）。
 - ログイン画面の架空アカウントを選ぶ: 医療者「佐藤 一郎」（診療・教材編集・承認。**架空の承認者**）、患者「伊藤 涼子」（履歴なし）・「佐藤 花子」（2 週間の記録あり）。
-- 操作の手順（撮影用）: [`docs/design/phase2/step5/README.md`](docs/design/phase2/step5/README.md) の「デモ撮影の手順」。
+- 撮影の手順: [`docs/DEMO.md`](docs/DEMO.md)。
 - 実 Claude での検証記録: [外来間要約](docs/design/phase2/step4/real/README.md)・[実画面](docs/design/phase2/step4/real_screen/README.md)・[教材生成](docs/design/phase2/step5/real/README.md)。
 
 ## 実装範囲

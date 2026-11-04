@@ -38,7 +38,7 @@ npm run dev                  # http://localhost:3000
 - ローカル開発では Docker 不要。`scripts/with-local-db.mjs` が PGlite を Postgres 互換ソケットとして起動し、`DATABASE_URL` を注入する。
 - デモログイン（`DEMO_AUTH=true` のときのみ）: ログイン画面に架空アカウント一覧が出る。本番環境では起動時に拒否される。
 - 架空データ: 患者A（佐藤 花子）は診察・処方・学習・質問の履歴と直近 2 週間の体調記録あり。患者B（鈴木 美咲）・患者C（高橋 由美）・患者D（伊藤 涼子）は履歴なし。医療者は山田 太郎（さくら総合病院）、中村 健（2 施設所属）、佐藤 一郎（診療・教材編集・教材承認。デモの架空の承認者）など。
-- デモの手順: `docs/design/phase2/step5/README.md`
+- デモの手順: `docs/DEMO.md`
 - Claude を使わずに動かすときは `ANTHROPIC_API_KEY=` と `CLAUDE_FAKE=1`（開発用の擬似生成。画面に「Claudeではありません」と表示）。
 
 ### 検証
