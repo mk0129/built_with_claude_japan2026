@@ -2161,7 +2161,7 @@ function DHealthHistory({
   )
 }
 
-/** ホームの「次の診察までに」: 学習途中 → 未学習 → 学習済みの順に、最大 2 件 */
+/** ホームの「次に学ぶ教材」: 学習途中 → 未学習の順で最初の 1 件（残りは「今回の教材をすべて見る」） */
 const homeLessonOrder = { doing: 0, new: 1, done: 2 } as const
 
 function DHome({
@@ -2198,7 +2198,7 @@ function DHome({
   const homeLessons = [...prescriptions]
     .sort((a, b) => homeLessonOrder[a.status] - homeLessonOrder[b.status])
     .filter((lesson) => lesson.status !== "done")
-    .slice(0, 2)
+    .slice(0, 1)
   const remainingMin = (lesson: DLesson) =>
     live ? Math.max(1, Math.round((lesson.time * (100 - lesson.progress)) / 100)) : 4
   return (
@@ -2221,84 +2221,74 @@ function DHome({
         </button>
       )}
       <DVisitCard visit={visit} />
-      <section className="d-home-section d-home-first">
-        <div className="d-section-head">
-          <div>
-            <p className="eyebrow">BEFORE YOUR VISIT</p>
-            <h2>次の診察までに</h2>
-          </div>
+      {/* 次に学ぶ教材: 390px で「次の診察」「次に学ぶ教材」「診察で聞きたいこと」が 1 画面に収まるよう、最初の 1 件だけをコンパクトに表示 */}
+      {live && !live.loaded ? null : prescriptions.length === 0 ? (
+        <div className="d-home-empty">
+          <h3>今届いている教材はありません</h3>
+          <p>公開教材はいつでも探せます。気になることから、無理のないペースでご覧ください。</p>
+          <button className="secondary-button" onClick={() => setPage("library")}>
+            教材を探す
+            <Icon name="arrow" size={16} />
+          </button>
         </div>
-        {live && !live.loaded ? null : prescriptions.length === 0 ? (
-          <div className="d-home-empty">
-            <h3>今届いている教材はありません</h3>
-            <p>公開教材はいつでも探せます。気になることから、無理のないペースでご覧ください。</p>
-            <button className="secondary-button" onClick={() => setPage("library")}>
-              教材を探す
-              <Icon name="arrow" size={16} />
-            </button>
+      ) : allDone ? (
+        <section className="d-complete-hero d-home-compact">
+          <span className="d-complete-icon">
+            <Icon name="check" size={22} />
+          </span>
+          <div>
+            <Pill tone="soft">今回の情報処方</Pill>
+            <h2>{live ? prescriptions.length : 3}件すべて確認しました</h2>
+            <p>必要なときは、いつでも読み直せます。</p>
           </div>
-        ) : allDone ? (
-          <section className="d-complete-hero">
-            <span className="d-complete-icon">
-              <Icon name="check" size={28} />
-            </span>
-            <div>
-              <Pill tone="soft">今回の情報処方</Pill>
-              <h2>{live ? prescriptions.length : 3}件すべて確認しました</h2>
-              <p>必要なときは、いつでも読み直せます。</p>
-            </div>
-            <button onClick={() => setPage("prescriptions")}>
-              学習済みを見る
-            </button>
-          </section>
-        ) : (
-          <section className="d-next-card">
-            <div className="d-next-meta">
-              <Pill>今回の情報処方</Pill>
-              <span>{live?.latest ? `${live.latest.date} · ${live.latest.clinician}から` : "6月12日 · 山田医師から"}</span>
-            </div>
-            <h2>
-              {active?.status === "doing"
-                ? "続きから再開できます"
-                : "新しい教材が届いています"}
-            </h2>
-            {homeLessons.map((lesson, index) => (
-              <div key={lesson.id} className="d-home-lesson" data-home-lesson>
-                <div className="d-next-lesson">
-                  <span className="d-next-icon">
-                    <Icon
-                      name={lesson.status === "doing" ? "play" : "book"}
-                      size={24}
-                    />
-                  </span>
-                  <span>
+          <button onClick={() => setPage("prescriptions")}>
+            学習済みを見る
+          </button>
+        </section>
+      ) : (
+        <section className="d-next-card d-home-compact" aria-label="次に学ぶ教材">
+          <div className="d-next-meta">
+            <Pill>今回の情報処方</Pill>
+            <span>{live?.latest ? `${live.latest.date} · ${live.latest.clinician}から` : "6月12日 · 山田医師から"}</span>
+          </div>
+          <h2>
+            {active?.status === "doing"
+              ? "続きから再開できます"
+              : "新しい教材が届いています"}
+          </h2>
+          {homeLessons.map((lesson) => (
+            <div key={lesson.id} className="d-home-lesson" data-home-lesson>
+              <div className="d-next-lesson">
+                <span className="d-next-icon">
+                  <Icon
+                    name={lesson.status === "doing" ? "play" : "book"}
+                    size={20}
+                  />
+                </span>
+                <span>
+                  <b>{lesson.title}</b>
+                  <small>
                     <DStatus lesson={lesson} short />
-                    <b>{lesson.title}</b>
-                    <small>
-                      {lesson.status === "doing"
-                        ? `${lesson.progress}%まで学習 · あと約${remainingMin(lesson)}分`
-                        : `約${lesson.time}分`}
-                    </small>
-                  </span>
-                </div>
-                <button
-                  className={index === 0 ? "primary-button" : "secondary-button d-home-lesson-action"}
-                  onClick={() => onOpen(lesson)}
-                >
-                  {lesson.status === "doing" ? "続きから学ぶ" : "教材を確認する"}
-                  <Icon name="arrow" size={index === 0 ? 20 : 16} />
-                </button>
+                    {lesson.status === "doing"
+                      ? `${lesson.progress}%まで · あと約${remainingMin(lesson)}分`
+                      : `約${lesson.time}分`}
+                  </small>
+                </span>
               </div>
-            ))}
-            <button
-              className="d-text-action"
-              onClick={() => setPage("prescriptions")}
-            >
-              今回の教材をすべて見る（{prescriptions.length}件）
-            </button>
-          </section>
-        )}
-      </section>
+              <button className="primary-button" onClick={() => onOpen(lesson)}>
+                {lesson.status === "doing" ? "続きから学ぶ" : "教材を確認する"}
+                <Icon name="arrow" size={18} />
+              </button>
+            </div>
+          ))}
+          <button
+            className="d-text-action"
+            onClick={() => setPage("prescriptions")}
+          >
+            今回の教材をすべて見る（{prescriptions.length}件）
+          </button>
+        </section>
+      )}
       <DHomeAsk recentNotes={recentNotes} onAddNote={onAddNote} setPage={setPage} />
       <section className="d-home-section">
         <button className="d-note-summary d-home-health" onClick={() => setPage("health")}>
@@ -2396,13 +2386,13 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
     return (
       <section className="d-visit-card empty" aria-label="次回の診察日">
         <span className="d-visit-icon">
-          <Icon name="calendar" />
+          <Icon name="calendar" size={18} />
         </span>
-        <span>
+        <span className="d-visit-text">
           <b>次回の診察日は未登録です</b>
-          <small>登録すると、診察までの日数と準備をここに表示します</small>
+          <small>登録すると、診察までの日数を表示します</small>
         </span>
-        <button className="secondary-button" data-visit-edit onClick={startEdit}>
+        <button className="d-visit-register" data-visit-edit onClick={startEdit}>
           次回診察日を登録
         </button>
       </section>
@@ -2410,27 +2400,26 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
   const days = daysUntil(visit.date)
   return (
     <section className="d-visit-card" aria-label="次回の診察日">
-      <div className="d-visit-head">
-        <span>
-          <Icon name="calendar" size={18} />
-          次の診察
+      <span className="d-visit-icon">
+        <Icon name="calendar" size={18} />
+      </span>
+      <span className="d-visit-text">
+        <small>次の診察 · {visitDateLabel(visit.date)}</small>
+        <span className="d-visit-days" data-visit-days>
+          {days > 0 ? (
+            <>
+              次の診察まで <b>あと{days}日</b>
+            </>
+          ) : days === 0 ? (
+            <b>今日が診察日です</b>
+          ) : (
+            <>登録した診察日を過ぎました。次の日付を登録してください</>
+          )}
         </span>
-        <button data-visit-edit onClick={startEdit}>
-          変更
-        </button>
-      </div>
-      <p className="d-visit-date-label">{visitDateLabel(visit.date)}</p>
-      <p className="d-visit-days" data-visit-days>
-        {days > 0 ? (
-          <>
-            次の診察まで <b>あと{days}日</b>
-          </>
-        ) : days === 0 ? (
-          <b>今日が診察日です</b>
-        ) : (
-          <>登録した診察日を過ぎました。次の診察日が決まったら登録してください</>
-        )}
-      </p>
+      </span>
+      <button className="d-visit-change" data-visit-edit onClick={startEdit}>
+        変更
+      </button>
     </section>
   )
 }
@@ -2457,10 +2446,7 @@ function DHomeAsk({
   return (
     <section className="d-home-section d-home-ask">
       <div className="d-section-head">
-        <div>
-          <p className="eyebrow">ASK AT YOUR VISIT</p>
-          <h2>診察で聞きたいこと</h2>
-        </div>
+        <h2>診察で聞きたいこと</h2>
         <span data-home-note-count>{recentNotes.length}件 保存済み</span>
       </div>
       <form
