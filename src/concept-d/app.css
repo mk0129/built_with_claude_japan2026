@@ -192,3 +192,11 @@
 .cd-preview-state dd { margin: 0; color: #7a5c2c; font-weight: 700; }
 .cd-preview-actions { margin-top: 14px; }
 .cd-preview-actions .cd-primary { width: 100%; }
+
+/* ---- ロゴ A（道を描いた栞）: 患者ヘッダー・医療者サイドバー・入口・ログインで共通（ShioriLogo） ---- */
+.shiori-logo .shiori-mark { display: block; width: auto; height: 40px; flex: 0 0 auto; }
+.shiori-logo.logo { gap: 8px; }
+.shiori-logo.cd-logo .shiori-mark { height: 36px; }
+.shiori-logo.shiori-logo-entry { gap: 12px; }
+.shiori-logo.shiori-logo-entry .shiori-mark { height: 64px; }
+.shiori-logo.shiori-logo-entry b { font-size: 34px; }

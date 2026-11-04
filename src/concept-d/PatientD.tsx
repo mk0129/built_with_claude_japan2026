@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react"
 import { useUrlState } from "./urlState"
+import { ShioriLogo } from "./ShioriLogo"
 import type { PatientLive } from "./live"
 import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes } from "./health"
 import {
@@ -157,14 +158,7 @@ export function Icon({ name, size = 20 }: { name: string; size?: number }) {
 }
 
 export function Logo() {
-  return (
-    <div className="logo">
-      <span className="logo-mark">
-        <span />
-      </span>
-      <b>shiori</b>
-    </div>
-  )
+  return <ShioriLogo />
 }
 
 function Pill({

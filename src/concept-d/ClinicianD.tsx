@@ -4,6 +4,7 @@ import type { ClinicianRecord, LiveConcern, LiveLibraryItem } from "./record"
 import { SAFETY_KINDS, type Draft, type StudioLive } from "./studio"
 import { DDraftPreview } from "./PatientD"
 import { areaOf } from "./learning"
+import { ShioriLogo } from "./ShioriLogo"
 import {
   currentVisitDate,
   formatShortDate,
@@ -150,15 +151,7 @@ export function CIcon({ name, size = 20 }: { name: string; size?: number }) {
 }
 
 function CLogo() {
-  return (
-    <div className="cd-logo">
-      <span>
-        <i />
-      </span>
-      <b>shiori</b>
-      <small>for medical</small>
-    </div>
-  )
+  return <ShioriLogo variant="clinician" sub="for medical" />
 }
 
 function Badge({
