@@ -370,6 +370,14 @@ export default function ClinicianD({
   // 本番は選択なしから始める（Figma は架空の 2 件が選択済み）
   const [prescription, setPrescription] = useState<(number | string)[]>(record ? [] : [1, 2])
   const [studioStep, setStudioStep] = useState(1)
+  // URL で指定した既存の下書きを開いたときは、編集の手順（Step 5）から始める
+  const openedDraft = studio?.openedFromUrl && studio.draft?.version.id === studio.openedFromUrl ? studio.openedFromUrl : null
+  const [shownDraft, setShownDraft] = useState<string | null>(null)
+  if (openedDraft && openedDraft !== shownDraft) {
+    setShownDraft(openedDraft)
+    setWorkspace("studio")
+    setStudioStep(5)
+  }
   const [notice, setNotice] = useState("")
   const [extendLocal, setExtendLocal] = useState(false)
   const extendRequested = live ? live.extensionRequested : extendLocal

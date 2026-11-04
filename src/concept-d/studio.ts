@@ -74,6 +74,22 @@ export function useStudio(orgId: string | null, enabled: boolean, notify: (messa
     return d;
   };
 
+  // 既存の下書きを開く（URL の ?draft=<versionId>。例: 取り込んだ教材の下書きを編集・患者プレビューで確認する）。権限はサーバーで検証
+  const [openedFromUrl, setOpenedFromUrl] = useState<string | null>(null);
+  const urlDraftRequested = useRef<string | null>(null);
+  useEffect(() => {
+    if (!enabled || !allowed) return;
+    const id = new URLSearchParams(window.location.search).get("draft");
+    if (!id || !/^[0-9a-f-]{36}$/i.test(id) || urlDraftRequested.current === id) return;
+    urlDraftRequested.current = id;
+    api<Draft>(`/api/v1/studio/materials/${id}`)
+      .then((d) => {
+        setDraft(d);
+        setOpenedFromUrl(id);
+      })
+      .catch((e) => notifyRef.current(errorText(e)));
+  }, [enabled, allowed]);
+
   /** 原資料の登録（ファイル・資料名・許諾元・許諾の根拠・利用条件・個人情報を含まないことの確認） */
   const upload = useCallback(
     async (file: File, meta: { title: string; rightsHolder: string; evidenceNote: string; perm: Permissions; piiAttestedNone: boolean }) =>
@@ -241,6 +257,7 @@ export function useStudio(orgId: string | null, enabled: boolean, notify: (messa
     draft,
     saveDraft,
     reloadDraft: () => (draft ? loadDraft(draft.version.id) : null),
+    openedFromUrl,
     submit: () => transition("submit"),
     approve: (acknowledgeSafety: boolean, note: string | null) => transition("approve", { acknowledgeSafety, note }),
     returnToDraft: (comment: string) => transition("return", { comment }),
