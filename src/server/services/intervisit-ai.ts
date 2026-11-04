@@ -85,7 +85,11 @@ export function validateItems(items: SummaryItem[], iv: Intervisit) {
     const srcs = item.sourceIds.map((id) => index.get(id));
     if (item.sourceIds.length === 0 || srcs.some((x) => !x)) return reject("存在しない根拠 ID");
     const plain = outsideQuotes(item.text);
-    for (const [re, label] of FORBIDDEN) if (re.test(plain)) return reject(`禁止された記述：${label}`, true);
+    // 理由には一致した禁止語（こちらの一覧の語。患者の記録ではない）を含め、原因を追跡できるようにする
+    for (const [re, label] of FORBIDDEN) {
+      const hit = plain.match(re);
+      if (hit) return reject(`禁止された記述：${label}（${hit[0]}）`, true);
+    }
     const pool = srcs.flatMap((x) => x!.values).join(" ");
     // 引用（「」内）は根拠の原文・教材名・設問に含まれる文字列であること（質問の意味を変えない）
     for (const q of quotes(item.text)) if (q && !pool.includes(q) && !["わからない", "誤答", "正答"].includes(q)) return reject("引用が原文と一致しない");
