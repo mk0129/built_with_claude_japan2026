@@ -87,7 +87,7 @@ test("患者: ログイン後に Figma 版ホーム。主要な画面遷移、�
   // 一時共有: 申請がなければ承認ボタンは出さない（読み取り方の案内のみ。共有の流れは share_flow.spec.ts）
   await page.locator(".d-share-chip").click();
   await expect(page.locator(".d-share-intro")).toContainText("カメラで");
-  await expect(page.locator(".d-share-page .primary-button")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "この医療者に共有を許可する" })).toHaveCount(0);
   await expect(page.getByText(/と一時共有中です/)).toHaveCount(0);
 
   // PC: Figma のタブレット表示（768px）を中央に置く

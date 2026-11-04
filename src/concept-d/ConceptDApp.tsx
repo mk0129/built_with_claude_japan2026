@@ -104,7 +104,7 @@ export function PatientDApp({ initial = {}, userName }: { initial?: UrlInit; use
 }
 
 /** 医療者: 1180px 以上は Figma の 1180 表示、それ未満は 820 表示（どちらも幅は Figma の設計幅のまま） */
-export function ClinicianDApp({ sessionId = null, orgs = [] }: { sessionId?: string | null; orgs?: ClinicianOrg[] }) {
+export function ClinicianDApp({ sessionId = null, orgs = [], grantId = null }: { sessionId?: string | null; orgs?: ClinicianOrg[]; grantId?: string | null }) {
   const s = useConceptDState()
   const wide = useMedia("(min-width: 1180px)", true)
   // 一時共有の通知は Figma の医療者用トースト（.cd-toast）で出す
@@ -113,7 +113,7 @@ export function ClinicianDApp({ sessionId = null, orgs = [] }: { sessionId?: str
     setNotice(message)
     window.setTimeout(() => setNotice(""), 2600)
   }
-  const live = useClinicianLive(sessionId, orgs, showNotice)
+  const live = useClinicianLive(sessionId, orgs, showNotice, grantId)
   // 患者が承認した有効な一時共有の間だけ、診察サマリーと処方の実データを読む（Step 2）
   const record = useClinicianRecord(live.sessionId, live.state === "active", showNotice)
   // 教材スタジオ（Step 5）: 申請先の医療機関で、教材編集・承認の権限があるときだけ使える（権限はサーバーで検証）

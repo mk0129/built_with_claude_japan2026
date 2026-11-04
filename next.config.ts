@@ -11,7 +11,8 @@ const nextConfig: NextConfig = {
     const to = (dest: string, sources: string[]) => sources.map((source) => ({ source, destination: dest, permanent: false }));
     return [
       ...to("/home", ["/d/patient", "/library", "/scores", "/share", "/learn/:path*", "/quiz/:path*"]),
-      ...to("/staff", ["/d/clinician", "/staff/consult/:path*", "/staff/studio/:path*", "/staff/scan", "/staff/materials/:path*", "/c"]),
+      ...to("/staff", ["/d/clinician", "/staff/consult/:path*", "/staff/studio/:path*", "/staff/scan", "/staff/materials/:path*"]),
+      // /c は患者が表示した QR の読み取り先（医療者の読み取り要求 → 承認待ち）として新 UI で使う
       ...to("/", ["/pb", "/pb/:path*", "/design", "/design/:path*"]),
     ];
   },

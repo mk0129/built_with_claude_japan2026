@@ -290,3 +290,16 @@
 .d-home-ask .d-text-action { margin-top: 4px; }
 .d-home-health { margin-top: 0; }
 
+/* ---- 患者の共有画面: 自分の QR コードと 6 桁コード（同じグラント） ---- */
+.d-share-issue { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 18px; }
+.d-share-issue .primary-button { width: 100%; min-height: 52px; }
+.d-share-issue small { color: var(--muted); font-size: 11px; line-height: 1.7; text-align: center; }
+.d-share-page > .d-share-code { margin: 14px 0 18px; }
+.d-share-code > span.d-share-qr { border-top: 0; padding: 16px 9px 12px; }
+.d-share-code > span.d-share-qr + span { border-left: 0; border-top: 1px solid var(--line); }
+.d-share-code > span.d-share-qr + span + span { border-top: 1px solid var(--line); }
+.d-share-code > span.d-share-qr + span b { font-size: 22px; letter-spacing: .14em; }
+.d-share-qr { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.d-share-qr img { display: block; width: 184px; height: 184px; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: #fff; image-rendering: pixelated; }
+.au-card-text { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.au-link-button { display: flex; align-items: center; justify-content: center; text-decoration: none; }
