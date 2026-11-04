@@ -1,0 +1,2218 @@
+[
+  {
+    "name": "C01_start_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            15,
+            36
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 3655,
+    "diffRatio": 0.00097,
+    "diffBoxCss": [
+      26,
+      17,
+      167,
+      52
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "C01_start_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            15,
+            36
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 3654,
+    "diffRatio": 0.0007,
+    "diffBoxCss": [
+      156,
+      41,
+      297,
+      76
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "C01_start_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            15,
+            36
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 3071,
+    "diffRatio": 0.00117,
+    "diffBoxCss": [
+      26,
+      17,
+      117,
+      52
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "C02_request_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            15,
+            36
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 3655,
+    "diffRatio": 0.00097,
+    "diffBoxCss": [
+      26,
+      17,
+      167,
+      52
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "C02_request_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            15,
+            36
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 3654,
+    "diffRatio": 0.0007,
+    "diffBoxCss": [
+      156,
+      41,
+      297,
+      76
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "C02_request_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            15,
+            36
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 3071,
+    "diffRatio": 0.00117,
+    "diffBoxCss": [
+      26,
+      17,
+      117,
+      52
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "C03_waiting_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            15,
+            36
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 3655,
+    "diffRatio": 0.00097,
+    "diffBoxCss": [
+      26,
+      17,
+      167,
+      52
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "C03_waiting_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            15,
+            36
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 3654,
+    "diffRatio": 0.0007,
+    "diffBoxCss": [
+      156,
+      41,
+      297,
+      76
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "C03_waiting_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            15,
+            36
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 3071,
+    "diffRatio": 0.00117,
+    "diffBoxCss": [
+      26,
+      17,
+      117,
+      52
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E01_entry_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            27,
+            64
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 214888,
+    "diffRatio": 0.04145,
+    "diffBoxCss": [
+      468,
+      129,
+      972,
+      619
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E01_entry_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            27,
+            64
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 359843,
+    "diffRatio": 0.2733,
+    "diffBoxCss": [
+      0,
+      0,
+      374,
+      606
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E01_entry_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            27,
+            64
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 371175,
+    "diffRatio": 0.25569,
+    "diffBoxCss": [
+      0,
+      0,
+      414,
+      606
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E01_entry_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            27,
+            64
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 421212,
+    "diffRatio": 0.1339,
+    "diffBoxCss": [
+      0,
+      0,
+      636,
+      681
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E02_login_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      2204
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2880,
+      2018
+    ],
+    "diffPixels": 715739,
+    "diffRatio": 0.11276,
+    "diffBoxCss": [
+      0,
+      8,
+      1440,
+      1102
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E02_login_1440_s1",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 159684,
+    "diffRatio": 0.0308,
+    "diffBoxCss": [
+      468,
+      0,
+      972,
+      836
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E02_login_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      2172
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      2092
+    ],
+    "diffPixels": 223535,
+    "diffRatio": 0.13194,
+    "diffBoxCss": [
+      0,
+      8,
+      390,
+      1086
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E02_login_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 129929,
+    "diffRatio": 0.09868,
+    "diffBoxCss": [
+      0,
+      0,
+      390,
+      780
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E02_login_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      2148
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      2092
+    ],
+    "diffPixels": 216190,
+    "diffRatio": 0.11703,
+    "diffBoxCss": [
+      0,
+      8,
+      430,
+      1074
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E02_login_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 133622,
+    "diffRatio": 0.09205,
+    "diffBoxCss": [
+      0,
+      0,
+      430,
+      780
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E02_login_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2204
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 419388,
+    "diffRatio": 0.12388,
+    "diffBoxCss": [
+      0,
+      8,
+      768,
+      1102
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E02_login_768_s1",
+    "onlyAfter": true,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E03_staff_login_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      2446
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2880,
+      2194
+    ],
+    "diffPixels": 945478,
+    "diffRatio": 0.13422,
+    "diffBoxCss": [
+      0,
+      6,
+      1440,
+      1223
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E03_staff_login_1440_s1",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 173637,
+    "diffRatio": 0.03349,
+    "diffBoxCss": [
+      480,
+      0,
+      960,
+      837
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E03_staff_login_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      2514
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      2412
+    ],
+    "diffPixels": 293006,
+    "diffRatio": 0.14942,
+    "diffBoxCss": [
+      0,
+      6,
+      390,
+      1257
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E03_staff_login_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 139862,
+    "diffRatio": 0.10623,
+    "diffBoxCss": [
+      16,
+      0,
+      374,
+      780
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E03_staff_login_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      2478
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      2288
+    ],
+    "diffPixels": 382365,
+    "diffRatio": 0.17942,
+    "diffBoxCss": [
+      0,
+      6,
+      430,
+      1239
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E03_staff_login_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 155731,
+    "diffRatio": 0.10728,
+    "diffBoxCss": [
+      16,
+      0,
+      414,
+      780
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E03_staff_login_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2446
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      1536,
+      2194
+    ],
+    "diffPixels": 606789,
+    "diffRatio": 0.16151,
+    "diffBoxCss": [
+      0,
+      6,
+      768,
+      1223
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "E03_staff_login_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 197689,
+    "diffRatio": 0.06284,
+    "diffBoxCss": [
+      144,
+      6,
+      624,
+      961
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01_home_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 245194,
+    "diffRatio": 0.18623,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01_home_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 106145,
+    "diffRatio": 0.08062,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      509
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01_home_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 330002,
+    "diffRatio": 0.22732,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      788
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01_home_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 169927,
+    "diffRatio": 0.11706,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      788
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01_home_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 572381,
+    "diffRatio": 0.18196,
+    "diffBoxCss": [
+      20,
+      15,
+      724,
+      968
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01_home_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 380820,
+    "diffRatio": 0.12106,
+    "diffBoxCss": [
+      20,
+      15,
+      724,
+      968
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01b_home_visit_390",
+    "onlyAfter": true,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01b_home_visit_390_s1",
+    "onlyAfter": true,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01b_home_visit_430",
+    "onlyAfter": true,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01b_home_visit_430_s1",
+    "onlyAfter": true,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01b_home_visit_768",
+    "onlyAfter": true,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01b_home_visit_768_s1",
+    "onlyAfter": true,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01c_home_note_390",
+    "onlyAfter": true,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01c_home_note_390_s1",
+    "onlyAfter": true,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01c_home_note_430",
+    "onlyAfter": true,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01c_home_note_430_s1",
+    "onlyAfter": true,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01c_home_note_768",
+    "onlyAfter": true,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P01c_home_note_768_s1",
+    "onlyAfter": true,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P02_library_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3339,
+    "diffRatio": 0.00254,
+    "diffBoxCss": [
+      20,
+      15,
+      358,
+      788
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P02_library_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3349,
+    "diffRatio": 0.00231,
+    "diffBoxCss": [
+      20,
+      15,
+      394,
+      788
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P02_library_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 3353,
+    "diffRatio": 0.00107,
+    "diffBoxCss": [
+      20,
+      15,
+      635,
+      968
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P03_share_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 126781,
+    "diffRatio": 0.09629,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      788
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P03_share_390_s1",
+    "onlyAfter": true,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P03_share_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 136744,
+    "diffRatio": 0.0942,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      788
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P03_share_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 201806,
+    "diffRatio": 0.06415,
+    "diffBoxCss": [
+      20,
+      15,
+      732,
+      968
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P04_share_code_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 276476,
+    "diffRatio": 0.20999,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      788
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P04_share_code_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 256822,
+    "diffRatio": 0.19506,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      788
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P04_share_code_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 288602,
+    "diffRatio": 0.19881,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      788
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P04_share_code_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 267530,
+    "diffRatio": 0.18429,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      788
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "P04_share_code_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [
+        {
+          "box": [
+            17,
+            40
+          ],
+          "loaded": true
+        }
+      ],
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 384187,
+    "diffRatio": 0.12213,
+    "diffBoxCss": [
+      20,
+      15,
+      732,
+      968
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "logos": [],
+      "tokenInText": false
+    }
+  }
+]
