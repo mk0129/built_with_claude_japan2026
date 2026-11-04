@@ -156,6 +156,16 @@ describe("Claude による教材生成（B / C）と承認・公開（C）", () 
     // 編集（原資料と比較できる）
     const d = await getDraftForEditor(tanaka, versionId);
     expect(d.sources[0].extractedText).toContain("ホルモン療法");
+    // 正答位置の分散: Claude の出力（2 問とも 2 番目が正答）を、正答の文・設問・解説を保ったまま並べ替えて保存
+    const generated = material("x").questions;
+    expect(d.questions.map((q) => q.correctIndex)).not.toEqual([1, 1]);
+    d.questions.forEach((q, i) => {
+      expect(q.stem).toBe(generated[i].stem);
+      expect(q.explanation).toBe(generated[i].explanation);
+      expect(q.options[q.correctIndex]).toBe(generated[i].options[generated[i].correctIndex]);
+      expect([...q.options].sort()).toEqual([...generated[i].options].sort());
+    });
+    expect((job.outputPayload as { validationWarnings: string[] }).validationWarnings.some((w) => w.includes("選択肢の順番を入れ替えました"))).toBe(true);
     expect(d.check.warnings.filter((w) => w.includes("見つかりません"))).toEqual([]);
     expect(d.material.scope).toBe("org");
     await updateDraft(tanaka, versionId, {

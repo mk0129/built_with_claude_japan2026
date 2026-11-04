@@ -5,6 +5,7 @@ import { aiGenerationJobs, materialSlides, materialVersions, materials, quizQues
 import { badRequest, conflict, forbidden, notFound } from "@/server/authz/errors";
 import type { Principal } from "@/server/authz/principal";
 import { audit } from "./audit";
+import { balanceAnswerPositions } from "./quiz-balance";
 import { ClaudeError, callClaudeStructured, claudeMode, classifyClaudeError, type ClaudeResult } from "./claude";
 import { assertAiAllowedForSources, requireStudioMembership } from "./sources";
 
@@ -352,10 +353,14 @@ async function runClaimed(job: typeof aiGenerationJobs.$inferSelect, db: Db) {
       if (v.errors.length) throw new ClaudeError("PARSE_FAILED", `生成結果が条件を満たしていません: ${v.errors.join(" / ")}`);
       await setProgress(db, jobId, "下書きを保存しています");
       const mustCover = matchMustCover(input.mustCover ?? [], r.data);
-      const versionId = await saveDraft(db, job, r.data, sources.map((s) => s.id), r.model, mustCover);
+      // 正答の位置の偏りを防ぐ（新しい下書きだけ。正答のインデックスも更新し、設問・解説は変えない）
+      const balanced = balanceAnswerPositions(r.data.questions);
+      const data = { ...r.data, questions: balanced.questions };
+      const warnings = [...v.warnings, ...(balanced.moved.length ? [`正答の位置の偏りを防ぐため、${balanced.moved.length}問の選択肢の順番を入れ替えました（正答・解説は変わりません）`] : []), ...(balanced.warning ? [balanced.warning] : [])];
+      const versionId = await saveDraft(db, job, data, sources.map((s) => s.id), r.model, mustCover);
       await db
         .update(aiGenerationJobs)
-        .set({ status: "succeeded", progress: "下書きができました", outputPayload: { ...r.data, validationWarnings: v.warnings }, outputVersionId: versionId, ...usage(r), errorCode: null, errorMessage: null, finishedAt: new Date(), leaseExpiresAt: null })
+        .set({ status: "succeeded", progress: "下書きができました", outputPayload: { ...data, validationWarnings: warnings, originalCorrectIndices: r.data.questions.map((q) => q.correctIndex) }, outputVersionId: versionId, ...usage(r), errorCode: null, errorMessage: null, finishedAt: new Date(), leaseExpiresAt: null })
         .where(eq(aiGenerationJobs.id, jobId));
     }
     await audit({ actorUserId: job.createdByUserId, orgId: job.orgId, action: "ai.job.succeeded", resourceType: "ai_generation_job", resourceId: jobId, outcome: "ok" }, db);
