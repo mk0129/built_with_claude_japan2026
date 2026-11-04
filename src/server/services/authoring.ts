@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, inArray, isNull, or } from "drizzle-orm";
 import { getDb, type Db } from "@/server/db/client";
-import { MUST_COVER_SAFETY_KINDS, materialSlides, materialVersions, materials, organizations, quizQuestions, sourceDocuments, sourcePermissions, user, type MustCoverItem, type MustCoverStatus, type SourceRef } from "@/server/db/schema";
+import { DOMAIN_TAGS, MUST_COVER_SAFETY_KINDS, materialSlides, materialVersions, materials, organizations, quizQuestions, sourceDocuments, sourcePermissions, user, type MustCoverItem, type MustCoverStatus, type SourceRef } from "@/server/db/schema";
 import { badRequest, conflict, forbidden, notFound } from "@/server/authz/errors";
 import { listMemberships, type Principal } from "@/server/authz/principal";
 import { audit } from "./audit";
@@ -164,7 +164,9 @@ export async function updateDraft(p: Principal, versionId: string, u: DraftUpdat
   if (u.questions.length < 2 || u.questions.length > 5) throw badRequest("QUESTION_COUNT", "問題は 2〜5 問にしてください");
   for (const q of u.questions) if (q.correctIndex < 0 || q.correctIndex > 2 || q.options.some((o) => !o.trim())) throw badRequest("QUESTION_INVALID");
   await db.transaction(async (tx) => {
-    await tx.update(materials).set({ title: u.title, primaryDomain: u.primaryDomain, tags: [u.primaryDomain] }).where(eq(materials.id, m.id));
+    // 先頭は学習領域。学習領域以外のタグ（例: 「治療選択」）は編集の保存で消さない
+    const extraTags = m.tags.filter((t) => !(DOMAIN_TAGS as readonly string[]).includes(t));
+    await tx.update(materials).set({ title: u.title, primaryDomain: u.primaryDomain, tags: [u.primaryDomain, ...extraTags] }).where(eq(materials.id, m.id));
     await tx.update(materialVersions).set({ summary: u.summary, learningObjectives: u.learningObjectives }).where(eq(materialVersions.id, versionId));
     await tx.delete(materialSlides).where(eq(materialSlides.materialVersionId, versionId));
     await tx.delete(quizQuestions).where(eq(quizQuestions.materialVersionId, versionId));

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react"
 import { useUrlState } from "./urlState"
 import type { PatientLive } from "./live"
 import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes } from "./health"
@@ -366,7 +366,7 @@ function DImageSlot({
   compact?: boolean
   /** 本番: 医療者が承認した図解（承認済みの画像だけが API から届く）。なければ Figma の「画像準備中」 */
   image?: { src: string; alt: string }
-  /** サムネイルは枠いっぱいに表示（cover）。医学図解は切り取らない（contain） */
+  /** contain: 画像全体を枠内に表示（医学図解・教材詳細のサムネイル。切り取らない）。cover: 枠いっぱいに表示（教材カード） */
   fit?: "contain" | "cover"
 }) {
   const placeholderContent = image ? (
@@ -2614,10 +2614,11 @@ function DDetail({
       <DPageHeader title="教材の詳細" onBack={onBack} />
       <DImageSlot
         kind={imageKind(lesson)}
-        caption="教材内容を補助する監修済み画像を配置する領域"
+        // 装飾用サムネイルの下には説明を出さない（監修済みの医学図解と区別する）。画像がないときは Figma の枠と説明のまま
+        caption={lesson.thumbnail ? "" : "教材内容を補助する監修済み画像を配置する領域"}
         onExpand={lesson.thumbnail ? undefined : onZoom}
         image={lesson.thumbnail ?? undefined}
-        fit="cover"
+        fit="contain"
       />
       <div className="d-detail-meta">
         <DStatus lesson={lesson} />
@@ -2982,6 +2983,7 @@ function DExplanation({
   onNext,
   onAddQuestion,
   live,
+  preview = false,
 }: {
   answer: string
   onBackToLesson: () => void
@@ -2989,6 +2991,8 @@ function DExplanation({
   onAddQuestion: () => void
   /** 本番: 記録した回答（サーバーの採点結果）と解説 */
   live?: { question: AttemptQuestion | null; relatedTitle: string | null; remaining: number }
+  /** 医療者の下書きプレビュー: 回答は記録しない（文言だけ変え、質問候補の作成は出さない） */
+  preview?: boolean
 }) {
   const a = live?.question?.answer ?? null
   const unsure = live ? !!a?.isUnknown : answer === "わからない"
@@ -3007,12 +3011,14 @@ function DExplanation({
           <Icon name={correct ? "check" : "help"} size={28} />
         </span>
         <div>
-          <p className="eyebrow">回答を記録しました</p>
+          <p className="eyebrow">{preview ? "プレビュー · 回答は記録されません" : "回答を記録しました"}</p>
           <h1>
             {correct
               ? "この内容で確認できています"
               : unsure
-                ? "「わからない」を記録しました"
+                ? preview
+                  ? "「わからない」を選びました"
+                  : "「わからない」を記録しました"
                 : "いっしょに確認しましょう"}
           </h1>
         </div>
@@ -3063,7 +3069,7 @@ function DExplanation({
         <Icon name="arrow" />
       </button>
       )}
-      {!correct && (
+      {!correct && !preview && (
         <button
           className="secondary-button d-question-candidate"
           onClick={onAddQuestion}
@@ -3079,6 +3085,181 @@ function DExplanation({
         {live && live.remaining > 0 ? "次の問題へ" : "振り返りへ"}
         <Icon name="arrow" />
       </button>
+    </div>
+  )
+}
+
+/** 医療者の下書きプレビューに渡す教材（教材スタジオの下書きそのもの。未公開・未監修でもよい） */
+export type DraftPreviewMaterial = {
+  title: string
+  slides: { seq: number; title: string; proposition: string | null; bodyMd: string; detailMd: string | null }[]
+  questions: { seq: number; stem: string; options: [string, string, string]; correctIndex: number; explanation: string; relatedSlideSeq: number | null }[]
+}
+
+/**
+ * 医療者・編集者向けの下書きプレビュー（教材スタジオ Step 6）。患者の学習画面・理解確認・解説と同じ部品で表示する。
+ * 学習 API・回答 API は呼ばない（進捗・回答はこの画面の中だけで持ち、閉じると消える）。正誤は下書きの正答で表示する。
+ * 患者向けの経路は作らない（未公開の教材は患者の一覧・学習 API には出ない）。
+ */
+export function DDraftPreview({
+  material,
+  stateLabel,
+  onClose,
+}: {
+  material: DraftPreviewMaterial
+  /** 上部に常に出す状態（例: 未監修・公開不可） */
+  stateLabel: string
+  onClose: () => void
+}) {
+  const [view, setView] = useState<"learn" | "quiz" | "explanation" | "result">("learn")
+  const [seq, setSeq] = useState(1)
+  const [panel, setPanel] = useState<"figure" | "points">("figure")
+  const [qi, setQi] = useState(0)
+  const [selected, setSelected] = useState("")
+  const [answers, setAnswers] = useState<NonNullable<AttemptQuestion["answer"]>[]>([])
+  const mainRef = useRef<HTMLElement>(null)
+  // ページ・問題が変わったら先頭から表示する
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 })
+  }, [view, seq, qi])
+  // 読み上げ用テキストは保存時に本文と同じになる（教材スタジオの既存の仕様）。図解は監修・承認後にだけ付くため、下書きでは常に「準備中」
+  const slides: Slide[] = material.slides.map((sl) => ({ ...sl, voiceText: sl.bodyMd, figures: [] }))
+  const total = slides.length
+  const lesson = { title: material.title } as DLesson
+  const questions: AttemptQuestion[] = material.questions.map((q, i) => ({
+    questionId: `preview-${q.seq}`,
+    seq: q.seq,
+    stem: q.stem,
+    options: q.options,
+    relatedSlideSeq: q.relatedSlideSeq,
+    answer: answers[i] ?? null,
+  }))
+  const restart = () => {
+    setView("learn")
+    setSeq(1)
+    setQi(0)
+    setSelected("")
+    setAnswers([])
+  }
+  const startQuiz = () => {
+    setQi(0)
+    setSelected("")
+    setAnswers([])
+    setView("quiz")
+  }
+  let content: ReactNode
+  if (view === "learn") {
+    content = (
+      <DLearning
+        lesson={lesson}
+        panel={panel}
+        setPanel={setPanel}
+        onClose={onClose}
+        onNext={() => {}}
+        onZoom={() => {}}
+        live={{
+          slide: slides[seq - 1] ?? null,
+          seq,
+          total,
+          hasQuiz: questions.length > 0,
+          onPrev: () => setSeq(Math.max(1, seq - 1)),
+          onNext: () => (seq < total ? setSeq(seq + 1) : questions.length ? startQuiz() : setView("result")),
+        }}
+      />
+    )
+  } else if (view === "quiz") {
+    content = (
+      <DQuiz
+        answer={selected}
+        setAnswer={setSelected}
+        live={{ question: questions[qi] ?? null, index: qi, total: questions.length, busy: false }}
+        onBack={() => setView("learn")}
+        onConfirm={() => {
+          const q = material.questions[qi]
+          if (!q) return
+          const index = q.options.indexOf(selected)
+          const selectedIndex = index >= 0 ? index : null
+          const next = [...answers]
+          next[qi] = {
+            selectedIndex,
+            isUnknown: selectedIndex === null,
+            isCorrect: selectedIndex === q.correctIndex,
+            correctIndex: q.correctIndex,
+            explanation: q.explanation,
+          }
+          setAnswers(next)
+          setView("explanation")
+        }}
+      />
+    )
+  } else if (view === "explanation") {
+    const shown = questions[qi] ?? null
+    content = (
+      <DExplanation
+        answer={selected}
+        preview
+        live={{
+          question: shown,
+          relatedTitle: slides.find((sl) => sl.seq === shown?.relatedSlideSeq)?.title ?? null,
+          remaining: questions.length - qi - 1,
+        }}
+        onBackToLesson={() => {
+          if (shown?.relatedSlideSeq) setSeq(shown.relatedSlideSeq)
+          setView("learn")
+        }}
+        onAddQuestion={() => {}}
+        onNext={() => {
+          setSelected("")
+          if (qi + 1 < questions.length) {
+            setQi(qi + 1)
+            setView("quiz")
+          } else setView("result")
+        }}
+      />
+    )
+  } else {
+    content = (
+      <div className="d-explanation">
+        <div className="d-answer-result correct">
+          <span>
+            <Icon name="check" size={28} />
+          </span>
+          <div>
+            <p className="eyebrow">プレビュー · 記録されません</p>
+            <h1>プレビューを最後まで確認しました</h1>
+          </div>
+        </div>
+        {material.questions.map((q, i) => {
+          const a = answers[i]
+          return (
+            <section className="d-explanation-copy" key={q.seq}>
+              <h2>
+                {i + 1}. {q.stem}
+              </h2>
+              <div className="d-your-answer">
+                <span>選んだ回答</span>
+                <b>{!a ? "未回答" : a.isUnknown ? "わからない" : q.options[a.selectedIndex ?? 0]}</b>
+              </div>
+              <p>正解: {q.options[q.correctIndex]}</p>
+            </section>
+          )
+        })}
+        <button className="primary-button d-bottom-action" onClick={restart}>
+          最初から確認する
+        </button>
+      </div>
+    )
+  }
+  return (
+    <div className="d-device viewport-390 d-device-preview" data-studio-preview data-preview-view={view}>
+      <div className="d-preview-banner" role="status">
+        <b>プレビュー</b>
+        <span>{stateLabel}</span>
+        <small>学習・回答は記録されません</small>
+      </div>
+      <main className="d-main full" ref={mainRef}>
+        {content}
+      </main>
     </div>
   )
 }

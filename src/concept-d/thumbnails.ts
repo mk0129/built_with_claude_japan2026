@@ -11,7 +11,8 @@ export type Thumbnail = { file: string; alt: string };
 export const THUMBNAILS: Record<string, Thumbnail> = {
   // 教材 v1.1（編集草稿・医学的監修前。題名は DB の教材名と完全一致）。線画 #315E68・1600×1200・透過 WebP
   "乳がんの治療は、どう組み合わせて決める？": { file: "thumb_treatment_choices.webp", alt: "医療者と患者が相談する線画" },
-  "手術後の病理検査では、何がわかる？": { file: "thumb_pathology.webp", alt: "病理結果について説明を受ける線画" },
+  // 病理: 装飾用。ボードの絵は顕微鏡のモチーフ（病理組織・リンパ節の図は描かない。scripts/review/edit-pathology-thumb.mjs）
+  "手術後の病理検査では、何がわかる？": { file: "thumb_pathology.webp", alt: "顕微鏡の絵を見ながら医療者の説明を聞く線画" },
   "抗がん剤治療で気をつけたい体調の変化": { file: "thumb_symptom_check.webp", alt: "自宅で体調を記録する線画" },
   "子どもに乳がんをどう伝える？": { file: "thumb_family_talk.webp", alt: "家族と向き合って会話する線画" },
   // 既存のシード教材: 題材が一致するものだけ（化学療法中の体調の変化と自宅での記録）

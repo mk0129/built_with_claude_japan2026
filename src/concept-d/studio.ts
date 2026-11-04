@@ -15,7 +15,7 @@ export type MustCandidate = { id: string; text: string; kind: "emergency" | "vis
 type Job = { id: string; mode: string; status: string; progress: string | null; errorCode: string | null; errorMessage: string | null; generator: string; model: string; outputPayload: unknown; outputVersionId: string | null };
 export type Draft = {
   version: { id: string; status: "draft" | "in_review" | "published" | "retired"; summary: string | null; learningObjectives: string[]; mustCover: { id: string; text: string; kind: string; status: string; confirmed?: boolean; sourceRef?: { quote?: string; section?: string } }[]; reviewComment: string | null };
-  material: { id: string; title: string; primaryDomain: string; scope: "common" | "org" };
+  material: { id: string; title: string; primaryDomain: string; scope: "common" | "org"; tags?: string[] };
   slides: { seq: number; title: string; proposition: string | null; bodyMd: string; detailMd: string | null; sourceRefs: { sourceId: string; section?: string; quote?: string }[] }[];
   questions: { seq: number; stem: string; options: [string, string, string]; correctIndex: number; explanation: string; relatedSlideSeq: number | null; sourceRefs: { sourceId: string; section?: string; quote?: string }[] }[];
   sources: { id: string; title: string; perm: { rightsHolder: string; allowPublish: boolean; allowShare: boolean; allowDerive: boolean } | null }[];

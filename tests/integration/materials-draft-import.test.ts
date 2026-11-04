@@ -5,7 +5,7 @@ import { getDb } from "@/server/db/client";
 import { materials, materialSlides, materialVersions, quizQuestions } from "@/server/db/schema";
 import { AppError } from "@/server/authz/errors";
 import { createJob } from "@/server/services/ai-generation";
-import { approveAndPublish, getDraftForEditor, submitForReview } from "@/server/services/authoring";
+import { approveAndPublish, getDraftForEditor, submitForReview, updateDraft } from "@/server/services/authoring";
 import { listVisibleMaterials } from "@/server/services/materials";
 import { importV11 } from "../../scripts/review/import-materials-draft";
 import { setupDb, type Seeded } from "../helpers";
@@ -27,6 +27,7 @@ const material = (title: string, domain: string) => ({
   status: { medical: "unreviewed", rights: "permission_pending", publication: "not_approved" },
 });
 const RAW = Buffer.from(JSON.stringify({ version: "1.1", source_note: "架空の原稿（テスト）", materials: [material("架空教材A（テスト）", "検査・診断"), material("架空教材B（テスト）", "副作用・支持療法")] }));
+const RAW_D03 = Buffer.from(JSON.stringify({ version: "1.1", source_note: "架空の原稿（テスト・治療選択）", materials: [material("架空教材C（テスト）", "診断・治療選択")] }));
 
 let seeded: Seeded;
 const staff = (email: string) => ({ userId: seeded.users.get(email)!, kind: "staff" as const, name: email, email });
@@ -74,5 +75,24 @@ describe("教材 v1.1 の下書き取り込み（レビュー用）", () => {
     expect((await getDraftForEditor(sato, v.id)).approvalBlock).toContain("公開の許可がありません");
     await expectAppError(approveAndPublish(sato, v.id), 403, "SOURCE_PERMISSION_MISSING");
     await expectAppError(createJob(sato, null, { mode: "outline", sourceIds: v.sourceDocumentIds }), 403, "AI_NOT_PERMITTED");
+  });
+
+  it("「診断・治療選択」は「検査・診断」に入れ「治療選択」のタグを付ける。編集の保存で、タグは消えず「もう少し詳しく」が保存される", async () => {
+    const sato = staff("approver.sato@example.com");
+    const [r] = await importV11(getDb(), RAW_D03);
+    const [m] = await getDb().select().from(materials).where(eq(materials.title, "架空教材C（テスト）"));
+    expect([m.primaryDomain, m.tags]).toEqual(["diagnosis_staging", ["diagnosis_staging", "治療選択"]]);
+
+    const d = await getDraftForEditor(sato, r.versionId!);
+    const slides = d.slides.map((x, i) => ({ title: x.title, proposition: x.proposition ?? "", body: x.bodyMd, detail: i === 0 ? "編集した詳しい説明（架空）" : (x.detailMd ?? ""), sourceRefs: [] }));
+    const questions = d.questions.map((x) => ({ stem: x.stem, options: x.options, correctIndex: x.correctIndex, explanation: x.explanation, relatedSlide: x.relatedSlideSeq ?? 1, sourceRefs: [] }));
+    await updateDraft(sato, r.versionId!, { title: m.title, summary: d.version.summary ?? "", primaryDomain: m.primaryDomain, learningObjectives: d.version.learningObjectives, slides, questions });
+    const [after] = await getDb().select().from(materials).where(eq(materials.id, m.id));
+    expect(after.tags).toEqual(["diagnosis_staging", "治療選択"]);
+    const saved = await getDb().select().from(materialSlides).where(eq(materialSlides.materialVersionId, r.versionId!)).orderBy(materialSlides.seq);
+    expect(saved.map((x) => x.detailMd)).toEqual(["編集した詳しい説明（架空）", "詳しく2（架空）", "詳しく3（架空）", "詳しく4（架空）", "詳しく5（架空）"]);
+    // 学習領域を変えたときは、先頭の学習領域だけ置き換わる
+    await updateDraft(sato, r.versionId!, { title: m.title, summary: d.version.summary ?? "", primaryDomain: "drug_therapy", learningObjectives: d.version.learningObjectives, slides, questions });
+    expect((await getDb().select().from(materials).where(eq(materials.id, m.id)))[0].tags).toEqual(["drug_therapy", "治療選択"]);
   });
 });

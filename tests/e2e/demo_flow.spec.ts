@@ -52,15 +52,38 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await heading.fill("ホルモン療法を続けるために（デモ）");
   await s.locator("[data-studio-editor] textarea").first().click();
   await expect(s.locator(".cd-draft-status")).toContainText("自動保存", { timeout: 10_000 });
+  // 「もう少し詳しく」の編集（自動保存）
+  await s.locator("[data-studio-detail]").fill("詳しい説明（デモの編集）");
+  await heading.click();
+  await expect(s.locator(".cd-draft-status")).toContainText("自動保存", { timeout: 10_000 });
   await s.getByRole("button", { name: "次へ進む" }).click();
-  // 患者向けプレビュー → 承認依頼
-  await expect(s.locator("[data-studio-preview]")).toContainText("ホルモン療法を続けるために（デモ）");
-  for (let i = 0; i < 8; i++) {
-    const t = await s.locator("[data-studio-preview] footer .cd-primary").textContent();
-    if (t?.includes("承認依頼へ")) break;
-    await s.locator("[data-studio-preview] footer .cd-primary").click();
+  // 患者向けプレビュー（患者の学習画面と同じ部品。学習・回答 API は呼ばない）→ 承認依頼
+  const writes: string[] = [];
+  s.on("request", (r) => {
+    if (r.method() !== "GET" && /\/api\/v1\/(learn|attempts)\b/.test(r.url())) writes.push(r.url());
+  });
+  const pv = s.locator("[data-studio-preview]");
+  await expect(pv.locator(".d-preview-banner")).toContainText("未監修");
+  await expect(pv.locator(".d-learning h1")).toContainText("ホルモン療法を続けるために（デモ）");
+  await pv.locator(".d-disclosure").click();
+  await expect(pv.locator(".d-detail-copy")).toHaveText("詳しい説明（デモの編集）");
+  await pv.locator(".d-disclosure").click();
+  await expect(pv.locator(".d-detail-copy")).toHaveCount(0);
+  for (let i = 0; i < 8 && !(await pv.getByRole("button", { name: "理解を確認する" }).count()); i++) await pv.getByRole("button", { name: "次へ" }).click();
+  await pv.getByRole("button", { name: "理解を確認する" }).click();
+  for (let i = 0; i < 6; i++) {
+    await pv.locator(".d-answer-list button").first().click();
+    await pv.getByRole("button", { name: "この回答で確定する" }).click();
+    await expect(pv.locator(".d-explanation-copy")).toContainText("解説");
+    await expect(pv.locator(".d-answer-result")).toContainText("回答は記録されません");
+    const next = pv.getByRole("button", { name: /次の問題へ|振り返りへ/ });
+    const last = (await next.textContent())?.includes("振り返りへ");
+    await next.click();
+    if (last) break;
   }
-  await s.locator("[data-studio-preview] footer .cd-primary").click();
+  await expect(pv.getByRole("heading", { name: "プレビューを最後まで確認しました" })).toBeVisible();
+  expect(writes).toEqual([]);
+  await s.locator(".cd-preview-actions").getByRole("button", { name: "承認依頼へ" }).click();
   await expect(s.getByRole("heading", { name: "医学的承認と公開" })).toBeVisible();
   await expect(s.locator(".cd-demo-approval-note")).toContainText("本番の医学的監修を意味しません");
   const approve = s.getByRole("button", { name: "医学的に承認して公開" });

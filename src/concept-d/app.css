@@ -149,3 +149,46 @@
 /* Phase 2 Step 5: 教材スタジオの処理中表示と、デモ承認の注記（Figma の文字サイズ・色に合わせた最小限の追加） */
 .cd-studio-busy { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; background: #f4f7f7; color: #3f7180; font-size: 13px; font-weight: 700; }
 .cd-demo-approval-note { display: flex; gap: 8px; align-items: flex-start; margin: 14px 0 0; color: #8b6b38; font-size: 12px; line-height: 1.6; }
+
+/*
+ * 教材スタジオ Step 6: 下書きの患者向けプレビュー（医療者・編集者のみ）。端末の中は患者の学習画面と同じ .d-* の部品・寸法（幅 390px）。
+ * ここでは端末の枠（高さ・角丸・影）と、未監修・公開不可の帯、左欄の状態表示だけを追加する（Figma の既存の規則は変えない）。
+ */
+.d-device.d-device-preview {
+  width: 390px;
+  /* 医療者の画面（高さ 800px 前後）で、ヘッダーの下に端末全体が収まる高さ。端末の中は患者画面と同じくスクロール */
+  height: min(740px, calc(100dvh - 150px));
+  min-height: 560px;
+  border-radius: 24px;
+  box-shadow: 0 0 0 6px #dce4e4, 0 15px 35px rgba(38, 63, 67, .12);
+}
+.d-preview-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+  padding: 9px 20px;
+  border-bottom: 1px solid #ecdcbc;
+  background: #fbf5ea;
+  color: #7a5c2c;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.d-preview-banner b { padding: 1px 7px; border-radius: 6px; background: #8b6b38; color: #fff; font-size: 11px; }
+.d-preview-banner span { font-weight: 700; }
+.d-preview-banner small { margin-left: auto; font-size: 11px; }
+.cd-preview-state {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px 8px;
+  margin: 14px 0 0;
+  padding: 9px;
+  border: 1px solid #ecdcbc;
+  border-radius: 8px;
+  background: #fbf5ea;
+  font-size: 8px;
+}
+.cd-preview-state dt { color: var(--muted); }
+.cd-preview-state dd { margin: 0; color: #7a5c2c; font-weight: 700; }
+.cd-preview-actions { margin-top: 14px; }
+.cd-preview-actions .cd-primary { width: 100%; }

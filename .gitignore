@@ -17,6 +17,7 @@
 /.next/
 /.next-e2e*/
 /.next-demo/
+/.next-clean*/
 /out/
 
 # production
@@ -61,5 +62,10 @@ clinical_info_rx_ClaudeCode_spec_20261102/DESIGN_REFERENCE.png
 
 # UI レビューの生画像（容量が大きい・未監修教材の画面を含むためリポジトリに入れない。scripts/review で再生成）
 /docs/review/*/before/
+/docs/review/*/before
 /docs/review/*/after/
 /docs/review/*/diff/
+# 教材 v1.1 下書き（未監修）の画面の比較シートはローカルのみ（教材スタジオの編集・プレビュー）
+/docs/review/*/sheets/C08_*
+/docs/review/*/sheets/C09_*
+/docs/review/*/sheets/C1[0-5]_*

@@ -87,6 +87,35 @@ async function shot(p, name, opts = {}) {
   }
   await el.evaluate((e) => (e.scrollTop = 0));
 }
+/** 教材スタジオの下書きプレビュー: 端末（患者画面と同じ 390px）を画面の上端に合わせて撮り、端末の中のスクロールも追う */
+async function pshot(p, name) {
+  await p.waitForTimeout(400);
+  await p.evaluate(() => document.fonts.ready);
+  const dev = p.locator("[data-studio-preview]");
+  await dev.evaluate((el) => {
+    const main = el.closest(".cd-main");
+    const header = document.querySelector(".cd-app-header");
+    const topLine = Math.max(main ? main.getBoundingClientRect().top : 0, header ? header.getBoundingClientRect().bottom : 0);
+    if (main) main.scrollTop += el.getBoundingClientRect().top - topLine - 10;
+    el.querySelector(".d-main").scrollTop = 0;
+  });
+  await p.waitForTimeout(150);
+  await p.screenshot({ path: `${OUT}/${name}.png` });
+  metrics[name] = await audit(p);
+  for (let i = 1; i <= 4; i++) {
+    const moved = await dev.evaluate((el) => {
+      const m = el.querySelector(".d-main");
+      if (m.scrollTop + m.clientHeight >= m.scrollHeight - 2) return false;
+      m.scrollTop = Math.min(m.scrollTop + Math.round(m.clientHeight * 0.8), m.scrollHeight - m.clientHeight);
+      return true;
+    });
+    if (!moved) break;
+    await p.waitForTimeout(200);
+    await p.screenshot({ path: `${OUT}/${name}_s${i}.png` });
+    metrics[`${name}_s${i}`] = await audit(p);
+  }
+  await dev.evaluate((el) => (el.querySelector(".d-main").scrollTop = 0));
+}
 async function step(name, fn) {
   try {
     await fn();
@@ -202,13 +231,54 @@ for (const [w, vp] of Object.entries(STAFF_VP)) {
         await shot(s, `C08_draft${i + 1}_edit_${w}`);
         await s.locator(".cd-editor aside button.quiz").click();
         await shot(s, `C09_draft${i + 1}_quiz_${w}`);
+        await s.locator(".cd-editor aside button").first().click();
+        await s.locator("[data-studio-detail]").evaluate((el) => el.scrollIntoView({ block: "center" }));
+        await s.waitForTimeout(400);
+        await s.screenshot({ path: `${OUT}/C08b_draft${i + 1}_detail_field_${w}.png` });
+        metrics[`C08b_draft${i + 1}_detail_field_${w}`] = await audit(s);
         await s.getByRole("button", { name: "次へ進む" }).click();
         await s.locator("[data-studio-preview]").waitFor();
-        await shot(s, `C10_draft${i + 1}_preview_${w}`);
+        // 下書きプレビュー: 学習・回答 API への書き込みがないことを記録する
+        const writes = [];
+        const onReq = (r) => { if (r.method() !== "GET" && /\/api\/v1\/(learn|attempts)\b/.test(r.url())) writes.push(r.url()); };
+        s.on("request", onReq);
+        const pv = s.locator("[data-studio-preview]");
+        await pshot(s, `C10_draft${i + 1}_preview_${w}`);
+        await pv.locator(".d-disclosure").click();
+        await pv.locator(".d-detail-copy").waitFor();
+        await pshot(s, `C11_draft${i + 1}_preview_detail_${w}`);
+        await pv.locator(".d-disclosure").click();
+        // 全画面（1180 のみ全問。820・1440 は 1 画面目と詳説のみ）
+        if (w === "1180") {
+          for (let k = 2; k <= 5; k++) {
+            await pv.getByRole("button", { name: "次へ" }).click();
+            await pshot(s, `C12_draft${i + 1}_preview_slide${k}_${w}`);
+          }
+          await pv.getByRole("button", { name: "理解を確認する" }).click();
+          const picks = ["correct", "wrong", "unknown"];
+          for (let qn = 0; qn < 3; qn++) {
+            await pv.locator(".d-answer-list button").first().waitFor();
+            await pshot(s, `C13_draft${i + 1}_preview_q${qn + 1}_${w}`);
+            const stem = await pv.locator(".d-quiz h1").textContent();
+            const dq = (await (await s.request.get(`${B}/api/v1/studio/materials/${dr.id}`)).json()).questions.find((x) => x.stem === stem);
+            const btns = pv.locator(".d-answer-list button");
+            if (picks[qn] === "unknown") await btns.last().click();
+            else await btns.nth(picks[qn] === "correct" ? dq.correctIndex : (dq.correctIndex + 1) % 3).click();
+            await pv.getByRole("button", { name: "この回答で確定する" }).click();
+            await pv.locator(".d-explanation-copy").waitFor();
+            await pshot(s, `C14_draft${i + 1}_preview_a${qn + 1}_${picks[qn]}_${w}`);
+            await pv.getByRole("button", { name: /次の問題へ|振り返りへ/ }).click();
+          }
+          await pv.getByRole("heading", { name: "プレビューを最後まで確認しました" }).waitFor();
+          await pshot(s, `C15_draft${i + 1}_preview_done_${w}`);
+        }
+        s.off("request", onReq);
+        metrics[`C10_draft${i + 1}_preview_${w}`].previewWrites = writes;
+        if (writes.length) errors[`C10_draft${i + 1}_preview_${w}`] = `プレビュー中の書き込み: ${writes.join(", ")}`;
       });
     }
   }
-  await step(`C11_end_${w}`, async () => {
+  await step(`C19_end_${w}`, async () => {
     await s.locator(".cd-app-header").getByRole("button", { name: "共有終了" }).click();
     await s.getByText("患者一覧はありません").waitFor();
   });

@@ -36,6 +36,8 @@ const DOMAIN: Record<string, string> = {
   "副作用・支持療法": "side_effects_daily_life",
   "日常生活・相談支援": "mental_care_support",
 };
+/** 学習領域とは別の検索用タグ（表示名のまま保存。新しい学習領域は追加しない）。D03 は「検査・診断」に暫定配置し「治療選択」を付ける */
+const EXTRA_TAGS: Record<string, string[]> = { "診断・治療選択": ["治療選択"] };
 export const V11_CHANGE_NOTE = "教材 v1.1 編集草稿（レビュー用に取り込み）。医学的監修・利用許諾の確認前。公開・情報処方・AI 送信は不可。";
 
 export type ImportResult = { title: string; versionId: string | null; skipped: boolean }[];
@@ -97,7 +99,7 @@ export async function importV11(db: import("@/server/db/client").Db, raw: Buffer
     const domain = DOMAIN[m.domain];
     if (!domain) throw new Error(`領域が対応表にありません: ${m.domain}`);
     const versionId = await db.transaction(async (tx) => {
-      const [mat] = await tx.insert(materials).values({ scope: "org", ownerOrgId: org.id, primaryDomain: domain, title: m.title, tags: [domain] }).returning();
+      const [mat] = await tx.insert(materials).values({ scope: "org", ownerOrgId: org.id, primaryDomain: domain, title: m.title, tags: [domain, ...(EXTRA_TAGS[m.domain] ?? [])] }).returning();
       const [ver] = await tx
         .insert(materialVersions)
         .values({
