@@ -3,6 +3,7 @@ import { z } from "zod";
 import { callClaudeStructured, claudeMode, classifyClaudeError, type Generator } from "./claude";
 import { fmtDate, fmtDateTime, localDay } from "./intervisit-format";
 import type { Intervisit } from "./intervisit";
+import { replayFile } from "@/server/demo";
 import { ruleSummary, SECTIONS, sourceIndex, type SummaryItem } from "./intervisit-rules";
 
 /**
@@ -31,7 +32,9 @@ const MAX_ITEMS = 40;
 
 export type AiSummaryResult = {
   status: "ai" | "fallback";
-  generator: Generator | "rule";
+  generator: Generator | "rule" | "replay";
+  /** 記録済みの Claude 出力を再生した場合の生成日（撮影用デモ環境のみ） */
+  replayOf?: string | null;
   model: string | null;
   items: SummaryItem[];
   /** 表示しなかった項目の数と理由（患者情報は含めない） */
@@ -228,6 +231,45 @@ export const hashIntervisit = (iv: Intervisit) =>
 const cache = new Map<string, Omit<AiSummaryResult, "cached">>();
 const CACHE_MAX = 100;
 
+// ---------- 記録済みの Claude 出力の再生（撮影用デモ環境のみ。scripts/build-intervisit-replay.ts で作成）----------
+type ReplaySource = { stat: string } | { label: string; at: string };
+export type ReplayFile = {
+  generatedOn: string;
+  model: string;
+  origin: string;
+  period: { from: string; to: string };
+  fingerprint: string;
+  items: { section: SummaryItem["section"]; text: string; sources: ReplaySource[] }[];
+};
+
+/** 記録の内容（ID によらない）の指紋: 期間内のすべての出来事の内容と日時、集計値 */
+export function contentFingerprint(iv: Intervisit) {
+  const idx = sourceIndex(iv);
+  const rows = [...idx.entries()].map(([id, x]) => (id.startsWith("stat:") ? `${id}|${x.values.join(",")}` : `${x.label}|${x.at}`)).sort();
+  return createHash("sha256").update(rows.join("\n")).digest("hex").slice(0, 16);
+}
+
+/** 再生用の項目の根拠を、現在の DB の ID に対応づける（内容と日時が一致する記録だけ） */
+export function mapReplayItems(file: ReplayFile, iv: Intervisit): SummaryItem[] {
+  const idx = sourceIndex(iv);
+  const byContent = new Map<string, string>();
+  for (const [id, x] of idx) if (!id.startsWith("stat:") && x.at) byContent.set(`${x.label}|${x.at}`, id);
+  return file.items.map((it) => ({
+    section: it.section,
+    text: it.text,
+    sourceIds: it.sources.map((s) => ("stat" in s ? (idx.has(s.stat) ? s.stat : "missing") : (byContent.get(`${s.label}|${s.at}`) ?? "missing"))),
+  }));
+}
+
+let replayCache: { path: string; file: ReplayFile } | null = null;
+async function loadReplay(path: string): Promise<ReplayFile> {
+  if (replayCache?.path === path) return replayCache.file;
+  const { readFile } = await import("node:fs/promises");
+  const file = JSON.parse(await readFile(path, "utf8")) as ReplayFile;
+  replayCache = { path, file };
+  return file;
+}
+
 /** 同じ共有・期間・データの生成中の要求（同時に来た要求は同じ結果を待ち、Claude を二重に呼ばない） */
 const inflight = new Map<string, Promise<AiSummaryResult>>();
 
@@ -286,6 +328,19 @@ async function generate(
     rejectedItems: rejectedItemsOf(rejected),
   });
   if (!opts.fictional) return fallback("架空のデモ患者以外のデータは外部 AI に送信しない設定です");
+  // 撮影用デモ環境: 記録済みの Claude 出力を再生する（Claude は呼ばない）。現在の記録と内容が一致し、すべての文が検証を通るときだけ表示
+  const replayPath = replayFile("INTERVISIT_REPLAY_FILE");
+  if (replayPath) {
+    const file = await loadReplay(replayPath);
+    if (file.period.from !== iv.period.from || file.period.to !== iv.period.to || file.fingerprint !== contentFingerprint(iv))
+      return fallback("再生用に記録した Claude の出力と現在の記録が一致しないため、AI 要約（記録済みの出力）は表示しません");
+    const mapped = mapReplayItems(file, iv);
+    rawItems = mapped;
+    const { valid, rejected, safetyViolation } = validateItems(mapped, iv);
+    console.info(`[intervisit-ai] replay validated items=${mapped.length} valid=${valid.length} rejected=${rejected.length} safety=${safetyViolation}`);
+    if (safetyViolation || rejected.length > 0) return fallback("記録済みの Claude の出力が現在の記録で検証を通らないため表示しません", rejected, file.model);
+    return { status: "ai", generator: "replay", replayOf: file.generatedOn, model: file.model, items: valid, rejected: [], fallbackReason: null, dataHash, generatedAt: new Date().toISOString(), cached: false, usage: null };
+  }
   const mode = claudeMode();
   if (!mode) return fallback("Claude API が設定されていません");
   // 擬似生成・失敗の再現は開発・テスト用（実 API では使わない）

@@ -14,6 +14,7 @@ import {
   quizQuestions,
 } from "./schema";
 import { onConsultationStarted } from "@/server/services/consultation-hooks";
+import { demoNow } from "@/server/demo";
 
 /**
  * デモ用の自然な診察履歴（患者A のみ、Phase E で充実）。
@@ -44,7 +45,7 @@ export async function seedDemoHistory(
   };
 
   async function visit(daysAgo: number, titles: string[], tag: string) {
-    const visitAt = new Date(Date.now() - daysAgo * day);
+    const visitAt = new Date(demoNow().getTime() - daysAgo * day);
     visitAt.setHours(10, 15, 0, 0);
     const [grant] = await db
       .insert(qrGrants)

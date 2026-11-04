@@ -1091,7 +1091,7 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
   const useAi = !!ai && ai.status === "ai" && !showRule
   const items = useAi ? ai!.items : data.ruleSummary
   const sources = useAi ? ai!.sources : data.sources
-  const kind = useAi ? (ai!.generator === "claude" ? "claude" : "fake") : "rule"
+  const kind = useAi ? (ai!.generator === "claude" ? "claude" : ai!.generator === "replay" ? "replay" : "fake") : "rule"
   const md = (iso: string) => {
     const d = new Date(iso)
     return `${d.getMonth() + 1}/${d.getDate()}`
@@ -1154,7 +1154,9 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
           <b>
             {kind === "claude"
               ? "AI外来間サマリー（Claude・架空データ・記録で検証済み）"
-              : kind === "fake"
+              : kind === "replay"
+                ? `AI外来間サマリー（記録済みのClaude出力を再生・${ai?.replayOf ?? ""}生成・現在の記録で再検証済み）`
+                : kind === "fake"
                 ? "AI外来間サマリー（開発用の擬似生成・Claudeではありません）"
                 : "構造化サマリー（記録から自動整理・ルールベース）"}
           </b>
@@ -3499,6 +3501,11 @@ function Studio({
         </div>
       ) : (
       <div className="cd-studio-body">
+        {live && (live.outlineJob?.generator === "replay" || live.draftJob?.generator === "replay") && (
+          <p className="cd-studio-busy" data-studio-replay>
+            撮影用デモ環境: 記録済みのClaude出力（{live.draftJob?.model ?? live.outlineJob?.model}）を再生しています。今回はClaudeを呼び出していません。
+          </p>
+        )}
         {live && live.busy && (
           <p className="cd-studio-busy" data-studio-busy>
             {live.busy === "upload"

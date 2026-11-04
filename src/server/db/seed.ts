@@ -4,7 +4,8 @@ import { figureAssets, figurePlacements, materialSlides, materialVersions, mater
 import { DEMO_ACCOUNTS, DEMO_MATERIALS, DEMO_ORGS } from "./seed-data";
 import { SEED_CONTENT, SEED_TEMPLATES } from "./seed-content";
 import { seedDemoHistory } from "./seed-history";
-import { seedDemoHealth } from "./seed-health";
+import { applyReplayEdit, seedDemoHealth } from "./seed-health";
+import { replayFile } from "@/server/demo";
 
 /**
  * 架空データの投入（冪等）。
@@ -196,6 +197,8 @@ export async function seed(db: Db = getDb()) {
     });
     // 患者A の架空の体調記録・診察ノート（外来間サマリーのデモ用。Step 4）
     await seedDemoHealth(db, userIdByEmail.get("patient1@example.com")!);
+    // 撮影用デモ環境: 記録済みの Claude の外来間要約を生成したときの記録（11 月 3 日のしびれ 1/4）にそろえる
+    if (replayFile("INTERVISIT_REPLAY_FILE")) await applyReplayEdit(db, userIdByEmail.get("patient1@example.com")!);
   }
 
   return { orgs: orgIdBySlug, users: userIdByEmail, materials: materialIdByTitle };

@@ -242,7 +242,9 @@ export type IntervisitApi = {
 /** Claude の外来間要約（Step 4-C）。status = fallback のときはルールベースの要約 */
 export type AiSummaryApi = {
   status: "ai" | "fallback";
-  generator: "claude" | "fake" | "mock" | "rule";
+  generator: "claude" | "fake" | "mock" | "rule" | "replay";
+  /** 記録済みの Claude 出力を再生した場合の生成日（撮影用デモ環境のみ） */
+  replayOf?: string | null;
   model: string | null;
   items: SummaryItem[];
   rejected: { index: number; reason: string }[];

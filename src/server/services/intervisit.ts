@@ -13,6 +13,7 @@ import {
   quizQuestions,
 } from "@/server/db/schema";
 import { badRequest } from "@/server/authz/errors";
+import { demoNow } from "@/server/demo";
 import { listHealthRecords } from "./health";
 import { listVisitNotes } from "./notes";
 import { listFeedbackForPatient } from "./questions";
@@ -56,7 +57,7 @@ const dayStart = (d: string) => new Date(`${d}T00:00:00+09:00`);
 const dayEnd = (d: string) => new Date(dayStart(d).getTime() + DAY - 1);
 const isDay = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(dayStart(d).getTime());
 
-export function resolvePeriod(from?: string | null, to?: string | null, now = new Date()) {
+export function resolvePeriod(from?: string | null, to?: string | null, now = demoNow()) {
   const today = localDay(now);
   const end = to && isDay(to) ? to : today;
   const start = from && isDay(from) ? from : localDay(new Date(dayStart(end).getTime() - 13 * DAY));

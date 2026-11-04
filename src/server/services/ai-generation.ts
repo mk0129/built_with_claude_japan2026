@@ -6,6 +6,7 @@ import { badRequest, conflict, forbidden, notFound } from "@/server/authz/errors
 import type { Principal } from "@/server/authz/principal";
 import { audit } from "./audit";
 import { balanceAnswerPositions } from "./quiz-balance";
+import { replayFile } from "@/server/demo";
 import { ClaudeError, callClaudeStructured, claudeMode, classifyClaudeError, type ClaudeResult } from "./claude";
 import { assertAiAllowedForSources, requireStudioMembership } from "./sources";
 
@@ -202,7 +203,7 @@ export async function createJob(p: Principal, orgId: string | null, input: JobIn
     const outlines = (src.outputPayload as OutlineOutput | null)?.outlines ?? [];
     if (!outlines[input.outlineIndex]) throw badRequest("OUTLINE_INDEX_INVALID");
   }
-  const generator = claudeMode() ?? "claude";
+  const generator = replayFile("STUDIO_REPLAY_FILE") ? "replay" : (claudeMode() ?? "claude");
   const [job] = await db
     .insert(aiGenerationJobs)
     .values({
@@ -320,7 +321,15 @@ async function runClaimed(job: typeof aiGenerationJobs.$inferSelect, db: Db) {
   try {
     // 実行時にも再チェック（許諾が取り消されていたら送らない）
     const sources = await assertAiAllowedForSources(input.sourceIds, job.orgId!, db);
-    await setProgress(db, jobId, claudeMode() === "fake" ? "擬似生成しています（開発用・Claude ではありません）" : "Claude で作成しています（1〜3 分ほどかかります）");
+    await setProgress(
+      db,
+      jobId,
+      replayFile("STUDIO_REPLAY_FILE")
+        ? "記録済みの Claude の出力を再生しています（撮影用）"
+        : claudeMode() === "fake"
+          ? "擬似生成しています（開発用・Claude ではありません）"
+          : "Claude で作成しています（1〜3 分ほどかかります）",
+    );
     const usage = (r: ClaudeResult<unknown>) => ({
       generator: r.generator,
       model: r.model,
@@ -332,7 +341,7 @@ async function runClaimed(job: typeof aiGenerationJobs.$inferSelect, db: Db) {
       fallbackUsed: r.fallbackUsed,
     });
     if (input.mode === "outline") {
-      const r = await callClaudeStructured({ system: SYSTEM, user: outlinePrompt(sources), schema: OutlineSchema, schemaName: "outline" });
+      const r = await structuredOrReplay({ system: SYSTEM, user: outlinePrompt(sources), schema: OutlineSchema, schemaName: "outline" }, sources);
       if (r.data.outlines.length === 0) throw new ClaudeError("PARSE_FAILED", "構成案が返りませんでした（原資料が教材化に十分でない可能性があります）");
       await db
         .update(aiGenerationJobs)
@@ -347,7 +356,7 @@ async function runClaimed(job: typeof aiGenerationJobs.$inferSelect, db: Db) {
       } else {
         spec = { theme: input.theme, audience: input.audience, objectives: input.objectives, mustCover: input.mustCover };
       }
-      const r = await callClaudeStructured({ system: SYSTEM, user: materialPrompt(sources, spec), schema: MaterialSchema, schemaName: "material" });
+      const r = await structuredOrReplay({ system: SYSTEM, user: materialPrompt(sources, spec), schema: MaterialSchema, schemaName: "material" }, sources, input.mode === "generate" ? input.outlineIndex : -1);
       await setProgress(db, jobId, "形式と原資料の引用を確認しています");
       const v = validateMaterial(r.data, sources);
       if (v.errors.length) throw new ClaudeError("PARSE_FAILED", `生成結果が条件を満たしていません: ${v.errors.join(" / ")}`);
@@ -386,6 +395,27 @@ async function runClaimed(job: typeof aiGenerationJobs.$inferSelect, db: Db) {
   }
 }
 
+/**
+ * 撮影用デモ環境: 記録済みの Claude の出力（scripts/build-studio-replay.ts で作成）を再生する。Claude は呼ばない。
+ * 原資料が記録時と同じファイル（SHA-256 が一致）で、構成案は記録した案から作る場合だけ使える。引用の原資料 ID は今回の資料に置き換える。
+ */
+async function structuredOrReplay<S extends z.ZodType>(
+  args: { system: string; user: string; schema: S; schemaName: "outline" | "material" },
+  sources: { id: string; sha256: string }[],
+  outlineIndex = -1,
+): Promise<ClaudeResult<z.infer<S>>> {
+  const path = replayFile("STUDIO_REPLAY_FILE");
+  if (!path) return callClaudeStructured(args);
+  const { readFile } = await import("node:fs/promises");
+  const file = JSON.parse(await readFile(path, "utf8")) as { generatedOn: string; model: string; sourceSha256: string; outlineIndex: number; outline: unknown; material: unknown };
+  if (sources.length !== 1 || sources[0].sha256 !== file.sourceSha256) throw new ClaudeError("BAD_REQUEST", "再生用に記録した原資料と異なる資料のため、記録済みの出力は使えません（撮影用デモ環境）");
+  if (args.schemaName === "material" && outlineIndex !== file.outlineIndex) throw new ClaudeError("BAD_REQUEST", `再生用の記録は案 ${file.outlineIndex + 1} から作った下書きだけです（撮影用デモ環境）`);
+  const swap = (o: unknown): unknown =>
+    Array.isArray(o) ? o.map(swap) : o && typeof o === "object" ? Object.fromEntries(Object.entries(o).map(([k, v]) => [k, k === "sourceId" ? sources[0].id : swap(v)])) : o;
+  const data = args.schema.parse(swap(args.schemaName === "outline" ? file.outline : file.material));
+  return { data, generator: "replay" as never, model: `${file.model}（${file.generatedOn} の記録を再生）`, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, durationMs: 0, requestId: null, stopReason: "replay", fallbackUsed: false };
+}
+
 async function saveDraft(db: Db, job: typeof aiGenerationJobs.$inferSelect, out: MaterialOutput, sourceIds: string[], model: string, mustCover: MustCoverItem[] = []) {
   return db.transaction(async (tx) => {
     const { organizations } = await import("@/server/db/schema");
@@ -407,7 +437,11 @@ async function saveDraft(db: Db, job: typeof aiGenerationJobs.$inferSelect, out:
         sourceDocumentIds: sourceIds,
         aiGenerationJobId: job.id,
         createdByUserId: job.createdByUserId,
-        changeNote: model.startsWith("fake:") ? "開発用の擬似生成。Claude による生成ではありません。" : `Claude（${model}）による下書き。医療者の監修前。`,
+        changeNote: model.startsWith("fake:")
+          ? "開発用の擬似生成。Claude による生成ではありません。"
+          : model.includes("の記録を再生")
+            ? `記録済みの Claude の出力の再生（${model}）による下書き。医療者の監修前。`
+            : `Claude（${model}）による下書き。医療者の監修前。`,
         mustCover,
       })
       .returning({ id: materialVersions.id });

@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import type { Db } from "./client";
 import { healthRecords, healthSymptomEntries, visitNotes } from "./schema";
+import { demoNow } from "@/server/demo";
 
 /**
  * デモ用の架空の体調記録と診察ノート（患者A のみ。実在の患者とは無関係）。今日から遡った日付で作る。
@@ -22,7 +23,7 @@ const ROWS: Row[] = [
 export async function seedDemoHealth(db: Db, patientId: string) {
   const [existing] = await db.select({ id: healthRecords.id }).from(healthRecords).where(eq(healthRecords.patientId, patientId)).limit(1);
   if (existing) return { skipped: true };
-  const now = new Date();
+  const now = demoNow();
   for (const r of ROWS) {
     const at = new Date(now);
     at.setDate(at.getDate() - r.daysAgo);
@@ -51,4 +52,16 @@ export async function seedDemoHealth(db: Db, patientId: string) {
   noteAt.setHours(21, 20, 0, 0);
   await db.insert(visitNotes).values({ patientId, body: "手のしびれは、治療が終わったら戻りますか？", source: "free", createdAt: noteAt, updatedAt: noteAt });
   return { skipped: false };
+}
+
+/**
+ * 撮影用（記録済みの Claude 出力の再生）: 生成時の記録に合わせ、患者A の最新の体調記録の「手足のしびれ」を 1/4 にする
+ * （2026-11-04 の実 API 検証で、記録を 1 件変更してから再生成した条件と同じ）。
+ */
+export async function applyReplayEdit(db: Db, patientId: string) {
+  const { desc, and } = await import("drizzle-orm");
+  const [last] = await db.select({ id: healthRecords.id }).from(healthRecords).where(eq(healthRecords.patientId, patientId)).orderBy(desc(healthRecords.measuredAt)).limit(1);
+  if (!last) return false;
+  await db.update(healthSymptomEntries).set({ severity: 1 }).where(and(eq(healthSymptomEntries.recordId, last.id), eq(healthSymptomEntries.symptomKey, "numbness")));
+  return true;
 }
