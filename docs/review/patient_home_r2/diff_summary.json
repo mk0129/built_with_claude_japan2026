@@ -1,0 +1,206 @@
+{
+  "screens": 59,
+  "compared": 59,
+  "unchanged": 41,
+  "changed": [
+    {
+      "name": "P01_home_390",
+      "pixels": 282375,
+      "ratio": 0.21447,
+      "boxCss": [
+        20,
+        125,
+        370,
+        766
+      ]
+    },
+    {
+      "name": "P01_home_390_s1",
+      "pixels": 205779,
+      "ratio": 0.15629,
+      "boxCss": [
+        20,
+        68,
+        370,
+        732
+      ]
+    },
+    {
+      "name": "P01_home_430",
+      "pixels": 321851,
+      "ratio": 0.22171,
+      "boxCss": [
+        20,
+        125,
+        410,
+        766
+      ]
+    },
+    {
+      "name": "P01_home_430_s1",
+      "pixels": 181934,
+      "ratio": 0.12533,
+      "boxCss": [
+        20,
+        68,
+        410,
+        642
+      ]
+    },
+    {
+      "name": "P01_home_768",
+      "pixels": 537887,
+      "ratio": 0.17099,
+      "boxCss": [
+        44,
+        125,
+        724,
+        946
+      ]
+    },
+    {
+      "name": "P01_home_768_s1",
+      "pixels": 435986,
+      "ratio": 0.1386,
+      "boxCss": [
+        44,
+        68,
+        724,
+        822
+      ]
+    },
+    {
+      "name": "P01b_home_visit_390",
+      "pixels": 302460,
+      "ratio": 0.22972,
+      "boxCss": [
+        20,
+        125,
+        370,
+        766
+      ]
+    },
+    {
+      "name": "P01b_home_visit_390_s1",
+      "pixels": 194827,
+      "ratio": 0.14797,
+      "boxCss": [
+        20,
+        68,
+        370,
+        535
+      ]
+    },
+    {
+      "name": "P01b_home_visit_430",
+      "pixels": 321851,
+      "ratio": 0.22171,
+      "boxCss": [
+        20,
+        125,
+        410,
+        766
+      ]
+    },
+    {
+      "name": "P01b_home_visit_430_s1",
+      "pixels": 181934,
+      "ratio": 0.12533,
+      "boxCss": [
+        20,
+        68,
+        410,
+        642
+      ]
+    },
+    {
+      "name": "P01b_home_visit_768",
+      "pixels": 537887,
+      "ratio": 0.17099,
+      "boxCss": [
+        44,
+        125,
+        724,
+        946
+      ]
+    },
+    {
+      "name": "P01b_home_visit_768_s1",
+      "pixels": 435986,
+      "ratio": 0.1386,
+      "boxCss": [
+        44,
+        68,
+        724,
+        822
+      ]
+    },
+    {
+      "name": "P01c_home_note_390",
+      "pixels": 298209,
+      "ratio": 0.22649,
+      "boxCss": [
+        20,
+        125,
+        370,
+        766
+      ]
+    },
+    {
+      "name": "P01c_home_note_390_s1",
+      "pixels": 169429,
+      "ratio": 0.12868,
+      "boxCss": [
+        20,
+        68,
+        370,
+        642
+      ]
+    },
+    {
+      "name": "P01c_home_note_430",
+      "pixels": 321890,
+      "ratio": 0.22174,
+      "boxCss": [
+        20,
+        125,
+        410,
+        766
+      ]
+    },
+    {
+      "name": "P01c_home_note_430_s1",
+      "pixels": 183582,
+      "ratio": 0.12646,
+      "boxCss": [
+        20,
+        68,
+        410,
+        642
+      ]
+    },
+    {
+      "name": "P01c_home_note_768",
+      "pixels": 537834,
+      "ratio": 0.17097,
+      "boxCss": [
+        44,
+        125,
+        724,
+        946
+      ]
+    },
+    {
+      "name": "P01c_home_note_768_s1",
+      "pixels": 435916,
+      "ratio": 0.13857,
+      "boxCss": [
+        44,
+        68,
+        724,
+        822
+      ]
+    }
+  ],
+  "onlyAfter": 0
+}

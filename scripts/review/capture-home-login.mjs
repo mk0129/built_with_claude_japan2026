@@ -4,6 +4,7 @@
  *   BASE: 撮影するサーバー（scripts/review/serve.sh の新しい一時 DB）
  *   OUT : 出力先（例 docs/review/patient_home_logo_a/before）
  *   AFTER=1: 変更後だけにある操作（次回診察日の登録・ホームからの質問の追加・患者の QR）も撮る
+ * 患者ホームは、最初の画面（スクロール前）に主要な 3 要素が収まっているかを metrics.json の firstView に記録する。
  * 患者・入口: 390×844 / 430×844 / 768×1024（入口とログインは 1440×900 も）、医療者: 820×800 / 1180×800 / 1440×900。
  * QR コードと 6 桁コードは撮影時に塗りつぶす（トークン・コードを画像に残さない）。
  */
@@ -53,6 +54,23 @@ const audit = (p) =>
     for (const img of document.querySelectorAll("img[data-logo-mark]")) {
       const r = img.getBoundingClientRect();
       out.logos.push({ box: [Math.round(r.width), Math.round(r.height)], loaded: img.complete && img.naturalWidth > 0 });
+    }
+    // 患者ホーム: 最初の画面（スクロール前）に「次の診察」「次に学ぶ教材」「診察で聞きたいこと」の入力欄と追加ボタンが収まっているか（下部ナビの上まで）
+    const nav = document.querySelector(".d-nav");
+    const limit = nav ? nav.getBoundingClientRect().top : window.innerHeight;
+    const fits = (sel) => {
+      const el = document.querySelector(sel);
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return r.top >= 0 && r.bottom <= limit + 0.5;
+    };
+    if (document.querySelector(".d-home")) {
+      out.firstView = { visit: fits(".d-visit-card"), lesson: fits("[data-home-lesson] .primary-button") ?? fits(".d-home-empty, .d-complete-hero"), askInput: fits("[data-home-note-input]"), askAdd: fits("[data-home-note-add]") };
+      const ask = document.querySelector("[data-home-note-add]");
+      if (ask) {
+        out.firstView.askBottomPx = Math.round(ask.getBoundingClientRect().bottom);
+        out.firstView.navTopPx = Math.round(limit);
+      }
     }
     // 画面に生のトークン（QR の URL）が文字として出ていないか
     out.tokenInText = /[?&]t=[A-Za-z0-9_-]{20,}/.test(document.body.innerText);
