@@ -1,9 +1,6 @@
 import "@/app/reset.css";
 
-/**
- * ログイン画面（患者・医療者）の外枠。Figma Make Concept D にログイン画面のデザインがないため、
- * 認証機能を保つ目的で従来のログイン画面をそのまま使う（旧 UI の下部タブ・サイドバーは外した）。
- */
+/** ログアウト（/logout）の外枠。入口・ログイン画面は (concept-d) グループへ移した（Concept D の配色・書体） */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="reset-shell flex-1 flex flex-col w-full overflow-x-clip">

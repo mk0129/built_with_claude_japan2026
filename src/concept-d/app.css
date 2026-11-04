@@ -200,3 +200,52 @@
 .shiori-logo.shiori-logo-entry { gap: 12px; }
 .shiori-logo.shiori-logo-entry .shiori-mark { height: 64px; }
 .shiori-logo.shiori-logo-entry b { font-size: 34px; }
+.shiori-logo.logo small { margin-left: 2px; padding-left: 9px; border-left: 1px solid var(--line); color: var(--muted); font-size: 11px; letter-spacing: .04em; }
+
+/* ---- 入口・ログイン（Concept D の配色・書体・余白。認証の処理は LoginPanel のまま） ---- */
+.au-stage { min-height: 100dvh; display: flex; justify-content: center; padding: 28px 16px 48px; background: radial-gradient(circle at 50% 0, #fff 0, #eef4f4 60%); color: var(--ink); }
+.au-stage.au-staff { background: #f3f7f7; }
+.au-column { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 18px; }
+.au-back { align-self: flex-start; min-height: 44px; display: inline-flex; align-items: center; color: var(--blue-dark); font-size: 13px; font-weight: 600; text-decoration: none; }
+.au-head h1 { margin: 0 0 6px; font-family: 'Zen Old Mincho', serif; font-size: 26px; line-height: 1.45; letter-spacing: .02em; }
+.au-head p:not(.eyebrow) { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.au-panel { display: flex; flex-direction: column; gap: 14px; }
+.au-card { display: flex; flex-direction: column; gap: 10px; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+.au-card h2 { margin: 0; font-size: 15px; font-weight: 700; }
+.au-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.au-tag { padding: 3px 9px; border-radius: 99px; background: var(--cream); border: 1px solid #ebe5d8; color: #7a6a4b; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.au-demo { border-style: dashed; background: #fbfdfd; }
+.au-accounts { display: grid; gap: 8px; }
+.au-account { min-height: 52px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 12px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 13px; background: var(--blue-pale); color: var(--ink); text-align: left; }
+.au-account b { font-size: 15px; white-space: nowrap; }
+.au-account small { color: var(--muted); font-size: 12px; }
+.au-account:hover:not(:disabled) { border-color: var(--blue); }
+.au-account:disabled { opacity: .6; cursor: wait; }
+.au-label { color: var(--muted); font-size: 13px; font-weight: 600; }
+.au-input { min-height: 48px; padding: 10px 14px; border: 1px solid #c9d6d8; border-radius: 12px; background: #fff; color: var(--ink); font-size: 16px; }
+.au-input:focus-visible { outline: 3px solid rgba(72, 122, 132, .24); outline-offset: 1px; border-color: var(--blue); }
+.au-code { text-align: center; font-size: 22px; letter-spacing: .3em; font-variant-numeric: tabular-nums; }
+.au-button { min-height: 48px; padding: 10px 14px; border: 1px solid var(--blue); border-radius: 13px; background: #fff; color: var(--blue-dark); font-size: 14px; font-weight: 700; }
+.au-button:disabled { border-color: #c9d6d8; color: #8a9a9c; cursor: not-allowed; }
+.au-block { width: 100%; }
+.au-status { margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--cream); color: var(--ink); font-size: 13px; }
+.au-switch p { margin: 0; font-size: 14px; line-height: 1.7; }
+.au-text-button { align-self: flex-start; min-height: 40px; border: 0; background: none; color: var(--blue-dark); font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.au-switch-link { align-self: center; min-height: 44px; display: inline-flex; align-items: center; color: var(--blue-dark); font-size: 13px; font-weight: 600; }
+
+/* 入口 */
+.au-entry { padding-top: max(24px, 8dvh); gap: 22px; }
+.au-entry h1 { margin: 8px 0 0; font-family: 'Zen Old Mincho', serif; font-size: 26px; line-height: 1.5; letter-spacing: .03em; }
+.au-lead { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.9; }
+.au-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+.au-primary { min-height: 56px; font-size: 16px; text-decoration: none; }
+.au-secondary { min-height: 56px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 13px; background: #fff; color: var(--blue-dark); font-size: 14px; font-weight: 700; text-decoration: none; }
+.au-secondary small { color: var(--muted); font-size: 11px; font-weight: 500; }
+.au-note { margin: 4px 0 0; padding: 12px 14px; border-radius: 12px; background: var(--cream); color: #6f6553; font-size: 12px; line-height: 1.7; }
+.au-stage a:focus-visible, .au-stage button:focus-visible { outline: 3px solid rgba(72, 122, 132, .32); outline-offset: 2px; }
+@media (min-width: 701px) {
+  .au-stage { padding-top: 56px; }
+  .au-column { max-width: 480px; }
+  .au-entry h1 { font-size: 30px; }
+}
+

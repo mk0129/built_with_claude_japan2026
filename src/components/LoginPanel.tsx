@@ -72,60 +72,60 @@ export function LoginPanel({ kind, redirectTo, switching = false }: { kind: "pat
   }
 
   return (
-    <div className="space-y-5">
+    <div className="au-panel">
       {demo && demo.length > 0 && (
-        <section className="card space-y-3 border-dashed">
-          <div className="flex items-center justify-between">
-            <h2 className="font-bold">デモ用アカウント</h2>
-            <span className="pill">架空データ</span>
+        <section className="au-card au-demo">
+          <div className="au-card-head">
+            <h2>デモ用アカウント</h2>
+            <span className="au-tag">架空データ</span>
           </div>
-          <div className="grid gap-2">
+          <div className="au-accounts">
             {demo.map((a) => (
-              <button key={a.email} className="btn btn-soft justify-between" disabled={busy} onClick={() => demoLogin(a)}>
-                <span>{a.name}</span>
-                <span className="text-sm font-normal text-ink-soft">{a.label}</span>
+              <button key={a.email} className="au-account" disabled={busy} onClick={() => demoLogin(a)}>
+                <b>{a.name}</b>
+                <small>{a.label}</small>
               </button>
             ))}
           </div>
         </section>
       )}
 
-      <section className="card space-y-3">
-        <h2 className="font-bold">メールアドレスでログイン</h2>
-        <label className="label" htmlFor="email">
+      <section className="au-card">
+        <h2>メールアドレスでログイン</h2>
+        <label className="au-label" htmlFor="email">
           メールアドレス
         </label>
-        <input id="email" className="input" type="email" inputMode="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input id="email" className="au-input" type="email" inputMode="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         {!otpSent ? (
-          <button className="btn btn-block" disabled={busy || !email} onClick={sendOtp}>
+          <button className="au-button" disabled={busy || !email} onClick={sendOtp}>
             確認コードを送る
           </button>
         ) : (
           <>
-            <label className="label" htmlFor="otp">
+            <label className="au-label" htmlFor="otp">
               6桁の確認コード
             </label>
-            <input id="otp" className="input code-display text-center" inputMode="numeric" maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value)} />
-            <button className="btn btn-primary btn-block" disabled={busy || otp.length !== 6} onClick={verifyOtp}>
+            <input id="otp" className="au-input au-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value)} />
+            <button className="primary-button au-block" disabled={busy || otp.length !== 6} onClick={verifyOtp}>
               ログイン
             </button>
           </>
         )}
       </section>
 
-      <section className="card space-y-3">
-        <button className="btn btn-block" onClick={google}>
+      <section className="au-card">
+        <button className="au-button" onClick={google}>
           Google でログイン
         </button>
         {kind === "patient" && (
-          <button className="btn btn-block" disabled title="LINE ログインは外部設定後に有効になります">
+          <button className="au-button" disabled title="LINE ログインは外部設定後に有効になります">
             LINE でログイン（準備中）
           </button>
         )}
       </section>
 
       {msg && (
-        <p role="status" className="text-sm text-ink-soft">
+        <p role="status" className="au-status">
           {msg}
         </p>
       )}
