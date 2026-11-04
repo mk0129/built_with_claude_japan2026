@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react"
 import { useUrlState } from "./urlState"
 import { ShioriLogo } from "./ShioriLogo"
+import { daysUntil, visitDateLabel, type PatientVisit } from "./visit"
 import type { PatientLive } from "./live"
 import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes } from "./health"
 import {
@@ -583,6 +584,7 @@ export function DPrototype({
   userName,
   health,
   notesLive,
+  visit,
   viewport,
   notify,
   healthRecords,
@@ -604,6 +606,8 @@ export function DPrototype({
   health?: PatientHealth
   /** 本番（Step 3）: 診察ノートの実 API。なければ Figma の架空の質問メモ */
   notesLive?: PatientNotes
+  /** 本番: 次回の診察日（患者が登録した日付）。なければ表示しない */
+  visit?: PatientVisit
   viewport: DViewport
   notify: (message?: string) => void
   healthRecords: HealthRecord[]
@@ -787,6 +791,18 @@ export function DPrototype({
           sharing={sharing}
           onOpen={openLesson}
           setPage={setPage}
+          visit={visit}
+          recentNotes={notesLive ? notesLive.notes.map((note) => note.body) : notes}
+          onAddNote={async (body) => {
+            if (notesLive) {
+              const ok = await notesLive.create(body)
+              if (ok) notify("診察ノートに保存しました")
+              return ok
+            }
+            setNotes([...notes, body])
+            notify("質問を保存しました")
+            return true
+          }}
         />
       )
     if (page === "prescriptions")
@@ -1052,6 +1068,7 @@ export function DPrototype({
           clearDraft={() => setNoteDraft(null)}
           notify={notify}
           onShare={() => setPage("share")}
+          visitDate={visit?.date ?? null}
         />
       )
     return (
@@ -2144,6 +2161,9 @@ function DHealthHistory({
   )
 }
 
+/** ホームの「次の診察までに」: 学習途中 → 未学習 → 学習済みの順に、最大 2 件 */
+const homeLessonOrder = { doing: 0, new: 1, done: 2 } as const
+
 function DHome({
   scenario,
   prescriptions,
@@ -2151,6 +2171,9 @@ function DHome({
   sharing,
   onOpen,
   setPage,
+  visit,
+  recentNotes,
+  onAddNote,
 }: {
   scenario: number
   prescriptions: DLesson[]
@@ -2158,6 +2181,12 @@ function DHome({
   sharing: boolean
   onOpen: (lesson: DLesson) => void
   setPage: (page: DPage) => void
+  /** 本番: 次回の診察日（患者が登録した日付のみ）。Figma の架空データ表示では undefined */
+  visit?: PatientVisit
+  /** 保存済みの質問（新しい順に最大 2 件を表示） */
+  recentNotes: string[]
+  /** ホームから質問を保存。保存できたときだけ true（入力欄を空にする） */
+  onAddNote: (body: string) => Promise<boolean>
 }) {
   const categories = useContext(CategoriesContext)
   const completed = prescriptions.filter((lesson) => lesson.status === "done")
@@ -2166,6 +2195,12 @@ function DHome({
   const allDone = live
     ? prescriptions.length > 0 && completed.length === prescriptions.length
     : scenario === 4
+  const homeLessons = [...prescriptions]
+    .sort((a, b) => homeLessonOrder[a.status] - homeLessonOrder[b.status])
+    .filter((lesson) => lesson.status !== "done")
+    .slice(0, 2)
+  const remainingMin = (lesson: DLesson) =>
+    live ? Math.max(1, Math.round((lesson.time * (100 - lesson.progress)) / 100)) : 4
   return (
     <div className="d-home">
       <div className="d-welcome">
@@ -2185,115 +2220,95 @@ function DHome({
           <Icon name="arrow" />
         </button>
       )}
-      {live && !live.loaded ? null : prescriptions.length === 0 ? (
-        <section className="d-empty-hero">
-          <DImageSlot
-            kind="editorial"
-            caption="自宅で自分のペースで学ぶ場面のイラスト配置領域"
-          />
-          <h2>今届いている教材はありません</h2>
-          <p>
-            公開教材はいつでも探せます。気になることから、無理のないペースでご覧ください。
-          </p>
-          <button className="primary-button" onClick={() => setPage("library")}>
-            教材を探す
-            <Icon name="arrow" />
-          </button>
-        </section>
-      ) : allDone ? (
-        <section className="d-complete-hero">
-          <span className="d-complete-icon">
-            <Icon name="check" size={28} />
-          </span>
+      <DVisitCard visit={visit} />
+      <section className="d-home-section d-home-first">
+        <div className="d-section-head">
           <div>
-            <Pill tone="soft">今回の情報処方</Pill>
-            <h2>{live ? prescriptions.length : 3}件すべて確認しました</h2>
-            <p>必要なときは、いつでも読み直せます。</p>
+            <p className="eyebrow">BEFORE YOUR VISIT</p>
+            <h2>次の診察までに</h2>
           </div>
-          <button onClick={() => setPage("prescriptions")}>
-            学習済みを見る
-          </button>
-        </section>
-      ) : (
-        <section className="d-next-card">
-          <div className="d-next-meta">
-            <Pill>今回の情報処方</Pill>
-            <span>{live?.latest ? `${live.latest.date} · ${live.latest.clinician}から` : "6月12日 · 山田医師から"}</span>
+        </div>
+        {live && !live.loaded ? null : prescriptions.length === 0 ? (
+          <div className="d-home-empty">
+            <h3>今届いている教材はありません</h3>
+            <p>公開教材はいつでも探せます。気になることから、無理のないペースでご覧ください。</p>
+            <button className="secondary-button" onClick={() => setPage("library")}>
+              教材を探す
+              <Icon name="arrow" size={16} />
+            </button>
           </div>
-          <h2>
-            {active?.status === "doing"
-              ? "続きから再開できます"
-              : "新しい教材が届いています"}
-          </h2>
-          {active && (
-            <>
-              <div className="d-next-lesson">
-                <span className="d-next-icon">
-                  <Icon
-                    name={active.status === "doing" ? "play" : "book"}
-                    size={24}
-                  />
-                </span>
-                <span>
-                  <DStatus lesson={active} short />
-                  <b>{active.title}</b>
-                  <small>
-                    {active.status === "doing"
-                      ? `${active.progress}%まで学習 · あと約${live ? Math.max(1, Math.round((active.time * (100 - active.progress)) / 100)) : 4}分`
-                      : `約${active.time}分`}
-                  </small>
-                </span>
+        ) : allDone ? (
+          <section className="d-complete-hero">
+            <span className="d-complete-icon">
+              <Icon name="check" size={28} />
+            </span>
+            <div>
+              <Pill tone="soft">今回の情報処方</Pill>
+              <h2>{live ? prescriptions.length : 3}件すべて確認しました</h2>
+              <p>必要なときは、いつでも読み直せます。</p>
+            </div>
+            <button onClick={() => setPage("prescriptions")}>
+              学習済みを見る
+            </button>
+          </section>
+        ) : (
+          <section className="d-next-card">
+            <div className="d-next-meta">
+              <Pill>今回の情報処方</Pill>
+              <span>{live?.latest ? `${live.latest.date} · ${live.latest.clinician}から` : "6月12日 · 山田医師から"}</span>
+            </div>
+            <h2>
+              {active?.status === "doing"
+                ? "続きから再開できます"
+                : "新しい教材が届いています"}
+            </h2>
+            {homeLessons.map((lesson, index) => (
+              <div key={lesson.id} className="d-home-lesson" data-home-lesson>
+                <div className="d-next-lesson">
+                  <span className="d-next-icon">
+                    <Icon
+                      name={lesson.status === "doing" ? "play" : "book"}
+                      size={24}
+                    />
+                  </span>
+                  <span>
+                    <DStatus lesson={lesson} short />
+                    <b>{lesson.title}</b>
+                    <small>
+                      {lesson.status === "doing"
+                        ? `${lesson.progress}%まで学習 · あと約${remainingMin(lesson)}分`
+                        : `約${lesson.time}分`}
+                    </small>
+                  </span>
+                </div>
+                <button
+                  className={index === 0 ? "primary-button" : "secondary-button d-home-lesson-action"}
+                  onClick={() => onOpen(lesson)}
+                >
+                  {lesson.status === "doing" ? "続きから学ぶ" : "教材を確認する"}
+                  <Icon name="arrow" size={index === 0 ? 20 : 16} />
+                </button>
               </div>
-              <button className="primary-button" onClick={() => onOpen(active)}>
-                {active.status === "doing" ? "続きから学ぶ" : "教材を確認する"}
-                <Icon name="arrow" />
-              </button>
-            </>
-          )}
-          <button
-            className="d-text-action"
-            onClick={() => setPage("prescriptions")}
-          >
-            今回の教材をすべて見る（{prescriptions.length}件）
-          </button>
-        </section>
-      )}
-      <section className="d-home-section">
-        <div className="d-section-head">
-          <div>
-            <p className="eyebrow">NEXT VISIT</p>
-            <h2>次の診察につなげる</h2>
-          </div>
-          {/* 本番: 次回診察日は DB にないため表示しない（架空の日付を出さない） */}
-          <span>{live ? "次回診察日：未登録" : "6月20日"}</span>
-        </div>
-        <button className="d-note-summary" onClick={() => setPage("notes")}>
-          <span className="stat-icon purple">
-            <Icon name="note" />
-          </span>
-          <span>
-            <b>質問メモ {live ? live.noteCount : 2}件</b>
-            <small>診察で聞きたいことを確認・追加</small>
-          </span>
-          <Icon name="arrow" />
-        </button>
+            ))}
+            <button
+              className="d-text-action"
+              onClick={() => setPage("prescriptions")}
+            >
+              今回の教材をすべて見る（{prescriptions.length}件）
+            </button>
+          </section>
+        )}
       </section>
+      <DHomeAsk recentNotes={recentNotes} onAddNote={onAddNote} setPage={setPage} />
       <section className="d-home-section">
-        <div className="d-section-head">
-          <div>
-            <p className="eyebrow">AT-HOME LOG</p>
-            <h2>自宅での体調記録</h2>
-          </div>
-          <span>任意</span>
-        </div>
-        <button className="d-note-summary" onClick={() => setPage("health")}>
+        <button className="d-note-summary d-home-health" onClick={() => setPage("health")}>
           <span className="stat-icon blue">
             <Icon name="pulse" />
           </span>
           <span>
-            <b>今日の体調を記録する</b>
+            <b>今日の体調を記録</b>
             <small>
-              バイタルと気になる症状だけ ·{" "}
+              任意 · 気になることだけでも ·{" "}
               {live ? (live.lastHealthDate ? `前回 ${live.lastHealthDate}` : "まだ記録はありません") : "前回 6月19日"}
             </small>
           </span>
@@ -2324,6 +2339,167 @@ function DHome({
         </p>
       )}
     </div>
+  )
+}
+
+/**
+ * ホーム最上部: 次回の診察日と残り日数。患者が登録した日付だけを表示し、未登録なら「次回診察日を登録」。
+ * 共有した日や処方日を診察日として扱わない。日数は Asia/Tokyo の暦日で数える（当日・過ぎた日も区別）。
+ */
+function DVisitCard({ visit }: { visit?: PatientVisit }) {
+  const [editing, setEditing] = useState(false)
+  const [value, setValue] = useState("")
+  const [busy, setBusy] = useState(false)
+  if (!visit) return null
+  if (!visit.loaded) return <div className="d-visit-card loading" aria-hidden />
+  const startEdit = () => {
+    setValue(visit.date ?? "")
+    setEditing(true)
+  }
+  const save = async (date: string | null) => {
+    setBusy(true)
+    const ok = await visit.save(date)
+    setBusy(false)
+    if (ok) setEditing(false)
+  }
+  if (editing)
+    return (
+      <section className="d-visit-card editing" aria-label="次回の診察日">
+        <label htmlFor="d-visit-input">
+          <Icon name="calendar" />
+          次回の診察日
+        </label>
+        <input
+          id="d-visit-input"
+          data-visit-input
+          type="date"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+        />
+        <small>病院から案内された日付を入力してください。あなただけが変更できます。</small>
+        <div className="d-visit-actions">
+          <button className="primary-button" data-visit-save disabled={!value || busy} onClick={() => void save(value)}>
+            保存する
+          </button>
+          <button className="d-visit-cancel" disabled={busy} onClick={() => setEditing(false)}>
+            やめる
+          </button>
+        </div>
+        {visit.date && (
+          <button className="d-visit-clear" disabled={busy} onClick={() => void save(null)}>
+            登録した日付を削除する
+          </button>
+        )}
+      </section>
+    )
+  if (!visit.date)
+    return (
+      <section className="d-visit-card empty" aria-label="次回の診察日">
+        <span className="d-visit-icon">
+          <Icon name="calendar" />
+        </span>
+        <span>
+          <b>次回の診察日は未登録です</b>
+          <small>登録すると、診察までの日数と準備をここに表示します</small>
+        </span>
+        <button className="secondary-button" data-visit-edit onClick={startEdit}>
+          次回診察日を登録
+        </button>
+      </section>
+    )
+  const days = daysUntil(visit.date)
+  return (
+    <section className="d-visit-card" aria-label="次回の診察日">
+      <div className="d-visit-head">
+        <span>
+          <Icon name="calendar" size={18} />
+          次の診察
+        </span>
+        <button data-visit-edit onClick={startEdit}>
+          変更
+        </button>
+      </div>
+      <p className="d-visit-date-label">{visitDateLabel(visit.date)}</p>
+      <p className="d-visit-days" data-visit-days>
+        {days > 0 ? (
+          <>
+            次の診察まで <b>あと{days}日</b>
+          </>
+        ) : days === 0 ? (
+          <b>今日が診察日です</b>
+        ) : (
+          <>登録した診察日を過ぎました。次の診察日が決まったら登録してください</>
+        )}
+      </p>
+    </section>
+  )
+}
+
+/** ホームから「診察で聞きたいこと」を直接追加（既存の診察ノート API。保存に成功したときだけ表示に反映） */
+function DHomeAsk({
+  recentNotes,
+  onAddNote,
+  setPage,
+}: {
+  recentNotes: string[]
+  onAddNote: (body: string) => Promise<boolean>
+  setPage: (page: DPage) => void
+}) {
+  const [draft, setDraft] = useState("")
+  const [busy, setBusy] = useState(false)
+  const add = async () => {
+    if (!draft.trim() || busy) return
+    setBusy(true)
+    const ok = await onAddNote(draft.trim())
+    setBusy(false)
+    if (ok) setDraft("")
+  }
+  return (
+    <section className="d-home-section d-home-ask">
+      <div className="d-section-head">
+        <div>
+          <p className="eyebrow">ASK AT YOUR VISIT</p>
+          <h2>診察で聞きたいこと</h2>
+        </div>
+        <span data-home-note-count>{recentNotes.length}件 保存済み</span>
+      </div>
+      <form
+        className="d-home-ask-form"
+        onSubmit={(event) => {
+          event.preventDefault()
+          void add()
+        }}
+      >
+        <label htmlFor="d-home-note" className="sr-only">
+          診察で聞きたいこと
+        </label>
+        <input
+          id="d-home-note"
+          data-home-note-input
+          value={draft}
+          maxLength={500}
+          onChange={(event) => setDraft(event.target.value)}
+          placeholder="例：副作用が出たときの連絡先は？"
+        />
+        <button type="submit" className="primary-button" data-home-note-add disabled={!draft.trim() || busy}>
+          <Icon name="plus" size={18} />
+          追加
+        </button>
+      </form>
+      {recentNotes.length > 0 && (
+        <ul className="d-home-ask-list">
+          {recentNotes
+            .slice(-2)
+            .reverse()
+            .map((note, index) => (
+              <li key={`${index}-${note}`}>{note}</li>
+            ))}
+        </ul>
+      )}
+      <button className="d-text-action" onClick={() => setPage("notes")}>
+        診察ノートを開く
+      </button>
+    </section>
   )
 }
 
@@ -3450,6 +3626,7 @@ function DNotes({
   live,
   draftFrom,
   clearDraft,
+  visitDate = null,
 }: {
   notes: string[]
   setNotes: (notes: string[]) => void
@@ -3460,6 +3637,8 @@ function DNotes({
   /** 本番: 理解確認から作った質問候補（保存するまで記録しない） */
   draftFrom?: { text: string; versionId: string; questionId: string; title: string } | null
   clearDraft?: () => void
+  /** 本番: 患者が登録した次回の診察日（未登録は null） */
+  visitDate?: string | null
 }) {
   const [draft, setDraft] = useState(draftFrom?.text ?? "")
   const [editing, setEditing] = useState<number | null>(null)
@@ -3490,9 +3669,9 @@ function DNotes({
       <div className="d-visit-date">
         <Icon name="calendar" />
         {live ? (
-          // 本番: 次回診察日は DB にないため表示しない（架空の日時を出さない）
+          // 本番: 患者が登録した次回診察日だけを表示する（架空の日時を出さない）
           <span>
-            <b>次回診察日：未登録</b>
+            <b>{visitDate ? `次回診察日：${visitDateLabel(visitDate)}` : "次回診察日：未登録"}</b>
             <small>QR一時共有を承認したときだけ、医療者がこの質問を閲覧できます</small>
           </span>
         ) : (

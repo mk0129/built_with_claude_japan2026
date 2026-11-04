@@ -249,3 +249,44 @@
   .au-entry h1 { font-size: 30px; }
 }
 
+/* ---- 患者ホーム: 次の診察（Concept C の時間軸を Concept D に統合） ---- */
+.d-visit-card { margin: 4px 0 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: 18px; background: #fff; color: var(--ink); }
+.d-visit-card.loading { min-height: 96px; background: #f6f9f9; }
+.d-visit-head { display: flex; align-items: center; justify-content: space-between; }
+.d-visit-head > span { display: inline-flex; align-items: center; gap: 6px; color: var(--blue-dark); font-size: 12px; font-weight: 700; }
+.d-visit-head > button { min-height: 36px; min-width: 44px; border: 0; background: none; color: var(--blue-dark); font-size: 12px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.d-visit-date-label { margin: 2px 0 0; font-family: 'Zen Old Mincho', serif; font-size: 24px; line-height: 1.4; letter-spacing: .02em; }
+.d-visit-days { margin: 4px 0 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.d-visit-days b { color: var(--blue-dark); font-size: 17px; font-weight: 700; }
+.d-visit-card.empty { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 10px 12px; background: var(--blue-pale); border-color: transparent; }
+.d-visit-card.empty > span:nth-child(2) { display: flex; flex-direction: column; gap: 2px; }
+.d-visit-card.empty b { font-size: 14px; }
+.d-visit-card.empty small { color: var(--muted); font-size: 11px; line-height: 1.6; }
+.d-visit-card.empty .secondary-button { grid-column: 1 / -1; min-height: 44px; font-size: 13px; background: #fff; }
+.d-visit-icon { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; background: #fff; color: var(--blue-dark); }
+.d-visit-card.editing { display: flex; flex-direction: column; gap: 8px; }
+.d-visit-card.editing label { display: inline-flex; align-items: center; gap: 6px; color: var(--blue-dark); font-size: 13px; font-weight: 700; }
+.d-visit-card.editing input { min-height: 48px; padding: 8px 12px; border: 1px solid #c9d6d8; border-radius: 12px; background: #fff; color: var(--ink); font-size: 16px; }
+.d-visit-card.editing small { color: var(--muted); font-size: 11px; line-height: 1.6; }
+.d-visit-actions { display: flex; gap: 8px; }
+.d-visit-actions .primary-button { flex: 1; }
+.d-visit-cancel { min-height: 48px; padding: 0 16px; border: 1px solid var(--line); border-radius: 13px; background: #fff; color: var(--ink); font-weight: 600; }
+.d-visit-clear { align-self: flex-start; min-height: 40px; border: 0; background: none; color: #9a5248; font-size: 12px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.d-home-first { margin-top: 22px; }
+.d-home-lesson + .d-home-lesson { margin-top: 10px; }
+.d-home-lesson .primary-button { width: 100%; min-height: 52px; font-size: 15px; margin-top: 10px; }
+.d-home-lesson .d-next-lesson { margin-bottom: 0; }
+.d-home-lesson-action { margin-top: 8px; min-height: 44px; font-size: 13px; background: #fff; }
+.d-home-empty { display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 18px; background: #f6f9f9; }
+.d-home-empty h3 { margin: 0; font-size: 15px; }
+.d-home-empty p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.d-home-empty .secondary-button { min-height: 44px; font-size: 13px; background: #fff; }
+.d-home-ask-form { display: flex; gap: 8px; }
+.d-home-ask-form input { flex: 1; min-width: 0; min-height: 48px; padding: 8px 12px; border: 1px solid #c9d6d8; border-radius: 12px; background: #fff; color: var(--ink); font-size: 15px; }
+.d-home-ask-form input:focus-visible { outline: 3px solid rgba(72, 122, 132, .24); outline-offset: 1px; border-color: var(--blue); }
+.d-home-ask-form .primary-button { flex: 0 0 auto; min-height: 48px; padding: 0 14px; }
+.d-home-ask-list { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.d-home-ask-list li { padding: 10px 12px; border-radius: 12px; background: #f7f4fa; color: var(--ink); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.d-home-ask .d-text-action { margin-top: 4px; }
+.d-home-health { margin-top: 0; }
+

@@ -12,6 +12,7 @@ import { useClinicianLive, usePatientLive, type ClinicianOrg } from "./live"
 import { usePatientLearning } from "./learning"
 import { useClinicianRecord } from "./record"
 import { usePatientHealth, usePatientNotes } from "./health"
+import { usePatientVisit } from "./visit"
 import { useStudio } from "./studio"
 import { DPrototype, Icon, Logo, type DViewport } from "./PatientD"
 import { initialActiveSymptomIds, initialHealthRecords, type HealthRecord } from "./healthData"
@@ -73,6 +74,7 @@ export function PatientDApp({ initial = {}, userName }: { initial?: UrlInit; use
   const learning = usePatientLearning(s.notify)
   const health = usePatientHealth(s.notify)
   const notesLive = usePatientNotes(s.notify)
+  const visit = usePatientVisit(s.notify)
   // Step 3 で患者画面の表示はすべて実データになったため、「架空データ」の表示は出さない
   // （全画面の学習・解説・振り返りで見出しに重なっていた問題もこれで解消）
   return (
@@ -85,6 +87,7 @@ export function PatientDApp({ initial = {}, userName }: { initial?: UrlInit; use
         userName={userName}
         health={health}
         notesLive={notesLive}
+        visit={visit}
         viewport={tablet ? "tablet" : "390"}
         notify={s.notify}
         healthRecords={s.healthRecords}

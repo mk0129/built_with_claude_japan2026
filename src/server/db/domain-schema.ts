@@ -664,3 +664,13 @@ export const visitNotes = pgTable(
   },
   (t) => [index("visit_notes_patient_idx").on(t.patientId, t.createdAt)],
 );
+
+/**
+ * 次回の診察日（患者が自分で登録・確認した日付だけ。共有した日や処方日から推定しない）。患者 1 人に 1 件。
+ * 日付だけを持ち（時刻なし）、残り日数は患者の画面で Asia/Tokyo の今日から数える。未登録なら行がない。
+ */
+export const patientNextVisits = pgTable("patient_next_visits", {
+  patientId: userRef("patient_id").primaryKey(),
+  visitDate: text("visit_date").notNull(),
+  updatedAt: ts("updated_at").notNull().defaultNow(),
+});
