@@ -1,0 +1,9 @@
+{
+  "intervisitOnScreen": 0,
+  "narrativeOnScreen": 0,
+  "apiAfterEnd": {
+    "intervisit": 403,
+    "summary": 403,
+    "patient": 403
+  }
+}

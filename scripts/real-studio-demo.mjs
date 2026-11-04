@@ -6,7 +6,7 @@
  */
 import { chromium } from "playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
-const B = process.env.BASE ?? "http://localhost:3500", OUT = "docs/design/phase2/step5/real";
+const B = process.env.BASE ?? "http://localhost:3500", OUT = process.env.OUT ?? "docs/design/phase2/step5/real";
 mkdirSync(OUT, { recursive: true });
 const acc = await (await fetch(B + "/api/v1/demo/accounts")).json();
 if (!acc.accounts.every((a) => a.email.endsWith("@example.com"))) throw new Error("架空以外のアカウントがあるため中止");

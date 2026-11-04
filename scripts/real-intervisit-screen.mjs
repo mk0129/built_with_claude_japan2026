@@ -45,7 +45,7 @@ await s.getByRole("heading", { name: "診察サマリー" }).waitFor({ timeout: 
 // 最初の要約の応答（Claude の生成を含む）を待つ。サーバーは同時の要求を 1 回の生成にまとめる
 await s.waitForResponse((r) => r.url().includes("/intervisit/summary") && r.request().method() === "POST", { timeout: 180000 });
 await s.waitForTimeout(1500);
-await s.locator('.cd-summary-narrative[data-summary-kind="claude"], [data-ai-status="fallback"]').first().waitFor({ timeout: 180000 });
+await s.locator('.cd-summary-narrative[data-summary-kind="claude"], .cd-summary-narrative[data-summary-kind="replay"], [data-ai-status="fallback"]').first().waitFor({ timeout: 180000 });
 const kind = await s.locator(".cd-summary-narrative").getAttribute("data-summary-kind");
 console.log("kind:", kind, "summary POSTs:", summaryCount);
 await shot(s, "01_summary_top");
