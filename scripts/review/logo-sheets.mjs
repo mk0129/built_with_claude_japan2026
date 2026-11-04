@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * ロゴ A の可読性確認シート（16/24/32/48/80/128px、2 倍密度・白とポーセリン地）と、ファビコンの変更前後（16/32/48、実寸と 4 倍拡大）。
+ * ロゴ A の可読性確認シート（16/24/32/48/80/128px、2 倍密度・白とポーセリン地。最下段は 16・24px 用の簡略版 SVG）と、
+ * ファビコンの変更前後（各サイズ、実寸と 4 倍拡大）。
  *   node scripts/review/logo-sheets.mjs <変更前の favicon.ico> <出力フォルダ>
  */
 import sharp from "sharp";
@@ -24,7 +25,18 @@ for (const [bg, top] of [["#ffffff", 0], ["#e8f2f3", 330]]) {
     x += Math.max(m.info.width, 60) + 60;
   }
 }
-await sharp({ create: { width: 1000, height: 660, channels: 4, background: "#ffffff" } }).composite(comps).jpeg({ quality: 90 }).toFile(`${out}/logo_sizes.jpg`);
+// 小サイズ用（16・24px で使う簡略版 SVG）
+comps.push({ input: label("小サイズ用 SVG（16・24px で使用）", 400), left: 24, top: 672 });
+x = 24;
+for (const h of [16, 24]) {
+  const m = await sharp("public/brand/shiori_mark_small.svg", { density: 600 }).resize({ height: h * 2, kernel: "lanczos3" }).png().toBuffer({ resolveWithObject: true });
+  comps.push({ input: m.data, left: x, top: 700 + (64 - h * 2) });
+  const z = await sharp(m.data).resize({ height: h * 8, kernel: "nearest" }).png().toBuffer({ resolveWithObject: true });
+  comps.push({ input: z.data, left: x + 60, top: 700 + (200 - h * 8) + 20 });
+  comps.push({ input: label(`${h}px（2倍密度・拡大）`, 220), left: x, top: 930 });
+  x += z.info.width + 200;
+}
+await sharp({ create: { width: 1000, height: 970, channels: 4, background: "#ffffff" } }).composite(comps).jpeg({ quality: 90 }).toFile(`${out}/logo_sizes.jpg`);
 
 // 2. ファビコン（ICO の PNG/BMP をそのまま読む代わりに、ブラウザと同じく各サイズを描画）
 const icoImages = (buf) => {
@@ -63,9 +75,9 @@ for (const [name, imgs] of rows) {
     fc.push({ input: png, left, top: top + 80 - img.size / 2 });
     fc.push({ input: await sharp(png).resize(img.size * 4, img.size * 4, { kernel: "nearest" }).png().toBuffer(), left: left + 60, top: top + 80 - img.size * 2 });
     fc.push({ input: label(`${img.size}px（実寸・4倍）`, 200), left, top: top + 190 });
-    left += img.size * 4 + 140;
+    left += img.size * 4 + 160;
   }
   top += 240;
 }
-await sharp({ create: { width: 1000, height: top + 10, channels: 4, background: "#ffffff" } }).composite(fc).png().toFile(`${out}/favicon_before_after.png`);
+await sharp({ create: { width: 1400, height: top + 10, channels: 4, background: "#ffffff" } }).composite(fc).png().toFile(`${out}/favicon_before_after.png`);
 console.log("logo_sizes.jpg, favicon_before_after.png");
