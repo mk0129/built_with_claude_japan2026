@@ -197,6 +197,19 @@ describe("Claude の外来間要約（Step 4-C・モック）", () => {
     expect(r.json).toMatchObject({ status: "fallback", generator: "rule" });
     expect(r.json.fallbackReason).toMatch(/AI 要約を生成できませんでした（[A-Z_]+）/);
     expect(r.json.fallbackReason).not.toContain("しびれ");
+    // 開き直しても Claude を再度呼ばない（再生成は明示の操作だけ。検証を通った以前の要約があればそれを再利用）
+    const before = calls;
+    const again = await body(await summaryRoute(req(staff, {}), ctx("id", sessionId)));
+    expect(again.json.cached).toBe(true);
+    expect(calls).toBe(before);
+    // 一度も成功していない共有・期間では、失敗した結果（ルールベース）を再利用する
+    const iv = await buildIntervisit({ patientId: seeded.users.get(PATIENT_B)!, sessionId });
+    const first = await summarizeIntervisit(iv, { sessionId: `${sessionId}-fail`, fictional: true });
+    expect(first.status).toBe("fallback");
+    const n = calls;
+    const second = await summarizeIntervisit(iv, { sessionId: `${sessionId}-fail`, fictional: true });
+    expect(second).toMatchObject({ status: "fallback", cached: true });
+    expect(calls).toBe(n);
   });
 
   it("同じ共有・期間・データの同時の要求は、Claude を 1 回だけ呼んで同じ結果を返す", async () => {

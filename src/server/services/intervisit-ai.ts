@@ -14,18 +14,20 @@ import { ruleSummary, SECTIONS, sourceIndex, type SummaryItem } from "./intervis
  *   解釈や診断の語がないことを検証し、通らない項目は表示しない。安全上の違反や検証できない項目が多い場合は要約全体を
  *   ルールベースに切り替える。患者の元データは常に別に表示できる。
  */
+// 構造化出力のスキーマには長さ・件数の上限を書かない（API が上限を保証せず、超えると SDK の検証で要約全体が失敗するため）。
+// 長さ・件数はサーバー側の検証（validateItems）で 1 項目ずつ判定し、超えた項目だけを不採用にする
 export const AiSummarySchema = z.object({
-  items: z
-    .array(
-      z.object({
-        section: z.enum(SECTIONS),
-        text: z.string().min(1).max(260),
-        sourceIds: z.array(z.string().min(1).max(120)).min(1).max(24),
-      }),
-    )
-    .min(1)
-    .max(28),
+  items: z.array(
+    z.object({
+      section: z.enum(SECTIONS),
+      text: z.string(),
+      sourceIds: z.array(z.string()),
+    }),
+  ),
 });
+const MAX_TEXT = 260;
+const MAX_SOURCES = 40;
+const MAX_ITEMS = 40;
 
 export type AiSummaryResult = {
   status: "ai" | "fallback";
@@ -77,6 +79,9 @@ export function validateItems(items: SummaryItem[], iv: Intervisit) {
       if (safety) safetyViolation = true;
     };
     if (!SECTIONS.includes(item.section)) return reject("不明な節");
+    if (i >= MAX_ITEMS) return reject("項目が多すぎる");
+    if (!item.text.trim() || item.text.length > MAX_TEXT) return reject("文が長すぎる（または空）");
+    if (item.sourceIds.length > MAX_SOURCES) return reject("根拠 ID が多すぎる");
     const srcs = item.sourceIds.map((id) => index.get(id));
     if (item.sourceIds.length === 0 || srcs.some((x) => !x)) return reject("存在しない根拠 ID");
     const plain = outsideQuotes(item.text);
@@ -231,7 +236,19 @@ export async function summarizeIntervisit(
   if (!opts.simulate) {
     const pending = inflight.get(key);
     if (pending) return pending;
-    const p = generate(iv, opts, key, dataHash).finally(() => inflight.delete(key));
+    const p = generate(iv, opts, key, dataHash)
+      .then((r) => {
+        // 生成に失敗・検証で不採用になった結果も同じ共有・期間・データでは再利用し、画面を開き直しても Claude を再度呼ばない
+        // （呼び直すのは医療者が「AI要約を再生成」を押したときだけ）
+        if (r.status === "fallback" && !cache.has(key)) {
+          if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value!);
+          const { cached: _c, ...rest } = r;
+          void _c;
+          cache.set(key, rest);
+        }
+        return r;
+      })
+      .finally(() => inflight.delete(key));
     inflight.set(key, p);
     return p;
   }
@@ -297,6 +314,8 @@ async function generate(
     }
   } catch (e) {
     const err = classifyClaudeError(e);
+    // 原因の調査用に、エラーの種類だけを記録する（本文・患者情報は記録しない）
+    console.warn(`[intervisit-ai] generation failed: ${err.code} (${e instanceof Error ? e.name : typeof e})`);
     return fallback(`AI 要約を生成できませんでした（${err.code}）`);
   }
   rawItems = items;

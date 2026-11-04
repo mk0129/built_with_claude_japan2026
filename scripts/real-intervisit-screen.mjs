@@ -53,15 +53,18 @@ await shot(s, "02_ai_summary", "[data-intervisit]");
 const items = s.locator("[data-summary-item]");
 const n = await items.count();
 const picks = [];
-for (const want of ["手足のしびれ", "わからない", "診察ノート"]) {
+for (const want of ["手足のしびれ", "わからない", "戻りますか"]) {
   const i = (await items.allTextContents()).findIndex((t) => t.includes(want));
   if (i >= 0) picks.push(i);
 }
 let k = 3;
+const sourcesLog = [];
 for (const i of picks) {
   await items.nth(i).click();
+  sourcesLog.push({ item: i, text: await items.nth(i).innerText(), sources: await s.locator("[data-summary-sources] [data-source-id]").allInnerTexts() });
   await shot(s, `0${k++}_sources_${i}`, "[data-intervisit]");
 }
+writeFileSync(`${OUT}/sources_clicked.json`, JSON.stringify(sourcesLog, null, 2));
 console.log("items:", n, "picked:", picks);
 await s.locator(".cd-sidebar").getByRole("button", { name: "在宅経過" }).click();
 await shot(s, "06_course_table");
@@ -73,7 +76,21 @@ await s.locator("[data-summary-item]").first().waitFor();
 await s.waitForTimeout(1500);
 console.log("summary POSTs after revisit:", summaryCount);
 writeFileSync(`${OUT}/narrative.txt`, await s.locator(".cd-summary-narrative").innerText());
+// 共有を終了する前に、画面に表示された要約と根拠を保存
+const sid = new URL(s.url()).searchParams.get("s");
+writeFileSync(`${OUT}/request_count.txt`, `summary POST (画面からの要求): ${summaryCount}\n`);
 await s.locator(".cd-app-header").getByRole("button", { name: "共有終了" }).click();
 await s.getByText("患者一覧はありません").waitFor();
+const cleared = {
+  intervisitOnScreen: await s.locator("[data-intervisit]").count(),
+  narrativeOnScreen: await s.locator(".cd-summary-narrative").count(),
+  apiAfterEnd: {
+    intervisit: (await s.request.get(`${B}/api/v1/consultations/${sid}/intervisit`)).status(),
+    summary: (await s.request.post(`${B}/api/v1/consultations/${sid}/intervisit/summary`, { data: {} })).status(),
+    patient: (await s.request.get(`${B}/api/v1/consultations/${sid}/patient`)).status(),
+  },
+};
+writeFileSync(`${OUT}/after_end.json`, JSON.stringify(cleared, null, 2));
+console.log("after end:", JSON.stringify(cleared));
 await shot(s, "08_after_end");
 await b.close();

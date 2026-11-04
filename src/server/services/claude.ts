@@ -90,6 +90,12 @@ export async function callClaudeStructured<S extends z.ZodType>(args: {
     return { ...base, data: args.schema.parse(fakeGenerate(args.user, args.schemaName)), generator: "fake", model: `fake:${model}`, inputTokens: 0, outputTokens: 0, durationMs: Date.now() - t0 };
   }
   if (mode !== "claude") throw new ClaudeError("NO_API_KEY", "ANTHROPIC_API_KEY が設定されていません");
+  // 実 API の呼び出し回数の上限（検証・デモの課金を抑える。CLAUDE_MAX_CALLS。プロセス内で数え、超えたら呼ばない）
+  const g = globalThis as { __shioriClaudeCalls?: number };
+  const maxCalls = process.env.CLAUDE_MAX_CALLS ? Number(process.env.CLAUDE_MAX_CALLS) : Infinity;
+  if ((g.__shioriClaudeCalls ?? 0) >= maxCalls) throw new ClaudeError("RATE_LIMIT", "このサーバーで許可された Claude API の呼び出し回数の上限に達しました。");
+  g.__shioriClaudeCalls = (g.__shioriClaudeCalls ?? 0) + 1;
+  console.info(`[claude] call ${g.__shioriClaudeCalls}/${Number.isFinite(maxCalls) ? maxCalls : "∞"} schema=${args.schemaName}`);
 
   const client = new Anthropic({ timeout: Number(process.env.CLAUDE_TIMEOUT_MS || 300_000), maxRetries: Number(process.env.CLAUDE_MAX_RETRIES ?? 2) });
   const effort = process.env.CLAUDE_EFFORT as "low" | "medium" | "high" | undefined;
