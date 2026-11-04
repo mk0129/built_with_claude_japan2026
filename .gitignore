@@ -58,3 +58,8 @@ clinical_info_rx_ClaudeCode_spec_20261102/DESIGN_REFERENCE.png
 
 # 原資料の非公開ストレージ（ローカル）
 /private_storage/
+
+# UI レビューの生画像（容量が大きい・未監修教材の画面を含むためリポジトリに入れない。scripts/review で再生成）
+/docs/review/*/before/
+/docs/review/*/after/
+/docs/review/*/diff/

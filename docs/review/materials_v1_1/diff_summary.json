@@ -1,0 +1,371 @@
+{
+  "screens": 192,
+  "compared": 108,
+  "unchanged": 75,
+  "changed": [
+    {
+      "name": "C01_start_1440",
+      "pixels": 436,
+      "ratio": 0.00008,
+      "boxCss": [
+        702,
+        58,
+        1226,
+        499
+      ]
+    },
+    {
+      "name": "C02_summary_1440",
+      "pixels": 6067,
+      "ratio": 0.00117,
+      "boxCss": [
+        367,
+        59,
+        1230,
+        793
+      ]
+    },
+    {
+      "name": "C02_summary_1440_s1",
+      "pixels": 1016,
+      "ratio": 0.0002,
+      "boxCss": [
+        388,
+        59,
+        1218,
+        735
+      ]
+    },
+    {
+      "name": "C03_sources_1440",
+      "pixels": 6126,
+      "ratio": 0.00118,
+      "boxCss": [
+        367,
+        59,
+        1230,
+        852
+      ]
+    },
+    {
+      "name": "C03_sources_1440_s1",
+      "pixels": 1016,
+      "ratio": 0.0002,
+      "boxCss": [
+        388,
+        59,
+        1218,
+        782
+      ]
+    },
+    {
+      "name": "C03_sources_1440_s2",
+      "pixels": 1016,
+      "ratio": 0.0002,
+      "boxCss": [
+        388,
+        59,
+        1218,
+        734
+      ]
+    },
+    {
+      "name": "C03_sources_820",
+      "pixels": 66,
+      "ratio": 0.00003,
+      "boxCss": [
+        72,
+        106,
+        75,
+        112
+      ]
+    },
+    {
+      "name": "C04_course_1440",
+      "pixels": 563,
+      "ratio": 0.00011,
+      "boxCss": [
+        366,
+        59,
+        1246,
+        815
+      ]
+    },
+    {
+      "name": "C05_library_1180_s1",
+      "pixels": 14819,
+      "ratio": 0.00392,
+      "boxCss": [
+        551,
+        231,
+        814,
+        319
+      ]
+    },
+    {
+      "name": "C05_library_1180_s2",
+      "pixels": 14819,
+      "ratio": 0.00392,
+      "boxCss": [
+        551,
+        150,
+        814,
+        238
+      ]
+    },
+    {
+      "name": "C05_library_1440",
+      "pixels": 900,
+      "ratio": 0.00017,
+      "boxCss": [
+        194,
+        59,
+        1154,
+        821
+      ]
+    },
+    {
+      "name": "C05_library_1440_s1",
+      "pixels": 15248,
+      "ratio": 0.00294,
+      "boxCss": [
+        194,
+        59,
+        1154,
+        683
+      ]
+    },
+    {
+      "name": "C05_library_820_s1",
+      "pixels": 15056,
+      "ratio": 0.00574,
+      "boxCss": [
+        502,
+        544,
+        771,
+        632
+      ]
+    },
+    {
+      "name": "C05_library_820_s2",
+      "pixels": 15056,
+      "ratio": 0.00574,
+      "boxCss": [
+        502,
+        156,
+        771,
+        244
+      ]
+    },
+    {
+      "name": "C06_prescribe_1440",
+      "pixels": 258,
+      "ratio": 0.00005,
+      "boxCss": [
+        380,
+        59,
+        1241,
+        364
+      ]
+    },
+    {
+      "name": "C07_studio_1440",
+      "pixels": 240,
+      "ratio": 0.00005,
+      "boxCss": [
+        194,
+        59,
+        1154,
+        699
+      ]
+    },
+    {
+      "name": "C07_studio_820_s1",
+      "pixels": 66,
+      "ratio": 0.00003,
+      "boxCss": [
+        72,
+        106,
+        75,
+        112
+      ]
+    },
+    {
+      "name": "P02_library_390_s1",
+      "pixels": 4175,
+      "ratio": 0.00317,
+      "boxCss": [
+        38,
+        410,
+        108,
+        465
+      ]
+    },
+    {
+      "name": "P02_library_430_s1",
+      "pixels": 4174,
+      "ratio": 0.00288,
+      "boxCss": [
+        38,
+        400,
+        108,
+        455
+      ]
+    },
+    {
+      "name": "P02_library_768",
+      "pixels": 4182,
+      "ratio": 0.00133,
+      "boxCss": [
+        408,
+        794,
+        478,
+        849
+      ]
+    },
+    {
+      "name": "P02_library_768_s1",
+      "pixels": 4182,
+      "ratio": 0.00133,
+      "boxCss": [
+        408,
+        342,
+        478,
+        397
+      ]
+    },
+    {
+      "name": "P03_detail_chemo_390",
+      "pixels": 32016,
+      "ratio": 0.02432,
+      "boxCss": [
+        32,
+        166,
+        354,
+        400
+      ]
+    },
+    {
+      "name": "P03_detail_chemo_430",
+      "pixels": 39143,
+      "ratio": 0.02696,
+      "boxCss": [
+        32,
+        166,
+        394,
+        430
+      ]
+    },
+    {
+      "name": "P03_detail_chemo_768",
+      "pixels": 98122,
+      "ratio": 0.03119,
+      "boxCss": [
+        48,
+        166,
+        716,
+        527
+      ]
+    },
+    {
+      "name": "P03_detail_chemo_768_s1",
+      "pixels": 77036,
+      "ratio": 0.02449,
+      "boxCss": [
+        121,
+        68,
+        716,
+        327
+      ]
+    },
+    {
+      "name": "P04_learn_390",
+      "pixels": 579,
+      "ratio": 0.00044,
+      "boxCss": [
+        0,
+        63,
+        329,
+        581
+      ]
+    },
+    {
+      "name": "P08_history_390_s1",
+      "pixels": 4176,
+      "ratio": 0.00317,
+      "boxCss": [
+        38,
+        645,
+        108,
+        700
+      ]
+    },
+    {
+      "name": "P08_history_430_s1",
+      "pixels": 4174,
+      "ratio": 0.00288,
+      "boxCss": [
+        38,
+        655,
+        108,
+        710
+      ]
+    },
+    {
+      "name": "P08_history_768",
+      "pixels": 160,
+      "ratio": 0.00005,
+      "boxCss": [
+        62,
+        945,
+        131,
+        946
+      ]
+    },
+    {
+      "name": "P08_history_768_s1",
+      "pixels": 4174,
+      "ratio": 0.00133,
+      "boxCss": [
+        62,
+        835,
+        132,
+        890
+      ]
+    },
+    {
+      "name": "P09_health_390",
+      "pixels": 162,
+      "ratio": 0.00012,
+      "boxCss": [
+        287,
+        320,
+        298,
+        328
+      ]
+    },
+    {
+      "name": "P09_health_430",
+      "pixels": 200,
+      "ratio": 0.00014,
+      "boxCss": [
+        327,
+        320,
+        338,
+        328
+      ]
+    },
+    {
+      "name": "P09_health_768",
+      "pixels": 200,
+      "ratio": 0.00006,
+      "boxCss": [
+        641,
+        297,
+        652,
+        305
+      ]
+    }
+  ],
+  "onlyAfter": 84
+}

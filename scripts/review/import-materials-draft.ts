@@ -38,20 +38,12 @@ const DOMAIN: Record<string, string> = {
 };
 export const V11_CHANGE_NOTE = "教材 v1.1 編集草稿（レビュー用に取り込み）。医学的監修・利用許諾の確認前。公開・情報処方・AI 送信は不可。";
 
-async function main() {
-  const file = process.argv[2];
-  if (!file) throw new Error("原稿 JSON のパスを指定してください");
-  const url = process.env.DATABASE_URL ?? "";
-  if (!/@(127\.0\.0\.1|localhost):\d+\//.test(url)) throw new Error("ローカルの開発 DB（127.0.0.1）以外には取り込みません");
-  const { isProductionEnv } = await import("@/server/demo");
-  if (isProductionEnv()) throw new Error("本番環境の設定では取り込みません");
+export type ImportResult = { title: string; versionId: string | null; skipped: boolean }[];
 
-  const raw = readFileSync(file);
+/** 取り込み本体（テストからも使う）。db はシード済みの開発 DB */
+export async function importV11(db: import("@/server/db/client").Db, raw: Buffer): Promise<ImportResult> {
   const data = JSON.parse(raw.toString("utf8")) as V11;
-  const { getDb } = await import("@/server/db/client");
   const { materials, materialVersions, materialSlides, quizQuestions, organizations, sourceDocuments, sourcePermissions, user } = await import("@/server/db/schema");
-  const db = getDb();
-
   const [org] = await db.select().from(organizations).where(eq(organizations.slug, "sakura-general")).limit(1);
   const [editor] = await db.select().from(user).where(eq(user.email, "approver.sato@example.com")).limit(1);
   if (!org || !editor) throw new Error("架空の施設・アカウントが見つかりません（シード済みの開発 DB か確認）");
@@ -93,17 +85,18 @@ async function main() {
     });
   }
 
+  const result: ImportResult = [];
   for (const m of data.materials) {
     const [dup] = await db.select({ id: materials.id }).from(materials).where(and(eq(materials.title, m.title), eq(materials.ownerOrgId, org.id))).limit(1);
     if (dup) {
-      console.log(`skip（同じ題名の教材があります）: ${m.title}`);
+      result.push({ title: m.title, versionId: null, skipped: true });
       continue;
     }
     if (m.slides.length !== 5 || m.quiz.length !== 3 || m.quiz.some((q) => q.options.length !== 3 || q.correctIndex < 0 || q.correctIndex > 2))
       throw new Error(`形式が想定と異なります: ${m.title}`);
     const domain = DOMAIN[m.domain];
     if (!domain) throw new Error(`領域が対応表にありません: ${m.domain}`);
-    await db.transaction(async (tx) => {
+    const versionId = await db.transaction(async (tx) => {
       const [mat] = await tx.insert(materials).values({ scope: "org", ownerOrgId: org.id, primaryDomain: domain, title: m.title, tags: [domain] }).returning();
       const [ver] = await tx
         .insert(materialVersions)
@@ -143,15 +136,31 @@ async function main() {
           sourceRefs: [],
         })),
       );
-      console.log(`draft: ${m.id} ${m.title} versionId=${ver.id}`);
+      return ver.id;
     });
+    result.push({ title: m.title, versionId, skipped: false });
   }
+  return result;
 }
 
-main().then(
-  () => process.exit(0),
-  (e) => {
-    console.error(e instanceof Error ? e.message : e);
-    process.exit(1);
-  },
-);
+async function main() {
+  const file = process.argv[2];
+  if (!file) throw new Error("原稿 JSON のパスを指定してください");
+  const url = process.env.DATABASE_URL ?? "";
+  if (!/@(127\.0\.0\.1|localhost):\d+\//.test(url)) throw new Error("ローカルの開発 DB（127.0.0.1）以外には取り込みません");
+  const { isProductionEnv } = await import("@/server/demo");
+  if (isProductionEnv()) throw new Error("本番環境の設定では取り込みません");
+  const { getDb } = await import("@/server/db/client");
+  for (const r of await importV11(getDb(), readFileSync(file)))
+    console.log(r.skipped ? `skip（同じ題名の教材があります）: ${r.title}` : `draft: ${r.title} versionId=${r.versionId}`);
+}
+
+if (process.argv[1]?.endsWith("import-materials-draft.ts")) {
+  main().then(
+    () => process.exit(0),
+    (e) => {
+      console.error(e instanceof Error ? e.message : e);
+      process.exit(1);
+    },
+  );
+}
