@@ -5,8 +5,9 @@
  * 架空のアカウント（@example.com）だけであることを確認してから、患者A と山田医師で共有し、医療者画面の要約と根拠を撮影する。
  */
 import { chromium } from "playwright";
-import { writeFileSync } from "node:fs";
-const B = process.env.BASE ?? "http://localhost:3500", OUT = "docs/design/phase2/step4/real_screen";
+import { mkdirSync, writeFileSync } from "node:fs";
+const B = process.env.BASE ?? "http://localhost:3500", OUT = process.env.OUT ?? "docs/design/phase2/step4/real_screen";
+mkdirSync(OUT, { recursive: true });
 // 安全確認: この環境のアカウントがすべて架空（@example.com）であること
 const acc = await (await fetch(B + "/api/v1/demo/accounts")).json();
 if (!acc.accounts.every((a) => a.email.endsWith("@example.com"))) throw new Error("架空以外のアカウントがあるため中止");

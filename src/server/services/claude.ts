@@ -30,6 +30,9 @@ export type ClaudeErrorCode = "NO_API_KEY" | "REFUSAL" | "MAX_TOKENS" | "PARSE_F
 const RETRYABLE: ClaudeErrorCode[] = ["TIMEOUT", "RATE_LIMIT", "OVERLOADED", "SERVER_ERROR", "CONNECTION"];
 
 export class ClaudeError extends Error {
+  /** 調査用（患者情報を含まない）: HTTP ステータスと元の例外のクラス名 */
+  public httpStatus: number | null = null;
+  public cause_: string | null = null;
   constructor(
     public code: ClaudeErrorCode,
     message: string,
@@ -54,7 +57,17 @@ export function claudeConfigured() {
 
 /** SDK の例外を、利用者に見せられる日本語と分類コードに変換する（キーや本文は含めない） */
 export function classifyClaudeError(e: unknown): ClaudeError {
+  const err = classifyInner(e);
+  if (!err.cause_) err.cause_ = e instanceof Error ? e.constructor.name : typeof e;
+  if (err.httpStatus == null && e instanceof Anthropic.APIError) err.httpStatus = e.status ?? null;
+  return err;
+}
+
+function classifyInner(e: unknown): ClaudeError {
   if (e instanceof ClaudeError) return e;
+  // 構造化出力が想定の形式（スキーマ）と一致しない（SDK の検証で失敗）
+  // （SDK は「Failed to parse structured output」の AnthropicError を投げる。メッセージには出力の一部が含まれるため記録しない）
+  if (e instanceof Error && (e.name === "ZodError" || /^Failed to parse structured output/.test(e.message))) return new ClaudeError("PARSE_FAILED", "Claude の出力が想定の形式と一致しませんでした。");
   if (e instanceof Anthropic.APIConnectionTimeoutError) return new ClaudeError("TIMEOUT", "Claude API の応答がタイムアウトしました。時間をおいて再試行してください。");
   if (e instanceof Anthropic.APIConnectionError) return new ClaudeError("CONNECTION", "Claude API に接続できませんでした。ネットワークを確認して再試行してください。");
   if (e instanceof Anthropic.APIError) {

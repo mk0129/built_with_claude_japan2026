@@ -189,7 +189,8 @@ const SYSTEM = `あなたは外来診察の前に医療者が読む「外来間�
 - 「わからない」という回答を、患者の理解力や能力の評価に置き換えない（「『わからない』と回答した」と事実だけを書く）。
 - 患者の質問は原文を「」で引用し、言い換えない。教材名・設問文も「」で囲み、データのとおりに書く。
 - 各項目の sourceIds には、その文の根拠となる出来事 ID・集計 ID（データ中の id）をすべて入れる。根拠のない文は書かない。
-構成（section）: 「体調の変化」（バイタルと症状の推移を日付・程度とともに）、「学習の状況」（教材の状態、誤答、「わからない」）、「患者からの質問」（原文）、「時系列の経過」（必要な出来事を日付順に 3〜8 項目）。1 項目は 1〜2 文、合計 20 項目以内。`;
+構成（section）: 「体調の変化」（バイタルと症状の推移を日付・程度とともに）、「学習の状況」（教材の状態、誤答、「わからない」）、「患者からの質問」（原文）、「時系列の経過」（必要な出来事を日付順に 3〜8 項目）。1 項目は 1〜2 文・120 字程度まで（長くても 250 字以内）、合計 20 項目以内。根拠 ID は 1 項目 20 件以内。
+「患者からの質問」の各項目には、質問の原文全体を「」でそのまま引用する。件数を書くときは、sourceIds に入れた記録を数えた値と一致させる。`;
 
 function buildUser(iv: Intervisit) {
   const index = sourceIndex(iv);
@@ -306,7 +307,9 @@ async function generate(
       const max = process.env.INTERVISIT_AI_MAX_CALLS ? Number(process.env.INTERVISIT_AI_MAX_CALLS) : Infinity;
       if (mode === "claude" && (g.__shioriIntervisitAiCalls ?? 0) >= max) return fallback("AI 要約の呼び出し回数の上限に達したため、ルールベースで表示しています");
       if (mode === "claude") g.__shioriIntervisitAiCalls = (g.__shioriIntervisitAiCalls ?? 0) + 1;
-      const r = await callClaudeStructured({ system: SYSTEM, user: buildUser(iv), schema: AiSummarySchema, schemaName: "intervisit_summary", maxTokens: 6000 });
+      // 出力の上限: 指示は 20 項目以内・1 項目 1〜2 文（目安 120 字）。検証の上限（40 項目・1 文 260 字）まで出力しても切れないよう
+      // max_tokens に余裕を持たせる（40 × 260 字 ≒ 1 万字 ≒ 1.2 万トークン以下）
+      const r = await callClaudeStructured({ system: SYSTEM, user: buildUser(iv), schema: AiSummarySchema, schemaName: "intervisit_summary", maxTokens: 16000 });
       items = r.data.items;
       model = r.model;
       generator = r.generator;
@@ -315,11 +318,14 @@ async function generate(
   } catch (e) {
     const err = classifyClaudeError(e);
     // 原因の調査用に、エラーの種類だけを記録する（本文・患者情報は記録しない）
-    console.warn(`[intervisit-ai] generation failed: ${err.code} (${e instanceof Error ? e.name : typeof e})`);
+    console.warn(`[intervisit-ai] generation failed code=${err.code} http=${err.httpStatus ?? "-"} type=${err.cause_ ?? "-"} requestId=${err.requestId ?? "-"}`);
     return fallback(`AI 要約を生成できませんでした（${err.code}）`);
   }
   rawItems = items;
   const { valid, rejected, safetyViolation } = validateItems(items, iv);
+  // 調査用: 検証の結果（件数と不採用の理由の種類だけ。本文・患者情報は記録しない）
+  const reasons = rejected.reduce<Record<string, number>>((m, r) => ((m[r.reason.replace(/：.*/, "")] = (m[r.reason.replace(/：.*/, "")] ?? 0) + 1), m), {});
+  console.info(`[intervisit-ai] validated items=${items.length} valid=${valid.length} rejected=${rejected.length} safety=${safetyViolation} reasons=${JSON.stringify(reasons)} model=${model}`);
   if (safetyViolation) return fallback("AI 要約に安全上の記述（解釈・診断・因果・Grade など）が含まれたため表示しません", rejected, model);
   if (valid.length === 0 || rejected.length > items.length / 3) return fallback("AI 要約の多くを元データで検証できなかったため表示しません", rejected, model);
   if (iv.questions.length > 0 && !valid.some((v) => v.section === "患者からの質問")) return fallback("AI 要約に患者の質問が含まれなかったため表示しません", rejected, model);
