@@ -130,7 +130,9 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
         </span>
         <p>
           高額療養費制度を考えた、<b>保険診療1か月分</b>の自己負担の目安を計算します。
-          <small>対象: 2026年8月〜2027年7月の診療分・70歳未満・1つの医療機関。入力した内容は保存しません。</small>
+          <small>
+            対象: 2026年8月〜2027年7月の診療分・70歳未満・1つの医療機関の外来か入院のどちらか一方（院外処方の薬局の分は、処方せんを出した医療機関の外来に含めます）。入力した内容は保存しません。
+          </small>
         </p>
       </section>
       <button className="d-sim-demo" data-sim-demo onClick={fillDemo}>
@@ -148,7 +150,7 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
         {step === 0 && (
           <>
             <h2>いつの診療ですか</h2>
-            <p className="d-sim-help">月の1日から末日までが1か月です。</p>
+            <p className="d-sim-help">高額療養費は月ごと（1日から月末まで）に計算します。</p>
             <div className="d-sim-months">
               {SUPPORTED_MONTHS.map((m) => (
                 <button key={m} type="button" className={draft.serviceMonth === m ? "selected" : ""} onClick={() => choose({ serviceMonth: m })}>
@@ -206,7 +208,9 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
         {step === 4 && (
           <>
             <h2>1か月の総医療費（10割）</h2>
-            <p className="d-sim-help">保険診療の医療費の総額です（窓口で払う3割の額ではありません）。領収書の保険診療の点数×10円が目安です。</p>
+            <p className="d-sim-help">
+              1つの医療機関の外来か入院のどちらか一方の、保険診療の医療費の総額です（窓口で払う3割の額ではありません）。院外処方の薬局の分は外来に含めます。領収書の保険診療の点数×10円が目安です。
+            </p>
             <label className="d-sim-cost">
               <input
                 data-sim-cost-input
@@ -267,7 +271,7 @@ function SimContacts() {
           <b>加入している健康保険（保険者）</b>所得区分・多数回該当・限度額の適用・払い戻しの手続き
         </li>
         <li>
-          <b>病院の医療費の相談窓口・がん相談支援センター</b>医療費の支払いや使える制度の相談
+          <b>病院の医療費の相談窓口・がん相談支援センター</b>医療費の支払いや使える制度の相談（入院と外来、複数の医療機関、家族の医療費の合算なども）
         </li>
       </ul>
     </section>

@@ -18,6 +18,8 @@ test("患者ホーム → 仕事とお金のこと → 医療費シミュレー�
 
   // 架空の例をワンタップ → 結果（区分ウ・総医療費100万円: 85,800＋(1,000,000−286,000)×1% = 92,940円）
   await p.locator("[data-simulator-open]").click();
+  await expect(p.locator("[data-sim]")).toContainText("1つの医療機関の外来か入院のどちらか一方");
+  await expect(p.locator("[data-sim]")).toContainText("院外処方の薬局の分");
   await p.locator("[data-sim-demo]").click();
   const result = p.locator("[data-sim-result]");
   await expect(result).toBeVisible();
@@ -28,6 +30,9 @@ test("患者ホーム → 仕事とお金のこと → 医療費シミュレー�
   await expect(result).toContainText("確定した請求額ではありません");
   await expect(result).toContainText("年間上限");
   await expect(result).toContainText("世帯合算");
+  await expect(result).toContainText("同じ医療機関の入院と外来の合算");
+  await expect(result).toContainText("払い戻しの時期・手続きは加入している健康保険に確認");
+  await expect(result).not.toContainText("2027年8月以降に");
   await expect(result).toContainText("差額ベッド代");
   await expect(result).toContainText("加入している健康保険（保険者）");
   await expect(result.locator("a[href^='https://www.mhlw.go.jp/']").first()).toBeVisible();
