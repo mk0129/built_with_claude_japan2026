@@ -1,0 +1,1262 @@
+{
+  "screens": 325,
+  "compared": 127,
+  "unchanged": 13,
+  "changed": [
+    {
+      "name": "C01_start_1180",
+      "pixels": 16930,
+      "ratio": 0.00448,
+      "boxCss": [
+        26,
+        17,
+        919,
+        352
+      ]
+    },
+    {
+      "name": "C01_start_1440",
+      "pixels": 16929,
+      "ratio": 0.00327,
+      "boxCss": [
+        156,
+        41,
+        1049,
+        402
+      ]
+    },
+    {
+      "name": "C01_start_820",
+      "pixels": 16346,
+      "ratio": 0.00623,
+      "boxCss": [
+        26,
+        17,
+        739,
+        352
+      ]
+    },
+    {
+      "name": "C01b_qr_1180",
+      "pixels": 107927,
+      "ratio": 0.02858,
+      "boxCss": [
+        26,
+        17,
+        929,
+        695
+      ]
+    },
+    {
+      "name": "C01b_qr_1440",
+      "pixels": 107926,
+      "ratio": 0.02082,
+      "boxCss": [
+        156,
+        41,
+        1059,
+        745
+      ]
+    },
+    {
+      "name": "C01b_qr_820",
+      "pixels": 107341,
+      "ratio": 0.04091,
+      "boxCss": [
+        26,
+        17,
+        749,
+        695
+      ]
+    },
+    {
+      "name": "C02_summary_1180",
+      "pixels": 17889,
+      "ratio": 0.00474,
+      "boxCss": [
+        16,
+        25,
+        188,
+        334
+      ]
+    },
+    {
+      "name": "C02_summary_1180_s1",
+      "pixels": 17846,
+      "ratio": 0.00473,
+      "boxCss": [
+        16,
+        25,
+        188,
+        334
+      ]
+    },
+    {
+      "name": "C02_summary_1180_s2",
+      "pixels": 17846,
+      "ratio": 0.00473,
+      "boxCss": [
+        16,
+        25,
+        188,
+        334
+      ]
+    },
+    {
+      "name": "C02_summary_1440",
+      "pixels": 17855,
+      "ratio": 0.00344,
+      "boxCss": [
+        146,
+        49,
+        318,
+        358
+      ]
+    },
+    {
+      "name": "C02_summary_1440_s1",
+      "pixels": 17855,
+      "ratio": 0.00344,
+      "boxCss": [
+        146,
+        49,
+        318,
+        358
+      ]
+    },
+    {
+      "name": "C02_summary_820",
+      "pixels": 16593,
+      "ratio": 0.00632,
+      "boxCss": [
+        10,
+        19,
+        144,
+        328
+      ]
+    },
+    {
+      "name": "C02_summary_820_s1",
+      "pixels": 16593,
+      "ratio": 0.00632,
+      "boxCss": [
+        10,
+        19,
+        144,
+        328
+      ]
+    },
+    {
+      "name": "C02_summary_820_s2",
+      "pixels": 16619,
+      "ratio": 0.00633,
+      "boxCss": [
+        10,
+        19,
+        144,
+        328
+      ]
+    },
+    {
+      "name": "C03_sources_1180",
+      "pixels": 17852,
+      "ratio": 0.00473,
+      "boxCss": [
+        16,
+        25,
+        188,
+        334
+      ]
+    },
+    {
+      "name": "C03_sources_1180_s1",
+      "pixels": 17852,
+      "ratio": 0.00473,
+      "boxCss": [
+        16,
+        25,
+        188,
+        334
+      ]
+    },
+    {
+      "name": "C03_sources_1180_s2",
+      "pixels": 17858,
+      "ratio": 0.00473,
+      "boxCss": [
+        16,
+        25,
+        188,
+        334
+      ]
+    },
+    {
+      "name": "C03_sources_1440",
+      "pixels": 17844,
+      "ratio": 0.00344,
+      "boxCss": [
+        146,
+        49,
+        318,
+        358
+      ]
+    },
+    {
+      "name": "C03_sources_1440_s1",
+      "pixels": 17844,
+      "ratio": 0.00344,
+      "boxCss": [
+        146,
+        49,
+        318,
+        358
+      ]
+    },
+    {
+      "name": "C03_sources_1440_s2",
+      "pixels": 17856,
+      "ratio": 0.00344,
+      "boxCss": [
+        146,
+        49,
+        318,
+        358
+      ]
+    },
+    {
+      "name": "C03_sources_820",
+      "pixels": 16605,
+      "ratio": 0.00633,
+      "boxCss": [
+        10,
+        19,
+        144,
+        328
+      ]
+    },
+    {
+      "name": "C03_sources_820_s1",
+      "pixels": 16596,
+      "ratio": 0.00632,
+      "boxCss": [
+        10,
+        19,
+        144,
+        328
+      ]
+    },
+    {
+      "name": "C03_sources_820_s2",
+      "pixels": 16605,
+      "ratio": 0.00633,
+      "boxCss": [
+        10,
+        19,
+        144,
+        328
+      ]
+    },
+    {
+      "name": "C04_course_1180",
+      "pixels": 18003,
+      "ratio": 0.00477,
+      "boxCss": [
+        16,
+        25,
+        188,
+        334
+      ]
+    },
+    {
+      "name": "C04_course_1180_s1",
+      "pixels": 18009,
+      "ratio": 0.00477,
+      "boxCss": [
+        16,
+        25,
+        188,
+        334
+      ]
+    },
+    {
+      "name": "C04_course_1440",
+      "pixels": 18005,
+      "ratio": 0.00347,
+      "boxCss": [
+        146,
+        49,
+        318,
+        358
+      ]
+    },
+    {
+      "name": "C04_course_820",
+      "pixels": 16754,
+      "ratio": 0.00638,
+      "boxCss": [
+        10,
+        19,
+        144,
+        328
+      ]
+    },
+    {
+      "name": "C04_course_820_s1",
+      "pixels": 16746,
+      "ratio": 0.00638,
+      "boxCss": [
+        10,
+        19,
+        144,
+        328
+      ]
+    },
+    {
+      "name": "C05_library_1180",
+      "pixels": 18118,
+      "ratio": 0.0048,
+      "boxCss": [
+        16,
+        25,
+        188,
+        334
+      ]
+    },
+    {
+      "name": "C05_library_1180_s1",
+      "pixels": 24988,
+      "ratio": 0.00662,
+      "boxCss": [
+        16,
+        25,
+        739,
+        334
+      ]
+    },
+    {
+      "name": "C05_library_1180_s2",
+      "pixels": 24988,
+      "ratio": 0.00662,
+      "boxCss": [
+        16,
+        25,
+        739,
+        334
+      ]
+    },
+    {
+      "name": "C05_library_1440",
+      "pixels": 18113,
+      "ratio": 0.00349,
+      "boxCss": [
+        146,
+        49,
+        318,
+        358
+      ]
+    },
+    {
+      "name": "C05_library_1440_s1",
+      "pixels": 24991,
+      "ratio": 0.00482,
+      "boxCss": [
+        146,
+        49,
+        869,
+        358
+      ]
+    },
+    {
+      "name": "C05_library_820",
+      "pixels": 16851,
+      "ratio": 0.00642,
+      "boxCss": [
+        10,
+        19,
+        144,
+        328
+      ]
+    },
+    {
+      "name": "C05_library_820_s1",
+      "pixels": 23723,
+      "ratio": 0.00904,
+      "boxCss": [
+        10,
+        19,
+        694,
+        627
+      ]
+    },
+    {
+      "name": "C05_library_820_s2",
+      "pixels": 23723,
+      "ratio": 0.00904,
+      "boxCss": [
+        10,
+        19,
+        694,
+        328
+      ]
+    },
+    {
+      "name": "C06_prescribe_1180",
+      "pixels": 17843,
+      "ratio": 0.00473,
+      "boxCss": [
+        16,
+        25,
+        188,
+        334
+      ]
+    },
+    {
+      "name": "C06_prescribe_1440",
+      "pixels": 17847,
+      "ratio": 0.00344,
+      "boxCss": [
+        146,
+        49,
+        318,
+        358
+      ]
+    },
+    {
+      "name": "C06_prescribe_820",
+      "pixels": 16604,
+      "ratio": 0.00633,
+      "boxCss": [
+        10,
+        19,
+        144,
+        328
+      ]
+    },
+    {
+      "name": "C07_studio_1180",
+      "pixels": 18031,
+      "ratio": 0.00478,
+      "boxCss": [
+        16,
+        25,
+        188,
+        334
+      ]
+    },
+    {
+      "name": "C07_studio_1180_s1",
+      "pixels": 18031,
+      "ratio": 0.00478,
+      "boxCss": [
+        16,
+        25,
+        188,
+        334
+      ]
+    },
+    {
+      "name": "C07_studio_1440",
+      "pixels": 18020,
+      "ratio": 0.00348,
+      "boxCss": [
+        146,
+        49,
+        318,
+        358
+      ]
+    },
+    {
+      "name": "C07_studio_820",
+      "pixels": 16803,
+      "ratio": 0.0064,
+      "boxCss": [
+        10,
+        19,
+        144,
+        328
+      ]
+    },
+    {
+      "name": "C07_studio_820_s1",
+      "pixels": 16803,
+      "ratio": 0.0064,
+      "boxCss": [
+        10,
+        19,
+        144,
+        328
+      ]
+    },
+    {
+      "name": "P01_home_390",
+      "pixels": 168451,
+      "ratio": 0.12794,
+      "boxCss": [
+        20,
+        15,
+        370,
+        766
+      ]
+    },
+    {
+      "name": "P01_home_390_s1",
+      "pixels": 203984,
+      "ratio": 0.15493,
+      "boxCss": [
+        20,
+        15,
+        370,
+        732
+      ]
+    },
+    {
+      "name": "P01_home_430",
+      "pixels": 168280,
+      "ratio": 0.11592,
+      "boxCss": [
+        20,
+        15,
+        410,
+        766
+      ]
+    },
+    {
+      "name": "P01_home_430_s1",
+      "pixels": 221818,
+      "ratio": 0.1528,
+      "boxCss": [
+        20,
+        15,
+        410,
+        732
+      ]
+    },
+    {
+      "name": "P01_home_768",
+      "pixels": 246658,
+      "ratio": 0.07841,
+      "boxCss": [
+        20,
+        15,
+        724,
+        946
+      ]
+    },
+    {
+      "name": "P01_home_768_s1",
+      "pixels": 461156,
+      "ratio": 0.1466,
+      "boxCss": [
+        20,
+        15,
+        724,
+        764
+      ]
+    },
+    {
+      "name": "P02_library_390",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P02_library_390_s1",
+      "pixels": 7471,
+      "ratio": 0.00567,
+      "boxCss": [
+        20,
+        15,
+        116,
+        465
+      ]
+    },
+    {
+      "name": "P02_library_390_s2",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P02_library_390_s3",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P02_library_430",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P02_library_430_s1",
+      "pixels": 7470,
+      "ratio": 0.00515,
+      "boxCss": [
+        20,
+        15,
+        116,
+        455
+      ]
+    },
+    {
+      "name": "P02_library_430_s2",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P02_library_768",
+      "pixels": 7478,
+      "ratio": 0.00238,
+      "boxCss": [
+        20,
+        15,
+        478,
+        849
+      ]
+    },
+    {
+      "name": "P02_library_768_s1",
+      "pixels": 7478,
+      "ratio": 0.00238,
+      "boxCss": [
+        20,
+        15,
+        478,
+        397
+      ]
+    },
+    {
+      "name": "P03_detail_chemo_390",
+      "pixels": 129823,
+      "ratio": 0.0986,
+      "boxCss": [
+        20,
+        15,
+        370,
+        766
+      ]
+    },
+    {
+      "name": "P03_detail_chemo_390_s1",
+      "pixels": 20402,
+      "ratio": 0.0155,
+      "boxCss": [
+        20,
+        15,
+        370,
+        644
+      ]
+    },
+    {
+      "name": "P03_detail_chemo_430",
+      "pixels": 131600,
+      "ratio": 0.09065,
+      "boxCss": [
+        20,
+        15,
+        410,
+        766
+      ]
+    },
+    {
+      "name": "P03_detail_chemo_430_s1",
+      "pixels": 20616,
+      "ratio": 0.0142,
+      "boxCss": [
+        20,
+        15,
+        410,
+        707
+      ]
+    },
+    {
+      "name": "P03_detail_chemo_768",
+      "pixels": 182455,
+      "ratio": 0.058,
+      "boxCss": [
+        20,
+        15,
+        732,
+        946
+      ]
+    },
+    {
+      "name": "P03_detail_chemo_768_s1",
+      "pixels": 70438,
+      "ratio": 0.02239,
+      "boxCss": [
+        20,
+        15,
+        732,
+        886
+      ]
+    },
+    {
+      "name": "P03_detail_drug_390",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P03_detail_drug_390_s1",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P03_detail_drug_430",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P03_detail_drug_430_s1",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P03_detail_drug_768",
+      "pixels": 3296,
+      "ratio": 0.00105,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P03_detail_drug_768_s1",
+      "pixels": 3296,
+      "ratio": 0.00105,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P03_detail_other_390",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P03_detail_other_390_s1",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P03_detail_other_430",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P03_detail_other_430_s1",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P03_detail_other_768",
+      "pixels": 3296,
+      "ratio": 0.00105,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P03_detail_other_768_s1",
+      "pixels": 3296,
+      "ratio": 0.00105,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P04_learn_390",
+      "pixels": 416,
+      "ratio": 0.00032,
+      "boxCss": [
+        29,
+        63,
+        55,
+        67
+      ]
+    },
+    {
+      "name": "P08_history_390",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P08_history_390_s1",
+      "pixels": 7472,
+      "ratio": 0.00568,
+      "boxCss": [
+        20,
+        15,
+        116,
+        700
+      ]
+    },
+    {
+      "name": "P08_history_430",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P08_history_430_s1",
+      "pixels": 7470,
+      "ratio": 0.00515,
+      "boxCss": [
+        20,
+        15,
+        116,
+        710
+      ]
+    },
+    {
+      "name": "P08_history_768",
+      "pixels": 3456,
+      "ratio": 0.0011,
+      "boxCss": [
+        20,
+        15,
+        131,
+        946
+      ]
+    },
+    {
+      "name": "P08_history_768_s1",
+      "pixels": 7470,
+      "ratio": 0.00237,
+      "boxCss": [
+        20,
+        15,
+        132,
+        890
+      ]
+    },
+    {
+      "name": "P09_health_390",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P09_health_390_s1",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P09_health_390_s2",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P09_health_430",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P09_health_430_s1",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P09_health_430_s2",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P09_health_768",
+      "pixels": 3296,
+      "ratio": 0.00105,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P09_health_768_s1",
+      "pixels": 3296,
+      "ratio": 0.00105,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P10_notes_390",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P10_notes_430",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P10_notes_768",
+      "pixels": 3296,
+      "ratio": 0.00105,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "P11_share_390",
+      "pixels": 79227,
+      "ratio": 0.06017,
+      "boxCss": [
+        20,
+        15,
+        370,
+        766
+      ]
+    },
+    {
+      "name": "P11_share_430",
+      "pixels": 79853,
+      "ratio": 0.05501,
+      "boxCss": [
+        20,
+        15,
+        410,
+        766
+      ]
+    },
+    {
+      "name": "P11_share_768",
+      "pixels": 88705,
+      "ratio": 0.0282,
+      "boxCss": [
+        20,
+        15,
+        732,
+        732
+      ]
+    },
+    {
+      "name": "P11b_share_code_390",
+      "pixels": 169844,
+      "ratio": 0.129,
+      "boxCss": [
+        20,
+        15,
+        370,
+        741
+      ]
+    },
+    {
+      "name": "P11b_share_code_390_s1",
+      "pixels": 159316,
+      "ratio": 0.121,
+      "boxCss": [
+        20,
+        15,
+        370,
+        687
+      ]
+    },
+    {
+      "name": "P11b_share_code_430",
+      "pixels": 177776,
+      "ratio": 0.12246,
+      "boxCss": [
+        20,
+        15,
+        410,
+        741
+      ]
+    },
+    {
+      "name": "P11b_share_code_430_s1",
+      "pixels": 172346,
+      "ratio": 0.11872,
+      "boxCss": [
+        20,
+        15,
+        410,
+        705
+      ]
+    },
+    {
+      "name": "P11b_share_code_768",
+      "pixels": 258711,
+      "ratio": 0.08224,
+      "boxCss": [
+        20,
+        15,
+        732,
+        767
+      ]
+    },
+    {
+      "name": "S01_patient_request_390",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "S01_patient_request_390_s1",
+      "pixels": 3296,
+      "ratio": 0.0025,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "S01_patient_request_430",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "S01_patient_request_430_s1",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "S01_patient_request_768",
+      "pixels": 3296,
+      "ratio": 0.00105,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "S02_patient_sharing_390",
+      "pixels": 3474,
+      "ratio": 0.00264,
+      "boxCss": [
+        20,
+        15,
+        283,
+        478
+      ]
+    },
+    {
+      "name": "S02_patient_sharing_430",
+      "pixels": 3296,
+      "ratio": 0.00227,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "S02_patient_sharing_768",
+      "pixels": 3296,
+      "ratio": 0.00105,
+      "boxCss": [
+        20,
+        15,
+        116,
+        53
+      ]
+    },
+    {
+      "name": "S03_patient_after_end_390",
+      "pixels": 79227,
+      "ratio": 0.06017,
+      "boxCss": [
+        20,
+        15,
+        370,
+        766
+      ]
+    },
+    {
+      "name": "S03_patient_after_end_430",
+      "pixels": 79853,
+      "ratio": 0.05501,
+      "boxCss": [
+        20,
+        15,
+        410,
+        766
+      ]
+    },
+    {
+      "name": "S03_patient_after_end_768",
+      "pixels": 88705,
+      "ratio": 0.0282,
+      "boxCss": [
+        20,
+        15,
+        732,
+        732
+      ]
+    }
+  ],
+  "onlyAfter": 198
+}

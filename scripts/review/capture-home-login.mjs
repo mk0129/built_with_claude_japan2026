@@ -168,9 +168,12 @@ for (const [w, vp] of Object.entries(STAFF_VP)) {
   await step(`C01_start_${w}`, async () => { await s.getByRole("button", { name: "患者との接続を開始" }).waitFor(); await shot(s, `C01_start_${w}`, { fullPage: false }); });
   await step(`C02_request_${w}`, async () => {
     await s.getByRole("button", { name: "患者との接続を開始" }).click();
-    await s.getByRole("button", { name: "患者へ承認を依頼する" }).waitFor();
+    await s.locator(".cd-qr-placeholder img").waitFor();
     await shot(s, `C02_request_${w}`, { fullPage: false });
-    await s.getByRole("button", { name: "患者へ承認を依頼する" }).click();
+    // 変更前は QR の下の「患者へ承認を依頼する」で承認待ちへ。正式な QR 方式（統合版）ではこのボタンがなく、QR を表示したまま待つ
+    const ask = s.getByRole("button", { name: "患者へ承認を依頼する" });
+    if (!(await ask.count())) return;
+    await ask.click();
     await s.waitForTimeout(600);
     await shot(s, `C03_waiting_${w}`, { fullPage: false });
   });

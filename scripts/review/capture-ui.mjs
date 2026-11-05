@@ -6,6 +6,8 @@
  *   DRAFTS=1: 教材 v1.1 の下書き（scripts/review/import-materials-draft.ts で取り込んだもの）を教材スタジオで開いて撮る（変更後のみ）
  * 患者: 390×844 / 430×844 / 768×1024、医療者: 820×800 / 1180×800 / 1440×900。
  * 各画面で、横スクロール・はみ出した文字・サムネイル画像の表示寸法と切れ方を metrics.json に記録する。
+ * 一時共有: 医療者の QR → 患者が開く（申請の確認・共有中）→ 診察サマリー（AI 外来間サマリーの再生）→ 終了。患者は医療者の幅に合わせて 390/430/768。
+ * QR 画像と 6 桁コードは撮影時に塗りつぶす（トークン・コードを画像に残さない）。
  */
 import { chromium } from "playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -22,6 +24,8 @@ const STAFF_VP = { 820: { width: 820, height: 800 }, 1180: { width: 1180, height
 const metrics = {};
 const errors = {};
 const b = await chromium.launch();
+/** QR 画像と 6 桁コード（撮影で塗りつぶす） */
+const secrets = (p) => [p.locator('img[src^="data:image"]'), p.locator("[data-share-code] b"), p.locator(".d-share-code b"), p.locator(".cd-code-panel input")];
 
 async function login(kind, name, vp) {
   const ctx = await b.newContext({ viewport: vp, locale: "ja-JP", timezoneId: "Asia/Tokyo", deviceScaleFactor: 2, reducedMotion: "reduce" });
@@ -71,7 +75,7 @@ async function shot(p, name, opts = {}) {
   const el = await scroller(p);
   await el.evaluate((e) => (e.scrollTop = 0));
   await p.waitForTimeout(150);
-  await p.screenshot({ path: `${OUT}/${name}.png`, fullPage: opts.fullPage ?? true });
+  await p.screenshot({ path: `${OUT}/${name}.png`, fullPage: opts.fullPage ?? true, mask: secrets(p), maskColor: "#c9d6d8" });
   metrics[name] = await audit(p);
   if (opts.scroll === false) return;
   for (let i = 1; i <= 6; i++) {
@@ -82,7 +86,7 @@ async function shot(p, name, opts = {}) {
     });
     if (!moved) break;
     await p.waitForTimeout(250);
-    await p.screenshot({ path: `${OUT}/${name}_s${i}.png` });
+    await p.screenshot({ path: `${OUT}/${name}_s${i}.png`, mask: secrets(p), maskColor: "#c9d6d8" });
     metrics[`${name}_s${i}`] = await audit(p);
   }
   await el.evaluate((e) => (e.scrollTop = 0));
@@ -179,6 +183,13 @@ for (const [w, vp] of Object.entries(PATIENT_VP)) {
   await step(`P09_health_${w}`, async () => { await d.goto(B + "/home?view=health"); await d.waitForLoadState("networkidle"); await shot(d, `P09_health_${w}`); });
   await step(`P10_notes_${w}`, async () => { await d.goto(B + "/home?view=notes"); await d.waitForLoadState("networkidle"); await shot(d, `P10_notes_${w}`); });
   await step(`P11_share_${w}`, async () => { await d.goto(B + "/home?view=share"); await d.waitForLoadState("networkidle"); await shot(d, `P11_share_${w}`); });
+  // QR を読み取れないときの 6 桁コード（変更前は「6桁コードで共有する」、変更後は「QRコードを読み取れない場合は6桁コードを表示」）
+  await step(`P11b_share_code_${w}`, async () => {
+    await d.getByRole("button", { name: /6桁コード/ }).first().click();
+    await d.locator("[data-share-code], .d-share-code").first().waitFor();
+    await shot(d, `P11b_share_code_${w}`);
+    await d.getByRole("button", { name: /取り消す/ }).first().click();
+  });
   await d.context().close();
 }
 
@@ -186,16 +197,25 @@ for (const [w, vp] of Object.entries(PATIENT_VP)) {
 let draftIds = [];
 for (const [w, vp] of Object.entries(STAFF_VP)) {
   const s = await login("staff", "佐藤 一郎", vp);
-  const p = await login("patient", "佐藤 花子", { width: 390, height: 844 });
+  const pw = { 820: 390, 1180: 430, 1440: 768 }[w];
+  const p = await login("patient", "佐藤 花子", PATIENT_VP[pw]);
   await step(`C01_start_${w}`, async () => { await s.getByRole("button", { name: "患者との接続を開始" }).waitFor(); await shot(s, `C01_start_${w}`, { fullPage: false }); });
   await step(`C02_summary_${w}`, async () => {
     const res = s.waitForResponse((r) => r.url().endsWith("/api/v1/connect") && r.request().method() === "POST");
     await s.getByRole("button", { name: "患者との接続を開始" }).click();
     const u = new URL((await (await res).json()).qrUrl);
-    await s.getByRole("button", { name: "患者へ承認を依頼する" }).click();
+    await s.locator(".cd-qr-placeholder img").waitFor();
+    await shot(s, `C01b_qr_${w}`, { fullPage: false, scroll: false });
+    // 変更前は QR の下に「患者へ承認を依頼する」があり、押すと承認待ちの画面になる（変更後はなく、QR を表示したまま待つ）
+    const ask = s.getByRole("button", { name: "患者へ承認を依頼する" });
+    if (await ask.count()) await ask.click();
     await p.goto(B + u.pathname + u.search);
+    await p.locator("[data-share-request]").waitFor();
+    await shot(p, `S01_patient_request_${pw}`);
     await p.locator(".d-consent input").check();
     await p.getByRole("button", { name: "この医療者に共有を許可する" }).click();
+    await p.getByRole("heading", { name: /と一時共有中です/ }).waitFor({ timeout: 15000 });
+    await shot(p, `S02_patient_sharing_${pw}`);
     await s.getByRole("heading", { name: "診察サマリー" }).waitFor({ timeout: 30000 });
     await s.locator("[data-summary-item], [data-ai-status]").first().waitFor({ timeout: 30000 });
     await shot(s, `C02_summary_${w}`);
@@ -281,6 +301,10 @@ for (const [w, vp] of Object.entries(STAFF_VP)) {
   await step(`C19_end_${w}`, async () => {
     await s.locator(".cd-app-header").getByRole("button", { name: "共有終了" }).click();
     await s.getByText("患者一覧はありません").waitFor();
+    await p.locator(".d-share-chip").filter({ hasText: "共有する" }).waitFor({ timeout: 15000 });
+    await p.goto(B + "/home?view=share");
+    await p.locator(".d-share-page").waitFor();
+    await shot(p, `S03_patient_after_end_${pw}`, { scroll: false });
   });
   await s.context().close();
   await p.context().close();

@@ -1,0 +1,193 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>教材 v1.1 UI 比較</title>
+<style>
+:root{--bg:#f6f8f8;--fg:#1d2b2f;--muted:#5d6f74;--line:#d6e0e2;--accent:#315e68;--warn:#b5462f}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.6 "Hiragino Sans","Noto Sans JP",sans-serif}
+header{padding:20px 16px;border-bottom:1px solid var(--line);background:#fff}
+h1{margin:0 0 4px;font-size:20px}h2{margin:28px 16px 8px;font-size:17px;color:var(--accent)}
+nav a{margin-right:12px;color:var(--accent)}
+.row{margin:0 16px 18px;padding:12px;background:#fff;border:1px solid var(--line);border-radius:10px}
+.row h3{margin:0 0 6px;font-size:14px}.meta{color:var(--muted);font-size:12px;margin-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.grid figure{margin:0}.grid figcaption{font-size:12px;color:var(--muted)}
+.grid img{width:100%;height:auto;border:1px solid var(--line);border-radius:6px;background:#fff}
+.tag{display:inline-block;padding:0 6px;border-radius:4px;font-size:12px;background:#e7f0f1;color:var(--accent);margin-right:6px}
+.tag.diff{background:#fbe9e5;color:var(--warn)}
+@media (max-width:700px){.grid{grid-template-columns:1fr}}
+</style></head><body>
+<header><h1>教材 v1.1・線画サムネイル UI 比較（変更前｜変更後｜差分）</h1>
+<div class="meta">同じ架空データ（新しい一時 DB・基準日 2026-11-04）で撮影。差分は RGB しきい値 24。赤が変化した画素。</div>
+<nav><a href="#g0">医療者 1180px</a><a href="#g1">医療者 1440px</a><a href="#g2">医療者 820px</a><a href="#g3">医療者 390px</a><a href="#g4">医療者 430px</a><a href="#g5">医療者 768px</a><a href="#g6">医療者 s1px</a><a href="#g7">患者 390px</a><a href="#g8">患者 s1px</a><a href="#g9">患者 430px</a><a href="#g10">患者 768px</a></nav></header>
+<h2 id="g0">医療者 1180px</h2><div class="row"><h3>C01_start_1180</h3><div class="meta"><span class="tag diff">差分 16,930 画素（0.45%）範囲 26,17,919,352</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C01_start_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C01_start_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C01_start_1180.png" alt=""></figure></div></div><div class="row"><h3>C02_request_1180</h3><div class="meta"><span class="tag diff">差分 107,927 画素（2.86%）範囲 26,17,929,695</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C02_request_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C02_request_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C02_request_1180.png" alt=""></figure></div></div><h2 id="g1">医療者 1440px</h2><div class="row"><h3>C01_start_1440</h3><div class="meta"><span class="tag diff">差分 16,929 画素（0.33%）範囲 156,41,1049,402</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C01_start_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C01_start_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C01_start_1440.png" alt=""></figure></div></div><div class="row"><h3>C02_request_1440</h3><div class="meta"><span class="tag diff">差分 107,926 画素（2.08%）範囲 156,41,1059,745</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C02_request_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C02_request_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C02_request_1440.png" alt=""></figure></div></div><div class="row"><h3>E01_entry_1440</h3><div class="meta"><span class="tag diff">差分 214,888 画素（4.15%）範囲 468,129,972,619</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E01_entry_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E01_entry_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E01_entry_1440.png" alt=""></figure></div></div><div class="row"><h3>E02_login_1440</h3><div class="meta"><span class="tag diff">差分 715,739 画素（11.28%）範囲 0,8,1440,1102</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E02_login_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E02_login_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E02_login_1440.png" alt=""></figure></div></div><div class="row"><h3>E03_staff_login_1440</h3><div class="meta"><span class="tag diff">差分 945,478 画素（13.42%）範囲 0,6,1440,1223</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E03_staff_login_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E03_staff_login_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E03_staff_login_1440.png" alt=""></figure></div></div><h2 id="g2">医療者 820px</h2><div class="row"><h3>C01_start_820</h3><div class="meta"><span class="tag diff">差分 16,346 画素（0.62%）範囲 26,17,739,352</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C01_start_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C01_start_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C01_start_820.png" alt=""></figure></div></div><div class="row"><h3>C02_request_820</h3><div class="meta"><span class="tag diff">差分 107,341 画素（4.09%）範囲 26,17,749,695</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C02_request_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C02_request_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C02_request_820.png" alt=""></figure></div></div><h2 id="g3">医療者 390px</h2><div class="row"><h3>E01_entry_390</h3><div class="meta"><span class="tag diff">差分 359,843 画素（27.33%）範囲 0,0,374,606</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E01_entry_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E01_entry_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E01_entry_390.png" alt=""></figure></div></div><div class="row"><h3>E02_login_390</h3><div class="meta"><span class="tag diff">差分 223,535 画素（13.19%）範囲 0,8,390,1086</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E02_login_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E02_login_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E02_login_390.png" alt=""></figure></div></div><div class="row"><h3>E03_staff_login_390</h3><div class="meta"><span class="tag diff">差分 293,006 画素（14.94%）範囲 0,6,390,1257</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E03_staff_login_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E03_staff_login_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E03_staff_login_390.png" alt=""></figure></div></div><h2 id="g4">医療者 430px</h2><div class="row"><h3>E01_entry_430</h3><div class="meta"><span class="tag diff">差分 371,175 画素（25.57%）範囲 0,0,414,606</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E01_entry_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E01_entry_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E01_entry_430.png" alt=""></figure></div></div><div class="row"><h3>E02_login_430</h3><div class="meta"><span class="tag diff">差分 216,190 画素（11.70%）範囲 0,8,430,1074</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E02_login_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E02_login_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E02_login_430.png" alt=""></figure></div></div><div class="row"><h3>E03_staff_login_430</h3><div class="meta"><span class="tag diff">差分 382,365 画素（17.94%）範囲 0,6,430,1239</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E03_staff_login_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E03_staff_login_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E03_staff_login_430.png" alt=""></figure></div></div><h2 id="g5">医療者 768px</h2><div class="row"><h3>E01_entry_768</h3><div class="meta"><span class="tag diff">差分 421,212 画素（13.39%）範囲 0,0,636,681</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E01_entry_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E01_entry_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E01_entry_768.png" alt=""></figure></div></div><div class="row"><h3>E02_login_768</h3><div class="meta"><span class="tag diff">差分 419,388 画素（12.39%）範囲 0,8,768,1102</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E02_login_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E02_login_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E02_login_768.png" alt=""></figure></div></div><div class="row"><h3>E03_staff_login_768</h3><div class="meta"><span class="tag diff">差分 606,789 画素（16.15%）範囲 0,6,768,1223</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E03_staff_login_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E03_staff_login_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E03_staff_login_768.png" alt=""></figure></div></div><h2 id="g6">医療者 s1px</h2><div class="row"><h3>E02_login_1440_s1</h3><div class="meta"><span class="tag diff">差分 159,684 画素（3.08%）範囲 468,0,972,836</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E02_login_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E02_login_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E02_login_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>E02_login_390_s1</h3><div class="meta"><span class="tag diff">差分 129,929 画素（9.87%）範囲 0,0,390,780</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E02_login_390_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E02_login_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E02_login_390_s1.png" alt=""></figure></div></div><div class="row"><h3>E02_login_430_s1</h3><div class="meta"><span class="tag diff">差分 133,622 画素（9.21%）範囲 0,0,430,780</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E02_login_430_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E02_login_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E02_login_430_s1.png" alt=""></figure></div></div><div class="row"><h3>E02_login_768_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E02_login_768_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>E03_staff_login_1440_s1</h3><div class="meta"><span class="tag diff">差分 173,637 画素（3.35%）範囲 480,0,960,837</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E03_staff_login_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E03_staff_login_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E03_staff_login_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>E03_staff_login_390_s1</h3><div class="meta"><span class="tag diff">差分 139,862 画素（10.62%）範囲 16,0,374,780</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E03_staff_login_390_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E03_staff_login_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E03_staff_login_390_s1.png" alt=""></figure></div></div><div class="row"><h3>E03_staff_login_430_s1</h3><div class="meta"><span class="tag diff">差分 155,731 画素（10.73%）範囲 16,0,414,780</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E03_staff_login_430_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E03_staff_login_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E03_staff_login_430_s1.png" alt=""></figure></div></div><div class="row"><h3>E03_staff_login_768_s1</h3><div class="meta"><span class="tag diff">差分 197,689 画素（6.28%）範囲 144,6,624,961</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/E03_staff_login_768_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/E03_staff_login_768_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/E03_staff_login_768_s1.png" alt=""></figure></div></div><h2 id="g7">患者 390px</h2><div class="row"><h3>P01_home_390</h3><div class="meta"><span class="tag diff">差分 168,451 画素（12.79%）範囲 20,15,370,766</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P01_home_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01_home_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P01_home_390.png" alt=""></figure></div></div><div class="row"><h3>P01b_home_visit_390</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01b_home_visit_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P01c_home_note_390</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01c_home_note_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P02_library_390</h3><div class="meta"><span class="tag diff">差分 3,339 画素（0.25%）範囲 20,15,358,788</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P02_library_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P02_library_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P02_library_390.png" alt=""></figure></div></div><div class="row"><h3>P03_share_390</h3><div class="meta"><span class="tag diff">差分 79,270 画素（6.02%）範囲 20,15,370,788</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_share_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_share_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_share_390.png" alt=""></figure></div></div><div class="row"><h3>P04_share_code_390</h3><div class="meta"><span class="tag diff">差分 169,887 画素（12.90%）範囲 20,15,370,788</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P04_share_code_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P04_share_code_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P04_share_code_390.png" alt=""></figure></div></div><h2 id="g8">患者 s1px</h2><div class="row"><h3>P01_home_390_s1</h3><div class="meta"><span class="tag diff">差分 203,984 画素（15.49%）範囲 20,15,370,732</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P01_home_390_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01_home_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P01_home_390_s1.png" alt=""></figure></div></div><div class="row"><h3>P01_home_430_s1</h3><div class="meta"><span class="tag diff">差分 159,784 画素（11.01%）範囲 20,15,410,788</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P01_home_430_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01_home_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P01_home_430_s1.png" alt=""></figure></div></div><div class="row"><h3>P01_home_768_s1</h3><div class="meta"><span class="tag diff">差分 356,681 画素（11.34%）範囲 20,15,724,968</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P01_home_768_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01_home_768_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P01_home_768_s1.png" alt=""></figure></div></div><div class="row"><h3>P01b_home_visit_390_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01b_home_visit_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P01b_home_visit_430_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01b_home_visit_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P01b_home_visit_768_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01b_home_visit_768_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P01c_home_note_390_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01c_home_note_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P01c_home_note_430_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01c_home_note_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P01c_home_note_768_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01c_home_note_768_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P03_share_390_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_share_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P03_share_430_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_share_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P04_share_code_390_s1</h3><div class="meta"><span class="tag diff">差分 159,359 画素（12.10%）範囲 20,15,370,788</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P04_share_code_390_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P04_share_code_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P04_share_code_390_s1.png" alt=""></figure></div></div><div class="row"><h3>P04_share_code_430_s1</h3><div class="meta"><span class="tag diff">差分 172,399 画素（11.88%）範囲 20,15,410,788</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P04_share_code_430_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P04_share_code_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P04_share_code_430_s1.png" alt=""></figure></div></div><h2 id="g9">患者 430px</h2><div class="row"><h3>P01_home_430</h3><div class="meta"><span class="tag diff">差分 210,784 画素（14.52%）範囲 20,15,410,788</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P01_home_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01_home_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P01_home_430.png" alt=""></figure></div></div><div class="row"><h3>P01b_home_visit_430</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01b_home_visit_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P01c_home_note_430</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01c_home_note_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P02_library_430</h3><div class="meta"><span class="tag diff">差分 3,349 画素（0.23%）範囲 20,15,394,788</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P02_library_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P02_library_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P02_library_430.png" alt=""></figure></div></div><div class="row"><h3>P03_share_430</h3><div class="meta"><span class="tag diff">差分 79,906 画素（5.50%）範囲 20,15,410,788</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_share_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_share_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_share_430.png" alt=""></figure></div></div><div class="row"><h3>P04_share_code_430</h3><div class="meta"><span class="tag diff">差分 177,829 画素（12.25%）範囲 20,15,410,788</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P04_share_code_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P04_share_code_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P04_share_code_430.png" alt=""></figure></div></div><h2 id="g10">患者 768px</h2><div class="row"><h3>P01_home_768</h3><div class="meta"><span class="tag diff">差分 290,190 画素（9.22%）範囲 20,15,724,968</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P01_home_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01_home_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P01_home_768.png" alt=""></figure></div></div><div class="row"><h3>P01b_home_visit_768</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01b_home_visit_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P01c_home_note_768</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span><span class="tag diff">はみ出し・切れ 1 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01c_home_note_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>P02_library_768</h3><div class="meta"><span class="tag diff">差分 7,535 画素（0.24%）範囲 20,15,635,968</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P02_library_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P02_library_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P02_library_768.png" alt=""></figure></div></div><div class="row"><h3>P03_share_768</h3><div class="meta"><span class="tag diff">差分 88,762 画素（2.82%）範囲 20,15,732,968</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_share_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_share_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_share_768.png" alt=""></figure></div></div><div class="row"><h3>P04_share_code_768</h3><div class="meta"><span class="tag diff">差分 258,768 画素（8.23%）範囲 20,15,732,968</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P04_share_code_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P04_share_code_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P04_share_code_768.png" alt=""></figure></div></div>
+</body></html>

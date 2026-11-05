@@ -69,3 +69,22 @@ clinical_info_rx_ClaudeCode_spec_20261102/DESIGN_REFERENCE.png
 /docs/review/*/sheets/C08_*
 /docs/review/*/sheets/C09_*
 /docs/review/*/sheets/C1[0-5]_*
+# 統合版のレビュー: 比較シートは主要な画面だけをリポジトリに入れる（他はローカル。scripts/review で再生成）
+/docs/review/final_integration*/sheets/*
+!/docs/review/final_integration/sheets/P01_home_390.jpg
+!/docs/review/final_integration/sheets/P03_detail_chemo_390.jpg
+!/docs/review/final_integration/sheets/P05_detail_open_390.jpg
+!/docs/review/final_integration/sheets/P06_quiz_390.jpg
+!/docs/review/final_integration/sheets/P11_share_390.jpg
+!/docs/review/final_integration/sheets/P11b_share_code_390.jpg
+!/docs/review/final_integration/sheets/S01_patient_request_390.jpg
+!/docs/review/final_integration/sheets/S02_patient_sharing_390.jpg
+!/docs/review/final_integration/sheets/S03_patient_after_end_390.jpg
+!/docs/review/final_integration/sheets/C01b_qr_820.jpg
+!/docs/review/final_integration/sheets/C01b_qr_1440.jpg
+!/docs/review/final_integration/sheets/C02_summary_1440.jpg
+!/docs/review/final_integration/sheets/C05_library_1180.jpg
+!/docs/review/final_integration_entry/sheets/E01_entry_390.jpg
+!/docs/review/final_integration_entry/sheets/E02_login_390.jpg
+!/docs/review/final_integration_entry/sheets/E03_staff_login_1440.jpg
+!/docs/review/final_integration_entry/sheets/P01b_home_visit_390.jpg

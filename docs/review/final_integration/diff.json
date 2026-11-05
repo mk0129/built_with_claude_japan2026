@@ -1,0 +1,8230 @@
+[
+  {
+    "name": "C01_start_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 16930,
+    "diffRatio": 0.00448,
+    "diffBoxCss": [
+      26,
+      17,
+      919,
+      352
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C01_start_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 16929,
+    "diffRatio": 0.00327,
+    "diffBoxCss": [
+      156,
+      41,
+      1049,
+      402
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C01_start_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16346,
+    "diffRatio": 0.00623,
+    "diffBoxCss": [
+      26,
+      17,
+      739,
+      352
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C01b_qr_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 107927,
+    "diffRatio": 0.02858,
+    "diffBoxCss": [
+      26,
+      17,
+      929,
+      695
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C01b_qr_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 107926,
+    "diffRatio": 0.02082,
+    "diffBoxCss": [
+      156,
+      41,
+      1059,
+      745
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C01b_qr_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 107341,
+    "diffRatio": 0.04091,
+    "diffBoxCss": [
+      26,
+      17,
+      749,
+      695
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 17889,
+    "diffRatio": 0.00474,
+    "diffBoxCss": [
+      16,
+      25,
+      188,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_1180_s1",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 17846,
+    "diffRatio": 0.00473,
+    "diffBoxCss": [
+      16,
+      25,
+      188,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_1180_s2",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 17846,
+    "diffRatio": 0.00473,
+    "diffBoxCss": [
+      16,
+      25,
+      188,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 17855,
+    "diffRatio": 0.00344,
+    "diffBoxCss": [
+      146,
+      49,
+      318,
+      358
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_1440_s1",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 17855,
+    "diffRatio": 0.00344,
+    "diffBoxCss": [
+      146,
+      49,
+      318,
+      358
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16593,
+    "diffRatio": 0.00632,
+    "diffBoxCss": [
+      10,
+      19,
+      144,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_820_s1",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16593,
+    "diffRatio": 0.00632,
+    "diffBoxCss": [
+      10,
+      19,
+      144,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_820_s2",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16619,
+    "diffRatio": 0.00633,
+    "diffBoxCss": [
+      10,
+      19,
+      144,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 17852,
+    "diffRatio": 0.00473,
+    "diffBoxCss": [
+      16,
+      25,
+      188,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_1180_s1",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 17852,
+    "diffRatio": 0.00473,
+    "diffBoxCss": [
+      16,
+      25,
+      188,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_1180_s2",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 17858,
+    "diffRatio": 0.00473,
+    "diffBoxCss": [
+      16,
+      25,
+      188,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 17844,
+    "diffRatio": 0.00344,
+    "diffBoxCss": [
+      146,
+      49,
+      318,
+      358
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_1440_s1",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 17844,
+    "diffRatio": 0.00344,
+    "diffBoxCss": [
+      146,
+      49,
+      318,
+      358
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_1440_s2",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 17856,
+    "diffRatio": 0.00344,
+    "diffBoxCss": [
+      146,
+      49,
+      318,
+      358
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16605,
+    "diffRatio": 0.00633,
+    "diffBoxCss": [
+      10,
+      19,
+      144,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_820_s1",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16596,
+    "diffRatio": 0.00632,
+    "diffBoxCss": [
+      10,
+      19,
+      144,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_820_s2",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16605,
+    "diffRatio": 0.00633,
+    "diffBoxCss": [
+      10,
+      19,
+      144,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C04_course_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 18003,
+    "diffRatio": 0.00477,
+    "diffBoxCss": [
+      16,
+      25,
+      188,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C04_course_1180_s1",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 18009,
+    "diffRatio": 0.00477,
+    "diffBoxCss": [
+      16,
+      25,
+      188,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C04_course_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 18005,
+    "diffRatio": 0.00347,
+    "diffBoxCss": [
+      146,
+      49,
+      318,
+      358
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C04_course_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/2",
+          "offRight": 9
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "月",
+          "offRight": 9
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/3",
+          "offRight": 57
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "火",
+          "offRight": 57
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/4",
+          "offRight": 105
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "水",
+          "offRight": 105
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/5",
+          "offRight": 153
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "木",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "36.5",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "72",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "98",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s1",
+          "text": "1",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        }
+      ],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16754,
+    "diffRatio": 0.00638,
+    "diffBoxCss": [
+      10,
+      19,
+      144,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/2",
+          "offRight": 9
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "月",
+          "offRight": 9
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/3",
+          "offRight": 57
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "火",
+          "offRight": 57
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/4",
+          "offRight": 105
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "水",
+          "offRight": 105
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/5",
+          "offRight": 153
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "木",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "36.5",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "72",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "98",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s1",
+          "text": "1",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        }
+      ],
+      "images": []
+    }
+  },
+  {
+    "name": "C04_course_820_s1",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/2",
+          "offRight": 9
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "月",
+          "offRight": 9
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/3",
+          "offRight": 57
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "火",
+          "offRight": 57
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/4",
+          "offRight": 105
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "水",
+          "offRight": 105
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/5",
+          "offRight": 153
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "木",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "36.5",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "72",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "98",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s1",
+          "text": "1",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        }
+      ],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16746,
+    "diffRatio": 0.00638,
+    "diffBoxCss": [
+      10,
+      19,
+      144,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/2",
+          "offRight": 9
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "月",
+          "offRight": 9
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/3",
+          "offRight": 57
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "火",
+          "offRight": 57
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/4",
+          "offRight": 105
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "水",
+          "offRight": 105
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/5",
+          "offRight": 153
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "木",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "36.5",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "72",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "98",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s1",
+          "text": "1",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        }
+      ],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            300,
+            88
+          ],
+          "at": [
+            542,
+            871
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 18118,
+    "diffRatio": 0.0048,
+    "diffBoxCss": [
+      16,
+      25,
+      188,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_1180_s1",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            300,
+            88
+          ],
+          "at": [
+            542,
+            231
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 24988,
+    "diffRatio": 0.00662,
+    "diffBoxCss": [
+      16,
+      25,
+      739,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_1180_s2",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            300,
+            88
+          ],
+          "at": [
+            542,
+            150
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 24988,
+    "diffRatio": 0.00662,
+    "diffBoxCss": [
+      16,
+      25,
+      739,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            300,
+            88
+          ],
+          "at": [
+            672,
+            895
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 18113,
+    "diffRatio": 0.00349,
+    "diffBoxCss": [
+      146,
+      49,
+      318,
+      358
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_1440_s1",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            300,
+            88
+          ],
+          "at": [
+            672,
+            226
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 24991,
+    "diffRatio": 0.00482,
+    "diffBoxCss": [
+      146,
+      49,
+      869,
+      358
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            308,
+            88
+          ],
+          "at": [
+            494,
+            1184
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16851,
+    "diffRatio": 0.00642,
+    "diffBoxCss": [
+      10,
+      19,
+      144,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_820_s1",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            308,
+            88
+          ],
+          "at": [
+            494,
+            544
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 23723,
+    "diffRatio": 0.00904,
+    "diffBoxCss": [
+      10,
+      19,
+      694,
+      627
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_820_s2",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            308,
+            88
+          ],
+          "at": [
+            494,
+            156
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 23723,
+    "diffRatio": 0.00904,
+    "diffBoxCss": [
+      10,
+      19,
+      694,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C06_prescribe_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 17843,
+    "diffRatio": 0.00473,
+    "diffBoxCss": [
+      16,
+      25,
+      188,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C06_prescribe_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 17847,
+    "diffRatio": 0.00344,
+    "diffBoxCss": [
+      146,
+      49,
+      318,
+      358
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C06_prescribe_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16604,
+    "diffRatio": 0.00633,
+    "diffBoxCss": [
+      10,
+      19,
+      144,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C07_studio_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 18031,
+    "diffRatio": 0.00478,
+    "diffBoxCss": [
+      16,
+      25,
+      188,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C07_studio_1180_s1",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 18031,
+    "diffRatio": 0.00478,
+    "diffBoxCss": [
+      16,
+      25,
+      188,
+      334
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C07_studio_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 18020,
+    "diffRatio": 0.00348,
+    "diffBoxCss": [
+      146,
+      49,
+      318,
+      358
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C07_studio_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16803,
+    "diffRatio": 0.0064,
+    "diffBoxCss": [
+      10,
+      19,
+      144,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C07_studio_820_s1",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 16803,
+    "diffRatio": 0.0064,
+    "diffBoxCss": [
+      10,
+      19,
+      144,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft1_edit_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft1_edit_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft1_edit_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft1_edit_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft1_edit_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft1_edit_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft2_edit_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft2_edit_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft2_edit_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft2_edit_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft2_edit_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft2_edit_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft3_edit_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft3_edit_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft3_edit_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft3_edit_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft3_edit_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft3_edit_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft4_edit_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft4_edit_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft4_edit_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft4_edit_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft4_edit_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft4_edit_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08b_draft1_detail_field_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08b_draft1_detail_field_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08b_draft1_detail_field_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08b_draft2_detail_field_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08b_draft2_detail_field_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08b_draft2_detail_field_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08b_draft3_detail_field_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08b_draft3_detail_field_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08b_draft3_detail_field_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08b_draft4_detail_field_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08b_draft4_detail_field_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08b_draft4_detail_field_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_1180_s2",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_1440_s2",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_820_s2",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_1180_s2",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_1440_s2",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_820_s2",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_1180_s2",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_1440_s2",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_820_s2",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_1180_s2",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_1440_s2",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_820_s2",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft1_preview_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [],
+      "previewWrites": []
+    }
+  },
+  {
+    "name": "C10_draft1_preview_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft1_preview_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [],
+      "previewWrites": []
+    }
+  },
+  {
+    "name": "C10_draft1_preview_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft1_preview_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [],
+      "previewWrites": []
+    }
+  },
+  {
+    "name": "C10_draft1_preview_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft2_preview_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [],
+      "previewWrites": []
+    }
+  },
+  {
+    "name": "C10_draft2_preview_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft2_preview_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [],
+      "previewWrites": []
+    }
+  },
+  {
+    "name": "C10_draft2_preview_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft2_preview_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [],
+      "previewWrites": []
+    }
+  },
+  {
+    "name": "C10_draft2_preview_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft3_preview_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [],
+      "previewWrites": []
+    }
+  },
+  {
+    "name": "C10_draft3_preview_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft3_preview_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [],
+      "previewWrites": []
+    }
+  },
+  {
+    "name": "C10_draft3_preview_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft3_preview_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [],
+      "previewWrites": []
+    }
+  },
+  {
+    "name": "C10_draft3_preview_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft4_preview_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [],
+      "previewWrites": []
+    }
+  },
+  {
+    "name": "C10_draft4_preview_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft4_preview_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [],
+      "previewWrites": []
+    }
+  },
+  {
+    "name": "C10_draft4_preview_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft4_preview_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [],
+      "previewWrites": []
+    }
+  },
+  {
+    "name": "C10_draft4_preview_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft1_preview_detail_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft1_preview_detail_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft1_preview_detail_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft1_preview_detail_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft1_preview_detail_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft1_preview_detail_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft2_preview_detail_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft2_preview_detail_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft2_preview_detail_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft2_preview_detail_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft2_preview_detail_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft2_preview_detail_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft3_preview_detail_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft3_preview_detail_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft3_preview_detail_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft3_preview_detail_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft3_preview_detail_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft3_preview_detail_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft4_preview_detail_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft4_preview_detail_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft4_preview_detail_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft4_preview_detail_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft4_preview_detail_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C11_draft4_preview_detail_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft1_preview_slide2_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft1_preview_slide2_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft1_preview_slide3_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft1_preview_slide3_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft1_preview_slide4_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft1_preview_slide4_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft1_preview_slide5_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft1_preview_slide5_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft2_preview_slide2_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft2_preview_slide2_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft2_preview_slide3_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft2_preview_slide3_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft2_preview_slide4_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft2_preview_slide4_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft2_preview_slide5_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft2_preview_slide5_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft3_preview_slide2_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft3_preview_slide2_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft3_preview_slide3_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft3_preview_slide3_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft3_preview_slide4_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft3_preview_slide4_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft3_preview_slide5_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft3_preview_slide5_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft4_preview_slide2_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft4_preview_slide2_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft4_preview_slide3_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft4_preview_slide3_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft4_preview_slide4_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft4_preview_slide4_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft4_preview_slide5_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C12_draft4_preview_slide5_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft1_preview_q1_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft1_preview_q1_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft1_preview_q2_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft1_preview_q2_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft1_preview_q3_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft1_preview_q3_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft2_preview_q1_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft2_preview_q1_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft2_preview_q2_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft2_preview_q2_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft2_preview_q3_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft2_preview_q3_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft3_preview_q1_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft3_preview_q1_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft3_preview_q2_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft3_preview_q2_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft3_preview_q3_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft3_preview_q3_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft4_preview_q1_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft4_preview_q1_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft4_preview_q2_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft4_preview_q2_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft4_preview_q3_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C13_draft4_preview_q3_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C14_draft1_preview_a1_correct_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C14_draft1_preview_a2_wrong_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C14_draft1_preview_a3_unknown_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C14_draft2_preview_a1_correct_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C14_draft2_preview_a2_wrong_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C14_draft2_preview_a3_unknown_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C14_draft3_preview_a1_correct_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C14_draft3_preview_a2_wrong_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C14_draft3_preview_a3_unknown_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C14_draft4_preview_a1_correct_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C14_draft4_preview_a2_wrong_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C14_draft4_preview_a3_unknown_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C15_draft1_preview_done_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C15_draft1_preview_done_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C15_draft2_preview_done_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C15_draft2_preview_done_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C15_draft3_preview_done_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C15_draft3_preview_done_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C15_draft4_preview_done_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C15_draft4_preview_done_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P01_home_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 168451,
+    "diffRatio": 0.12794,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P01_home_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 203984,
+    "diffRatio": 0.15493,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      732
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P01_home_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 168280,
+    "diffRatio": 0.11592,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P01_home_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 221818,
+    "diffRatio": 0.1528,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      732
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P01_home_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 246658,
+    "diffRatio": 0.07841,
+    "diffBoxCss": [
+      20,
+      15,
+      724,
+      946
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P01_home_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "LABEL",
+          "cls": "sr-only",
+          "text": "診察で聞きたいこと"
+        }
+      ],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 461156,
+    "diffRatio": 0.1466,
+    "diffBoxCss": [
+      20,
+      15,
+      724,
+      764
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            1029
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            408
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 7471,
+    "diffRatio": 0.00567,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      465
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_390_s2",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            -213
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_390_s3",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            -286
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            1019
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            398
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 7470,
+    "diffRatio": 0.00515,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      455
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_430_s2",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            -221
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            408,
+            792
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 7478,
+    "diffRatio": 0.00238,
+    "diffBoxCss": [
+      20,
+      15,
+      478,
+      849
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            408,
+            340
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 7478,
+    "diffRatio": 0.00238,
+    "diffBoxCss": [
+      20,
+      15,
+      478,
+      397
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_chemo_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            316,
+            229
+          ],
+          "at": [
+            37,
+            170
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 129823,
+    "diffRatio": 0.0986,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_chemo_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            316,
+            229
+          ],
+          "at": [
+            37,
+            -153
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 20402,
+    "diffRatio": 0.0155,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      644
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_chemo_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            356,
+            259
+          ],
+          "at": [
+            37,
+            170
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 131600,
+    "diffRatio": 0.09065,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_chemo_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            356,
+            259
+          ],
+          "at": [
+            37,
+            -183
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 20616,
+    "diffRatio": 0.0142,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      707
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_chemo_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            662,
+            356
+          ],
+          "at": [
+            53,
+            170
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 182455,
+    "diffRatio": 0.058,
+    "diffBoxCss": [
+      20,
+      15,
+      732,
+      946
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_chemo_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            662,
+            356
+          ],
+          "at": [
+            53,
+            -5
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "contain",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 70438,
+    "diffRatio": 0.02239,
+    "diffBoxCss": [
+      20,
+      15,
+      732,
+      886
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_drug_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_drug_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_drug_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_drug_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_drug_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00105,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_drug_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00105,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_other_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_other_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_other_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_other_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_other_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00105,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_other_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00105,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P04_learn_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 416,
+    "diffRatio": 0.00032,
+    "diffBoxCss": [
+      29,
+      63,
+      55,
+      67
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P04_learn_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P04_learn_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P05_detail_open_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P05_detail_open_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P05_detail_open_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P05_detail_open_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P05_detail_open_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P06_quiz_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P06_quiz_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P06_quiz_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P07_explanation_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P07_explanation_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P07_explanation_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P08_history_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            954
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P08_history_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            643
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 7472,
+    "diffRatio": 0.00568,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      700
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P08_history_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            943
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P08_history_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            653
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 7470,
+    "diffRatio": 0.00515,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      710
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P08_history_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            62,
+            943
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 3456,
+    "diffRatio": 0.0011,
+    "diffBoxCss": [
+      20,
+      15,
+      131,
+      946
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P08_history_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            62,
+            833
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 7470,
+    "diffRatio": 0.00237,
+    "diffBoxCss": [
+      20,
+      15,
+      132,
+      890
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_390_s2",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_430_s2",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00105,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00105,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P10_notes_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P10_notes_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P10_notes_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00105,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11_share_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 79227,
+    "diffRatio": 0.06017,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11_share_390_s1",
+    "onlyAfter": true,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11_share_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 79853,
+    "diffRatio": 0.05501,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11_share_430_s1",
+    "onlyAfter": true,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11_share_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 88705,
+    "diffRatio": 0.0282,
+    "diffBoxCss": [
+      20,
+      15,
+      732,
+      732
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11b_share_code_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 169844,
+    "diffRatio": 0.129,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      741
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11b_share_code_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 159316,
+    "diffRatio": 0.121,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      687
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11b_share_code_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 177776,
+    "diffRatio": 0.12246,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      741
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11b_share_code_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 172346,
+    "diffRatio": 0.11872,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      705
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11b_share_code_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 258711,
+    "diffRatio": 0.08224,
+    "diffBoxCss": [
+      20,
+      15,
+      732,
+      767
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "S01_patient_request_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "S01_patient_request_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.0025,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "S01_patient_request_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "S01_patient_request_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "S01_patient_request_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00105,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "S02_patient_sharing_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 3474,
+    "diffRatio": 0.00264,
+    "diffBoxCss": [
+      20,
+      15,
+      283,
+      478
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "S02_patient_sharing_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00227,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "S02_patient_sharing_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 3296,
+    "diffRatio": 0.00105,
+    "diffBoxCss": [
+      20,
+      15,
+      116,
+      53
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "S03_patient_after_end_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 79227,
+    "diffRatio": 0.06017,
+    "diffBoxCss": [
+      20,
+      15,
+      370,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "S03_patient_after_end_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 79853,
+    "diffRatio": 0.05501,
+    "diffBoxCss": [
+      20,
+      15,
+      410,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "S03_patient_after_end_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 88705,
+    "diffRatio": 0.0282,
+    "diffBoxCss": [
+      20,
+      15,
+      732,
+      732
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  }
+]
