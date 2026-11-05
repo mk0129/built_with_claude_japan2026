@@ -1,6 +1,6 @@
 /**
  * 教材カードのサムネイル（Phase 2 Step 5）。完成画像を public/thumbnails/ に置き、ここに登録すると Figma のレイアウトのまま表示する。
- * 登録がない教材は Figma の「画像準備中」の枠を表示する。一覧・必要サイズ: docs/design/phase2/step5/thumbnails.md
+ * 登録がない教材は、色面とアイコンだけの小さな代替表示（「画像準備中」の文字は出さない）。一覧・必要サイズ: docs/design/phase2/step5/thumbnails.md
  *
  * サムネイルは雰囲気を伝える一般的なイラスト（医学的な内容を含めない）。体の仕組み・手技などの医学的な解説図は
  * 別の仕組み（figure_assets・図解の監修）で扱い、医療者の内容確認（承認）後にだけ学習画面に表示する。
@@ -22,4 +22,25 @@ export const THUMBNAILS: Record<string, Thumbnail> = {
 export function thumbnailFor(title: string): { src: string; alt: string } | null {
   const t = THUMBNAILS[title];
   return t ? { src: `/thumbnails/${t.file}`, alt: t.alt } : null;
+}
+
+/**
+ * 情報処方セットのカバー画像（患者ホームのセットカード・セット詳細）。
+ * 正式な画像ができたら public/covers/ に置き、患者向けのセット名（learning.ts の patientSetName の結果。例: 「診断時セット」）をキーに登録する。
+ *   例: "診断時セット": { file: "cover_diagnosis.webp", alt: "診断時セットのカバー" },
+ * 推奨: 縦長 4:5（例 800×1000）・WebP。医学的な内容を含めない雰囲気のイラストにする。
+ * 登録がないセットは、色面と線の装飾だけの代替カバーを表示する（Figma の SetCover と同じ考え方）。
+ */
+export const SET_COVERS: Record<string, Thumbnail> = {
+  // まだ正式な画像はない（ここに追加する）
+};
+
+export function setCoverFor(name: string): { src: string; alt: string } | null {
+  const c = SET_COVERS[name];
+  return c ? { src: `/covers/${c.file}`, alt: c.alt } : null;
+}
+
+/** 画像がないときの代替表示の色（名前から安定して決める。Figma の assetTone と同じ 6 色） */
+export function toneFor(key: string): number {
+  return [...key].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % 6;
 }

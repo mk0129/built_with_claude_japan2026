@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "@/concept-d/figma.css";
 import "@/concept-d/app.css";
+import "@/concept-d/demo-patient.css";
+import "@/concept-d/demo-clinician.css";
 
 /**
  * Figma Make Concept D の移植画面（/d/*）専用のルートレイアウト。

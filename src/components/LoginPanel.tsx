@@ -117,11 +117,6 @@ export function LoginPanel({ kind, redirectTo, switching = false }: { kind: "pat
         <button className="au-button" onClick={google}>
           Google でログイン
         </button>
-        {kind === "patient" && (
-          <button className="au-button" disabled title="LINE ログインは外部設定後に有効になります">
-            LINE でログイン（準備中）
-          </button>
-        )}
       </section>
 
       {msg && (

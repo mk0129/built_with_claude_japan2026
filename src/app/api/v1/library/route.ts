@@ -9,7 +9,7 @@ import { objectivesByVersion } from "@/server/services/learning-record";
  */
 export const GET = route(async (req: Request) => {
   const p = await requirePatient(req.headers);
-  const { items, latestSetId } = await getPatientLibrary(p.userId);
+  const { items, latestSetId, latestSetTemplates } = await getPatientLibrary(p.userId);
   const objectives = await objectivesByVersion(items.map((i) => i.versionId));
-  return ok({ latestSetId, items: items.map((i) => ({ ...i, objective: objectives.get(i.versionId)?.[0] ?? null })) });
+  return ok({ latestSetId, latestSetTemplates, items: items.map((i) => ({ ...i, objective: objectives.get(i.versionId)?.[0] ?? null })) });
 });

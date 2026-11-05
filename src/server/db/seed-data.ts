@@ -40,7 +40,7 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     name: "佐藤 一郎",
     kind: "staff",
     label: "さくら総合病院 教材承認者・管理者",
-    memberships: [{ orgSlug: "sakura-general", roles: ["clinician", "material_editor", "material_approver", "org_admin"], displayName: "佐藤 医師（承認者）" }],
+    memberships: [{ orgSlug: "sakura-general", roles: ["clinician", "material_editor", "material_approver", "org_admin"], displayName: "佐藤 医師" }],
   },
   {
     email: "dr.kobayashi@example.com",

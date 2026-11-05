@@ -127,7 +127,7 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await p.getByRole("button", { name: "この記録を更新" }).click();
   await expect(p.locator(".toast")).toContainText("記録を更新しました");
   await s.locator(".cd-sidebar").getByRole("button", { name: "診察" }).click();
-  await s.getByRole("button", { name: "AI要約を再生成" }).click();
+  await s.getByRole("button", { name: "外来間サマリーを再生成" }).click();
   await expect(s.locator("[data-intervisit]")).toContainText(`手足のしびれは${md(6)}に1/4、${md(1)}に2/4と記録されました（期間内の最大は${md(3)}の2/4、4回記録）。`, { timeout: 15_000 });
 
   // 14. AI 生成エラー・検証不合格時は安全な代替表示（ルールベース）。元データは閲覧できる

@@ -1,0 +1,360 @@
+{
+  "screens": 38,
+  "compared": 34,
+  "unchanged": 2,
+  "changed": [
+    {
+      "name": "F_C01_idle_1180",
+      "pixels": 4194,
+      "ratio": 0.00108,
+      "boxCss": [
+        962,
+        16,
+        1153,
+        51
+      ]
+    },
+    {
+      "name": "F_C02_connect_1180",
+      "pixels": 267628,
+      "ratio": 0.06915,
+      "boxCss": [
+        250,
+        16,
+        1153,
+        739
+      ]
+    },
+    {
+      "name": "F_C03_waiting_1180",
+      "pixels": 67480,
+      "ratio": 0.01743,
+      "boxCss": [
+        332,
+        16,
+        1153,
+        665
+      ]
+    },
+    {
+      "name": "F_C04_summary_1180",
+      "pixels": 388041,
+      "ratio": 0.10026,
+      "boxCss": [
+        229,
+        16,
+        1156,
+        820
+      ]
+    },
+    {
+      "name": "F_C04_summary_full_1180",
+      "pixels": 388041,
+      "ratio": 0.10026,
+      "boxCss": [
+        229,
+        16,
+        1156,
+        820
+      ]
+    },
+    {
+      "name": "F_C05_sources_1180",
+      "pixels": 313874,
+      "ratio": 0.0811,
+      "boxCss": [
+        229,
+        16,
+        1156,
+        820
+      ]
+    },
+    {
+      "name": "F_C06_course_1180",
+      "pixels": 149373,
+      "ratio": 0.03859,
+      "boxCss": [
+        229,
+        16,
+        1156,
+        797
+      ]
+    },
+    {
+      "name": "F_C07_library_1180",
+      "pixels": 284867,
+      "ratio": 0.0736,
+      "boxCss": [
+        205,
+        8,
+        1180,
+        820
+      ]
+    },
+    {
+      "name": "F_C08_studio_1180",
+      "pixels": 222309,
+      "ratio": 0.05744,
+      "boxCss": [
+        205,
+        8,
+        1180,
+        802
+      ]
+    },
+    {
+      "name": "F_C09_end_1180",
+      "pixels": 4194,
+      "ratio": 0.00108,
+      "boxCss": [
+        962,
+        16,
+        1153,
+        51
+      ]
+    },
+    {
+      "name": "F_P01_home_390",
+      "pixels": 222120,
+      "ratio": 0.1687,
+      "boxCss": [
+        20,
+        252,
+        370,
+        766
+      ]
+    },
+    {
+      "name": "F_P01_home_430",
+      "pixels": 257761,
+      "ratio": 0.1608,
+      "boxCss": [
+        20,
+        252,
+        410,
+        854
+      ]
+    },
+    {
+      "name": "F_P01_home_full_390",
+      "pixels": 222120,
+      "ratio": 0.1687,
+      "boxCss": [
+        20,
+        252,
+        370,
+        766
+      ]
+    },
+    {
+      "name": "F_P01_home_full_430",
+      "pixels": 257761,
+      "ratio": 0.1608,
+      "boxCss": [
+        20,
+        252,
+        410,
+        854
+      ]
+    },
+    {
+      "name": "F_P03_detail_390",
+      "pixels": 98350,
+      "ratio": 0.0747,
+      "boxCss": [
+        20,
+        153,
+        370,
+        766
+      ]
+    },
+    {
+      "name": "F_P03_detail_430",
+      "pixels": 192340,
+      "ratio": 0.11998,
+      "boxCss": [
+        20,
+        153,
+        410,
+        848
+      ]
+    },
+    {
+      "name": "F_P04_learn1_390",
+      "pixels": 11537,
+      "ratio": 0.00876,
+      "boxCss": [
+        20,
+        95,
+        263,
+        149
+      ]
+    },
+    {
+      "name": "F_P04_learn1_430",
+      "pixels": 41784,
+      "ratio": 0.02607,
+      "boxCss": [
+        20,
+        95,
+        410,
+        780
+      ]
+    },
+    {
+      "name": "F_P04_learn2_390",
+      "pixels": 164255,
+      "ratio": 0.12475,
+      "boxCss": [
+        20,
+        95,
+        370,
+        692
+      ]
+    },
+    {
+      "name": "F_P04_learn2_430",
+      "pixels": 181654,
+      "ratio": 0.11332,
+      "boxCss": [
+        20,
+        95,
+        410,
+        704
+      ]
+    },
+    {
+      "name": "F_P05_quiz_390",
+      "pixels": 160416,
+      "ratio": 0.12184,
+      "boxCss": [
+        20,
+        95,
+        370,
+        730
+      ]
+    },
+    {
+      "name": "F_P05_quiz_430",
+      "pixels": 161979,
+      "ratio": 0.10104,
+      "boxCss": [
+        20,
+        95,
+        410,
+        691
+      ]
+    },
+    {
+      "name": "F_P06_unknown_390",
+      "pixels": 193721,
+      "ratio": 0.14713,
+      "boxCss": [
+        20,
+        32,
+        370,
+        705
+      ]
+    },
+    {
+      "name": "F_P06_unknown_430",
+      "pixels": 189103,
+      "ratio": 0.11797,
+      "boxCss": [
+        20,
+        32,
+        410,
+        646
+      ]
+    },
+    {
+      "name": "F_P07_notes_390",
+      "pixels": 1728,
+      "ratio": 0.00131,
+      "boxCss": [
+        20,
+        97,
+        103,
+        107
+      ]
+    },
+    {
+      "name": "F_P07_notes_430",
+      "pixels": 1728,
+      "ratio": 0.00108,
+      "boxCss": [
+        20,
+        97,
+        103,
+        107
+      ]
+    },
+    {
+      "name": "F_P10_chart_390",
+      "pixels": 52589,
+      "ratio": 0.03994,
+      "boxCss": [
+        20,
+        97,
+        370,
+        766
+      ]
+    },
+    {
+      "name": "F_P10_chart_430",
+      "pixels": 65468,
+      "ratio": 0.04084,
+      "boxCss": [
+        20,
+        97,
+        410,
+        854
+      ]
+    },
+    {
+      "name": "F_P10_chart_full_390",
+      "pixels": 52589,
+      "ratio": 0.03994,
+      "boxCss": [
+        20,
+        97,
+        370,
+        766
+      ]
+    },
+    {
+      "name": "F_P10_chart_full_430",
+      "pixels": 65468,
+      "ratio": 0.04084,
+      "boxCss": [
+        20,
+        97,
+        410,
+        854
+      ]
+    },
+    {
+      "name": "F_P12_approve_390",
+      "pixels": 1318,
+      "ratio": 0.001,
+      "boxCss": [
+        264,
+        291,
+        308,
+        302
+      ]
+    },
+    {
+      "name": "F_P13_sharing_390",
+      "pixels": 18033,
+      "ratio": 0.0137,
+      "boxCss": [
+        23,
+        303,
+        366,
+        497
+      ]
+    }
+  ],
+  "onlyAfter": 4
+}

@@ -138,8 +138,9 @@ test("6 桁コード（PC にカメラがない場合）: 医療者が入力（�
   await expect(staff.page.getByRole("heading", { name: "診察サマリー" })).toBeVisible({ timeout: 10_000 });
   const sid = new URL(staff.page.url()).searchParams.get("s")!;
   expect((await staff.page.request.get(`/api/v1/consultations/${sid}/patient`)).status()).toBe(200);
-  // DB にない年齢・病歴・次回診察は架空の値を出さない
-  await expect(staff.page.locator(".cd-app-header")).toContainText("未登録");
+  // DB にない年齢・病歴・次回診察は架空の値を出さず、「未登録」の行も出さない
+  await expect(staff.page.locator(".cd-app-header")).toContainText("患者本人の承認による一時共有");
+  await expect(staff.page.locator(".cd-app-header")).not.toContainText("未登録");
   await expect(staff.page.locator(".cd-app-header")).not.toContainText("52歳");
   await staff.page.locator(".cd-sidebar").getByRole("button", { name: "共有を終了" }).click();
   await expect(staff.page.getByText("患者一覧はありません")).toBeVisible();

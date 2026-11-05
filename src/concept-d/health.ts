@@ -60,6 +60,8 @@ export type PatientHealth = ReturnType<typeof usePatientHealth>;
 
 export function usePatientHealth(notify: (message: string) => void) {
   const [records, setRecords] = useState<ReturnType<typeof toFigma>[] | null>(null);
+  /** 経過グラフの期間の終わり（サーバーの「今日」。撮影用デモ環境では基準日） */
+  const [today, setToday] = useState<string | null>(null);
   const [settings, setSettings] = useState<{ active: string[]; hidden: string[]; customNames: Record<string, string> } | null>(null);
   const notifyRef = useRef(notify);
   useEffect(() => {
@@ -68,10 +70,11 @@ export function usePatientHealth(notify: (message: string) => void) {
   const reload = useCallback(async () => {
     try {
       const [r, s] = await Promise.all([
-        api<{ records: ApiRecord[] }>("/api/v1/health/records"),
+        api<{ records: ApiRecord[]; today?: string }>("/api/v1/health/records"),
         api<{ settings: { active: string[]; hidden: string[]; customNames: Record<string, string> } }>("/api/v1/health/symptoms"),
       ]);
       setRecords(r.records.map(toFigma));
+      setToday(r.today ?? null);
       setSettings(s.settings);
     } catch (e) {
       notifyRef.current(errorText(e));
@@ -130,6 +133,7 @@ export function usePatientHealth(notify: (message: string) => void) {
   return {
     loaded: records !== null && settings !== null,
     records: records ?? [],
+    today,
     activeIds: settings?.active ?? [],
     customNames: settings?.customNames ?? {},
     save,

@@ -13,6 +13,7 @@ import {
   organizations,
   prescriptionItems,
   prescriptionSets,
+  prescriptionTemplates,
 } from "@/server/db/schema";
 import type { ConsultationContext } from "@/server/authz/consultation";
 import { badRequest } from "@/server/authz/errors";
@@ -98,6 +99,11 @@ export type HomeworkSet = {
   createdAt: Date;
   snapshotTakenAt: Date | null;
   items: HomeworkItem[];
+  /**
+   * この処方に、情報処方テンプレート（例: 初回診断時セット）の教材がすべて含まれているもの。
+   * 処方の記録にはテンプレートの ID を持たないため、教材の一致で判定する（表示用。処方の処理には使わない）。
+   */
+  templates: { id: string; name: string; description: string | null; materialIds: string[] }[];
 };
 
 /** 患者ホーム用: 宿題セット（新しい順）と各教材の進捗・スコア */
@@ -156,6 +162,15 @@ export async function listHomeworkForPatient(patientId: string, db: Db = getDb()
       .limit(1);
     clinicianNames.set(s.setId, m?.displayName ?? "医療者");
   }
+  const templateRows = await db
+    .select({ id: prescriptionTemplates.id, name: prescriptionTemplates.name, description: prescriptionTemplates.description, scope: prescriptionTemplates.scope, ownerOrgId: prescriptionTemplates.ownerOrgId, materialIds: prescriptionTemplates.materialIds })
+    .from(prescriptionTemplates);
+  const templatesFor = (setId: string, orgId: string) => {
+    const ids = new Set(items.filter((i) => i.setId === setId).map((i) => i.materialId));
+    return templateRows
+      .filter((t) => (t.scope === "common" || t.ownerOrgId === orgId) && t.materialIds.length > 0 && t.materialIds.every((id) => ids.has(id)))
+      .map((t) => ({ id: t.id, name: t.name, description: t.description, materialIds: t.materialIds }));
+  };
 
   return sets.map((s) => ({
     setId: s.setId,
@@ -163,6 +178,7 @@ export async function listHomeworkForPatient(patientId: string, db: Db = getDb()
     clinicianName: clinicianNames.get(s.setId) ?? "医療者",
     createdAt: s.createdAt,
     snapshotTakenAt: snapBySet.get(s.setId) ?? null,
+    templates: templatesFor(s.setId, s.orgId),
     items: items
       .filter((i) => i.setId === s.setId)
       .map((i) => {

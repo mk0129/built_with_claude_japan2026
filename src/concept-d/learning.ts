@@ -47,6 +47,13 @@ export type LibraryApiItem = {
   objective: string | null;
 };
 
+/** 最新の処方に含まれる情報処方テンプレート（サーバーが教材の一致で判定） */
+export type LatestSetTemplate = { id: string; name: string; description: string | null; materialIds: string[] };
+
+/** 医療者向けのテンプレート名 → 患者に見せるセット名（対応がなければそのまま） */
+const PATIENT_SET_NAME: Record<string, string> = { 初回診断時セット: "診断時セット" };
+export const patientSetName = (name: string) => PATIENT_SET_NAME[name] ?? name;
+
 /** Figma の DLesson と同じ形（id は教材 ID） */
 export type LiveLesson = {
   id: string
@@ -107,14 +114,16 @@ export type PatientLearning = ReturnType<typeof usePatientLearning>;
 /** 患者の教材一覧（処方・公開教材・学習状態）。画面を移るたびに読み直す */
 export function usePatientLearning(notify: (message: string) => void) {
   const [items, setItems] = useState<LibraryApiItem[] | null>(null);
+  const [templates, setTemplates] = useState<LatestSetTemplate[]>([]);
   const notifyRef = useRef(notify);
   useEffect(() => {
     notifyRef.current = notify;
   });
   const reload = useCallback(async () => {
     try {
-      const r = await api<{ items: LibraryApiItem[] }>("/api/v1/library");
+      const r = await api<{ items: LibraryApiItem[]; latestSetTemplates?: LatestSetTemplate[] }>("/api/v1/library");
       setItems(r.items);
+      setTemplates(r.latestSetTemplates ?? []);
     } catch (e) {
       notifyRef.current(errorText(e));
     }
@@ -130,7 +139,17 @@ export function usePatientLearning(notify: (message: string) => void) {
     loaded: items !== null,
     lessons,
     /** 今回（最新）の情報処方 */
-    latest: latest ? { sender: `${latest.orgName} ${latest.clinicianName}`, clinician: latest.clinicianName, date: shortDate(latest.createdAt) } : null,
+    latest: latest ? { sender: `${latest.orgName} ${latest.clinicianName}`, clinician: latest.clinicianName, org: latest.orgName, date: shortDate(latest.createdAt) } : null,
+    /**
+     * 今回（最新）の処方に含まれるセット（例: 診断時セット）。患者向けの名前と、セットに含まれる教材（処方された実際の教材）。
+     * 処方の記録にセットの ID はないため、テンプレートの教材がすべて処方されているときだけ出す。
+     */
+    latestSets: templates.map((t) => ({
+      id: t.id,
+      name: patientSetName(t.name),
+      description: t.description,
+      lessons: lessons.filter((l) => l.latest && t.materialIds.includes(l.id)),
+    })),
     reload,
   };
 }

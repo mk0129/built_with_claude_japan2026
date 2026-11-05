@@ -2,7 +2,10 @@ import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { getDb, type Db } from "@/server/db/client";
 import { learningProgress, materialSlides, materialVersions, materials, organizations, quizQuestions } from "@/server/db/schema";
 import { levelOf, type Level, type Phase } from "@/lib/understanding";
-import { listHomeworkForPatient } from "./prescription";
+import { listHomeworkForPatient, type HomeworkSet } from "./prescription";
+
+/** 最新の処方に含まれる情報処方テンプレート（例: 初回診断時セット）。教材の一致で判定 */
+export type HomeworkTemplateMatch = HomeworkSet["templates"][number];
 import { computeMaterialScores } from "./scoring";
 import { patientOrgIds } from "./learning";
 
@@ -35,7 +38,10 @@ export type LibraryItem = {
  * 患者の教材一覧（まなぶ）。公開中の教材（共通＋患者に処方したことのある病院の独自教材）と、
  * 処方済みの教材（旧版を含む）を 1 つの一覧にし、処方・進み具合・理解の 3 段階を付ける。
  */
-export async function getPatientLibrary(patientId: string, db: Db = getDb()): Promise<{ items: LibraryItem[]; latestSetId: string | null }> {
+export async function getPatientLibrary(
+  patientId: string,
+  db: Db = getDb(),
+): Promise<{ items: LibraryItem[]; latestSetId: string | null; latestSetTemplates: HomeworkTemplateMatch[] }> {
   const orgIds = await patientOrgIds(patientId, db);
   const visibility = orgIds.length ? or(eq(materials.scope, "common"), and(eq(materials.scope, "org"), inArray(materials.ownerOrgId, orgIds))) : eq(materials.scope, "common");
   const published = await db
@@ -126,7 +132,7 @@ export async function getPatientLibrary(patientId: string, db: Db = getDb()): Pr
       completedAt: sc?.completedAt ?? null,
     });
   }
-  return { items, latestSetId };
+  return { items, latestSetId, latestSetTemplates: sets[0]?.templates ?? [] };
 }
 
 /** 理解の地図の対象（処方された教材＋自主学習した教材） */

@@ -1,0 +1,1208 @@
+[
+  {
+    "name": "F_C01_idle_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1640
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1640
+    ],
+    "diffPixels": 4194,
+    "diffRatio": 0.00108,
+    "diffBoxCss": [
+      962,
+      16,
+      1153,
+      51
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_C02_connect_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1640
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1640
+    ],
+    "diffPixels": 267628,
+    "diffRatio": 0.06915,
+    "diffBoxCss": [
+      250,
+      16,
+      1153,
+      739
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_C03_waiting_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1640
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1640
+    ],
+    "diffPixels": 67480,
+    "diffRatio": 0.01743,
+    "diffBoxCss": [
+      332,
+      16,
+      1153,
+      665
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_C04_summary_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1640
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1640
+    ],
+    "diffPixels": 388041,
+    "diffRatio": 0.10026,
+    "diffBoxCss": [
+      229,
+      16,
+      1156,
+      820
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_C04_summary_full_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1640
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1640
+    ],
+    "diffPixels": 388041,
+    "diffRatio": 0.10026,
+    "diffBoxCss": [
+      229,
+      16,
+      1156,
+      820
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_C05_sources_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1640
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1640
+    ],
+    "diffPixels": 313874,
+    "diffRatio": 0.0811,
+    "diffBoxCss": [
+      229,
+      16,
+      1156,
+      820
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_C06_course_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1640
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1640
+    ],
+    "diffPixels": 149373,
+    "diffRatio": 0.03859,
+    "diffBoxCss": [
+      229,
+      16,
+      1156,
+      797
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_C07_library_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1640
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1640
+    ],
+    "diffPixels": 284867,
+    "diffRatio": 0.0736,
+    "diffBoxCss": [
+      205,
+      8,
+      1180,
+      820
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": true,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_C08_studio_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1640
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1640
+    ],
+    "diffPixels": 222309,
+    "diffRatio": 0.05744,
+    "diffBoxCss": [
+      205,
+      8,
+      1180,
+      802
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": true,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_C09_end_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1640
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      2360,
+      1640
+    ],
+    "diffPixels": 4194,
+    "diffRatio": 0.00108,
+    "diffBoxCss": [
+      962,
+      16,
+      1153,
+      51
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P01_home_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 222120,
+    "diffRatio": 0.1687,
+    "diffBoxCss": [
+      20,
+      252,
+      370,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P01_home_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1864
+    ],
+    "diffPixels": 257761,
+    "diffRatio": 0.1608,
+    "diffBoxCss": [
+      20,
+      252,
+      410,
+      854
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P01_home_full_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 222120,
+    "diffRatio": 0.1687,
+    "diffBoxCss": [
+      20,
+      252,
+      370,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P01_home_full_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1864
+    ],
+    "diffPixels": 257761,
+    "diffRatio": 0.1608,
+    "diffBoxCss": [
+      20,
+      252,
+      410,
+      854
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P02_set_390",
+    "onlyAfter": true,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P02_set_430",
+    "onlyAfter": true,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P02_set_full_390",
+    "onlyAfter": true,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P02_set_full_430",
+    "onlyAfter": true,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P03_detail_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 98350,
+    "diffRatio": 0.0747,
+    "diffBoxCss": [
+      20,
+      153,
+      370,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": true,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P03_detail_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1864
+    ],
+    "diffPixels": 192340,
+    "diffRatio": 0.11998,
+    "diffBoxCss": [
+      20,
+      153,
+      410,
+      848
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": true,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P04_learn1_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 11537,
+    "diffRatio": 0.00876,
+    "diffBoxCss": [
+      20,
+      95,
+      263,
+      149
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P04_learn1_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1864
+    ],
+    "diffPixels": 41784,
+    "diffRatio": 0.02607,
+    "diffBoxCss": [
+      20,
+      95,
+      410,
+      780
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P04_learn2_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 164255,
+    "diffRatio": 0.12475,
+    "diffBoxCss": [
+      20,
+      95,
+      370,
+      692
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": true,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P04_learn2_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1864
+    ],
+    "diffPixels": 181654,
+    "diffRatio": 0.11332,
+    "diffBoxCss": [
+      20,
+      95,
+      410,
+      704
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": true,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P05_quiz_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 160416,
+    "diffRatio": 0.12184,
+    "diffBoxCss": [
+      20,
+      95,
+      370,
+      730
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P05_quiz_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1864
+    ],
+    "diffPixels": 161979,
+    "diffRatio": 0.10104,
+    "diffBoxCss": [
+      20,
+      95,
+      410,
+      691
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P06_unknown_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 193721,
+    "diffRatio": 0.14713,
+    "diffBoxCss": [
+      20,
+      32,
+      370,
+      705
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P06_unknown_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1864
+    ],
+    "diffPixels": 189103,
+    "diffRatio": 0.11797,
+    "diffBoxCss": [
+      20,
+      32,
+      410,
+      646
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P07_notes_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 1728,
+    "diffRatio": 0.00131,
+    "diffBoxCss": [
+      20,
+      97,
+      103,
+      107
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P07_notes_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1864
+    ],
+    "diffPixels": 1728,
+    "diffRatio": 0.00108,
+    "diffBoxCss": [
+      20,
+      97,
+      103,
+      107
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P10_chart_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 52589,
+    "diffRatio": 0.03994,
+    "diffBoxCss": [
+      20,
+      97,
+      370,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P10_chart_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1864
+    ],
+    "diffPixels": 65468,
+    "diffRatio": 0.04084,
+    "diffBoxCss": [
+      20,
+      97,
+      410,
+      854
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P10_chart_full_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 52589,
+    "diffRatio": 0.03994,
+    "diffBoxCss": [
+      20,
+      97,
+      370,
+      766
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P10_chart_full_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1864
+    ],
+    "diffPixels": 65468,
+    "diffRatio": 0.04084,
+    "diffBoxCss": [
+      20,
+      97,
+      410,
+      854
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P11_share_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P11_share_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1864
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      860,
+      1864
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P12_approve_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 1318,
+    "diffRatio": 0.001,
+    "diffBoxCss": [
+      264,
+      291,
+      308,
+      302
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  },
+  {
+    "name": "F_P13_sharing_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 18033,
+    "diffRatio": 0.0137,
+    "diffBoxCss": [
+      23,
+      303,
+      366,
+      497
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "brokenImages": 0,
+      "placeholderText": false,
+      "tokenInText": false
+    }
+  }
+]

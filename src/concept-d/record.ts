@@ -255,6 +255,15 @@ export type AiSummaryApi = {
   sources: Record<string, { label: string; at?: string }>;
 };
 
+/** 処方テンプレート（セット）。GET /api/v1/consultations/:id/templates。教材はこの施設から見える公開中のものだけ */
+export type TemplateApi = {
+  id: string;
+  name: string;
+  description: string | null;
+  scope: "common" | "org";
+  materials: { id: string; title: string; primaryDomain: string }[];
+};
+
 type SymptomSettings = { active: string[]; hidden: string[]; customNames: Record<string, string> };
 
 export function useClinicianRecord(sessionId: string | null, active: boolean, notify: (message: string) => void) {
@@ -341,6 +350,17 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     },
     [sid],
   );
+  // 処方テンプレート（セット）の読み取り（既存 API。読み取りのみ）
+  const [tpl, setTpl] = useState<{ sid: string; items: TemplateApi[] } | null>(null);
+  const loadTemplates = useCallback(async () => {
+    if (!sid) return;
+    try {
+      const d = await api<{ templates: TemplateApi[] }>(`/api/v1/consultations/${sid}/templates`);
+      setTpl({ sid, items: d.templates });
+    } catch (e) {
+      notifyRef.current(errorText(e));
+    }
+  }, [sid]);
   useEffect(() => {
     // 共有が終わったら外来間のデータ・要約も消す
     if (!sid) {
@@ -429,6 +449,9 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     checks: concerns?.checks ?? [],
     areas: view ? toAreas(view) : [],
     library,
+    /** 処方テンプレート（セット）。未読み込みは null */
+    templates: sid && tpl?.sid === sid ? tpl.items : null,
+    loadTemplates,
     reload,
     prescribe,
     setQuestionStatus,
