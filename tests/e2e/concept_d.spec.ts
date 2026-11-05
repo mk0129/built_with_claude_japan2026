@@ -84,9 +84,10 @@ test("患者: ログイン後に Figma 版ホーム。主要な画面遷移、�
   await expect(page.locator(".d-nav button.active")).toContainText("体調記録");
   expect(await noHScroll(page)).toBe(0);
 
-  // 一時共有: 申請がなければ承認ボタンは出さない（読み取り方の案内のみ。共有の流れは share_flow.spec.ts）
+  // 一時共有: 申請がなければ承認ボタンは出さない（QR と 6 桁コードを表示する操作のみ。共有の流れは share_flow.spec.ts）
   await page.locator(".d-share-chip").click();
-  await expect(page.locator(".d-share-intro")).toContainText("カメラで");
+  await expect(page.locator(".d-share-intro")).toContainText("QRコードと6桁コードを表示して");
+  await expect(page.locator("[data-share-issue]")).toBeVisible();
   await expect(page.getByRole("button", { name: "この医療者に共有を許可する" })).toHaveCount(0);
   await expect(page.getByText(/と一時共有中です/)).toHaveCount(0);
 
@@ -105,17 +106,16 @@ test("医療者: ログイン後に Figma 版の共有開始。本番に架空�
   expect(await device.boundingBox()).toMatchObject({ x: 130, y: 24, width: 1180, height: 800 });
   await expect(page.locator(".cd-testbar, .cd-compare-button")).toHaveCount(0);
   await expect(page.getByText("患者一覧はありません")).toBeVisible();
-  await page.getByRole("button", { name: "患者との接続を開始" }).click();
-  await page.getByRole("button", { name: "6桁コード" }).click();
-  await page.getByRole("button", { name: "QRコード", exact: true }).click();
-  // QR の提示が主: 医療者側に依頼の操作はなく、患者の読み取りと承認を待つ。本番に架空の承認ボタンはない
-  await expect(page.locator("[data-qr-waiting]")).toContainText("患者の読み取りと承認を待っています");
-  await expect(page.getByRole("button", { name: "患者へ承認を依頼する" })).toHaveCount(0);
+  // 通常の画面: 患者の QR を読み取る案内と 6 桁コードの入力（医療者が QR を発行する画面は出さない）
+  await page.getByRole("button", { name: "患者のQRを読み取る／6桁コードを入力" }).click();
+  await expect(page.getByRole("heading", { name: "患者のQRを読み取る／6桁コードを入力" })).toBeVisible();
+  await expect(page.locator("[data-scan-guide]")).toContainText("標準カメラ");
+  await expect(page.locator(".cd-connect img")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "患者へ承認を依頼する" })).toBeDisabled();
   await expect(page.getByRole("button", { name: /プロトタイプ：/ })).toHaveCount(0);
   await page.getByRole("button", { name: "← 戻る" }).click();
   await expect(page.getByText("患者一覧はありません")).toBeVisible();
-  await page.getByRole("button", { name: "患者との接続を開始" }).click();
-  await expect(page.getByRole("heading", { name: "患者へ接続を申請" })).toBeVisible();
+  await page.getByRole("button", { name: "患者のQRを読み取る／6桁コードを入力" }).click();
 
   await page.setViewportSize({ width: 1100, height: 800 });
   await expect(page.locator(".cd-device.cd-820")).toBeVisible();

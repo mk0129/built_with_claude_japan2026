@@ -81,3 +81,23 @@ export async function showQrCode(page: Page): Promise<string> {
   await expect(codeEl).toBeVisible();
   return (await codeEl.textContent())!.replace(/\D/g, "");
 }
+
+/**
+ * 一時共有の正式な方式（6 桁コード）: 患者が共有画面で QR と 6 桁コードを表示 → 医療者が PC でコードを入力 → 患者が申請者を確認して承認 → 医療者の診察サマリー。
+ * 医療者は /staff の接続前の画面（または共有終了後の画面）にいること。
+ */
+export async function shareByPatientCode(staff: Page, patient: Page) {
+  await patient.goto("/home?view=share");
+  await patient.locator("[data-share-issue]").click();
+  const code = ((await patient.locator("[data-share-code] b").first().textContent()) ?? "").replace(/\D/g, "");
+  expect(code).toMatch(/^\d{6}$/);
+  await staff.getByRole("button", { name: /患者のQRを読み取る／6桁コードを入力|新しく接続を申請/ }).click();
+  await staff.locator(".cd-code-panel input").fill(code);
+  await staff.getByRole("button", { name: "患者へ承認を依頼する" }).click();
+  await expect(staff.getByRole("heading", { name: "患者の承認を待っています" })).toBeVisible();
+  await expect(patient.locator("[data-share-request]")).toBeVisible({ timeout: 10_000 });
+  await patient.locator(".d-consent input").check();
+  await patient.getByRole("button", { name: "この医療者に共有を許可する" }).click();
+  await expect(staff.getByRole("heading", { name: "診察サマリー" })).toBeVisible({ timeout: 15_000 });
+  return code;
+}

@@ -304,16 +304,25 @@
 .d-home .d-home-ask { margin-top: 16px; }
 .d-home-health { margin-top: 0; }
 
-/* ---- 患者の共有画面: 医療者の QR を読み取る手順と、読み取れないときの 6 桁コード ---- */
-.d-share-steps { margin: -8px 0 14px; padding: 12px 14px 12px 32px; border: 1px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink); font-size: 13px; line-height: 1.7; display: flex; flex-direction: column; gap: 4px; }
+/* ---- 患者の共有画面: 自分の QR コードと 6 桁コード（同じグラント）を医療者に読み取ってもらう ---- */
+.d-share-steps { margin: -8px 0 14px; padding: 12px 14px 12px 34px; border: 1px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink); font-size: 13px; line-height: 1.7; list-style: decimal; }
+.d-share-steps li + li { margin-top: 4px; }
 .d-share-steps li::marker { color: var(--blue-dark); font-weight: 700; }
-.d-share-issue { display: flex; flex-direction: column; margin: 0 0 14px; }
-.d-share-issue .d-text-action { margin: 0 auto; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+.d-share-issue { display: flex; flex-direction: column; gap: 8px; margin: 0 0 18px; }
+.d-share-issue .primary-button { width: 100%; min-height: 52px; }
+.d-share-issue small { color: var(--muted); font-size: 11px; line-height: 1.7; text-align: center; }
 .d-share-page > .d-share-code { margin: 6px 0 18px; }
-.d-share-code > span:first-child b { font-size: 24px; letter-spacing: .16em; }
+.d-share-code > span.d-share-qr { border-top: 0; padding: 16px 9px 12px; }
+.d-share-code > span.d-share-qr + span { border-left: 0; border-top: 1px solid var(--line); }
+.d-share-code > span.d-share-qr + span + span { border-top: 1px solid var(--line); }
+.d-share-code > span.d-share-qr + span b { font-size: 22px; letter-spacing: .14em; }
+.d-share-qr { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.d-share-qr img { display: block; width: 184px; height: 184px; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: #fff; image-rendering: pixelated; }
 .au-card-text { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
 .au-link-button { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 
-/* ---- 医療者の接続画面: QR の提示を主にする（読み取りと承認は患者の端末。承認されると自動で診察サマリーへ） ---- */
-.cd-qr-panel .cd-qr-note { margin: 4px 0 0; color: var(--muted); font-size: 9px; }
-.cd-qr-waiting { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 0; padding: 12px; border-radius: 10px; background: var(--blue-pale); color: var(--blue-dark); font-size: 11px; font-weight: 700; }
+/* ---- 医療者の接続画面: 患者の QR を読み取る案内と 6 桁コードの入力（同じ画面） ---- */
+.cd-connect[data-connect-live] .cd-qr-panel { margin-top: 18px; min-height: 0; }
+.cd-scan-guide .cd-qr-placeholder { width: 120px; height: 120px; }
+.cd-scan-guide { grid-template-columns: 130px 1fr; }
+.cd-connect[data-connect-live] .cd-code-panel { min-height: 0; }

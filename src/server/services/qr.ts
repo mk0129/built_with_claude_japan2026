@@ -210,6 +210,39 @@ export async function denyGrant(grantId: string, patientId: string, db: Db = get
   await audit({ actorUserId: patientId, orgId: g.claimedOrgId, action: "consultation.deny", resourceType: "qr_grant", resourceId: grantId, outcome: "ok" }, db);
 }
 
+/**
+ * 医療者: 同じアカウントの別の端末との同期用（例: スマートフォンで患者の QR を読み取り、PC で診察サマリーを開く）。
+ * 自分が読み取り要求して患者の承認を待っているグラントと、自分の有効な診察セッションの ID だけを返す。患者情報は含めない
+ * （セッションの中身は従来どおり requireActiveConsultation で、担当の医療者・期限内・未終了のときだけ読める）。
+ */
+export async function getLiveStateForStaff(staffUserId: string, db: Db = getDb()) {
+  const now = new Date();
+  const [s] = await db
+    .select({ id: consultationSessions.id })
+    .from(consultationSessions)
+    .where(and(eq(consultationSessions.clinicianId, staffUserId), isNull(consultationSessions.endedAt), gt(consultationSessions.expiresAt, now)))
+    .orderBy(desc(consultationSessions.startedAt))
+    .limit(1);
+  const [g] = await db
+    .select({ id: qrGrants.id })
+    .from(qrGrants)
+    .where(and(eq(qrGrants.claimedByUserId, staffUserId), eq(qrGrants.decision, "pending"), gt(qrGrants.expiresAt, now)))
+    .orderBy(desc(qrGrants.claimedAt))
+    .limit(1);
+  return { activeSessionId: s?.id ?? null, pendingGrantId: g?.id ?? null };
+}
+
+/** 医療者: 自分が読み取り要求したグラントを、患者の承認前に取り消す（承認待ちの画面の「申請を取り消す」）。以後は承認できない */
+export async function cancelClaimByStaff(grantId: string, staffUserId: string, db: Db = getDb()) {
+  const [g] = await db
+    .update(qrGrants)
+    .set({ decision: "denied", decidedAt: new Date() })
+    .where(and(eq(qrGrants.id, grantId), eq(qrGrants.claimedByUserId, staffUserId), eq(qrGrants.decision, "pending")))
+    .returning({ id: qrGrants.id, orgId: qrGrants.claimedOrgId });
+  if (g) await audit({ actorUserId: staffUserId, orgId: g.orgId, action: "qr.claim_cancel", resourceType: "qr_grant", resourceId: g.id, outcome: "ok" }, db);
+  return { cancelled: !!g };
+}
+
 /** テスト・運用用: 期限切れ pending を expired に更新 */
 export async function expireStaleGrants(db: Db = getDb()) {
   await db

@@ -112,14 +112,17 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   const staff = await newPage(browser, { width: 1440, height: 900 });
   await demoLogin(staff.page, "staff", "山田 太郎");
   const s = staff.page;
-  const res = s.waitForResponse((r) => r.url().endsWith("/api/v1/connect") && r.request().method() === "POST");
-  await s.getByRole("button", { name: "患者との接続を開始" }).click();
-  const u = new URL((await (await res).json()).qrUrl);
-  await expect(s.locator("[data-qr-waiting]")).toBeVisible(); // QR を表示したまま、患者の読み取りと承認を待つ
+  // 患者が QR と 6 桁コードを表示 → 医療者が PC でコードを入力
+  await p.goto("/home?view=share");
+  await p.locator("[data-share-issue]").click();
+  const code = ((await p.locator("[data-share-code] b").first().textContent()) ?? "").replace(/\D/g, "");
+  await s.getByRole("button", { name: "患者のQRを読み取る／6桁コードを入力" }).click();
+  await s.locator(".cd-code-panel input").fill(code);
+  await s.getByRole("button", { name: "患者へ承認を依頼する" }).click();
+  await expect(s.getByRole("heading", { name: "患者の承認を待っています" })).toBeVisible();
   // 承認前: 医療者は体調記録・質問を読めない
   expect((await s.request.get("/api/v1/health/records")).status()).toBe(403);
-  await p.locator(".d-share-notes").click();
-  await p.goto(`${u.pathname}${u.search}`);
+  await expect(p.locator("[data-share-request]")).toBeVisible({ timeout: 10_000 });
   await p.locator(".d-consent input").check();
   await p.getByRole("button", { name: "この医療者に共有を許可する" }).click();
   await expect(s.getByRole("heading", { name: "診察サマリー" })).toBeVisible({ timeout: 10_000 });

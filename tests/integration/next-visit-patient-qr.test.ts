@@ -4,8 +4,11 @@ import { POST as issueQr } from "@/app/api/v1/qr/route";
 import { POST as claimRoute } from "@/app/api/v1/qr/claim/route";
 import { GET as claimStatus } from "@/app/api/v1/qr/claim/[id]/route";
 import { POST as approveRoute } from "@/app/api/v1/qr/[id]/approve/route";
+import { POST as cancelClaimRoute } from "@/app/api/v1/qr/claim/[id]/cancel/route";
+import { GET as staffLive } from "@/app/api/v1/staff/live/route";
+import { POST as endRoute } from "@/app/api/v1/consultations/[id]/end/route";
 import { validVisitDate } from "@/server/services/nextVisit";
-import { DR_YAMADA, PATIENT_A, PATIENT_B, loginHeaders, setupDb, type Seeded } from "../helpers";
+import { DR_KOBAYASHI, DR_YAMADA, PATIENT_A, PATIENT_B, loginHeaders, setupDb, type Seeded } from "../helpers";
 
 /**
  * 患者ホームの次回診察日（患者本人が登録した日付だけ）と、患者の QR・6 桁コード（1 回の発行で同じグラント）。
@@ -79,5 +82,44 @@ describe("患者の QR と 6 桁コード", () => {
     const after = (await body(await claimStatus(req(staff), ctx(g.grantId)))).json;
     expect(after.decision).toBe("approved");
     expect(after.consultationSessionId).toBeTruthy();
+  });
+});
+
+describe("同じ医療者アカウントの別の端末との同期（スマートフォンで読み取り → PC で閲覧）", () => {
+  it("読み取り要求・承認後の ID だけを本人に返し、患者情報は含めない。他の医療者・患者には返さない。終了後は消える", async () => {
+    const pb = await loginHeaders(PATIENT_B);
+    const kob = await loginHeaders(DR_KOBAYASHI);
+    const yamada = await loginHeaders(DR_YAMADA);
+    const orgId = seeded.orgs.get("hidamari-medical")!;
+    expect((await body(await staffLive(req(kob)))).json).toEqual({ activeSessionId: null, pendingGrantId: null });
+    const g = (await body(await issueQr(req(pb, {})))).json;
+    // スマートフォン（同じアカウント）で QR を読み取ったとする
+    expect((await claimRoute(req(kob, { orgId, token: new URL(g.qrUrl).searchParams.get("t") }))).status).toBe(200);
+    // PC: 承認待ちのグラント ID だけ（キーは 2 つだけ。氏名などは含めない）
+    const pending = (await body(await staffLive(req(kob)))).json;
+    expect(pending).toEqual({ activeSessionId: null, pendingGrantId: g.grantId });
+    // 他の医療者には見えない。患者は使えない
+    expect((await body(await staffLive(req(yamada)))).json.pendingGrantId).not.toBe(g.grantId);
+    expect((await staffLive(req(pb))).status).toBe(403);
+    // 患者の承認後: 有効な診察セッションの ID
+    const { json: ok } = await body(await approveRoute(req(pb, {}), ctx(g.grantId)));
+    const live = (await body(await staffLive(req(kob)))).json;
+    expect(live).toEqual({ activeSessionId: ok.consultationSessionId, pendingGrantId: null });
+    // 終了後は返さない
+    await endRoute(req(kob, {}), ctx(ok.consultationSessionId));
+    expect((await body(await staffLive(req(kob)))).json.activeSessionId).toBeNull();
+  });
+
+  it("医療者が承認前に読み取り要求を取り消すと、患者は承認できない。他の医療者は取り消せない", async () => {
+    const pb = await loginHeaders(PATIENT_B);
+    const kob = await loginHeaders(DR_KOBAYASHI);
+    const yamada = await loginHeaders(DR_YAMADA);
+    const orgId = seeded.orgs.get("hidamari-medical")!;
+    const g = (await body(await issueQr(req(pb, {})))).json;
+    await claimRoute(req(kob, { orgId, code: g.code }));
+    expect((await body(await cancelClaimRoute(req(yamada, {}), ctx(g.grantId)))).json.cancelled).toBe(false);
+    expect((await body(await cancelClaimRoute(req(kob, {}), ctx(g.grantId)))).json.cancelled).toBe(true);
+    expect((await approveRoute(req(pb, {}), ctx(g.grantId))).status).toBe(409);
+    expect((await body(await staffLive(req(kob)))).json.pendingGrantId).toBeNull();
   });
 });

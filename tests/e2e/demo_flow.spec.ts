@@ -1,5 +1,5 @@
 import { test, type Page } from "@playwright/test";
-import { demoLogin, expect, newPage } from "./helpers";
+import { demoLogin, expect, newPage, shareByPatientCode } from "./helpers";
 
 /**
  * Phase 2 Step 5: デモの通し（架空データ。Claude は開発用の擬似生成）。
@@ -7,15 +7,9 @@ import { demoLogin, expect, newPage } from "./helpers";
  * 医療者が AI 外来間サマリーと根拠の記録を確認 → 教材を追加処方 → 追加入力なしで共有終了。
  * 医療者は架空の承認者（佐藤 一郎: 診療・教材編集・教材承認）。この承認は本番の医学的監修ではない。
  */
+/** 患者が QR と 6 桁コードを表示 → 医療者が PC でコードを入力 → 患者が承認 */
 async function connect(s: Page, p: Page) {
-  const res = s.waitForResponse((r) => r.url().endsWith("/api/v1/connect") && r.request().method() === "POST");
-  await s.getByRole("button", { name: /患者との接続を開始|新しく接続を申請/ }).click();
-  const u = new URL((await (await res).json()).qrUrl);
-  await expect(s.locator("[data-qr-waiting]")).toBeVisible(); // QR を表示したまま、患者の読み取りと承認を待つ
-  await p.goto(`${u.pathname}${u.search}`);
-  await p.locator(".d-consent input").check();
-  await p.getByRole("button", { name: "この医療者に共有を許可する" }).click();
-  await expect(s.getByRole("heading", { name: "診察サマリー" })).toBeVisible({ timeout: 15_000 });
+  await shareByPatientCode(s, p);
   return new URL(s.url()).searchParams.get("s")!;
 }
 

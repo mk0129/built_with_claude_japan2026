@@ -3790,16 +3790,22 @@ function DNotes({
 /** 本番の共有画面: 申請者（医療機関・医療者）と有効期間。申請がなければ読み取り方の案内 */
 function DShareLiveIntro({ live }: { live: PatientLive }) {
   const p = live.pending
+  if (!p && live.code)
+    return (
+      <p className="d-share-intro">
+        医療者にQRコードを読み取ってもらうか、6桁コードを入力してもらってください。
+      </p>
+    )
   if (!p)
     return (
       <>
         <p className="d-share-intro">
-          診察のときに、医療者の画面に表示されたQRコードを、スマートフォンのカメラで読み取ってください。
+          診察のときに、あなたのQRコードと6桁コードを表示して、医療者に読み取ってもらってください。
         </p>
         <ol className="d-share-steps" data-share-steps>
-          <li>スマートフォンのカメラで、医療者の画面のQRコードを読み取る</li>
-          <li>開いた画面で、医療機関・医療者・共有する内容・有効期間を確認する</li>
-          <li>「この医療者に共有を許可する」を押すと、60分間だけ共有されます</li>
+          <li>「QRコードと6桁コードを表示する」を押す</li>
+          <li>医療者がQRコードを読み取るか、6桁コードを入力する</li>
+          <li>この画面に出る医療機関・医療者・共有する内容・有効期間を確認して承認すると、60分間だけ共有されます</li>
         </ol>
       </>
     )
@@ -3833,20 +3839,29 @@ function DShareLiveIntro({ live }: { live: PatientLive }) {
 }
 
 /**
- * 本番の共有画面: QR コードを読み取れないときの代替。患者が 6 桁コードを表示し、医療者が PC で入力する（既存の患者発行コード。5 分・1 回限り）。
- * 医療者が入力した後、この画面に申請者が表示され、患者が確認して承認するまで共有は始まらない。
+ * 本番の共有画面: 患者が自分の QR コードと 6 桁コードを表示する（既存の患者発行コード。1 回の発行で同じグラント、5 分・1 回限り）。
+ * ログイン済みの医療者が QR を読み取るか 6 桁コードを入力した後、この画面に申請者が表示され、患者が確認して承認するまで共有は始まらない。
  */
 function DShareCode({ live }: { live: PatientLive }) {
   if (!live.code)
     return (
       <div className="d-share-issue">
-        <button className="d-text-action" data-share-issue onClick={() => void live.issueCode()}>
-          QRコードを読み取れない場合は6桁コードを表示
+        <button className="primary-button" data-share-issue onClick={() => void live.issueCode()}>
+          <Icon name="qr" />
+          QRコードと6桁コードを表示する
         </button>
+        <small>5分間・1回限り有効です。読み取り・入力されただけでは共有されません。</small>
       </div>
     )
   return (
     <div className="d-share-session d-share-code" data-share-code>
+      {live.code.qrDataUrl && (
+        <span className="wide d-share-qr" data-share-qr>
+          {/* eslint-disable-next-line @next/next/no-img-element -- 端末内で作った QR 画像（data URL） */}
+          <img src={live.code.qrDataUrl} alt="医療者に読み取ってもらう共有用QRコード" width={184} height={184} />
+          <small>医療者に読み取ってもらってください</small>
+        </span>
+      )}
       <span>
         <small>6桁の共有コード</small>
         <b>{live.code.value}</b>
@@ -3856,9 +3871,9 @@ function DShareCode({ live }: { live: PatientLive }) {
         <b>あと{live.code.remainingMin}分・1回限り</b>
       </span>
       <span className="wide">
-        <small>医療者のパソコンの「6桁コード」に入力してもらってください。入力しただけでは共有されません。この画面に表示される共有先を確認して、あなたが承認したときに共有が始まります。電話やメールでは送らないでください。</small>
+        <small>医療者のパソコンにカメラがない場合は、6桁コードを入力してもらってください。読み取り・入力の後、この画面に表示される共有先をあなたが確認して承認したときに、共有が始まります。電話やメールでは送らないでください。</small>
         <button className="d-text-action" onClick={() => void live.cancelCode()}>
-          コードを取り消す
+          QRとコードを取り消す
         </button>
       </span>
     </div>
@@ -3901,7 +3916,7 @@ function DShare({
             医療者の画面に表示されたQRコードを読み取り、共有する内容を確認してください。
           </p>
           )}
-          {/* 本番: 申請がないときは、QR を読み取れない場合の 6 桁コードを表示できる */}
+          {/* 本番: 申請がないときは、あなたの QR コードと 6 桁コードを表示できる */}
           {live && !live.pending && <DShareCode live={live} />}
           <div className="d-share-scope">
             <h3>共有される内容</h3>

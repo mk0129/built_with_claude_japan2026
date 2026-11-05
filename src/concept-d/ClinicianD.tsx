@@ -749,7 +749,7 @@ function SessionGate({
             <h1>患者情報は、承認された間だけ表示されます</h1>
             <p>
               {live
-                ? "この画面にQRコードを表示し、患者のスマートフォンで読み取ってもらいます。患者本人が承認するまで、患者情報は表示されません。"
+                ? "患者のshioriに表示されたQRコードを読み取るか、6桁コードを入力して接続を申請します。患者本人が承認するまで、患者情報は表示されません。"
                 : "QRコードまたは6桁の共有コードで、患者本人へ接続を申請します。患者情報は一覧として保存されません。"}
             </p>
             <div className="cd-privacy-visual">
@@ -770,7 +770,7 @@ function SessionGate({
             </div>
             <button className="cd-primary" onClick={() => setState("request")}>
               <CIcon name="qr" />
-              患者との接続を開始
+              {live ? "患者のQRを読み取る／6桁コードを入力" : "患者との接続を開始"}
             </button>
             <div className="cd-no-patients">
               <CIcon name="lock" />
@@ -781,19 +781,15 @@ function SessionGate({
             </div>
           </div>
         )}
-        {state === "request" && (
-          <div className="cd-connect">
+        {state === "request" && live && (
+          <div className="cd-connect" data-connect-live>
             <button className="cd-back" onClick={() => setState("none")}>
               ← 戻る
             </button>
             <p className="cd-eyebrow">TEMPORARY SHARE</p>
-            <h1>患者へ接続を申請</h1>
-            <p>
-              {live
-                ? "患者のスマートフォンでこのQRコードを読み取ってもらいます。読み取れない場合は6桁コードを使います。"
-                : "患者のshioriアプリに表示される方法を選んでください。"}
-            </p>
-            {live && live.orgs.length > 1 && (
+            <h1>患者のQRを読み取る／6桁コードを入力</h1>
+            <p>患者のshioriに表示されたQRコードと6桁コードは、同じ申請です。どちらか一方で申請してください。</p>
+            {live.orgs.length > 1 && (
               <label className="cd-org-select">
                 申請を出す医療機関
                 <select
@@ -811,6 +807,53 @@ function SessionGate({
                 </select>
               </label>
             )}
+            <div className="cd-qr-panel cd-scan-guide" data-scan-guide>
+              <div className="cd-qr-placeholder">
+                <CIcon name="qr" size={86} />
+              </div>
+              <div>
+                <h2>QRコードを読み取る</h2>
+                <ol>
+                  <li>この医療者アカウントでログインしたスマートフォン・タブレットの標準カメラで、患者のQRコードを読み取る</li>
+                  <li>開いたshioriの画面で申請が送られる</li>
+                  <li>このパソコンの画面も自動で「患者の承認を待っています」に切り替わります</li>
+                </ol>
+              </div>
+            </div>
+            <div className="cd-code-panel">
+              <label>
+                カメラがない場合は、患者の画面の6桁コードを入力
+                <input
+                  value={code}
+                  maxLength={6}
+                  inputMode="numeric"
+                  onChange={(event) =>
+                    setCode(event.target.value.replace(/\D/g, ""))
+                  }
+                  placeholder="000000"
+                />
+              </label>
+              <p>コードは発行から5分間・1回限り有効です。入力しただけでは共有されません。患者が申請者を確認して承認すると、診察サマリーが開きます。</p>
+            </div>
+            <button
+              className="cd-primary"
+              disabled={code.length !== 6 || !live.org}
+              onClick={() => void live.claimCode(code)}
+            >
+              患者へ承認を依頼する
+              <CIcon name="arrow" />
+            </button>
+          </div>
+        )}
+        {/* 開発用画面（/d/dev）の Figma プロトタイプ。本番は上の「患者のQRを読み取る／6桁コードを入力」 */}
+        {state === "request" && !live && (
+          <div className="cd-connect">
+            <button className="cd-back" onClick={() => setState("none")}>
+              ← 戻る
+            </button>
+            <p className="cd-eyebrow">TEMPORARY SHARE</p>
+            <h1>患者へ接続を申請</h1>
+            <p>患者のshioriアプリに表示される方法を選んでください。</p>
             <div className="cd-method-tabs">
               <button
                 className={method === "qr" ? "active" : ""}
@@ -822,31 +865,14 @@ function SessionGate({
                 className={method === "code" ? "active" : ""}
                 onClick={() => setMethod("code")}
               >
-                {live ? "6桁コード（読み取れない場合）" : "6桁コード"}
+                6桁コード
               </button>
             </div>
             {method === "qr" ? (
               <div className="cd-qr-panel">
                 <div className="cd-qr-placeholder">
-                  {live?.qrDataUrl ? (
-                    // 本番: 接続申請の QR（5 分で失効し、自動で新しい QR に差し替わる）
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={live.qrDataUrl} alt="患者のアプリで読み取る接続用QRコード" width={164} height={164} />
-                  ) : (
-                    <CIcon name="qr" size={86} />
-                  )}
+                  <CIcon name="qr" size={86} />
                 </div>
-                {live ? (
-                  <div data-connect-steps>
-                    <h2>患者のスマートフォンで読み取ります</h2>
-                    <ol>
-                      <li>患者がスマートフォンのカメラでこのQRコードを読み取る</li>
-                      <li>患者が医療機関・医療者・共有内容・60分の有効期間を確認する</li>
-                      <li>患者が承認すると、この画面が診察サマリーに切り替わります</li>
-                    </ol>
-                    <p className="cd-qr-note">QRコードは5分ごとに新しいものに替わります。</p>
-                  </div>
-                ) : (
                 <div>
                   <h2>患者のアプリで読み取ります</h2>
                   <ol>
@@ -855,7 +881,6 @@ function SessionGate({
                     <li>患者が共有内容を確認して承認する</li>
                   </ol>
                 </div>
-                )}
               </div>
             ) : (
               <div className="cd-code-panel">
@@ -871,30 +896,17 @@ function SessionGate({
                     placeholder="000000"
                   />
                 </label>
-                <p>
-                  {live
-                    ? "患者がQRコードを読み取れない場合に使います。患者の共有画面の「6桁コードを表示」で出たコードを入力してください。発行から5分間・1回限り有効です。入力の後、患者が共有先を確認して承認するまで共有は始まりません。"
-                    : "コードは10分間有効です。電話やメールでは送らないでください。"}
-                </p>
+                <p>コードは10分間有効です。電話やメールでは送らないでください。</p>
               </div>
             )}
-            {live && method === "qr" ? (
-              <p className="cd-qr-waiting" data-qr-waiting role="status">
-                <CIcon name="clock" />
-                {live.org ? "患者の読み取りと承認を待っています" : "申請を出す医療機関を選んでください"}
-              </p>
-            ) : (
             <button
               className="cd-primary"
-              disabled={(method === "code" && code.length !== 6) || (!!live && !live.org)}
-              onClick={() =>
-                live && method === "code" ? void live.claimCode(code) : setState("waiting")
-              }
+              disabled={method === "code" && code.length !== 6}
+              onClick={() => setState("waiting")}
             >
               患者へ承認を依頼する
               <CIcon name="arrow" />
             </button>
-            )}
           </div>
         )}
         {state === "waiting" && (

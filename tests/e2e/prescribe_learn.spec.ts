@@ -1,5 +1,5 @@
 import { test, type Page } from "@playwright/test";
-import { demoLogin, expect, newPage } from "./helpers";
+import { demoLogin, expect, newPage, shareByPatientCode } from "./helpers";
 
 /**
  * Phase 2 Step 2: 情報処方と学習記録を実 API・DB で通す（架空患者・架空医療者）。
@@ -11,18 +11,10 @@ const MATERIAL = "乳がんの診断と病期の考え方";
 const Q1 = "病期（ステージ）を考えるときの基本に含まれないものはどれですか。";
 const Q2 = "同じ病期の人は、必ず同じ治療を受けますか。";
 
+/** 患者が QR と 6 桁コードを表示 → 医療者が PC でコードを入力 → 患者が承認 */
 async function connect(staff: Page, patient: Page) {
-  const res = staff.waitForResponse((r) => r.url().endsWith("/api/v1/connect") && r.request().method() === "POST");
-  await staff.getByRole("button", { name: /患者との接続を開始|新しく接続を申請/ }).click();
-  const body = await (await res).json();
-  await expect(staff.locator(".cd-qr-placeholder img")).toBeVisible();
-  await expect(staff.locator("[data-qr-waiting]")).toBeVisible(); // QR を表示したまま、患者の読み取りと承認を待つ
-  const u = new URL(body.qrUrl as string);
-  await patient.goto(`${u.pathname}${u.search}`);
-  await patient.locator(".d-consent input").check();
-  await patient.getByRole("button", { name: "この医療者に共有を許可する" }).click();
+  await shareByPatientCode(staff, patient);
   await expect(patient.getByRole("heading", { name: /と一時共有中です/ })).toBeVisible();
-  await expect(staff.getByRole("heading", { name: "診察サマリー" })).toBeVisible({ timeout: 10_000 });
   return new URL(staff.url()).searchParams.get("s")!;
 }
 
