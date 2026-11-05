@@ -96,6 +96,30 @@ for (const [w, vp] of Object.entries(PATIENT_VP)) {
     await a.getByRole("heading", { name: "「わからない」を記録しました" }).waitFor();
     await shot(a, `F_P06_unknown_${w}`);
   });
+  // 仕事とお金のこと → 医療費シミュレーター（架空の例）
+  await step(`F_P20_money_${w}`, async () => {
+    await a.goto(B + "/home");
+    await a.locator("[data-money-card]").click({ timeout: 5000 });
+    await a.locator("[data-money-theme]").waitFor();
+    await shot(a, `F_P20_money_${w}`);
+    await a.locator("[data-simulator-open]").click();
+    await a.locator("[data-sim-step]").waitFor();
+    await shot(a, `F_P21_sim_step1_${w}`);
+    await a.locator("[data-sim-demo]").click();
+    await a.locator("[data-sim-result]").waitFor();
+    await shot(a, `F_P22_sim_result_${w}`);
+    await shot(a, `F_P22_sim_result_full_${w}`, { fullPage: true });
+    await a.getByRole("button", { name: "最初から選び直す" }).click();
+    for (const sel of ["[data-sim-step='1'] button >> text=2026年11月", "[data-sim-choice='under70']", "[data-sim-choice='employee']"]) await a.locator(sel).first().click();
+    await shot(a, `F_P23_sim_bracket_${w}`);
+    await a.locator("[data-sim-choice='bracket-c']").click();
+    await shot(a, `F_P24_sim_cost_${w}`);
+    await a.goto(B + "/home?view=simulator");
+    await a.locator("[data-sim-step='1'] button >> text=2026年11月").first().click();
+    await a.locator("[data-sim-choice='over70']").click();
+    await a.locator("[data-sim-unsupported]").waitFor();
+    await shot(a, `F_P25_sim_unsupported_${w}`);
+  });
   await step(`F_P07_notes_${w}`, async () => { await a.goto(B + "/home?view=notes"); await a.waitForLoadState("networkidle"); await shot(a, `F_P07_notes_${w}`); });
   await a.context().close();
 }

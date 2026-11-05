@@ -6,6 +6,8 @@ import { listHomeworkForPatient, type HomeworkSet } from "./prescription";
 
 /** 最新の処方に含まれる情報処方テンプレート（例: 初回診断時セット）。教材の一致で判定 */
 export type HomeworkTemplateMatch = HomeworkSet["templates"][number];
+/** 処方（診察ごと）と、その処方に教材がすべて含まれるテンプレート（新しい順）。テーマの画面で「医療者から届いた」を出すため */
+export type PrescribedSetMatch = { setId: string; createdAt: Date; orgName: string; clinicianName: string; templates: HomeworkTemplateMatch[] };
 import { computeMaterialScores } from "./scoring";
 import { patientOrgIds } from "./learning";
 
@@ -41,7 +43,7 @@ export type LibraryItem = {
 export async function getPatientLibrary(
   patientId: string,
   db: Db = getDb(),
-): Promise<{ items: LibraryItem[]; latestSetId: string | null; latestSetTemplates: HomeworkTemplateMatch[] }> {
+): Promise<{ items: LibraryItem[]; latestSetId: string | null; latestSetTemplates: HomeworkTemplateMatch[]; prescribedSets: PrescribedSetMatch[] }> {
   const orgIds = await patientOrgIds(patientId, db);
   const visibility = orgIds.length ? or(eq(materials.scope, "common"), and(eq(materials.scope, "org"), inArray(materials.ownerOrgId, orgIds))) : eq(materials.scope, "common");
   const published = await db
@@ -132,7 +134,14 @@ export async function getPatientLibrary(
       completedAt: sc?.completedAt ?? null,
     });
   }
-  return { items, latestSetId, latestSetTemplates: sets[0]?.templates ?? [] };
+  return {
+    items,
+    latestSetId,
+    latestSetTemplates: sets[0]?.templates ?? [],
+    prescribedSets: sets
+      .filter((s) => s.templates.length > 0)
+      .map((s) => ({ setId: s.setId, createdAt: s.createdAt, orgName: s.orgName, clinicianName: s.clinicianName, templates: s.templates })),
+  };
 }
 
 /** 理解の地図の対象（処方された教材＋自主学習した教材） */

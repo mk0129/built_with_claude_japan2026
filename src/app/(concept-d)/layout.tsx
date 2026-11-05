@@ -3,6 +3,7 @@ import "@/concept-d/figma.css";
 import "@/concept-d/app.css";
 import "@/concept-d/demo-patient.css";
 import "@/concept-d/demo-clinician.css";
+import "@/concept-d/social.css";
 
 /**
  * Figma Make Concept D の移植画面（/d/*）専用のルートレイアウト。

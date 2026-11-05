@@ -44,3 +44,17 @@ export function setCoverFor(name: string): { src: string; alt: string } | null {
 export function toneFor(key: string): number {
   return [...key].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % 6;
 }
+
+/**
+ * テーマ・ツールの画像（患者ホームの「仕事とお金のこと」のカード、医療費シミュレーターのカード）。
+ * 正式な画像は public/covers/ に置き、キー（"仕事とお金のこと" / "医療費シミュレーター"）で登録する。登録がなければ代替表示。
+ * 「仕事とお金のこと」のカバーはセットと同じ SET_COVERS（セット名と同じキー）にも登録できる。
+ */
+export const THEME_IMAGES: Record<string, Thumbnail> = {
+  // まだ正式な画像はない（ここに追加する）
+};
+
+export function themeImageFor(key: string): { src: string; alt: string } | null {
+  const c = THEME_IMAGES[key] ?? SET_COVERS[key];
+  return c ? { src: `/covers/${c.file}`, alt: c.alt } : null;
+}

@@ -3,7 +3,9 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react"
 import { useUrlState } from "./urlState"
 import { ShioriLogo } from "./ShioriLogo"
-import { setCoverFor, toneFor } from "./thumbnails"
+import { setCoverFor, themeImageFor, toneFor } from "./thumbnails"
+import { CostSimulator } from "./CostSimulator"
+import { MONEY_THEME, MONEY_TITLES, SIMULATOR_MATERIAL, SIMULATOR_NAME } from "./socialSupport"
 import { daysUntil, visitDateLabel, type PatientVisit } from "./visit"
 import type { PatientLive } from "./live"
 import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes } from "./health"
@@ -26,8 +28,8 @@ import {
   type HealthRecord,
 } from "./healthData"
 
-type DPage = "home" | "set" | "prescriptions" | "library" | "category" | "search" | "detail" | "learn" | "quiz" | "explanation" | "result" | "history" | "health" | "notes" | "share"
-const D_PAGES: readonly DPage[] = ["home", "set", "prescriptions", "library", "category", "search", "detail", "learn", "quiz", "explanation", "result", "history", "health", "notes", "share"]
+type DPage = "home" | "set" | "money" | "simulator" | "prescriptions" | "library" | "category" | "search" | "detail" | "learn" | "quiz" | "explanation" | "result" | "history" | "health" | "notes" | "share"
+const D_PAGES: readonly DPage[] = ["home", "set", "money", "simulator", "prescriptions", "library", "category", "search", "detail", "learn", "quiz", "explanation", "result", "history", "health", "notes", "share"]
 export type DViewport = "390" | "430" | "tablet"
 
 export function Icon({ name, size = 20 }: { name: string; size?: number }) {
@@ -534,7 +536,7 @@ function DNav({
           key={item.page}
           className={
             page === item.page ||
-            (item.page === "home" && page === "set") ||
+            (item.page === "home" && ["set", "money", "simulator"].includes(page)) ||
             (item.page === "library" &&
               ["category", "search", "detail"].includes(page))
               ? "active"
@@ -629,6 +631,12 @@ export function DPrototype({
   const [setId, setSetId] = useUrlState<string>("set", "")
   // 教材の詳細から「前の画面へ」で戻る先（ホーム・セット・今回の情報処方から開いたときはそこへ戻る）
   const [detailBack, setDetailBack] = useState<DPage>("library")
+  /** 医療費シミュレーターの「戻る」先（テーマの画面・教材の詳細） */
+  const [simulatorBack, setSimulatorBack] = useState<DPage>("money")
+  const openSimulator = (from: DPage) => {
+    setSimulatorBack(from)
+    setPage("simulator")
+  }
   const [query, setQuery] = useState("")
   const [sourceFilter, setSourceFilter] = useState("すべて")
   const [statusFilter, setStatusFilter] = useState("すべて")
@@ -742,7 +750,7 @@ export function DPrototype({
   }, [learning, versionId, page, quiz.attempt])
   // 一覧の画面へ戻ったら、学習状態を読み直す（学習・回答の結果を反映）
   useEffect(() => {
-    if (learning && ["home", "set", "prescriptions", "library", "category", "search", "detail", "history"].includes(page)) void learning.reload()
+    if (learning && ["home", "set", "money", "prescriptions", "library", "category", "search", "detail", "history"].includes(page)) void learning.reload()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
   const attempt = quiz.attempt
@@ -797,6 +805,7 @@ export function DPrototype({
             setSetId(id)
             setPage("set")
           }}
+          onOpenMoney={() => setPage("money")}
           setPage={setPage}
           visit={visit}
           recentNotes={notesLive ? notesLive.notes.map((note) => note.body) : notes}
@@ -834,6 +843,25 @@ export function DPrototype({
             setPage("home")
           }}
           onOpen={(lesson) => openLesson(lesson, "set")}
+        />
+      )
+    }
+    if (page === "money")
+      return (
+        <DMoneyTheme
+          lessons={MONEY_TITLES.map((title) => visibleLessons.find((lesson) => lesson.title === title)).filter((x): x is DLesson => !!x)}
+          prescribedAs={learning?.setPrescribedAs(MONEY_THEME) ?? null}
+          onBack={() => setPage("home")}
+          onOpen={(lesson) => openLesson(lesson, "money")}
+          onSimulator={() => openSimulator("money")}
+        />
+      )
+    if (page === "simulator") {
+      const material = visibleLessons.find((lesson) => lesson.title === SIMULATOR_MATERIAL)
+      return (
+        <CostSimulator
+          onBack={() => setPage(simulatorBack)}
+          onOpenMaterial={material ? () => openLesson(material, "simulator") : undefined}
         />
       )
     }
@@ -890,6 +918,7 @@ export function DPrototype({
         <DDetail
           lesson={selected!}
           onBack={() => setPage(detailBack)}
+          onSimulator={selected?.title === SIMULATOR_MATERIAL ? () => openSimulator("detail") : undefined}
           onStart={() => {
             if (learning && selected) {
               if (selected.status === "new" && selected.versionId)
@@ -2232,6 +2261,7 @@ function DHome({
   sharing,
   onOpen,
   onOpenSet,
+  onOpenMoney,
   setPage,
   visit,
   recentNotes,
@@ -2244,6 +2274,8 @@ function DHome({
   onOpen: (lesson: DLesson) => void
   /** 本番: 情報処方セットの内容を開く */
   onOpenSet: (setId: string) => void
+  /** 「仕事とお金のこと」を開く */
+  onOpenMoney?: () => void
   setPage: (page: DPage) => void
   /** 本番: 次回の診察日（患者が登録した日付のみ）。Figma の架空データ表示では undefined */
   visit?: PatientVisit
@@ -2365,6 +2397,18 @@ function DHome({
         </section>
       )}
       <DHomeAsk recentNotes={recentNotes} onAddNote={onAddNote} setPage={setPage} />
+      {onOpenMoney && (
+        <section className="d-home-section">
+          <button className="d-money-card" data-money-card onClick={onOpenMoney}>
+            <DThemeImage name={MONEY_THEME} />
+            <span>
+              <b>{MONEY_THEME}</b>
+              <small>治療と仕事、医療費の制度を知る・医療費の目安を計算する</small>
+            </span>
+            <Icon name="arrow" />
+          </button>
+        </section>
+      )}
       <section className="d-home-section">
         <button className="d-note-summary d-home-health" onClick={() => setPage("health")}>
           <span className="stat-icon blue">
@@ -2595,6 +2639,110 @@ function DSetDetail({
           </button>
         ))}
       </div>
+    </div>
+  )
+}
+
+/** テーマ・ツールの画像枠（public/covers/ に登録した画像。なければ色面と線の装飾だけの代替表示） */
+function DThemeImage({ name, size = "small" }: { name: string; size?: "small" | "large" }) {
+  const image = themeImageFor(name)
+  return (
+    <span className={`d-set-cover d-theme-image ${size} tone-${toneFor(name)}`} aria-hidden={image ? undefined : true} data-image-slot={name}>
+      {image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={image.src} alt={image.alt} />
+      ) : (
+        <span className="d-set-cover-mark">
+          <i />
+          <i />
+          <i />
+        </span>
+      )}
+    </span>
+  )
+}
+
+/**
+ * 「仕事とお金のこと」: 社会制度の教材（公開済みのものを題名で束ねる）と医療費シミュレーター。
+ * 医療者が「仕事とお金のこと」のセットで処方していれば（教材の一致で判定）、送り元と日付を出す。
+ */
+function DMoneyTheme({
+  lessons,
+  prescribedAs,
+  onBack,
+  onOpen,
+  onSimulator,
+}: {
+  lessons: DLesson[]
+  prescribedAs: { sender: string; date: string } | null
+  onBack: () => void
+  onOpen: (lesson: DLesson) => void
+  onSimulator: () => void
+}) {
+  const done = lessons.filter((lesson) => lesson.status === "done").length
+  return (
+    <div className="d-set-detail d-money" data-money-theme>
+      <DPageHeader title={MONEY_THEME} onBack={onBack} />
+      <section className="d-set-hero">
+        <DThemeImage name={MONEY_THEME} size="large" />
+        <div>
+          <Pill tone="soft">{prescribedAs ? "情報処方セット" : "社会制度の情報"}</Pill>
+          {prescribedAs && (
+            <p className="d-set-sender" data-money-prescribed>
+              {prescribedAs.sender}から届きました
+              <br />
+              {prescribedAs.date}
+            </p>
+          )}
+          <p className="d-set-hero-count">
+            治療と仕事の両立、休んだときの給付、医療費の制度、相談先を知る
+          </p>
+          {lessons.length > 0 && (
+            <p className="d-set-hero-count">
+              {lessons.length}件のうち <b>{done}件</b> を学習済み
+            </p>
+          )}
+        </div>
+      </section>
+      <p className="d-set-note">
+        制度を使えるかどうかや金額は、加入している健康保険・勤務先などによって違います。このアプリでは判定しません。
+      </p>
+      <div className="d-set-lessons">
+        {lessons.map((lesson, index) => (
+          <button key={lesson.id} className="d-set-lesson" data-money-lesson onClick={() => onOpen(lesson)}>
+            <DImageSlot compact kind="medical" caption="" image={lesson.thumbnail ?? undefined} fit="cover" seed={lesson.title} />
+            <span className="d-set-lesson-body">
+              <span className="d-set-lesson-top">
+                <span className="d-set-lesson-no">{String(index + 1).padStart(2, "0")}</span>
+                <DStatus lesson={lesson} short />
+              </span>
+              <b>{lesson.title}</b>
+              <span className="d-set-lesson-meta">
+                <span>
+                  <Icon name="clock" size={13} />約{lesson.time}分
+                </span>
+              </span>
+              <span className="d-set-lesson-action">
+                {lesson.status === "doing" ? "続きから学ぶ" : lesson.status === "done" ? "もう一度読む" : "読む"}
+                <Icon name="arrow" size={15} />
+              </span>
+            </span>
+          </button>
+        ))}
+        {lessons.length === 0 && (
+          <p className="d-money-pending" data-money-pending>
+            社会制度の教材（治療と仕事を両立するために・傷病手当金を知る・高額療養費制度を知る・困ったときの相談先）は準備中です。医療者による内容の確認後に公開します。
+          </p>
+        )}
+      </div>
+      <button className="d-money-sim-card" data-simulator-open onClick={onSimulator}>
+        <DThemeImage name={SIMULATOR_NAME} />
+        <span>
+          <b>{SIMULATOR_NAME}</b>
+          <small>高額療養費制度を考えた、保険診療1か月分の自己負担の目安を計算します（2026年8月〜2027年7月の診療分・70歳未満）</small>
+        </span>
+        <Icon name="arrow" />
+      </button>
     </div>
   )
 }
@@ -3024,10 +3172,13 @@ function DDetail({
   lesson,
   onBack,
   onStart,
+  onSimulator,
 }: {
   lesson: DLesson
   onBack: () => void
   onStart: () => void
+  /** 医療費シミュレーターを開ける教材（高額療養費制度を知る）だけ */
+  onSimulator?: () => void
 }) {
   return (
     <div className="d-detail">
@@ -3082,6 +3233,15 @@ function DDetail({
         </span>
         )}
       </div>
+      {onSimulator && (
+        <button className="d-sim-open" data-open-simulator onClick={onSimulator}>
+          <span>
+            <b>{SIMULATOR_NAME}で目安を計算する</b>
+            <small>高額療養費制度を考えた、保険診療1か月分の自己負担の目安</small>
+          </span>
+          <Icon name="arrow" />
+        </button>
+      )}
       <button className="primary-button d-bottom-action" onClick={onStart}>
         <Icon name={lesson.status === "doing" ? "play" : "book"} />
         {lesson.status === "doing"

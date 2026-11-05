@@ -50,6 +50,9 @@ export type LibraryApiItem = {
 /** 最新の処方に含まれる情報処方テンプレート（サーバーが教材の一致で判定） */
 export type LatestSetTemplate = { id: string; name: string; description: string | null; materialIds: string[] };
 
+/** 処方（診察ごと）と、その処方に教材がすべて含まれるテンプレート（新しい順） */
+export type PrescribedSetApi = { setId: string; createdAt: string; orgName: string; clinicianName: string; templates: LatestSetTemplate[] };
+
 /** 医療者向けのテンプレート名 → 患者に見せるセット名（対応がなければそのまま） */
 const PATIENT_SET_NAME: Record<string, string> = { 初回診断時セット: "診断時セット" };
 export const patientSetName = (name: string) => PATIENT_SET_NAME[name] ?? name;
@@ -115,15 +118,17 @@ export type PatientLearning = ReturnType<typeof usePatientLearning>;
 export function usePatientLearning(notify: (message: string) => void) {
   const [items, setItems] = useState<LibraryApiItem[] | null>(null);
   const [templates, setTemplates] = useState<LatestSetTemplate[]>([]);
+  const [prescribedSets, setPrescribedSets] = useState<PrescribedSetApi[]>([]);
   const notifyRef = useRef(notify);
   useEffect(() => {
     notifyRef.current = notify;
   });
   const reload = useCallback(async () => {
     try {
-      const r = await api<{ items: LibraryApiItem[]; latestSetTemplates?: LatestSetTemplate[] }>("/api/v1/library");
+      const r = await api<{ items: LibraryApiItem[]; latestSetTemplates?: LatestSetTemplate[]; prescribedSets?: PrescribedSetApi[] }>("/api/v1/library");
       setItems(r.items);
       setTemplates(r.latestSetTemplates ?? []);
+      setPrescribedSets(r.prescribedSets ?? []);
     } catch (e) {
       notifyRef.current(errorText(e));
     }
@@ -150,6 +155,14 @@ export function usePatientLearning(notify: (message: string) => void) {
       description: t.description,
       lessons: lessons.filter((l) => l.latest && t.materialIds.includes(l.id)),
     })),
+    /**
+     * テンプレート名（医療者向け）で、そのセットが処方された最新の記録（送り元・日付）を探す。
+     * 判定は教材の一致（処方の記録にセットの ID はない）。見つからなければ null
+     */
+    setPrescribedAs: (templateName: string) => {
+      const s = prescribedSets.find((x) => x.templates.some((t) => t.name === templateName));
+      return s ? { sender: `${s.orgName} ${s.clinicianName}`, date: shortDate(s.createdAt) } : null;
+    },
     reload,
   };
 }
