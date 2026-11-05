@@ -196,7 +196,7 @@ export function simulate(input: SimInput): SimResult | Unsupported | InvalidInpu
   if (input.age === "preschool")
     reasons.push({ code: "age_preschool", message: "小学校入学前のお子さんは窓口負担が2割のため、この画面では計算しません。" });
   if (input.insurance === "unknown")
-    reasons.push({ code: "insurance_unknown", message: "加入している健康保険の種類によって所得区分の決め方が違います。保険証や資格確認書の保険者名を確認してください。" });
+    reasons.push({ code: "insurance_unknown", message: "加入している健康保険の種類によって所得区分の決め方が違います。加入している健康保険（保険者）は、マイナ保険証をお持ちの方はマイナポータルで、お持ちでない方は資格確認書で確かめられます。" });
   if (input.bracket === "unknown")
     reasons.push({
       code: "bracket_unknown",

@@ -179,7 +179,7 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
         {step === 2 && (
           <>
             <h2>加入している健康保険は</h2>
-            <p className="d-sim-help">保険の種類によって、所得区分の決め方が違います。保険証や資格確認書の保険者名で確認できます。</p>
+            <p className="d-sim-help">保険の種類によって、所得区分の決め方が違います。加入している健康保険（保険者）は、マイナ保険証をお持ちの方はマイナポータルで、お持ちでない方は資格確認書で確かめられます。</p>
             <Choice testId="employee" title="会社などの健康保険" sub="協会けんぽ・健康保険組合・共済組合など" selected={draft.insurance === "employee"} onClick={() => choose({ insurance: "employee" })} />
             <Choice testId="national" title="国民健康保険" sub="市区町村・国民健康保険組合" selected={draft.insurance === "national"} onClick={() => choose({ insurance: "national" })} />
             <Choice testId="insurance-unknown" title="わからない" sub="確認先をご案内します" onClick={() => choose({ insurance: "unknown" }, true)} />
