@@ -12,6 +12,7 @@ import { useClinicianLive, usePatientLive, type ClinicianOrg } from "./live"
 import { usePatientLearning } from "./learning"
 import { useClinicianRecord } from "./record"
 import { usePatientHealth, usePatientNotes } from "./health"
+import { usePatientVisit } from "./visit"
 import { useStudio } from "./studio"
 import { DPrototype, Icon, Logo, type DViewport } from "./PatientD"
 import { initialActiveSymptomIds, initialHealthRecords, type HealthRecord } from "./healthData"
@@ -73,6 +74,7 @@ export function PatientDApp({ initial = {}, userName }: { initial?: UrlInit; use
   const learning = usePatientLearning(s.notify)
   const health = usePatientHealth(s.notify)
   const notesLive = usePatientNotes(s.notify)
+  const visit = usePatientVisit(s.notify)
   // Step 3 で患者画面の表示はすべて実データになったため、「架空データ」の表示は出さない
   // （全画面の学習・解説・振り返りで見出しに重なっていた問題もこれで解消）
   return (
@@ -85,6 +87,7 @@ export function PatientDApp({ initial = {}, userName }: { initial?: UrlInit; use
         userName={userName}
         health={health}
         notesLive={notesLive}
+        visit={visit}
         viewport={tablet ? "tablet" : "390"}
         notify={s.notify}
         healthRecords={s.healthRecords}
@@ -101,7 +104,7 @@ export function PatientDApp({ initial = {}, userName }: { initial?: UrlInit; use
 }
 
 /** 医療者: 1180px 以上は Figma の 1180 表示、それ未満は 820 表示（どちらも幅は Figma の設計幅のまま） */
-export function ClinicianDApp({ sessionId = null, orgs = [] }: { sessionId?: string | null; orgs?: ClinicianOrg[] }) {
+export function ClinicianDApp({ sessionId = null, orgs = [], grantId = null }: { sessionId?: string | null; orgs?: ClinicianOrg[]; grantId?: string | null }) {
   const s = useConceptDState()
   const wide = useMedia("(min-width: 1180px)", true)
   // 一時共有の通知は Figma の医療者用トースト（.cd-toast）で出す
@@ -110,7 +113,7 @@ export function ClinicianDApp({ sessionId = null, orgs = [] }: { sessionId?: str
     setNotice(message)
     window.setTimeout(() => setNotice(""), 2600)
   }
-  const live = useClinicianLive(sessionId, orgs, showNotice)
+  const live = useClinicianLive(sessionId, orgs, showNotice, grantId)
   // 患者が承認した有効な一時共有の間だけ、診察サマリーと処方の実データを読む（Step 2）
   const record = useClinicianRecord(live.sessionId, live.state === "active", showNotice)
   // 教材スタジオ（Step 5）: 申請先の医療機関で、教材編集・承認の権限があるときだけ使える（権限はサーバーで検証）

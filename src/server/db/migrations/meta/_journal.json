@@ -85,6 +85,13 @@
       "when": 1793741150746,
       "tag": "0011_step4_learning_started_at",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793834554218,
+      "tag": "0012_step6_next_visit",
+      "breakpoints": true
     }
   ]
 }

@@ -80,15 +80,17 @@ test("医療者 QR → 患者が申請者を確認して承認 → 通常の /st
   await patient.ctx.close();
 });
 
-test("6 桁コード（患者が共有画面で発行）: 医療者が入力 → 患者が申請者を確認して承認 → 診察サマリー。医療者が共有終了", async ({ browser }) => {
+test("6 桁コード（患者が共有画面で QR と同時に発行）: 医療者が入力 → 患者が申請者を確認して承認 → 診察サマリー。医療者が共有終了", async ({ browser }) => {
   const patient = await newPage(browser, { width: 390, height: 844 });
   await demoLogin(patient.page, "patient", "佐藤 花子");
   await patient.page.locator(".d-share-chip").click();
   // 申請がないときは承認ボタンを出さない
-  await expect(patient.page.locator(".d-share-page .primary-button")).toHaveCount(0);
-  await patient.page.getByRole("button", { name: /6桁コードで共有する/ }).click();
+  await expect(patient.page.getByRole("button", { name: "この医療者に共有を許可する" })).toHaveCount(0);
+  // 患者の QR と 6 桁コードは 1 回の発行で同時に表示（同じグラント）
+  await patient.page.getByRole("button", { name: /QRコードと6桁コードを表示する/ }).click();
   const codeBox = patient.page.locator("[data-share-code]");
   await expect(codeBox).toContainText("1回限り");
+  await expect(codeBox.locator("[data-share-qr] img")).toBeVisible();
   const code = ((await codeBox.locator("b").first().textContent()) ?? "").replace(/\D/g, "");
   expect(code).toMatch(/^\d{6}$/);
 
@@ -164,7 +166,7 @@ test("使用済み・取り消し済みの QR は承認できない（患者に�
   await expect(patient.page).not.toHaveURL(/connect=/);
   // 申請がなければ承認ボタンは出ない（読み取り方の案内のみ。共有中にはならない）
   await expect(patient.page.locator(".d-share-intro")).toContainText("カメラで");
-  await expect(patient.page.locator(".d-share-page .primary-button")).toHaveCount(0);
+  await expect(patient.page.getByRole("button", { name: "この医療者に共有を許可する" })).toHaveCount(0);
   await expect(patient.page.locator(".d-share-chip")).toContainText("共有する");
   await staff.ctx.close();
   await patient.ctx.close();

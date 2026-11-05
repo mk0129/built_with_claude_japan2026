@@ -192,3 +192,128 @@
 .cd-preview-state dd { margin: 0; color: #7a5c2c; font-weight: 700; }
 .cd-preview-actions { margin-top: 14px; }
 .cd-preview-actions .cd-primary { width: 100%; }
+
+/* ---- ロゴ A（道を描いた栞）: 患者ヘッダー・医療者サイドバー・入口・ログインで共通（ShioriLogo） ---- */
+.shiori-logo .shiori-mark { display: block; width: auto; height: 40px; flex: 0 0 auto; }
+.shiori-logo.logo { gap: 8px; }
+.shiori-logo.cd-logo .shiori-mark { height: 36px; }
+.shiori-logo.shiori-logo-entry { gap: 12px; }
+.shiori-logo.shiori-logo-entry .shiori-mark { height: 64px; }
+.shiori-logo.shiori-logo-entry b { font-size: 34px; }
+.shiori-logo.logo small { margin-left: 2px; padding-left: 9px; border-left: 1px solid var(--line); color: var(--muted); font-size: 11px; letter-spacing: .04em; }
+
+/* ---- 入口・ログイン（Concept D の配色・書体・余白。認証の処理は LoginPanel のまま） ---- */
+.au-stage { min-height: 100dvh; display: flex; justify-content: center; padding: 28px 16px 48px; background: radial-gradient(circle at 50% 0, #fff 0, #eef4f4 60%); color: var(--ink); }
+.au-stage.au-staff { background: #f3f7f7; }
+.au-column { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 18px; }
+.au-back { align-self: flex-start; min-height: 44px; display: inline-flex; align-items: center; color: var(--blue-dark); font-size: 13px; font-weight: 600; text-decoration: none; }
+.au-head h1 { margin: 0 0 6px; font-family: 'Zen Old Mincho', serif; font-size: 26px; line-height: 1.45; letter-spacing: .02em; }
+.au-head p:not(.eyebrow) { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.au-panel { display: flex; flex-direction: column; gap: 14px; }
+.au-card { display: flex; flex-direction: column; gap: 10px; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+.au-card h2 { margin: 0; font-size: 15px; font-weight: 700; }
+.au-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.au-tag { padding: 3px 9px; border-radius: 99px; background: var(--cream); border: 1px solid #ebe5d8; color: #7a6a4b; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.au-demo { border-style: dashed; background: #fbfdfd; }
+.au-accounts { display: grid; gap: 8px; }
+.au-account { min-height: 52px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 12px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 13px; background: var(--blue-pale); color: var(--ink); text-align: left; }
+.au-account b { font-size: 15px; white-space: nowrap; }
+.au-account small { color: var(--muted); font-size: 12px; }
+.au-account:hover:not(:disabled) { border-color: var(--blue); }
+.au-account:disabled { opacity: .6; cursor: wait; }
+.au-label { color: var(--muted); font-size: 13px; font-weight: 600; }
+.au-input { min-height: 48px; padding: 10px 14px; border: 1px solid #c9d6d8; border-radius: 12px; background: #fff; color: var(--ink); font-size: 16px; }
+.au-input:focus-visible { outline: 3px solid rgba(72, 122, 132, .24); outline-offset: 1px; border-color: var(--blue); }
+.au-code { text-align: center; font-size: 22px; letter-spacing: .3em; font-variant-numeric: tabular-nums; }
+.au-button { min-height: 48px; padding: 10px 14px; border: 1px solid var(--blue); border-radius: 13px; background: #fff; color: var(--blue-dark); font-size: 14px; font-weight: 700; }
+.au-button:disabled { border-color: #c9d6d8; color: #8a9a9c; cursor: not-allowed; }
+.au-block { width: 100%; }
+.au-status { margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--cream); color: var(--ink); font-size: 13px; }
+.au-switch p { margin: 0; font-size: 14px; line-height: 1.7; }
+.au-text-button { align-self: flex-start; min-height: 40px; border: 0; background: none; color: var(--blue-dark); font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.au-switch-link { align-self: center; min-height: 44px; display: inline-flex; align-items: center; color: var(--blue-dark); font-size: 13px; font-weight: 600; }
+
+/* 入口 */
+.au-entry { padding-top: max(24px, 8dvh); gap: 22px; }
+.au-entry h1 { margin: 8px 0 0; font-family: 'Zen Old Mincho', serif; font-size: 26px; line-height: 1.5; letter-spacing: .03em; }
+.au-lead { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.9; }
+.au-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+.au-primary { min-height: 56px; font-size: 16px; text-decoration: none; }
+.au-secondary { min-height: 56px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 13px; background: #fff; color: var(--blue-dark); font-size: 14px; font-weight: 700; text-decoration: none; }
+.au-secondary small { color: var(--muted); font-size: 11px; font-weight: 500; }
+.au-note { margin: 4px 0 0; padding: 12px 14px; border-radius: 12px; background: var(--cream); color: #6f6553; font-size: 12px; line-height: 1.7; }
+.au-stage a:focus-visible, .au-stage button:focus-visible { outline: 3px solid rgba(72, 122, 132, .32); outline-offset: 2px; }
+@media (min-width: 701px) {
+  .au-stage { padding-top: 56px; }
+  .au-column { max-width: 480px; }
+  .au-entry h1 { font-size: 30px; }
+}
+
+/* ---- 患者ホーム: 次の診察（Concept C の時間軸を Concept D に統合）。390×844 で「次の診察」「次に学ぶ教材」「診察で聞きたいこと」が 1 画面に入るよう、ホームの中だけ高さと余白を詰める ---- */
+.d-home .d-welcome { margin-bottom: 12px; }
+.d-home .d-welcome h1 { font-size: 23px; }
+.d-home .d-sharing-banner { margin-bottom: 10px; }
+.d-visit-card { min-height: 64px; display: flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 16px; background: #fff; color: var(--ink); }
+.d-visit-card.loading { background: #f6f9f9; }
+.d-visit-card.empty { background: var(--blue-pale); border-color: transparent; }
+.d-visit-icon { flex: 0 0 auto; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px; background: var(--blue-pale); color: var(--blue-dark); }
+.d-visit-card.empty .d-visit-icon { background: #fff; }
+.d-visit-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.d-visit-text > small { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.d-visit-text > b { font-size: 13px; line-height: 1.5; }
+.d-visit-days { color: var(--ink); font-size: 13px; line-height: 1.5; }
+.d-visit-days b { font-family: 'Zen Old Mincho', serif; color: var(--blue-dark); font-size: 20px; font-weight: 600; letter-spacing: .02em; }
+.d-visit-change { flex: 0 0 auto; min-width: 44px; min-height: 44px; border: 0; background: none; color: var(--blue-dark); font-size: 12px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.d-visit-register { flex: 0 0 auto; min-height: 44px; padding: 0 10px; border: 1px solid var(--blue); border-radius: 11px; background: #fff; color: var(--blue-dark); font-size: 11px; font-weight: 700; white-space: nowrap; }
+.d-visit-card.editing { flex-direction: column; align-items: stretch; gap: 8px; padding: 14px; }
+.d-visit-card.editing label { display: inline-flex; align-items: center; gap: 6px; color: var(--blue-dark); font-size: 13px; font-weight: 700; }
+.d-visit-card.editing input { min-height: 48px; padding: 8px 12px; border: 1px solid #c9d6d8; border-radius: 12px; background: #fff; color: var(--ink); font-size: 16px; }
+.d-visit-card.editing small { color: var(--muted); font-size: 11px; line-height: 1.6; }
+.d-visit-actions { display: flex; gap: 8px; }
+.d-visit-actions .primary-button { flex: 1; }
+.d-visit-cancel { min-height: 48px; padding: 0 16px; border: 1px solid var(--line); border-radius: 13px; background: #fff; color: var(--ink); font-weight: 600; }
+.d-visit-clear { align-self: flex-start; min-height: 40px; border: 0; background: none; color: #9a5248; font-size: 12px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+/* 次に学ぶ教材（Figma の .d-next-card を、ホームの中だけ 1 件・小さめに） */
+.d-next-card.d-home-compact { padding: 14px 14px 6px; border-radius: 18px; }
+.d-home-compact .d-next-meta { margin-bottom: 6px; }
+.d-home-compact h2 { font-size: 16px; line-height: 1.5; }
+.d-home-compact .d-next-lesson { gap: 10px; margin: 8px 0; padding: 9px 10px; }
+.d-home-compact .d-next-icon { width: 36px; height: 36px; border-radius: 10px; }
+.d-home-compact .d-next-lesson > span:nth-child(2) { gap: 3px; min-width: 0; }
+.d-home-compact .d-next-lesson b { font-size: 14px; line-height: 1.45; }
+.d-home-compact .d-next-lesson small { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.d-home-compact .primary-button { width: 100%; min-height: 46px; font-size: 14px; }
+.d-home-compact .d-text-action { min-height: 40px; margin: 2px auto 0; }
+.d-complete-hero.d-home-compact { padding: 14px; gap: 10px; }
+.d-home-empty { display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 16px; background: #f6f9f9; }
+.d-home-empty h3 { margin: 0; font-size: 15px; }
+.d-home-empty p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.d-home-empty .secondary-button { min-height: 44px; font-size: 13px; background: #fff; }
+/* 診察で聞きたいこと（ホームから直接追加） */
+.d-home-ask { margin-top: 16px; }
+.d-home-ask .d-section-head { min-height: 28px; margin-bottom: 6px; }
+.d-home-ask .d-section-head h2 { font-size: 16px; }
+.d-home-ask-form { display: flex; gap: 8px; }
+.d-home-ask-form input { flex: 1; min-width: 0; min-height: 46px; padding: 8px 12px; border: 1px solid #c9d6d8; border-radius: 12px; background: #fff; color: var(--ink); font-size: 15px; }
+.d-home-ask-form input:focus-visible { outline: 3px solid rgba(72, 122, 132, .24); outline-offset: 1px; border-color: var(--blue); }
+.d-home-ask-form .primary-button { flex: 0 0 auto; min-height: 46px; padding: 0 14px; }
+.d-home-ask-list { margin: 8px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.d-home-ask-list li { padding: 9px 12px; border-radius: 12px; background: #f7f4fa; color: var(--ink); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.d-home-ask .d-text-action { margin-top: 2px; }
+.d-home .d-home-section { margin-top: 20px; }
+.d-home .d-home-ask { margin-top: 16px; }
+.d-home-health { margin-top: 0; }
+
+/* ---- 患者の共有画面: 自分の QR コードと 6 桁コード（同じグラント） ---- */
+.d-share-issue { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 18px; }
+.d-share-issue .primary-button { width: 100%; min-height: 52px; }
+.d-share-issue small { color: var(--muted); font-size: 11px; line-height: 1.7; text-align: center; }
+.d-share-page > .d-share-code { margin: 14px 0 18px; }
+.d-share-code > span.d-share-qr { border-top: 0; padding: 16px 9px 12px; }
+.d-share-code > span.d-share-qr + span { border-left: 0; border-top: 1px solid var(--line); }
+.d-share-code > span.d-share-qr + span + span { border-top: 1px solid var(--line); }
+.d-share-code > span.d-share-qr + span b { font-size: 22px; letter-spacing: .14em; }
+.d-share-qr { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.d-share-qr img { display: block; width: 184px; height: 184px; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: #fff; image-rendering: pixelated; }
+.au-card-text { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.au-link-button { display: flex; align-items: center; justify-content: center; text-decoration: none; }

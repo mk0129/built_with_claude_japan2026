@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 48" width="24" height="48" role="img" aria-label="shiori">
+  <!-- ロゴ A の小サイズ用（16・24px）。正式マーク shiori_mark.png の構図（栞の枠・穴・ひも・山・道）を保ち、
+       ひもを 1 本、山を 1 つの稜線、道を 1 本の S 字に減らして線を太くしたもの。32px 以上では正式マークを使う。 -->
+  <g fill="none" stroke="#315E68" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.6" y="11" width="18.8" height="34.4" rx="3" stroke-width="2.4"/>
+    <path d="M11 13.5 C11.4 8.5 13 4.6 16.2 1.8" stroke-width="2.2"/>
+    <path d="M3.4 27 C7 26 9.2 23.6 12.4 21.6 C15 22.8 17.4 24.8 20.6 25.2" stroke-width="1.9"/>
+    <path d="M14.8 29.6 C10.6 29.4 6.4 31.2 7 34 C7.8 37.4 16.8 37.6 20.4 43.6" stroke-width="1.9"/>
+  </g>
+  <circle cx="11" cy="15.2" r="1.7" fill="#315E68"/>
+</svg>

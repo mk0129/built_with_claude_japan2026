@@ -4,6 +4,7 @@ import type { ClinicianRecord, LiveConcern, LiveLibraryItem } from "./record"
 import { SAFETY_KINDS, type Draft, type StudioLive } from "./studio"
 import { DDraftPreview } from "./PatientD"
 import { areaOf } from "./learning"
+import { ShioriLogo } from "./ShioriLogo"
 import {
   currentVisitDate,
   formatShortDate,
@@ -150,15 +151,7 @@ export function CIcon({ name, size = 20 }: { name: string; size?: number }) {
 }
 
 function CLogo() {
-  return (
-    <div className="cd-logo">
-      <span>
-        <i />
-      </span>
-      <b>shiori</b>
-      <small>for medical</small>
-    </div>
-  )
+  return <ShioriLogo variant="clinician" sub="for medical" />
 }
 
 function Badge({
@@ -862,7 +855,7 @@ function SessionGate({
                 </label>
                 <p>
                   {live
-                    ? "コードは発行から5分間・1回限り有効です。電話やメールでは送らないでください。"
+                    ? "コードは発行から5分間・1回限り有効です。電話やメールでは送らないでください。患者のアプリにQRコードが表示されている場合は、この端末のカメラで読み取っても申請できます。"
                     : "コードは10分間有効です。電話やメールでは送らないでください。"}
                 </p>
               </div>
