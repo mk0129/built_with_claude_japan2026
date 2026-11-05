@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react"
 import type { ClinicianLive } from "./live"
 import type { ClinicianRecord, LiveConcern, LiveLibraryItem } from "./record"
 import { SAFETY_KINDS, type Draft, type StudioLive } from "./studio"
+import { DDraftPreview } from "./PatientD"
+import { areaOf } from "./learning"
 import {
   currentVisitDate,
   formatShortDate,
@@ -370,6 +372,14 @@ export default function ClinicianD({
   // 本番は選択なしから始める（Figma は架空の 2 件が選択済み）
   const [prescription, setPrescription] = useState<(number | string)[]>(record ? [] : [1, 2])
   const [studioStep, setStudioStep] = useState(1)
+  // URL で指定した既存の下書きを開いたときは、編集の手順（Step 5）から始める
+  const openedDraft = studio?.openedFromUrl && studio.draft?.version.id === studio.openedFromUrl ? studio.openedFromUrl : null
+  const [shownDraft, setShownDraft] = useState<string | null>(null)
+  if (openedDraft && openedDraft !== shownDraft) {
+    setShownDraft(openedDraft)
+    setWorkspace("studio")
+    setStudioStep(5)
+  }
   const [notice, setNotice] = useState("")
   const [extendLocal, setExtendLocal] = useState(false)
   const extendRequested = live ? live.extensionRequested : extendLocal
@@ -3125,7 +3135,7 @@ function PrescriptionLibrary({
             {item.thumbnail ? (
               <div className="cd-material-image">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.thumbnail.src} alt={item.thumbnail.alt} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                <img src={item.thumbnail.src} alt={item.thumbnail.alt} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />
               </div>
             ) : (
             <div className="cd-material-image">
@@ -4525,6 +4535,18 @@ function LiveEditStep({ draft, save, page, setPage }: { draft: Draft; save: (d: 
                 本文
                 <textarea className="large" value={cur.bodyMd} disabled={!editable} onChange={(e) => setSlide({ bodyMd: e.target.value })} onBlur={commit} />
               </label>
+              <label>
+                もう少し詳しく（任意。患者は開閉して読みます）
+                <textarea
+                  className="large"
+                  data-studio-detail
+                  value={cur.detailMd ?? ""}
+                  placeholder="空欄のときは「もう少し詳しく」を表示しません"
+                  disabled={!editable}
+                  onChange={(e) => setSlide({ detailMd: e.target.value })}
+                  onBlur={commit}
+                />
+              </label>
               <div className="cd-illustration-editor">
                 <div>
                   <span>MEDICAL ILLUSTRATION</span>
@@ -4628,8 +4650,11 @@ function PreviewStep({
   const [page, setPage] = useState(live ? 1 : 2)
   const [audio, setAudio] = useState(false)
   if (live) {
-    const slides = live.draft.slides
-    const sl = slides[page - 1]
+    const d = live.draft
+    const published = d.version.status === "published"
+    const publishBlocked = !!d.approvalBlock || d.sources.some((x) => !x.perm?.allowPublish)
+    const stateLabel = [published ? null : "未監修", publishBlocked ? "公開不可" : published ? "公開中" : "未公開"].filter(Boolean).join("・")
+    const extraTags = (d.material.tags ?? []).filter((t) => t !== d.material.primaryDomain)
     return (
       <div className="cd-studio-step">
         <div className="cd-step-heading">
@@ -4656,43 +4681,27 @@ function PreviewStep({
               <CIcon name="shield" />
               プレビュー操作は患者の学習進捗や回答履歴を変更しません。
             </p>
+            <dl className="cd-preview-state" data-preview-state>
+              <dt>状態</dt>
+              <dd>{stateLabel}</dd>
+              <dt>学習領域</dt>
+              <dd>
+                {areaOf(d.material.primaryDomain)}
+                {extraTags.length > 0 && `（タグ: ${extraTags.join("、")}）`}
+              </dd>
+              <dt>内容</dt>
+              <dd>
+                {d.slides.length}画面 · 理解確認 {d.questions.length}問
+              </dd>
+            </dl>
+            {/* 下書きの提出（承認依頼）は、従来どおりプレビューの確認後に行う。端末内は患者画面と同じ表示にするため、ここに置く */}
+            <div className="cd-preview-actions">
+              <button className="cd-primary" onClick={onComplete}>
+                {d.version.status === "draft" ? "承認依頼へ" : "承認確認へ"}
+              </button>
+            </div>
           </section>
-          <div className="cd-patient-preview" data-studio-preview>
-            <header>
-              <button onClick={onClose}>閉じる</button>
-              <span>
-                {page} / {slides.length}
-              </span>
-              <button onClick={() => setAudio(!audio)}>{audio ? "音声停止" : "音声"}</button>
-            </header>
-            <i>
-              <i style={{ width: `${slides.length ? (page / slides.length) * 100 : 0}%` }} />
-            </i>
-            <main>
-              <p>{live.draft.material.title}</p>
-              <h2>{sl?.title}</h2>
-              <p>{sl?.proposition || sl?.bodyMd}</p>
-              {audio && <div className="cd-preview-audio">読み上げはスライドの本文を端末の読み上げ機能で再生します</div>}
-              <div className="cd-preview-image">
-                <span>MEDICAL ILLUSTRATION</span>
-                <CIcon name="book" size={30} />
-                <b>監修済み図解を配置</b>
-              </div>
-              <small>図解は監修済みの画像だけを表示します（未設定）</small>
-              <aside>
-                <b>本文</b>
-                <p>{sl?.bodyMd}</p>
-              </aside>
-            </main>
-            <footer>
-              <button disabled={page === 1} onClick={() => setPage(Math.max(1, page - 1))}>
-                前へ
-              </button>
-              <button className="cd-primary" onClick={() => (page >= slides.length ? onComplete() : setPage(Math.min(slides.length, page + 1)))}>
-                {page >= slides.length ? (live.draft.version.status === "draft" ? "承認依頼へ" : "承認確認へ") : "次へ"}
-              </button>
-            </footer>
-          </div>
+          <DDraftPreview key={d.version.id} material={{ title: d.material.title, slides: d.slides, questions: d.questions }} stateLabel={stateLabel} onClose={onClose} />
         </div>
       </div>
     )

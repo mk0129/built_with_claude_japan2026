@@ -15,7 +15,7 @@ export type MustCandidate = { id: string; text: string; kind: "emergency" | "vis
 type Job = { id: string; mode: string; status: string; progress: string | null; errorCode: string | null; errorMessage: string | null; generator: string; model: string; outputPayload: unknown; outputVersionId: string | null };
 export type Draft = {
   version: { id: string; status: "draft" | "in_review" | "published" | "retired"; summary: string | null; learningObjectives: string[]; mustCover: { id: string; text: string; kind: string; status: string; confirmed?: boolean; sourceRef?: { quote?: string; section?: string } }[]; reviewComment: string | null };
-  material: { id: string; title: string; primaryDomain: string; scope: "common" | "org" };
+  material: { id: string; title: string; primaryDomain: string; scope: "common" | "org"; tags?: string[] };
   slides: { seq: number; title: string; proposition: string | null; bodyMd: string; detailMd: string | null; sourceRefs: { sourceId: string; section?: string; quote?: string }[] }[];
   questions: { seq: number; stem: string; options: [string, string, string]; correctIndex: number; explanation: string; relatedSlideSeq: number | null; sourceRefs: { sourceId: string; section?: string; quote?: string }[] }[];
   sources: { id: string; title: string; perm: { rightsHolder: string; allowPublish: boolean; allowShare: boolean; allowDerive: boolean } | null }[];
@@ -73,6 +73,22 @@ export function useStudio(orgId: string | null, enabled: boolean, notify: (messa
     setDraft(d);
     return d;
   };
+
+  // 既存の下書きを開く（URL の ?draft=<versionId>。例: 取り込んだ教材の下書きを編集・患者プレビューで確認する）。権限はサーバーで検証
+  const [openedFromUrl, setOpenedFromUrl] = useState<string | null>(null);
+  const urlDraftRequested = useRef<string | null>(null);
+  useEffect(() => {
+    if (!enabled || !allowed) return;
+    const id = new URLSearchParams(window.location.search).get("draft");
+    if (!id || !/^[0-9a-f-]{36}$/i.test(id) || urlDraftRequested.current === id) return;
+    urlDraftRequested.current = id;
+    api<Draft>(`/api/v1/studio/materials/${id}`)
+      .then((d) => {
+        setDraft(d);
+        setOpenedFromUrl(id);
+      })
+      .catch((e) => notifyRef.current(errorText(e)));
+  }, [enabled, allowed]);
 
   /** 原資料の登録（ファイル・資料名・許諾元・許諾の根拠・利用条件・個人情報を含まないことの確認） */
   const upload = useCallback(
@@ -241,6 +257,7 @@ export function useStudio(orgId: string | null, enabled: boolean, notify: (messa
     draft,
     saveDraft,
     reloadDraft: () => (draft ? loadDraft(draft.version.id) : null),
+    openedFromUrl,
     submit: () => transition("submit"),
     approve: (acknowledgeSafety: boolean, note: string | null) => transition("approve", { acknowledgeSafety, note }),
     returnToDraft: (comment: string) => transition("return", { comment }),

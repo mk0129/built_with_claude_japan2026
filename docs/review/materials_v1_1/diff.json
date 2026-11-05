@@ -1,0 +1,5820 @@
+[
+  {
+    "name": "C01_start_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C01_start_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 436,
+    "diffRatio": 0.00008,
+    "diffBoxCss": [
+      702,
+      58,
+      1226,
+      499
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C01_start_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_1180_s1",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_1180_s2",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 6067,
+    "diffRatio": 0.00117,
+    "diffBoxCss": [
+      367,
+      59,
+      1230,
+      793
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_1440_s1",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 1016,
+    "diffRatio": 0.0002,
+    "diffBoxCss": [
+      388,
+      59,
+      1218,
+      735
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_820_s1",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C02_summary_820_s2",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_1180_s1",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_1180_s2",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 6126,
+    "diffRatio": 0.00118,
+    "diffBoxCss": [
+      367,
+      59,
+      1230,
+      852
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_1440_s1",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 1016,
+    "diffRatio": 0.0002,
+    "diffBoxCss": [
+      388,
+      59,
+      1218,
+      782
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_1440_s2",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 1016,
+    "diffRatio": 0.0002,
+    "diffBoxCss": [
+      388,
+      59,
+      1218,
+      734
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 66,
+    "diffRatio": 0.00003,
+    "diffBoxCss": [
+      72,
+      106,
+      75,
+      112
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_820_s1",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C03_sources_820_s2",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C04_course_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C04_course_1180_s1",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C04_course_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 563,
+    "diffRatio": 0.00011,
+    "diffBoxCss": [
+      366,
+      59,
+      1246,
+      815
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C04_course_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/1",
+          "offRight": 9
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "日",
+          "offRight": 9
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/2",
+          "offRight": 57
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "月",
+          "offRight": 57
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/3",
+          "offRight": 105
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "火",
+          "offRight": 105
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/4",
+          "offRight": 153
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "水",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "36.6",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "36.5",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "124",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "77",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "72",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "98",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s2",
+          "text": "2",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s1",
+          "text": "1",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s1",
+          "text": "1",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        }
+      ],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/1",
+          "offRight": 9
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "日",
+          "offRight": 9
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/2",
+          "offRight": 57
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "月",
+          "offRight": 57
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/3",
+          "offRight": 105
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "火",
+          "offRight": 105
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/4",
+          "offRight": 153
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "水",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "36.6",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "36.5",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "124",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "77",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "72",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "98",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s2",
+          "text": "2",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s1",
+          "text": "1",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s1",
+          "text": "1",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        }
+      ],
+      "images": []
+    }
+  },
+  {
+    "name": "C04_course_820_s1",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/1",
+          "offRight": 9
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "日",
+          "offRight": 9
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/2",
+          "offRight": 57
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "月",
+          "offRight": 57
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/3",
+          "offRight": 105
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "火",
+          "offRight": 105
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/4",
+          "offRight": 153
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "水",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "36.6",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "36.5",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "124",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "77",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "72",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "98",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s2",
+          "text": "2",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s1",
+          "text": "1",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s1",
+          "text": "1",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        }
+      ],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/1",
+          "offRight": 9
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "日",
+          "offRight": 9
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/2",
+          "offRight": 57
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "月",
+          "offRight": 57
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/3",
+          "offRight": 105
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "火",
+          "offRight": 105
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "11/4",
+          "offRight": 153
+        },
+        {
+          "tag": "SMALL",
+          "cls": "",
+          "text": "水",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "36.6",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "36.5",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "124",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "77",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "72",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "98",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s2",
+          "text": "2",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s1",
+          "text": "1",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "severity s1",
+          "text": "1",
+          "offRight": 9
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 57
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 105
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "—",
+          "offRight": 153
+        }
+      ],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            300,
+            88
+          ],
+          "at": [
+            542,
+            871
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_1180_s1",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            300,
+            88
+          ],
+          "at": [
+            542,
+            231
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 14819,
+    "diffRatio": 0.00392,
+    "diffBoxCss": [
+      551,
+      231,
+      814,
+      319
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_1180_s2",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            300,
+            88
+          ],
+          "at": [
+            542,
+            150
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 14819,
+    "diffRatio": 0.00392,
+    "diffBoxCss": [
+      551,
+      150,
+      814,
+      238
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            300,
+            88
+          ],
+          "at": [
+            672,
+            895
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 900,
+    "diffRatio": 0.00017,
+    "diffBoxCss": [
+      194,
+      59,
+      1154,
+      821
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_1440_s1",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            300,
+            88
+          ],
+          "at": [
+            672,
+            226
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 15248,
+    "diffRatio": 0.00294,
+    "diffBoxCss": [
+      194,
+      59,
+      1154,
+      683
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            308,
+            88
+          ],
+          "at": [
+            494,
+            1184
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_820_s1",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            308,
+            88
+          ],
+          "at": [
+            494,
+            544
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 15056,
+    "diffRatio": 0.00574,
+    "diffBoxCss": [
+      502,
+      544,
+      771,
+      632
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C05_library_820_s2",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            308,
+            88
+          ],
+          "at": [
+            494,
+            156
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 15056,
+    "diffRatio": 0.00574,
+    "diffBoxCss": [
+      502,
+      156,
+      771,
+      244
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C06_prescribe_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C06_prescribe_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 258,
+    "diffRatio": 0.00005,
+    "diffBoxCss": [
+      380,
+      59,
+      1241,
+      364
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C06_prescribe_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C07_studio_1180",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C07_studio_1180_s1",
+    "onlyAfter": false,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2360,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C07_studio_1440",
+    "onlyAfter": false,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      2880,
+      1800
+    ],
+    "diffPixels": 240,
+    "diffRatio": 0.00005,
+    "diffBoxCss": [
+      194,
+      59,
+      1154,
+      699
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C07_studio_820",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C07_studio_820_s1",
+    "onlyAfter": false,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1640,
+      1600
+    ],
+    "diffPixels": 66,
+    "diffRatio": 0.00003,
+    "diffBoxCss": [
+      72,
+      106,
+      75,
+      112
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft1_edit_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft1_edit_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft1_edit_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft1_edit_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft1_edit_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft1_edit_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft2_edit_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft2_edit_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft2_edit_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft2_edit_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft2_edit_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft2_edit_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft3_edit_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft3_edit_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft3_edit_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft3_edit_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft3_edit_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft3_edit_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft4_edit_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft4_edit_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft4_edit_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft4_edit_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft4_edit_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C08_draft4_edit_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_1180_s2",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_1440_s2",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft1_quiz_820_s2",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_1180_s2",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_1440_s2",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft2_quiz_820_s2",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_1180_s2",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_1440_s2",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft3_quiz_820_s2",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_1180_s2",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_1440_s2",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C09_draft4_quiz_820_s2",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft1_preview_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft1_preview_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft1_preview_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft1_preview_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft1_preview_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft1_preview_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft2_preview_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft2_preview_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft2_preview_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft2_preview_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft2_preview_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft2_preview_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft3_preview_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft3_preview_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft3_preview_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft3_preview_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft3_preview_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft3_preview_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft4_preview_1180",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft4_preview_1180_s1",
+    "onlyAfter": true,
+    "size": [
+      2360,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft4_preview_1440",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft4_preview_1440_s1",
+    "onlyAfter": true,
+    "size": [
+      2880,
+      1800
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft4_preview_820",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "C10_draft4_preview_820_s1",
+    "onlyAfter": true,
+    "size": [
+      1640,
+      1600
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P01_home_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P01_home_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P01_home_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P01_home_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P01_home_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P01_home_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            1029
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            408
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 4175,
+    "diffRatio": 0.00317,
+    "diffBoxCss": [
+      38,
+      410,
+      108,
+      465
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_390_s2",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            -213
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_390_s3",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            -286
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            1019
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            398
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 4174,
+    "diffRatio": 0.00288,
+    "diffBoxCss": [
+      38,
+      400,
+      108,
+      455
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_430_s2",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            -221
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            408,
+            792
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 4182,
+    "diffRatio": 0.00133,
+    "diffBoxCss": [
+      408,
+      794,
+      478,
+      849
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P02_library_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            408,
+            340
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 4182,
+    "diffRatio": 0.00133,
+    "diffBoxCss": [
+      408,
+      342,
+      478,
+      397
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_chemo_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            316,
+            229
+          ],
+          "at": [
+            37,
+            170
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 32016,
+    "diffRatio": 0.02432,
+    "diffBoxCss": [
+      32,
+      166,
+      354,
+      400
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_chemo_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            316,
+            229
+          ],
+          "at": [
+            37,
+            -177
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_chemo_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            356,
+            259
+          ],
+          "at": [
+            37,
+            170
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 39143,
+    "diffRatio": 0.02696,
+    "diffBoxCss": [
+      32,
+      166,
+      394,
+      430
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_chemo_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            356,
+            259
+          ],
+          "at": [
+            37,
+            -207
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_chemo_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            662,
+            356
+          ],
+          "at": [
+            53,
+            170
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 98122,
+    "diffRatio": 0.03119,
+    "diffBoxCss": [
+      48,
+      166,
+      716,
+      527
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_chemo_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            662,
+            356
+          ],
+          "at": [
+            53,
+            -30
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 77036,
+    "diffRatio": 0.02449,
+    "diffBoxCss": [
+      121,
+      68,
+      716,
+      327
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_drug_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_drug_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_drug_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_drug_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_drug_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_drug_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_other_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_other_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_other_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_other_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_other_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P03_detail_other_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P04_learn_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 579,
+    "diffRatio": 0.00044,
+    "diffBoxCss": [
+      0,
+      63,
+      329,
+      581
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P04_learn_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P04_learn_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P05_detail_open_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P05_detail_open_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P05_detail_open_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P05_detail_open_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P05_detail_open_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P06_quiz_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P06_quiz_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P06_quiz_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P07_explanation_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P07_explanation_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P07_explanation_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P08_history_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            954
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P08_history_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            643
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 4176,
+    "diffRatio": 0.00317,
+    "diffBoxCss": [
+      38,
+      645,
+      108,
+      700
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P08_history_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            943
+          ],
+          "inView": false,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P08_history_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            38,
+            653
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 4174,
+    "diffRatio": 0.00288,
+    "diffBoxCss": [
+      38,
+      655,
+      108,
+      710
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P08_history_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            62,
+            943
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 160,
+    "diffRatio": 0.00005,
+    "diffBoxCss": [
+      62,
+      945,
+      131,
+      946
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P08_history_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": [
+        {
+          "file": "thumb_symptom_check.webp",
+          "alt": "自宅で体調を記録する線画",
+          "box": [
+            76,
+            60
+          ],
+          "at": [
+            62,
+            833
+          ],
+          "inView": true,
+          "natural": [
+            1600,
+            1200
+          ],
+          "fit": "cover",
+          "pos": "50% 50%",
+          "loaded": true
+        }
+      ]
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 4174,
+    "diffRatio": 0.00133,
+    "diffBoxCss": [
+      62,
+      835,
+      132,
+      890
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 162,
+    "diffRatio": 0.00012,
+    "diffBoxCss": [
+      287,
+      320,
+      298,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_390_s1",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_390_s2",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 200,
+    "diffRatio": 0.00014,
+    "diffBoxCss": [
+      327,
+      320,
+      338,
+      328
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_430_s1",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_430_s2",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 200,
+    "diffRatio": 0.00006,
+    "diffBoxCss": [
+      641,
+      297,
+      652,
+      305
+    ],
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P09_health_768_s1",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P10_notes_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P10_notes_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P10_notes_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11_share_390",
+    "onlyAfter": false,
+    "size": [
+      780,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      780,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11_share_430",
+    "onlyAfter": false,
+    "size": [
+      860,
+      1688
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      860,
+      1688
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  },
+  {
+    "name": "P11_share_768",
+    "onlyAfter": false,
+    "size": [
+      1536,
+      2048
+    ],
+    "metricsAfter": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    },
+    "sizeBefore": [
+      1536,
+      2048
+    ],
+    "diffPixels": 0,
+    "diffRatio": 0,
+    "diffBoxCss": null,
+    "metricsBefore": {
+      "hScroll": false,
+      "clipped": [],
+      "images": []
+    }
+  }
+]

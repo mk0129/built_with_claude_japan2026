@@ -1,0 +1,934 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>教材 v1.1 UI 比較</title>
+<style>
+:root{--bg:#f6f8f8;--fg:#1d2b2f;--muted:#5d6f74;--line:#d6e0e2;--accent:#315e68;--warn:#b5462f}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.6 "Hiragino Sans","Noto Sans JP",sans-serif}
+header{padding:20px 16px;border-bottom:1px solid var(--line);background:#fff}
+h1{margin:0 0 4px;font-size:20px}h2{margin:28px 16px 8px;font-size:17px;color:var(--accent)}
+nav a{margin-right:12px;color:var(--accent)}
+.row{margin:0 16px 18px;padding:12px;background:#fff;border:1px solid var(--line);border-radius:10px}
+.row h3{margin:0 0 6px;font-size:14px}.meta{color:var(--muted);font-size:12px;margin-bottom:8px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.grid figure{margin:0}.grid figcaption{font-size:12px;color:var(--muted)}
+.grid img{width:100%;height:auto;border:1px solid var(--line);border-radius:6px;background:#fff}
+.tag{display:inline-block;padding:0 6px;border-radius:4px;font-size:12px;background:#e7f0f1;color:var(--accent);margin-right:6px}
+.tag.diff{background:#fbe9e5;color:var(--warn)}
+@media (max-width:700px){.grid{grid-template-columns:1fr}}
+</style></head><body>
+<header><h1>教材 v1.1・線画サムネイル UI 比較（変更前｜変更後｜差分）</h1>
+<div class="meta">同じ架空データ（新しい一時 DB・基準日 2026-11-04）で撮影。差分は RGB しきい値 24。赤が変化した画素。</div>
+<nav><a href="#g0">医療者 1180px</a><a href="#g1">医療者 1440px</a><a href="#g2">医療者 820px</a><a href="#g3">医療者 s1px</a><a href="#g4">医療者 s2px</a><a href="#g5">患者 390px</a><a href="#g6">患者 s1px</a><a href="#g7">患者 430px</a><a href="#g8">患者 768px</a><a href="#g9">患者 s2px</a><a href="#g10">患者 s3px</a></nav></header>
+<h2 id="g0">医療者 1180px</h2><div class="row"><h3>C01_start_1180</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C01_start_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C01_start_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C01_start_1180.png" alt=""></figure></div></div><div class="row"><h3>C02_summary_1180</h3><div class="meta"><span class="tag diff">差分 434 画素（0.01%）範囲 62,29,1045,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C02_summary_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C02_summary_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C02_summary_1180.png" alt=""></figure></div></div><div class="row"><h3>C03_sources_1180</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C03_sources_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C03_sources_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C03_sources_1180.png" alt=""></figure></div></div><div class="row"><h3>C04_course_1180</h3><div class="meta"><span class="tag diff">差分 66 画素（0.00%）範囲 78,112,81,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C04_course_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C04_course_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C04_course_1180.png" alt=""></figure></div></div><div class="row"><h3>C05_library_1180</h3><div class="meta"><span class="tag diff">差分 36 画素（0.00%）範囲 78,113,81,118</span><br>サムネイル: thumb_symptom_check.webp 300×88（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C05_library_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C05_library_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C05_library_1180.png" alt=""></figure></div></div><div class="row"><h3>C06_prescribe_1180</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C06_prescribe_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C06_prescribe_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C06_prescribe_1180.png" alt=""></figure></div></div><div class="row"><h3>C07_studio_1180</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C07_studio_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C07_studio_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C07_studio_1180.png" alt=""></figure></div></div><div class="row"><h3>C08_draft1_edit_1180</h3><div class="meta"><span class="tag diff">差分 47,365 画素（1.25%）範囲 78,112,1139,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft1_edit_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft1_edit_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft1_edit_1180.png" alt=""></figure></div></div><div class="row"><h3>C08_draft2_edit_1180</h3><div class="meta"><span class="tag diff">差分 49,658 画素（1.31%）範囲 73,112,1139,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft2_edit_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft2_edit_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft2_edit_1180.png" alt=""></figure></div></div><div class="row"><h3>C08_draft3_edit_1180</h3><div class="meta"><span class="tag diff">差分 49,510 画素（1.31%）範囲 73,112,1139,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft3_edit_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft3_edit_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft3_edit_1180.png" alt=""></figure></div></div><div class="row"><h3>C08_draft4_edit_1180</h3><div class="meta"><span class="tag diff">差分 50,452 画素（1.34%）範囲 73,112,1139,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft4_edit_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft4_edit_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft4_edit_1180.png" alt=""></figure></div></div><div class="row"><h3>C08b_draft1_detail_field_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08b_draft1_detail_field_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C08b_draft2_detail_field_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08b_draft2_detail_field_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C08b_draft3_detail_field_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08b_draft3_detail_field_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C08b_draft4_detail_field_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08b_draft4_detail_field_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C09_draft1_quiz_1180</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft1_quiz_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft1_quiz_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft1_quiz_1180.png" alt=""></figure></div></div><div class="row"><h3>C09_draft2_quiz_1180</h3><div class="meta"><span class="tag diff">差分 123 画素（0.00%）範囲 73,112,81,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft2_quiz_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft2_quiz_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft2_quiz_1180.png" alt=""></figure></div></div><div class="row"><h3>C09_draft3_quiz_1180</h3><div class="meta"><span class="tag diff">差分 107 画素（0.00%）範囲 73,112,81,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft3_quiz_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft3_quiz_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft3_quiz_1180.png" alt=""></figure></div></div><div class="row"><h3>C09_draft4_quiz_1180</h3><div class="meta"><span class="tag diff">差分 425 画素（0.01%）範囲 73,29,1045,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft4_quiz_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft4_quiz_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft4_quiz_1180.png" alt=""></figure></div></div><div class="row"><h3>C10_draft1_preview_1180</h3><div class="meta"><span class="tag diff">差分 272,748 画素（7.22%）範囲 78,72,1156,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft1_preview_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft1_preview_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft1_preview_1180.png" alt=""></figure></div></div><div class="row"><h3>C10_draft2_preview_1180</h3><div class="meta"><span class="tag diff">差分 285,571 画素（7.56%）範囲 73,72,1156,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft2_preview_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft2_preview_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft2_preview_1180.png" alt=""></figure></div></div><div class="row"><h3>C10_draft3_preview_1180</h3><div class="meta"><span class="tag diff">差分 292,537 画素（7.75%）範囲 73,72,1156,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft3_preview_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft3_preview_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft3_preview_1180.png" alt=""></figure></div></div><div class="row"><h3>C10_draft4_preview_1180</h3><div class="meta"><span class="tag diff">差分 284,305 画素（7.53%）範囲 67,29,1156,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft4_preview_1180.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft4_preview_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft4_preview_1180.png" alt=""></figure></div></div><div class="row"><h3>C11_draft1_preview_detail_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft1_preview_detail_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft2_preview_detail_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft2_preview_detail_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft3_preview_detail_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft3_preview_detail_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft4_preview_detail_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft4_preview_detail_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft1_preview_slide2_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft1_preview_slide2_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft1_preview_slide3_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft1_preview_slide3_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft1_preview_slide4_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft1_preview_slide4_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft1_preview_slide5_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft1_preview_slide5_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft2_preview_slide2_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft2_preview_slide2_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft2_preview_slide3_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft2_preview_slide3_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft2_preview_slide4_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft2_preview_slide4_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft2_preview_slide5_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft2_preview_slide5_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft3_preview_slide2_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft3_preview_slide2_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft3_preview_slide3_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft3_preview_slide3_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft3_preview_slide4_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft3_preview_slide4_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft3_preview_slide5_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft3_preview_slide5_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft4_preview_slide2_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft4_preview_slide2_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft4_preview_slide3_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft4_preview_slide3_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft4_preview_slide4_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft4_preview_slide4_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft4_preview_slide5_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft4_preview_slide5_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft1_preview_q1_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft1_preview_q1_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft1_preview_q2_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft1_preview_q2_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft1_preview_q3_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft1_preview_q3_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft2_preview_q1_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft2_preview_q1_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft2_preview_q2_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft2_preview_q2_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft2_preview_q3_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft2_preview_q3_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft3_preview_q1_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft3_preview_q1_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft3_preview_q2_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft3_preview_q2_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft3_preview_q3_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft3_preview_q3_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft4_preview_q1_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft4_preview_q1_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft4_preview_q2_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft4_preview_q2_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft4_preview_q3_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft4_preview_q3_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C14_draft1_preview_a1_correct_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C14_draft1_preview_a1_correct_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C14_draft1_preview_a2_wrong_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C14_draft1_preview_a2_wrong_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C14_draft1_preview_a3_unknown_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C14_draft1_preview_a3_unknown_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C14_draft2_preview_a1_correct_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C14_draft2_preview_a1_correct_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C14_draft2_preview_a2_wrong_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C14_draft2_preview_a2_wrong_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C14_draft2_preview_a3_unknown_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C14_draft2_preview_a3_unknown_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C14_draft3_preview_a1_correct_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C14_draft3_preview_a1_correct_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C14_draft3_preview_a2_wrong_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C14_draft3_preview_a2_wrong_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C14_draft3_preview_a3_unknown_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C14_draft3_preview_a3_unknown_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C14_draft4_preview_a1_correct_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C14_draft4_preview_a1_correct_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C14_draft4_preview_a2_wrong_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C14_draft4_preview_a2_wrong_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C14_draft4_preview_a3_unknown_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C14_draft4_preview_a3_unknown_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C15_draft1_preview_done_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C15_draft1_preview_done_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C15_draft2_preview_done_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C15_draft2_preview_done_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C15_draft3_preview_done_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C15_draft3_preview_done_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C15_draft4_preview_done_1180</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C15_draft4_preview_done_1180.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><h2 id="g1">医療者 1440px</h2><div class="row"><h3>C01_start_1440</h3><div class="meta"><span class="tag diff">差分 436 画素（0.01%）範囲 702,58,1226,499</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C01_start_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C01_start_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C01_start_1440.png" alt=""></figure></div></div><div class="row"><h3>C02_summary_1440</h3><div class="meta"><span class="tag diff">差分 6,067 画素（0.12%）範囲 367,59,1230,793</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C02_summary_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C02_summary_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C02_summary_1440.png" alt=""></figure></div></div><div class="row"><h3>C03_sources_1440</h3><div class="meta"><span class="tag diff">差分 6,126 画素（0.12%）範囲 367,59,1230,852</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C03_sources_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C03_sources_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C03_sources_1440.png" alt=""></figure></div></div><div class="row"><h3>C04_course_1440</h3><div class="meta"><span class="tag diff">差分 563 画素（0.01%）範囲 366,59,1246,815</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C04_course_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C04_course_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C04_course_1440.png" alt=""></figure></div></div><div class="row"><h3>C05_library_1440</h3><div class="meta"><span class="tag diff">差分 900 画素（0.02%）範囲 194,59,1154,821</span><br>サムネイル: thumb_symptom_check.webp 300×88（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C05_library_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C05_library_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C05_library_1440.png" alt=""></figure></div></div><div class="row"><h3>C06_prescribe_1440</h3><div class="meta"><span class="tag diff">差分 305 画素（0.01%）範囲 208,59,1241,364</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C06_prescribe_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C06_prescribe_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C06_prescribe_1440.png" alt=""></figure></div></div><div class="row"><h3>C07_studio_1440</h3><div class="meta"><span class="tag diff">差分 240 画素（0.01%）範囲 194,59,1154,699</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C07_studio_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C07_studio_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C07_studio_1440.png" alt=""></figure></div></div><div class="row"><h3>C08_draft1_edit_1440</h3><div class="meta"><span class="tag diff">差分 58,771 画素（1.13%）範囲 194,59,1286,876</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft1_edit_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft1_edit_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft1_edit_1440.png" alt=""></figure></div></div><div class="row"><h3>C08_draft2_edit_1440</h3><div class="meta"><span class="tag diff">差分 60,981 画素（1.18%）範囲 194,59,1286,876</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft2_edit_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft2_edit_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft2_edit_1440.png" alt=""></figure></div></div><div class="row"><h3>C08_draft3_edit_1440</h3><div class="meta"><span class="tag diff">差分 60,917 画素（1.18%）範囲 194,59,1286,876</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft3_edit_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft3_edit_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft3_edit_1440.png" alt=""></figure></div></div><div class="row"><h3>C08_draft4_edit_1440</h3><div class="meta"><span class="tag diff">差分 61,768 画素（1.19%）範囲 194,59,1286,876</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft4_edit_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft4_edit_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft4_edit_1440.png" alt=""></figure></div></div><div class="row"><h3>C08b_draft1_detail_field_1440</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08b_draft1_detail_field_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C08b_draft2_detail_field_1440</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08b_draft2_detail_field_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C08b_draft3_detail_field_1440</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08b_draft3_detail_field_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C08b_draft4_detail_field_1440</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08b_draft4_detail_field_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C09_draft1_quiz_1440</h3><div class="meta"><span class="tag diff">差分 139 画素（0.00%）範囲 194,59,1154,874</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft1_quiz_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft1_quiz_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft1_quiz_1440.png" alt=""></figure></div></div><div class="row"><h3>C09_draft2_quiz_1440</h3><div class="meta"><span class="tag diff">差分 210 画素（0.00%）範囲 194,59,1154,874</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft2_quiz_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft2_quiz_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft2_quiz_1440.png" alt=""></figure></div></div><div class="row"><h3>C09_draft3_quiz_1440</h3><div class="meta"><span class="tag diff">差分 258 画素（0.01%）範囲 194,59,1154,874</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft3_quiz_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft3_quiz_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft3_quiz_1440.png" alt=""></figure></div></div><div class="row"><h3>C09_draft4_quiz_1440</h3><div class="meta"><span class="tag diff">差分 207 画素（0.00%）範囲 194,59,1154,815</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft4_quiz_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft4_quiz_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft4_quiz_1440.png" alt=""></figure></div></div><div class="row"><h3>C10_draft1_preview_1440</h3><div class="meta"><span class="tag diff">差分 316,629 画素（6.11%）範囲 194,59,1286,876</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft1_preview_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft1_preview_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft1_preview_1440.png" alt=""></figure></div></div><div class="row"><h3>C10_draft2_preview_1440</h3><div class="meta"><span class="tag diff">差分 329,422 画素（6.35%）範囲 194,59,1286,876</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft2_preview_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft2_preview_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft2_preview_1440.png" alt=""></figure></div></div><div class="row"><h3>C10_draft3_preview_1440</h3><div class="meta"><span class="tag diff">差分 336,439 画素（6.49%）範囲 194,59,1286,876</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft3_preview_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft3_preview_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft3_preview_1440.png" alt=""></figure></div></div><div class="row"><h3>C10_draft4_preview_1440</h3><div class="meta"><span class="tag diff">差分 330,039 画素（6.37%）範囲 194,59,1286,876</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft4_preview_1440.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft4_preview_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft4_preview_1440.png" alt=""></figure></div></div><div class="row"><h3>C11_draft1_preview_detail_1440</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft1_preview_detail_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft2_preview_detail_1440</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft2_preview_detail_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft3_preview_detail_1440</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft3_preview_detail_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft4_preview_detail_1440</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft4_preview_detail_1440.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><h2 id="g2">医療者 820px</h2><div class="row"><h3>C01_start_820</h3><div class="meta"><span class="tag diff">差分 436 画素（0.02%）範囲 392,34,736,449</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C01_start_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C01_start_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C01_start_820.png" alt=""></figure></div></div><div class="row"><h3>C02_summary_820</h3><div class="meta"><span class="tag diff">差分 6,337 画素（0.24%）範囲 181,35,754,740</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C02_summary_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C02_summary_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C02_summary_820.png" alt=""></figure></div></div><div class="row"><h3>C03_sources_820</h3><div class="meta"><span class="tag diff">差分 6,396 画素（0.24%）範囲 181,35,754,799</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C03_sources_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C03_sources_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C03_sources_820.png" alt=""></figure></div></div><div class="row"><h3>C04_course_820</h3><div class="meta"><span class="tag diff">差分 724 画素（0.03%）範囲 180,35,762,785</span><span class="tag diff">はみ出し・切れ 52 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C04_course_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C04_course_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C04_course_820.png" alt=""></figure></div></div><div class="row"><h3>C05_library_820</h3><div class="meta"><span class="tag diff">差分 1,294 画素（0.05%）範囲 58,35,719,791</span><br>サムネイル: thumb_symptom_check.webp 308×88（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C05_library_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C05_library_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C05_library_820.png" alt=""></figure></div></div><div class="row"><h3>C06_prescribe_820</h3><div class="meta"><span class="tag diff">差分 257 画素（0.01%）範囲 194,35,757,470</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C06_prescribe_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C06_prescribe_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C06_prescribe_820.png" alt=""></figure></div></div><div class="row"><h3>C07_studio_820</h3><div class="meta"><span class="tag diff">差分 197 画素（0.01%）範囲 58,35,670,741</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C07_studio_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C07_studio_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C07_studio_820.png" alt=""></figure></div></div><div class="row"><h3>C08_draft1_edit_820</h3><div class="meta"><span class="tag diff">差分 28,972 画素（1.10%）範囲 58,35,785,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft1_edit_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft1_edit_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft1_edit_820.png" alt=""></figure></div></div><div class="row"><h3>C08_draft2_edit_820</h3><div class="meta"><span class="tag diff">差分 31,230 画素（1.19%）範囲 58,35,785,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft2_edit_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft2_edit_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft2_edit_820.png" alt=""></figure></div></div><div class="row"><h3>C08_draft3_edit_820</h3><div class="meta"><span class="tag diff">差分 31,082 画素（1.19%）範囲 58,35,785,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft3_edit_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft3_edit_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft3_edit_820.png" alt=""></figure></div></div><div class="row"><h3>C08_draft4_edit_820</h3><div class="meta"><span class="tag diff">差分 32,030 画素（1.22%）範囲 58,35,785,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft4_edit_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft4_edit_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft4_edit_820.png" alt=""></figure></div></div><div class="row"><h3>C08b_draft1_detail_field_820</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08b_draft1_detail_field_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C08b_draft2_detail_field_820</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08b_draft2_detail_field_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C08b_draft3_detail_field_820</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08b_draft3_detail_field_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C08b_draft4_detail_field_820</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08b_draft4_detail_field_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C09_draft1_quiz_820</h3><div class="meta"><span class="tag diff">差分 238 画素（0.01%）範囲 58,35,670,679</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft1_quiz_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft1_quiz_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft1_quiz_820.png" alt=""></figure></div></div><div class="row"><h3>C09_draft2_quiz_820</h3><div class="meta"><span class="tag diff">差分 176 画素（0.01%）範囲 58,35,670,699</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft2_quiz_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft2_quiz_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft2_quiz_820.png" alt=""></figure></div></div><div class="row"><h3>C09_draft3_quiz_820</h3><div class="meta"><span class="tag diff">差分 297 画素（0.01%）範囲 58,35,731,689</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft3_quiz_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft3_quiz_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft3_quiz_820.png" alt=""></figure></div></div><div class="row"><h3>C09_draft4_quiz_820</h3><div class="meta"><span class="tag diff">差分 271 画素（0.01%）範囲 58,35,740,679</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft4_quiz_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft4_quiz_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft4_quiz_820.png" alt=""></figure></div></div><div class="row"><h3>C10_draft1_preview_820</h3><div class="meta"><span class="tag diff">差分 255,207 画素（9.73%）範囲 58,35,802,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft1_preview_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft1_preview_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft1_preview_820.png" alt=""></figure></div></div><div class="row"><h3>C10_draft2_preview_820</h3><div class="meta"><span class="tag diff">差分 268,187 画素（10.22%）範囲 58,35,802,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft2_preview_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft2_preview_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft2_preview_820.png" alt=""></figure></div></div><div class="row"><h3>C10_draft3_preview_820</h3><div class="meta"><span class="tag diff">差分 274,709 画素（10.47%）範囲 58,35,802,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft3_preview_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft3_preview_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft3_preview_820.png" alt=""></figure></div></div><div class="row"><h3>C10_draft4_preview_820</h3><div class="meta"><span class="tag diff">差分 263,984 画素（10.06%）範囲 58,35,802,800</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft4_preview_820.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft4_preview_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft4_preview_820.png" alt=""></figure></div></div><div class="row"><h3>C11_draft1_preview_detail_820</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft1_preview_detail_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft2_preview_detail_820</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft2_preview_detail_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft3_preview_detail_820</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft3_preview_detail_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft4_preview_detail_820</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft4_preview_detail_820.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><h2 id="g3">医療者 s1px</h2><div class="row"><h3>C02_summary_1180_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C02_summary_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C02_summary_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C02_summary_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C02_summary_1440_s1</h3><div class="meta"><span class="tag diff">差分 1,016 画素（0.02%）範囲 388,59,1218,735</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C02_summary_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C02_summary_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C02_summary_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C02_summary_820_s1</h3><div class="meta"><span class="tag diff">差分 648 画素（0.03%）範囲 202,35,670,798</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C02_summary_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C02_summary_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C02_summary_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C03_sources_1180_s1</h3><div class="meta"><span class="tag diff">差分 39 画素（0.00%）範囲 78,112,81,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C03_sources_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C03_sources_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C03_sources_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C03_sources_1440_s1</h3><div class="meta"><span class="tag diff">差分 1,016 画素（0.02%）範囲 388,59,1218,782</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C03_sources_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C03_sources_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C03_sources_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C03_sources_820_s1</h3><div class="meta"><span class="tag diff">差分 571 画素（0.02%）範囲 202,35,670,663</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C03_sources_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C03_sources_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C03_sources_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C04_course_1180_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C04_course_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C04_course_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C04_course_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C04_course_820_s1</h3><div class="meta"><span class="tag diff">差分 724 画素（0.03%）範囲 180,35,762,774</span><span class="tag diff">はみ出し・切れ 52 件</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C04_course_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C04_course_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C04_course_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C05_library_1180_s1</h3><div class="meta"><span class="tag diff">差分 16,366 画素（0.43%）範囲 580,231,814,319</span><br>サムネイル: thumb_symptom_check.webp 300×88（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C05_library_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C05_library_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C05_library_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C05_library_1440_s1</h3><div class="meta"><span class="tag diff">差分 16,832 画素（0.33%）範囲 194,59,1154,683</span><br>サムネイル: thumb_symptom_check.webp 300×88（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C05_library_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C05_library_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C05_library_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C05_library_820_s1</h3><div class="meta"><span class="tag diff">差分 17,521 画素（0.67%）範囲 58,35,771,789</span><br>サムネイル: thumb_symptom_check.webp 308×88（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C05_library_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C05_library_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C05_library_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C07_studio_1180_s1</h3><div class="meta"><span class="tag diff">差分 104 画素（0.00%）範囲 73,112,81,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C07_studio_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C07_studio_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C07_studio_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C07_studio_820_s1</h3><div class="meta"><span class="tag diff">差分 112 画素（0.00%）範囲 58,35,670,691</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C07_studio_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C07_studio_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C07_studio_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C08_draft1_edit_1180_s1</h3><div class="meta"><span class="tag diff">差分 128,935 画素（3.42%）範囲 229,68,1156,761</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft1_edit_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft1_edit_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft1_edit_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C08_draft1_edit_1440_s1</h3><div class="meta"><span class="tag diff">差分 146,105 画素（2.82%）範囲 194,59,1286,837</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft1_edit_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft1_edit_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft1_edit_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C08_draft1_edit_820_s1</h3><div class="meta"><span class="tag diff">差分 100,309 画素（3.82%）範囲 58,35,802,767</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft1_edit_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft1_edit_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft1_edit_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C08_draft2_edit_1180_s1</h3><div class="meta"><span class="tag diff">差分 136,596 画素（3.62%）範囲 73,68,1156,761</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft2_edit_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft2_edit_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft2_edit_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C08_draft2_edit_1440_s1</h3><div class="meta"><span class="tag diff">差分 153,668 画素（2.96%）範囲 194,59,1286,837</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft2_edit_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft2_edit_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft2_edit_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C08_draft2_edit_820_s1</h3><div class="meta"><span class="tag diff">差分 107,929 画素（4.11%）範囲 58,35,802,767</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft2_edit_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft2_edit_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft2_edit_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C08_draft3_edit_1180_s1</h3><div class="meta"><span class="tag diff">差分 137,662 画素（3.65%）範囲 73,68,1156,761</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft3_edit_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft3_edit_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft3_edit_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C08_draft3_edit_1440_s1</h3><div class="meta"><span class="tag diff">差分 154,869 画素（2.99%）範囲 194,59,1286,837</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft3_edit_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft3_edit_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft3_edit_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C08_draft3_edit_820_s1</h3><div class="meta"><span class="tag diff">差分 107,320 画素（4.09%）範囲 58,35,802,767</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft3_edit_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft3_edit_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft3_edit_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C08_draft4_edit_1180_s1</h3><div class="meta"><span class="tag diff">差分 133,805 画素（3.54%）範囲 73,68,1156,761</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft4_edit_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft4_edit_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft4_edit_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C08_draft4_edit_1440_s1</h3><div class="meta"><span class="tag diff">差分 150,913 画素（2.91%）範囲 194,59,1286,837</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft4_edit_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft4_edit_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft4_edit_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C08_draft4_edit_820_s1</h3><div class="meta"><span class="tag diff">差分 105,175 画素（4.01%）範囲 58,35,802,767</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C08_draft4_edit_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C08_draft4_edit_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C08_draft4_edit_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C09_draft1_quiz_1180_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft1_quiz_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft1_quiz_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft1_quiz_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C09_draft1_quiz_1440_s1</h3><div class="meta"><span class="tag diff">差分 19 画素（0.00%）範囲 194,59,1154,769</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft1_quiz_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft1_quiz_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft1_quiz_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C09_draft1_quiz_820_s1</h3><div class="meta"><span class="tag diff">差分 19 画素（0.00%）範囲 58,35,705,796</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft1_quiz_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft1_quiz_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft1_quiz_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C09_draft2_quiz_1180_s1</h3><div class="meta"><span class="tag diff">差分 123 画素（0.00%）範囲 73,112,81,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft2_quiz_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft2_quiz_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft2_quiz_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C09_draft2_quiz_1440_s1</h3><div class="meta"><span class="tag diff">差分 95 画素（0.00%）範囲 194,59,1154,768</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft2_quiz_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft2_quiz_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft2_quiz_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C09_draft2_quiz_820_s1</h3><div class="meta"><span class="tag diff">差分 131 画素（0.01%）範囲 58,35,670,795</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft2_quiz_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft2_quiz_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft2_quiz_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C09_draft3_quiz_1180_s1</h3><div class="meta"><span class="tag diff">差分 107 画素（0.00%）範囲 73,112,81,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft3_quiz_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft3_quiz_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft3_quiz_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C09_draft3_quiz_1440_s1</h3><div class="meta"><span class="tag diff">差分 432 画素（0.01%）範囲 194,59,1154,771</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft3_quiz_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft3_quiz_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft3_quiz_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C09_draft3_quiz_820_s1</h3><div class="meta"><span class="tag diff">差分 429 画素（0.02%）範囲 58,35,706,798</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft3_quiz_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft3_quiz_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft3_quiz_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C09_draft4_quiz_1180_s1</h3><div class="meta"><span class="tag diff">差分 425 画素（0.01%）範囲 73,29,1045,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft4_quiz_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft4_quiz_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft4_quiz_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C09_draft4_quiz_1440_s1</h3><div class="meta"><span class="tag diff">差分 81 画素（0.00%）範囲 194,59,1154,769</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft4_quiz_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft4_quiz_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft4_quiz_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C09_draft4_quiz_820_s1</h3><div class="meta"><span class="tag diff">差分 115 画素（0.00%）範囲 58,35,740,796</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft4_quiz_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft4_quiz_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft4_quiz_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C10_draft1_preview_1180_s1</h3><div class="meta"><span class="tag diff">差分 272,168 画素（7.21%）範囲 229,68,1156,799</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft1_preview_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft1_preview_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft1_preview_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C10_draft1_preview_1440_s1</h3><div class="meta"><span class="tag diff">差分 329,331 画素（6.35%）範囲 194,59,1286,876</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft1_preview_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft1_preview_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft1_preview_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C10_draft1_preview_820_s1</h3><div class="meta"><span class="tag diff">差分 261,750 画素（9.98%）範囲 58,35,802,799</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft1_preview_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft1_preview_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft1_preview_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C10_draft2_preview_1180_s1</h3><div class="meta"><span class="tag diff">差分 281,829 画素（7.46%）範囲 73,68,1156,799</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft2_preview_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft2_preview_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft2_preview_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C10_draft2_preview_1440_s1</h3><div class="meta"><span class="tag diff">差分 339,921 画素（6.56%）範囲 194,59,1286,876</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft2_preview_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft2_preview_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft2_preview_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C10_draft2_preview_820_s1</h3><div class="meta"><span class="tag diff">差分 271,308 画素（10.34%）範囲 58,35,802,799</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft2_preview_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft2_preview_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft2_preview_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C10_draft3_preview_1180_s1</h3><div class="meta"><span class="tag diff">差分 285,434 画素（7.56%）範囲 73,68,1156,799</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft3_preview_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft3_preview_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft3_preview_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C10_draft3_preview_1440_s1</h3><div class="meta"><span class="tag diff">差分 346,079 画素（6.68%）範囲 194,59,1286,876</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft3_preview_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft3_preview_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft3_preview_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C10_draft3_preview_820_s1</h3><div class="meta"><span class="tag diff">差分 274,830 画素（10.47%）範囲 58,35,802,799</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft3_preview_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft3_preview_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft3_preview_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C10_draft4_preview_1180_s1</h3><div class="meta"><span class="tag diff">差分 283,966 画素（7.52%）範囲 67,29,1156,799</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft4_preview_1180_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft4_preview_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft4_preview_1180_s1.png" alt=""></figure></div></div><div class="row"><h3>C10_draft4_preview_1440_s1</h3><div class="meta"><span class="tag diff">差分 342,932 画素（6.62%）範囲 194,59,1286,876</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft4_preview_1440_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft4_preview_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft4_preview_1440_s1.png" alt=""></figure></div></div><div class="row"><h3>C10_draft4_preview_820_s1</h3><div class="meta"><span class="tag diff">差分 273,321 画素（10.42%）範囲 58,35,802,799</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C10_draft4_preview_820_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C10_draft4_preview_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C10_draft4_preview_820_s1.png" alt=""></figure></div></div><div class="row"><h3>C11_draft1_preview_detail_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft1_preview_detail_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft1_preview_detail_1440_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft1_preview_detail_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft1_preview_detail_820_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft1_preview_detail_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft2_preview_detail_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft2_preview_detail_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft2_preview_detail_1440_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft2_preview_detail_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft2_preview_detail_820_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft2_preview_detail_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft3_preview_detail_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft3_preview_detail_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft3_preview_detail_1440_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft3_preview_detail_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft3_preview_detail_820_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft3_preview_detail_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft4_preview_detail_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft4_preview_detail_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft4_preview_detail_1440_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft4_preview_detail_1440_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C11_draft4_preview_detail_820_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C11_draft4_preview_detail_820_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft1_preview_slide2_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft1_preview_slide2_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft1_preview_slide3_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft1_preview_slide3_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft1_preview_slide4_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft1_preview_slide4_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft1_preview_slide5_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft1_preview_slide5_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft2_preview_slide2_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft2_preview_slide2_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft2_preview_slide3_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft2_preview_slide3_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft2_preview_slide4_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft2_preview_slide4_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft2_preview_slide5_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft2_preview_slide5_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft3_preview_slide2_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft3_preview_slide2_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft3_preview_slide3_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft3_preview_slide3_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft3_preview_slide4_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft3_preview_slide4_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft3_preview_slide5_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft3_preview_slide5_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft4_preview_slide2_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft4_preview_slide2_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft4_preview_slide3_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft4_preview_slide3_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft4_preview_slide4_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft4_preview_slide4_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C12_draft4_preview_slide5_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C12_draft4_preview_slide5_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft1_preview_q1_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft1_preview_q1_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft1_preview_q2_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft1_preview_q2_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft1_preview_q3_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft1_preview_q3_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft2_preview_q1_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft2_preview_q1_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft2_preview_q2_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft2_preview_q2_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft2_preview_q3_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft2_preview_q3_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft3_preview_q1_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft3_preview_q1_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft3_preview_q2_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft3_preview_q2_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft3_preview_q3_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft3_preview_q3_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft4_preview_q1_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft4_preview_q1_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft4_preview_q2_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft4_preview_q2_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C13_draft4_preview_q3_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C13_draft4_preview_q3_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C15_draft1_preview_done_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C15_draft1_preview_done_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C15_draft2_preview_done_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C15_draft2_preview_done_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C15_draft3_preview_done_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C15_draft3_preview_done_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><div class="row"><h3>C15_draft4_preview_done_1180_s1</h3><div class="meta"><span class="tag">変更後のみ（下書きの確認画面）</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><div class="meta">（なし）</div></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C15_draft4_preview_done_1180_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><div class="meta">—</div></figure></div></div><h2 id="g4">医療者 s2px</h2><div class="row"><h3>C02_summary_1180_s2</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C02_summary_1180_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C02_summary_1180_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C02_summary_1180_s2.png" alt=""></figure></div></div><div class="row"><h3>C02_summary_820_s2</h3><div class="meta"><span class="tag diff">差分 362 画素（0.01%）範囲 228,35,670,356</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C02_summary_820_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C02_summary_820_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C02_summary_820_s2.png" alt=""></figure></div></div><div class="row"><h3>C03_sources_1180_s2</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C03_sources_1180_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C03_sources_1180_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C03_sources_1180_s2.png" alt=""></figure></div></div><div class="row"><h3>C03_sources_1440_s2</h3><div class="meta"><span class="tag diff">差分 1,016 画素（0.02%）範囲 388,59,1218,734</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C03_sources_1440_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C03_sources_1440_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C03_sources_1440_s2.png" alt=""></figure></div></div><div class="row"><h3>C03_sources_820_s2</h3><div class="meta"><span class="tag diff">差分 362 画素（0.01%）範囲 228,35,670,357</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C03_sources_820_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C03_sources_820_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C03_sources_820_s2.png" alt=""></figure></div></div><div class="row"><h3>C05_library_1180_s2</h3><div class="meta"><span class="tag diff">差分 16,413 画素（0.43%）範囲 78,112,814,238</span><br>サムネイル: thumb_symptom_check.webp 300×88（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C05_library_1180_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C05_library_1180_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C05_library_1180_s2.png" alt=""></figure></div></div><div class="row"><h3>C05_library_820_s2</h3><div class="meta"><span class="tag diff">差分 17,273 画素（0.66%）範囲 58,35,771,613</span><br>サムネイル: thumb_symptom_check.webp 308×88（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C05_library_820_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C05_library_820_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C05_library_820_s2.png" alt=""></figure></div></div><div class="row"><h3>C09_draft1_quiz_1180_s2</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft1_quiz_1180_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft1_quiz_1180_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft1_quiz_1180_s2.png" alt=""></figure></div></div><div class="row"><h3>C09_draft1_quiz_1440_s2</h3><div class="meta"><span class="tag diff">差分 15 画素（0.00%）範囲 194,59,1154,699</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft1_quiz_1440_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft1_quiz_1440_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft1_quiz_1440_s2.png" alt=""></figure></div></div><div class="row"><h3>C09_draft1_quiz_820_s2</h3><div class="meta"><span class="tag diff">差分 14 画素（0.00%）範囲 58,35,704,629</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft1_quiz_820_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft1_quiz_820_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft1_quiz_820_s2.png" alt=""></figure></div></div><div class="row"><h3>C09_draft2_quiz_1180_s2</h3><div class="meta"><span class="tag diff">差分 123 画素（0.00%）範囲 73,112,81,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft2_quiz_1180_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft2_quiz_1180_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft2_quiz_1180_s2.png" alt=""></figure></div></div><div class="row"><h3>C09_draft2_quiz_1440_s2</h3><div class="meta"><span class="tag diff">差分 94 画素（0.00%）範囲 194,59,1154,698</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft2_quiz_1440_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft2_quiz_1440_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft2_quiz_1440_s2.png" alt=""></figure></div></div><div class="row"><h3>C09_draft2_quiz_820_s2</h3><div class="meta"><span class="tag diff">差分 128 画素（0.01%）範囲 58,35,670,628</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft2_quiz_820_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft2_quiz_820_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft2_quiz_820_s2.png" alt=""></figure></div></div><div class="row"><h3>C09_draft3_quiz_1180_s2</h3><div class="meta"><span class="tag diff">差分 107 画素（0.00%）範囲 73,112,81,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft3_quiz_1180_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft3_quiz_1180_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft3_quiz_1180_s2.png" alt=""></figure></div></div><div class="row"><h3>C09_draft3_quiz_1440_s2</h3><div class="meta"><span class="tag diff">差分 430 画素（0.01%）範囲 194,59,1154,701</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft3_quiz_1440_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft3_quiz_1440_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft3_quiz_1440_s2.png" alt=""></figure></div></div><div class="row"><h3>C09_draft3_quiz_820_s2</h3><div class="meta"><span class="tag diff">差分 425 画素（0.02%）範囲 58,35,706,631</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft3_quiz_820_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft3_quiz_820_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft3_quiz_820_s2.png" alt=""></figure></div></div><div class="row"><h3>C09_draft4_quiz_1180_s2</h3><div class="meta"><span class="tag diff">差分 425 画素（0.01%）範囲 73,29,1045,118</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft4_quiz_1180_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft4_quiz_1180_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft4_quiz_1180_s2.png" alt=""></figure></div></div><div class="row"><h3>C09_draft4_quiz_1440_s2</h3><div class="meta"><span class="tag diff">差分 78 画素（0.00%）範囲 194,59,1154,699</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft4_quiz_1440_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft4_quiz_1440_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft4_quiz_1440_s2.png" alt=""></figure></div></div><div class="row"><h3>C09_draft4_quiz_820_s2</h3><div class="meta"><span class="tag diff">差分 112 画素（0.00%）範囲 58,35,740,629</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/C09_draft4_quiz_820_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/C09_draft4_quiz_820_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/C09_draft4_quiz_820_s2.png" alt=""></figure></div></div><h2 id="g5">患者 390px</h2><div class="row"><h3>P01_home_390</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P01_home_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01_home_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P01_home_390.png" alt=""></figure></div></div><div class="row"><h3>P02_library_390</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P02_library_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P02_library_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P02_library_390.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_chemo_390</h3><div class="meta"><span class="tag diff">差分 139,707 画素（10.61%）範囲 20,187,370,766</span><br>サムネイル: thumb_symptom_check.webp 316×229（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_chemo_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_chemo_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_chemo_390.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_drug_390</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_drug_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_drug_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_drug_390.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_other_390</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_other_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_other_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_other_390.png" alt=""></figure></div></div><div class="row"><h3>P04_learn_390</h3><div class="meta"><span class="tag diff">差分 1,330 画素（0.10%）範囲 0,38,330,747</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P04_learn_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P04_learn_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P04_learn_390.png" alt=""></figure></div></div><div class="row"><h3>P05_detail_open_390</h3><div class="meta"><span class="tag diff">差分 37 画素（0.00%）範囲 34,38,288,842</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P05_detail_open_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P05_detail_open_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P05_detail_open_390.png" alt=""></figure></div></div><div class="row"><h3>P06_quiz_390</h3><div class="meta"><span class="tag diff">差分 359 画素（0.03%）範囲 100,96,284,583</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P06_quiz_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P06_quiz_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P06_quiz_390.png" alt=""></figure></div></div><div class="row"><h3>P07_explanation_390</h3><div class="meta"><span class="tag diff">差分 16 画素（0.00%）範囲 23,177,317,564</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P07_explanation_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P07_explanation_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P07_explanation_390.png" alt=""></figure></div></div><div class="row"><h3>P08_history_390</h3><div class="meta"><span class="tag diff">差分 274 画素（0.02%）範囲 26,39,332,737</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P08_history_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P08_history_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P08_history_390.png" alt=""></figure></div></div><div class="row"><h3>P09_health_390</h3><div class="meta"><span class="tag diff">差分 384 画素（0.03%）範囲 68,39,332,328</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P09_health_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P09_health_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P09_health_390.png" alt=""></figure></div></div><div class="row"><h3>P10_notes_390</h3><div class="meta"><span class="tag diff">差分 4 画素（0.00%）範囲 72,39,332,401</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P10_notes_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P10_notes_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P10_notes_390.png" alt=""></figure></div></div><div class="row"><h3>P11_share_390</h3><div class="meta"><span class="tag diff">差分 22 画素（0.00%）範囲 29,39,356,600</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P11_share_390.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P11_share_390.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P11_share_390.png" alt=""></figure></div></div><h2 id="g6">患者 s1px</h2><div class="row"><h3>P01_home_390_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P01_home_390_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01_home_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P01_home_390_s1.png" alt=""></figure></div></div><div class="row"><h3>P01_home_430_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P01_home_430_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01_home_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P01_home_430_s1.png" alt=""></figure></div></div><div class="row"><h3>P01_home_768_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P01_home_768_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01_home_768_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P01_home_768_s1.png" alt=""></figure></div></div><div class="row"><h3>P02_library_390_s1</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P02_library_390_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P02_library_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P02_library_390_s1.png" alt=""></figure></div></div><div class="row"><h3>P02_library_430_s1</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P02_library_430_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P02_library_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P02_library_430_s1.png" alt=""></figure></div></div><div class="row"><h3>P02_library_768_s1</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P02_library_768_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P02_library_768_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P02_library_768_s1.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_chemo_390_s1</h3><div class="meta"><span class="tag diff">差分 17,106 画素（1.30%）範囲 20,68,370,644</span><br>サムネイル: thumb_symptom_check.webp 316×229（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_chemo_390_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_chemo_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_chemo_390_s1.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_chemo_430_s1</h3><div class="meta"><span class="tag diff">差分 17,320 画素（1.19%）範囲 20,68,410,707</span><br>サムネイル: thumb_symptom_check.webp 356×259（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_chemo_430_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_chemo_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_chemo_430_s1.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_chemo_768_s1</h3><div class="meta"><span class="tag diff">差分 129,296 画素（4.11%）範囲 36,68,732,886</span><br>サムネイル: thumb_symptom_check.webp 662×356（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_chemo_768_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_chemo_768_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_chemo_768_s1.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_drug_390_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_drug_390_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_drug_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_drug_390_s1.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_drug_430_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_drug_430_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_drug_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_drug_430_s1.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_drug_768_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_drug_768_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_drug_768_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_drug_768_s1.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_other_390_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_other_390_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_other_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_other_390_s1.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_other_430_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_other_430_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_other_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_other_430_s1.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_other_768_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_other_768_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_other_768_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_other_768_s1.png" alt=""></figure></div></div><div class="row"><h3>P05_detail_open_390_s1</h3><div class="meta"><span class="tag diff">差分 35 画素（0.00%）範囲 42,261,288,792</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P05_detail_open_390_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P05_detail_open_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P05_detail_open_390_s1.png" alt=""></figure></div></div><div class="row"><h3>P05_detail_open_430_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P05_detail_open_430_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P05_detail_open_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P05_detail_open_430_s1.png" alt=""></figure></div></div><div class="row"><h3>P08_history_390_s1</h3><div class="meta"><span class="tag diff">差分 98 画素（0.01%）範囲 33,39,332,710</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P08_history_390_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P08_history_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P08_history_390_s1.png" alt=""></figure></div></div><div class="row"><h3>P08_history_430_s1</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P08_history_430_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P08_history_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P08_history_430_s1.png" alt=""></figure></div></div><div class="row"><h3>P08_history_768_s1</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P08_history_768_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P08_history_768_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P08_history_768_s1.png" alt=""></figure></div></div><div class="row"><h3>P09_health_390_s1</h3><div class="meta"><span class="tag diff">差分 2 画素（0.00%）範囲 44,39,332,175</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P09_health_390_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P09_health_390_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P09_health_390_s1.png" alt=""></figure></div></div><div class="row"><h3>P09_health_430_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P09_health_430_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P09_health_430_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P09_health_430_s1.png" alt=""></figure></div></div><div class="row"><h3>P09_health_768_s1</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P09_health_768_s1.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P09_health_768_s1.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P09_health_768_s1.png" alt=""></figure></div></div><h2 id="g7">患者 430px</h2><div class="row"><h3>P01_home_430</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P01_home_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01_home_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P01_home_430.png" alt=""></figure></div></div><div class="row"><h3>P02_library_430</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P02_library_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P02_library_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P02_library_430.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_chemo_430</h3><div class="meta"><span class="tag diff">差分 146,107 画素（10.06%）範囲 20,190,410,766</span><br>サムネイル: thumb_symptom_check.webp 356×259（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_chemo_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_chemo_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_chemo_430.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_drug_430</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_drug_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_drug_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_drug_430.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_other_430</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_other_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_other_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_other_430.png" alt=""></figure></div></div><div class="row"><h3>P04_learn_430</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P04_learn_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P04_learn_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P04_learn_430.png" alt=""></figure></div></div><div class="row"><h3>P05_detail_open_430</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P05_detail_open_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P05_detail_open_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P05_detail_open_430.png" alt=""></figure></div></div><div class="row"><h3>P06_quiz_430</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P06_quiz_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P06_quiz_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P06_quiz_430.png" alt=""></figure></div></div><div class="row"><h3>P07_explanation_430</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P07_explanation_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P07_explanation_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P07_explanation_430.png" alt=""></figure></div></div><div class="row"><h3>P08_history_430</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P08_history_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P08_history_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P08_history_430.png" alt=""></figure></div></div><div class="row"><h3>P09_health_430</h3><div class="meta"><span class="tag diff">差分 345 画素（0.02%）範囲 316,320,338,328</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P09_health_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P09_health_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P09_health_430.png" alt=""></figure></div></div><div class="row"><h3>P10_notes_430</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P10_notes_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P10_notes_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P10_notes_430.png" alt=""></figure></div></div><div class="row"><h3>P11_share_430</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P11_share_430.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P11_share_430.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P11_share_430.png" alt=""></figure></div></div><h2 id="g8">患者 768px</h2><div class="row"><h3>P01_home_768</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P01_home_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P01_home_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P01_home_768.png" alt=""></figure></div></div><div class="row"><h3>P02_library_768</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P02_library_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P02_library_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P02_library_768.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_chemo_768</h3><div class="meta"><span class="tag diff">差分 260,329 画素（8.28%）範囲 36,170,732,946</span><br>サムネイル: thumb_symptom_check.webp 662×356（contain）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_chemo_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_chemo_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_chemo_768.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_drug_768</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_drug_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_drug_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_drug_768.png" alt=""></figure></div></div><div class="row"><h3>P03_detail_other_768</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P03_detail_other_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P03_detail_other_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P03_detail_other_768.png" alt=""></figure></div></div><div class="row"><h3>P04_learn_768</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P04_learn_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P04_learn_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P04_learn_768.png" alt=""></figure></div></div><div class="row"><h3>P05_detail_open_768</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P05_detail_open_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P05_detail_open_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P05_detail_open_768.png" alt=""></figure></div></div><div class="row"><h3>P06_quiz_768</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P06_quiz_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P06_quiz_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P06_quiz_768.png" alt=""></figure></div></div><div class="row"><h3>P07_explanation_768</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P07_explanation_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P07_explanation_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P07_explanation_768.png" alt=""></figure></div></div><div class="row"><h3>P08_history_768</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P08_history_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P08_history_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P08_history_768.png" alt=""></figure></div></div><div class="row"><h3>P09_health_768</h3><div class="meta"><span class="tag diff">差分 345 画素（0.01%）範囲 630,297,652,305</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P09_health_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P09_health_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P09_health_768.png" alt=""></figure></div></div><div class="row"><h3>P10_notes_768</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P10_notes_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P10_notes_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P10_notes_768.png" alt=""></figure></div></div><div class="row"><h3>P11_share_768</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P11_share_768.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P11_share_768.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P11_share_768.png" alt=""></figure></div></div><h2 id="g9">患者 s2px</h2><div class="row"><h3>P02_library_390_s2</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P02_library_390_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P02_library_390_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P02_library_390_s2.png" alt=""></figure></div></div><div class="row"><h3>P02_library_430_s2</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P02_library_430_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P02_library_430_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P02_library_430_s2.png" alt=""></figure></div></div><div class="row"><h3>P09_health_390_s2</h3><div class="meta"><span class="tag diff">差分 28 画素（0.00%）範囲 173,39,332,669</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P09_health_390_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P09_health_390_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P09_health_390_s2.png" alt=""></figure></div></div><div class="row"><h3>P09_health_430_s2</h3><div class="meta"><span class="tag">差分なし</span></div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P09_health_430_s2.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P09_health_430_s2.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P09_health_430_s2.png" alt=""></figure></div></div><h2 id="g10">患者 s3px</h2><div class="row"><h3>P02_library_390_s3</h3><div class="meta"><span class="tag">差分なし</span><br>サムネイル: thumb_symptom_check.webp 76×60（cover）</div>
+<div class="grid"><figure><figcaption>変更前</figcaption><img loading="lazy" src="before/P02_library_390_s3.png" alt=""></figure>
+<figure><figcaption>変更後</figcaption><img loading="lazy" src="after/P02_library_390_s3.png" alt=""></figure>
+<figure><figcaption>差分</figcaption><img loading="lazy" src="diff/P02_library_390_s3.png" alt=""></figure></div></div>
+</body></html>
