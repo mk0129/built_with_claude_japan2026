@@ -25,7 +25,7 @@ E2E_CLAUDE=fake DEMO_ANCHOR=2026-11-04T09:00:00+09:00 \
 ```bash
 cd ~/Developer/shiori-final
 E2E_PUBLIC_ORIGIN=http://<PC の LAN の IP>:3900 REVIEW_DIST=.next-e2e-final sh scripts/review/serve.sh 3900 5900
-# 任意: 教材 v1.1 の下書き（未監修・未公開）を教材スタジオで見せるときだけ取り込む
+# 任意: 教材 v1.1 の下書き（未監修・未公開）を教材スタジオで見せるときだけ取り込む（起動ログに Ready が出た直後、画面を開く前に。ローカル DB は同時に 1 接続のため）
 DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5900/postgres \
   npx tsx scripts/review/import-materials-draft.ts ~/Developer/shiori-assets-review/content/shiori_materials_draft_v1.1.json
 ```
