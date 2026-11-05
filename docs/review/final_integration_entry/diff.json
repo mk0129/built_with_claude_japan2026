@@ -24,13 +24,13 @@
       2360,
       1600
     ],
-    "diffPixels": 16930,
-    "diffRatio": 0.00448,
+    "diffPixels": 101946,
+    "diffRatio": 0.027,
     "diffBoxCss": [
       26,
       17,
-      919,
-      352
+      926,
+      615
     ],
     "metricsBefore": {
       "hScroll": false,
@@ -64,13 +64,13 @@
       2880,
       1800
     ],
-    "diffPixels": 16929,
-    "diffRatio": 0.00327,
+    "diffPixels": 101944,
+    "diffRatio": 0.01967,
     "diffBoxCss": [
       156,
       41,
-      1049,
-      402
+      1056,
+      665
     ],
     "metricsBefore": {
       "hScroll": false,
@@ -104,13 +104,13 @@
       1640,
       1600
     ],
-    "diffPixels": 16346,
-    "diffRatio": 0.00623,
+    "diffPixels": 101363,
+    "diffRatio": 0.03863,
     "diffBoxCss": [
       26,
       17,
-      739,
-      352
+      746,
+      615
     ],
     "metricsBefore": {
       "hScroll": false,
@@ -144,13 +144,13 @@
       2360,
       1600
     ],
-    "diffPixels": 107927,
-    "diffRatio": 0.02858,
+    "diffPixels": 267254,
+    "diffRatio": 0.07078,
     "diffBoxCss": [
       26,
       17,
-      929,
-      695
+      930,
+      709
     ],
     "metricsBefore": {
       "hScroll": false,
@@ -184,13 +184,13 @@
       2880,
       1800
     ],
-    "diffPixels": 107926,
-    "diffRatio": 0.02082,
+    "diffPixels": 267266,
+    "diffRatio": 0.05156,
     "diffBoxCss": [
       156,
       41,
-      1059,
-      745
+      1060,
+      759
     ],
     "metricsBefore": {
       "hScroll": false,
@@ -224,13 +224,13 @@
       1640,
       1600
     ],
-    "diffPixels": 107341,
-    "diffRatio": 0.04091,
+    "diffPixels": 266677,
+    "diffRatio": 0.10163,
     "diffBoxCss": [
       26,
       17,
-      749,
-      695
+      750,
+      709
     ],
     "metricsBefore": {
       "hScroll": false,
@@ -1958,8 +1958,8 @@
       780,
       1688
     ],
-    "diffPixels": 79270,
-    "diffRatio": 0.06021,
+    "diffPixels": 137994,
+    "diffRatio": 0.10481,
     "diffBoxCss": [
       20,
       15,
@@ -2020,8 +2020,8 @@
       860,
       1688
     ],
-    "diffPixels": 79906,
-    "diffRatio": 0.05504,
+    "diffPixels": 148635,
+    "diffRatio": 0.10239,
     "diffBoxCss": [
       20,
       15,
@@ -2082,8 +2082,8 @@
       1536,
       2048
     ],
-    "diffPixels": 88762,
-    "diffRatio": 0.02822,
+    "diffPixels": 223150,
+    "diffRatio": 0.07094,
     "diffBoxCss": [
       20,
       15,
@@ -2122,8 +2122,8 @@
       780,
       1688
     ],
-    "diffPixels": 169887,
-    "diffRatio": 0.12903,
+    "diffPixels": 273761,
+    "diffRatio": 0.20792,
     "diffBoxCss": [
       20,
       15,
@@ -2162,8 +2162,8 @@
       780,
       1688
     ],
-    "diffPixels": 159359,
-    "diffRatio": 0.12103,
+    "diffPixels": 258292,
+    "diffRatio": 0.19618,
     "diffBoxCss": [
       20,
       15,
@@ -2202,8 +2202,8 @@
       860,
       1688
     ],
-    "diffPixels": 177829,
-    "diffRatio": 0.1225,
+    "diffPixels": 285594,
+    "diffRatio": 0.19673,
     "diffBoxCss": [
       20,
       15,
@@ -2242,8 +2242,8 @@
       860,
       1688
     ],
-    "diffPixels": 172399,
-    "diffRatio": 0.11876,
+    "diffPixels": 268687,
+    "diffRatio": 0.18509,
     "diffBoxCss": [
       20,
       15,
@@ -2282,8 +2282,8 @@
       1536,
       2048
     ],
-    "diffPixels": 258768,
-    "diffRatio": 0.08226,
+    "diffPixels": 370647,
+    "diffRatio": 0.11783,
     "diffBoxCss": [
       20,
       15,

@@ -5,68 +5,68 @@
   "changed": [
     {
       "name": "C01_start_1180",
-      "pixels": 16930,
-      "ratio": 0.00448,
+      "pixels": 101946,
+      "ratio": 0.027,
       "boxCss": [
         26,
         17,
-        919,
-        352
+        926,
+        615
       ]
     },
     {
       "name": "C01_start_1440",
-      "pixels": 16929,
-      "ratio": 0.00327,
+      "pixels": 101944,
+      "ratio": 0.01967,
       "boxCss": [
         156,
         41,
-        1049,
-        402
+        1056,
+        665
       ]
     },
     {
       "name": "C01_start_820",
-      "pixels": 16346,
-      "ratio": 0.00623,
+      "pixels": 101363,
+      "ratio": 0.03863,
       "boxCss": [
         26,
         17,
-        739,
-        352
+        746,
+        615
       ]
     },
     {
       "name": "C02_request_1180",
-      "pixels": 107927,
-      "ratio": 0.02858,
+      "pixels": 267254,
+      "ratio": 0.07078,
       "boxCss": [
         26,
         17,
-        929,
-        695
+        930,
+        709
       ]
     },
     {
       "name": "C02_request_1440",
-      "pixels": 107926,
-      "ratio": 0.02082,
+      "pixels": 267266,
+      "ratio": 0.05156,
       "boxCss": [
         156,
         41,
-        1059,
-        745
+        1060,
+        759
       ]
     },
     {
       "name": "C02_request_820",
-      "pixels": 107341,
-      "ratio": 0.04091,
+      "pixels": 266677,
+      "ratio": 0.10163,
       "boxCss": [
         26,
         17,
-        749,
-        695
+        750,
+        709
       ]
     },
     {
@@ -379,8 +379,8 @@
     },
     {
       "name": "P03_share_390",
-      "pixels": 79270,
-      "ratio": 0.06021,
+      "pixels": 137994,
+      "ratio": 0.10481,
       "boxCss": [
         20,
         15,
@@ -390,8 +390,8 @@
     },
     {
       "name": "P03_share_430",
-      "pixels": 79906,
-      "ratio": 0.05504,
+      "pixels": 148635,
+      "ratio": 0.10239,
       "boxCss": [
         20,
         15,
@@ -401,8 +401,8 @@
     },
     {
       "name": "P03_share_768",
-      "pixels": 88762,
-      "ratio": 0.02822,
+      "pixels": 223150,
+      "ratio": 0.07094,
       "boxCss": [
         20,
         15,
@@ -412,8 +412,8 @@
     },
     {
       "name": "P04_share_code_390",
-      "pixels": 169887,
-      "ratio": 0.12903,
+      "pixels": 273761,
+      "ratio": 0.20792,
       "boxCss": [
         20,
         15,
@@ -423,8 +423,8 @@
     },
     {
       "name": "P04_share_code_390_s1",
-      "pixels": 159359,
-      "ratio": 0.12103,
+      "pixels": 258292,
+      "ratio": 0.19618,
       "boxCss": [
         20,
         15,
@@ -434,8 +434,8 @@
     },
     {
       "name": "P04_share_code_430",
-      "pixels": 177829,
-      "ratio": 0.1225,
+      "pixels": 285594,
+      "ratio": 0.19673,
       "boxCss": [
         20,
         15,
@@ -445,8 +445,8 @@
     },
     {
       "name": "P04_share_code_430_s1",
-      "pixels": 172399,
-      "ratio": 0.11876,
+      "pixels": 268687,
+      "ratio": 0.18509,
       "boxCss": [
         20,
         15,
@@ -456,8 +456,8 @@
     },
     {
       "name": "P04_share_code_768",
-      "pixels": 258768,
-      "ratio": 0.08226,
+      "pixels": 370647,
+      "ratio": 0.11783,
       "boxCss": [
         20,
         15,

@@ -6,7 +6,8 @@
  *   DRAFTS=1: 教材 v1.1 の下書き（scripts/review/import-materials-draft.ts で取り込んだもの）を教材スタジオで開いて撮る（変更後のみ）
  * 患者: 390×844 / 430×844 / 768×1024、医療者: 820×800 / 1180×800 / 1440×900。
  * 各画面で、横スクロール・はみ出した文字・サムネイル画像の表示寸法と切れ方を metrics.json に記録する。
- * 一時共有: 医療者の QR → 患者が開く（申請の確認・共有中）→ 診察サマリー（AI 外来間サマリーの再生）→ 終了。患者は医療者の幅に合わせて 390/430/768。
+ * 一時共有: 患者が QR と 6 桁コードを表示 → 医療者が読み取る（撮影では 6 桁コードを入力）→ 患者が申請を確認・承認 → 診察サマリー（AI 外来間サマリーの再生）→ 終了。
+ *   変更前（安定版）は医療者が QR を表示する方式で撮る。患者は医療者の幅に合わせて 390/430/768。
  * QR 画像と 6 桁コードは撮影時に塗りつぶす（トークン・コードを画像に残さない）。
  */
 import { chromium } from "playwright";
@@ -199,17 +200,32 @@ for (const [w, vp] of Object.entries(STAFF_VP)) {
   const s = await login("staff", "佐藤 一郎", vp);
   const pw = { 820: 390, 1180: 430, 1440: 768 }[w];
   const p = await login("patient", "佐藤 花子", PATIENT_VP[pw]);
-  await step(`C01_start_${w}`, async () => { await s.getByRole("button", { name: "患者との接続を開始" }).waitFor(); await shot(s, `C01_start_${w}`, { fullPage: false }); });
+  await step(`C01_start_${w}`, async () => { await s.getByRole("button", { name: /患者との接続を開始|患者のQRを読み取る／6桁コードを入力/ }).waitFor(); await shot(s, `C01_start_${w}`, { fullPage: false }); });
   await step(`C02_summary_${w}`, async () => {
-    const res = s.waitForResponse((r) => r.url().endsWith("/api/v1/connect") && r.request().method() === "POST");
-    await s.getByRole("button", { name: "患者との接続を開始" }).click();
-    const u = new URL((await (await res).json()).qrUrl);
-    await s.locator(".cd-qr-placeholder img").waitFor();
-    await shot(s, `C01b_qr_${w}`, { fullPage: false, scroll: false });
-    // 変更前は QR の下に「患者へ承認を依頼する」があり、押すと承認待ちの画面になる（変更後はなく、QR を表示したまま待つ）
-    const ask = s.getByRole("button", { name: "患者へ承認を依頼する" });
-    if (await ask.count()) await ask.click();
-    await p.goto(B + u.pathname + u.search);
+    if (await s.getByRole("button", { name: "患者との接続を開始" }).count()) {
+      // 変更前（安定版）: 医療者が QR を表示 → 患者が QR の URL を開く
+      const res = s.waitForResponse((r) => r.url().endsWith("/api/v1/connect") && r.request().method() === "POST");
+      await s.getByRole("button", { name: "患者との接続を開始" }).click();
+      const u = new URL((await (await res).json()).qrUrl);
+      await s.locator(".cd-qr-placeholder img").waitFor();
+      await shot(s, `C01b_qr_${w}`, { fullPage: false, scroll: false });
+      await s.getByRole("button", { name: "患者へ承認を依頼する" }).click();
+      await p.goto(B + u.pathname + u.search);
+    } else {
+      // 正式な方式: 患者が QR と 6 桁コードを表示 → 医療者が読み取る（撮影では PC で 6 桁コードを入力）→ 承認待ち
+      await p.goto(B + "/home?view=share");
+      await p.locator("[data-share-issue]").click();
+      await p.locator("[data-share-code]").waitFor();
+      await shot(p, `S00_patient_qr_${pw}`);
+      const code = ((await p.locator("[data-share-code] b").first().textContent()) ?? "").replace(/\D/g, "");
+      await s.getByRole("button", { name: "患者のQRを読み取る／6桁コードを入力" }).click();
+      await s.locator("[data-connect-live]").waitFor();
+      await shot(s, `C01b_qr_${w}`, { fullPage: false, scroll: false });
+      await s.locator(".cd-code-panel input").fill(code);
+      await s.getByRole("button", { name: "患者へ承認を依頼する" }).click();
+      await s.getByRole("heading", { name: "患者の承認を待っています" }).waitFor();
+      await shot(s, `C01c_waiting_${w}`, { fullPage: false, scroll: false });
+    }
     await p.locator("[data-share-request]").waitFor();
     await shot(p, `S01_patient_request_${pw}`);
     await p.locator(".d-consent input").check();

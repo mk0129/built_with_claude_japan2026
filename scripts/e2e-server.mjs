@@ -5,7 +5,7 @@
  *   E2E_CLAUDE=fake（既定）: API キーを空にして擬似生成。外部送信も課金もしない
  *   E2E_CLAUDE=real        : .env.local の ANTHROPIC_API_KEY で実際の Claude API を呼ぶ
  *   E2E_PORT / E2E_DB_PORT / NEXT_DIST_DIR: 複数の E2E を同時に走らせるときに分ける（例: 3200 / 5436 / .next-e2e-b）
- *   E2E_PUBLIC_ORIGIN: スマートフォン実機で QR を読むとき（例 http://192.168.x.x:3900）。医療者の QR の URL をこの宛先にし、
+ *   E2E_PUBLIC_ORIGIN: スマートフォン実機で QR を読むとき（例 http://192.168.x.x:3900）。QR の URL（患者の QR を医療者が読み取る /c など）をこの宛先にし、
  *                      その宛先からのログインと開発サーバーへのアクセスを許可する（PC の http://localhost:PORT も引き続き使える）
  */
 import { spawn, spawnSync } from "node:child_process";

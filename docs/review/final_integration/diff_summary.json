@@ -1,88 +1,88 @@
 {
-  "screens": 325,
+  "screens": 333,
   "compared": 127,
   "unchanged": 13,
   "changed": [
     {
       "name": "C01_start_1180",
-      "pixels": 16930,
-      "ratio": 0.00448,
+      "pixels": 101946,
+      "ratio": 0.027,
       "boxCss": [
         26,
         17,
-        919,
-        352
+        926,
+        615
       ]
     },
     {
       "name": "C01_start_1440",
-      "pixels": 16929,
-      "ratio": 0.00327,
+      "pixels": 101944,
+      "ratio": 0.01967,
       "boxCss": [
         156,
         41,
-        1049,
-        402
+        1056,
+        665
       ]
     },
     {
       "name": "C01_start_820",
-      "pixels": 16346,
-      "ratio": 0.00623,
+      "pixels": 101363,
+      "ratio": 0.03863,
       "boxCss": [
         26,
         17,
-        739,
-        352
+        746,
+        615
       ]
     },
     {
       "name": "C01b_qr_1180",
-      "pixels": 107927,
-      "ratio": 0.02858,
+      "pixels": 325733,
+      "ratio": 0.08626,
       "boxCss": [
         26,
         17,
-        929,
-        695
+        930,
+        709
       ]
     },
     {
       "name": "C01b_qr_1440",
-      "pixels": 107926,
-      "ratio": 0.02082,
+      "pixels": 325745,
+      "ratio": 0.06284,
       "boxCss": [
         156,
         41,
-        1059,
-        745
+        1060,
+        759
       ]
     },
     {
       "name": "C01b_qr_820",
-      "pixels": 107341,
-      "ratio": 0.04091,
+      "pixels": 325156,
+      "ratio": 0.12392,
       "boxCss": [
         26,
         17,
-        749,
-        695
+        750,
+        709
       ]
     },
     {
       "name": "C02_summary_1180",
-      "pixels": 17889,
-      "ratio": 0.00474,
+      "pixels": 18141,
+      "ratio": 0.0048,
       "boxCss": [
         16,
         25,
-        188,
+        1045,
         334
       ]
     },
     {
       "name": "C02_summary_1180_s1",
-      "pixels": 17846,
+      "pixels": 17874,
       "ratio": 0.00473,
       "boxCss": [
         16,
@@ -93,7 +93,7 @@
     },
     {
       "name": "C02_summary_1180_s2",
-      "pixels": 17846,
+      "pixels": 17874,
       "ratio": 0.00473,
       "boxCss": [
         16,
@@ -159,8 +159,8 @@
     },
     {
       "name": "C03_sources_1180",
-      "pixels": 17852,
-      "ratio": 0.00473,
+      "pixels": 17830,
+      "ratio": 0.00472,
       "boxCss": [
         16,
         25,
@@ -181,7 +181,7 @@
     },
     {
       "name": "C03_sources_1180_s2",
-      "pixels": 17858,
+      "pixels": 17871,
       "ratio": 0.00473,
       "boxCss": [
         16,
@@ -214,7 +214,7 @@
     },
     {
       "name": "C03_sources_1440_s2",
-      "pixels": 17856,
+      "pixels": 17832,
       "ratio": 0.00344,
       "boxCss": [
         146,
@@ -269,7 +269,7 @@
     },
     {
       "name": "C04_course_1180_s1",
-      "pixels": 18009,
+      "pixels": 18002,
       "ratio": 0.00477,
       "boxCss": [
         16,
@@ -324,7 +324,7 @@
     },
     {
       "name": "C05_library_1180_s1",
-      "pixels": 24988,
+      "pixels": 24992,
       "ratio": 0.00662,
       "boxCss": [
         16,
@@ -335,7 +335,7 @@
     },
     {
       "name": "C05_library_1180_s2",
-      "pixels": 24988,
+      "pixels": 24992,
       "ratio": 0.00662,
       "boxCss": [
         16,
@@ -357,7 +357,7 @@
     },
     {
       "name": "C05_library_1440_s1",
-      "pixels": 24991,
+      "pixels": 24990,
       "ratio": 0.00482,
       "boxCss": [
         146,
@@ -390,7 +390,7 @@
     },
     {
       "name": "C05_library_820_s2",
-      "pixels": 23723,
+      "pixels": 23722,
       "ratio": 0.00904,
       "boxCss": [
         10,
@@ -401,7 +401,7 @@
     },
     {
       "name": "C06_prescribe_1180",
-      "pixels": 17843,
+      "pixels": 17844,
       "ratio": 0.00473,
       "boxCss": [
         16,
@@ -434,8 +434,8 @@
     },
     {
       "name": "C07_studio_1180",
-      "pixels": 18031,
-      "ratio": 0.00478,
+      "pixels": 18020,
+      "ratio": 0.00477,
       "boxCss": [
         16,
         25,
@@ -445,8 +445,8 @@
     },
     {
       "name": "C07_studio_1180_s1",
-      "pixels": 18031,
-      "ratio": 0.00478,
+      "pixels": 18020,
+      "ratio": 0.00477,
       "boxCss": [
         16,
         25,
@@ -852,10 +852,10 @@
     },
     {
       "name": "P04_learn_390",
-      "pixels": 416,
-      "ratio": 0.00032,
+      "pixels": 400,
+      "ratio": 0.0003,
       "boxCss": [
-        29,
+        30,
         63,
         55,
         67
@@ -929,13 +929,13 @@
     },
     {
       "name": "P09_health_390",
-      "pixels": 3296,
-      "ratio": 0.0025,
+      "pixels": 3983,
+      "ratio": 0.00303,
       "boxCss": [
         20,
         15,
-        116,
-        53
+        318,
+        328
       ]
     },
     {
@@ -962,13 +962,13 @@
     },
     {
       "name": "P09_health_430",
-      "pixels": 3296,
-      "ratio": 0.00227,
+      "pixels": 3983,
+      "ratio": 0.00274,
       "boxCss": [
         20,
         15,
-        116,
-        53
+        358,
+        328
       ]
     },
     {
@@ -995,13 +995,13 @@
     },
     {
       "name": "P09_health_768",
-      "pixels": 3296,
-      "ratio": 0.00105,
+      "pixels": 4025,
+      "ratio": 0.00128,
       "boxCss": [
         20,
         15,
-        116,
-        53
+        672,
+        305
       ]
     },
     {
@@ -1050,52 +1050,52 @@
     },
     {
       "name": "P11_share_390",
-      "pixels": 79227,
-      "ratio": 0.06017,
+      "pixels": 137951,
+      "ratio": 0.10478,
       "boxCss": [
         20,
         15,
         370,
-        766
+        750
       ]
     },
     {
       "name": "P11_share_430",
-      "pixels": 79853,
-      "ratio": 0.05501,
+      "pixels": 148582,
+      "ratio": 0.10235,
       "boxCss": [
         20,
         15,
         410,
-        766
+        763
       ]
     },
     {
       "name": "P11_share_768",
-      "pixels": 88705,
-      "ratio": 0.0282,
+      "pixels": 223093,
+      "ratio": 0.07092,
       "boxCss": [
         20,
         15,
         732,
-        732
+        771
       ]
     },
     {
       "name": "P11b_share_code_390",
-      "pixels": 169844,
-      "ratio": 0.129,
+      "pixels": 273718,
+      "ratio": 0.20789,
       "boxCss": [
         20,
         15,
         370,
-        741
+        758
       ]
     },
     {
       "name": "P11b_share_code_390_s1",
-      "pixels": 159316,
-      "ratio": 0.121,
+      "pixels": 258249,
+      "ratio": 0.19614,
       "boxCss": [
         20,
         15,
@@ -1105,19 +1105,19 @@
     },
     {
       "name": "P11b_share_code_430",
-      "pixels": 177776,
-      "ratio": 0.12246,
+      "pixels": 285541,
+      "ratio": 0.1967,
       "boxCss": [
         20,
         15,
         410,
-        741
+        758
       ]
     },
     {
       "name": "P11b_share_code_430_s1",
-      "pixels": 172346,
-      "ratio": 0.11872,
+      "pixels": 268634,
+      "ratio": 0.18505,
       "boxCss": [
         20,
         15,
@@ -1127,46 +1127,46 @@
     },
     {
       "name": "P11b_share_code_768",
-      "pixels": 258711,
-      "ratio": 0.08224,
+      "pixels": 370590,
+      "ratio": 0.11781,
       "boxCss": [
         20,
         15,
         732,
-        767
+        888
       ]
     },
     {
       "name": "S01_patient_request_390",
-      "pixels": 3296,
-      "ratio": 0.0025,
+      "pixels": 171559,
+      "ratio": 0.1303,
       "boxCss": [
         20,
         15,
-        116,
-        53
+        370,
+        766
       ]
     },
     {
       "name": "S01_patient_request_390_s1",
-      "pixels": 3296,
-      "ratio": 0.0025,
+      "pixels": 3578,
+      "ratio": 0.00272,
       "boxCss": [
         20,
         15,
         116,
-        53
+        550
       ]
     },
     {
       "name": "S01_patient_request_430",
-      "pixels": 3296,
-      "ratio": 0.00227,
+      "pixels": 180650,
+      "ratio": 0.12444,
       "boxCss": [
         20,
         15,
-        116,
-        53
+        410,
+        766
       ]
     },
     {
@@ -1182,13 +1182,13 @@
     },
     {
       "name": "S01_patient_request_768",
-      "pixels": 3296,
-      "ratio": 0.00105,
+      "pixels": 397112,
+      "ratio": 0.12624,
       "boxCss": [
         20,
         15,
-        116,
-        53
+        732,
+        902
       ]
     },
     {
@@ -1226,37 +1226,37 @@
     },
     {
       "name": "S03_patient_after_end_390",
-      "pixels": 79227,
-      "ratio": 0.06017,
+      "pixels": 137951,
+      "ratio": 0.10478,
       "boxCss": [
         20,
         15,
         370,
-        766
+        750
       ]
     },
     {
       "name": "S03_patient_after_end_430",
-      "pixels": 79853,
-      "ratio": 0.05501,
+      "pixels": 148582,
+      "ratio": 0.10235,
       "boxCss": [
         20,
         15,
         410,
-        766
+        763
       ]
     },
     {
       "name": "S03_patient_after_end_768",
-      "pixels": 88705,
-      "ratio": 0.0282,
+      "pixels": 223093,
+      "ratio": 0.07092,
       "boxCss": [
         20,
         15,
         732,
-        732
+        771
       ]
     }
   ],
-  "onlyAfter": 198
+  "onlyAfter": 206
 }
