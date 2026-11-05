@@ -5,6 +5,8 @@
  *   E2E_CLAUDE=fake（既定）: API キーを空にして擬似生成。外部送信も課金もしない
  *   E2E_CLAUDE=real        : .env.local の ANTHROPIC_API_KEY で実際の Claude API を呼ぶ
  *   E2E_PORT / E2E_DB_PORT / NEXT_DIST_DIR: 複数の E2E を同時に走らせるときに分ける（例: 3200 / 5436 / .next-e2e-b）
+ *   E2E_PUBLIC_ORIGIN: スマートフォン実機で QR を読むとき（例 http://192.168.x.x:3900）。医療者の QR の URL をこの宛先にし、
+ *                      その宛先からのログインと開発サーバーへのアクセスを許可する（PC の http://localhost:PORT も引き続き使える）
  */
 import { spawn, spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -24,9 +26,17 @@ const env = {
   NEXT_PUBLIC_APP_URL: `http://localhost:${PORT}`,
   SEED_DEMO_HISTORY: process.env.SEED_DEMO_HISTORY ?? "1",
 };
+const publicOrigin = process.env.E2E_PUBLIC_ORIGIN?.replace(/\/$/, "");
+if (publicOrigin) {
+  Object.assign(env, {
+    NEXT_PUBLIC_APP_URL: publicOrigin,
+    BETTER_AUTH_TRUSTED_ORIGINS: `http://localhost:${PORT},${publicOrigin}`,
+    DEV_ALLOWED_ORIGINS: new URL(publicOrigin).hostname,
+  });
+}
 if (mode === "fake") Object.assign(env, { ANTHROPIC_API_KEY: "", CLAUDE_FAKE: "1" });
 else delete env.CLAUDE_FAKE;
-console.log(`[e2e] fresh db ${dir} / port ${PORT} / claude=${mode}`);
+console.log(`[e2e] fresh db ${dir} / port ${PORT} / claude=${mode}${publicOrigin ? ` / public ${publicOrigin}` : ""}`);
 
 const setup = spawnSync("node", ["scripts/with-local-db.mjs", "tsx", "--env-file-if-exists=.env.local", "src/server/db/setup.ts"], { stdio: "inherit", env });
 if (setup.status !== 0) process.exit(setup.status ?? 1);
