@@ -107,11 +107,14 @@ test("医療者: ログイン後に Figma 版の共有開始。本番に架空�
   await expect(page.getByText("患者一覧はありません")).toBeVisible();
   await page.getByRole("button", { name: "患者との接続を開始" }).click();
   await page.getByRole("button", { name: "6桁コード" }).click();
-  await page.getByRole("button", { name: "QRコード" }).click();
-  await page.getByRole("button", { name: "患者へ承認を依頼する" }).click();
-  await expect(page.getByRole("heading", { name: "患者の承認を待っています" })).toBeVisible();
+  await page.getByRole("button", { name: "QRコード", exact: true }).click();
+  // QR の提示が主: 医療者側に依頼の操作はなく、患者の読み取りと承認を待つ。本番に架空の承認ボタンはない
+  await expect(page.locator("[data-qr-waiting]")).toContainText("患者の読み取りと承認を待っています");
+  await expect(page.getByRole("button", { name: "患者へ承認を依頼する" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: /プロトタイプ：/ })).toHaveCount(0);
-  await page.getByRole("button", { name: "申請を取り消す" }).click();
+  await page.getByRole("button", { name: "← 戻る" }).click();
+  await expect(page.getByText("患者一覧はありません")).toBeVisible();
+  await page.getByRole("button", { name: "患者との接続を開始" }).click();
   await expect(page.getByRole("heading", { name: "患者へ接続を申請" })).toBeVisible();
 
   await page.setViewportSize({ width: 1100, height: 800 });

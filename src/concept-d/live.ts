@@ -4,9 +4,11 @@
  * Figma Concept D の画面を、一時共有の実 API に接続するフック（Step 1）。
  * 画面（DOM・CSS）は Figma のまま。ここでは画面が持っていた架空の状態（共有中かどうか・残り時間・相手の名前など）を API の値に置き換える。
  *
- * 医療者: 接続申請（医療者が QR を表示）→ 患者の承認をポーリング → 一時共有中。6 桁コード（患者発行）も同じ画面から使える。
- *         患者が表示した QR を端末のカメラで読み取ると /c → 読み取り要求（claim）→ /staff?grant=… で患者の承認を待つ。
- * 患者: QR の URL（/home?view=share&connect=…）で申請者を確認 → 明示承認。共有中の残り時間・延長の再承認・即時終了。
+ * 共有の正式な方式: 医療者が QR を表示 → 患者がスマートフォンの標準カメラで読み取り（/home?view=share&connect=…）→ 申請者を確認して明示承認。
+ * QR を読み取れないときの代替: 患者が 6 桁コードを表示 → 医療者が PC で入力 → 患者が申請者を確認して承認。
+ * 医療者: 接続申請（QR）→ 患者の承認をポーリング → 一時共有中。
+ *         互換: 患者発行 QR の /c（読み取り要求 → /staff?grant=… で患者の承認を待つ）も残す（患者画面には QR を出さない）。
+ * 患者: 申請者の確認・明示承認・共有中の残り時間・延長の再承認・即時終了。
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "qrcode";
@@ -252,7 +254,7 @@ export function usePatientLive(connectToken: string | null, notify: (message: st
   const [token, setToken] = useState<string | null>(connectToken);
   const [connectReq, setConnectReq] = useState<{ orgName: string; clinicianName: string } | null>(null);
   // 患者が発行した共有コード（QR と 6 桁コードは同じグラント。5 分・1 回限り）。QR は画像だけを持ち、トークンを文字で表示・保存しない
-  const [code, setCode] = useState<{ grantId: string; code: string; expiresAt: number; qrDataUrl: string | null } | null>(null);
+  const [code, setCode] = useState<{ grantId: string; code: string; expiresAt: number } | null>(null);
   const [claimed, setClaimed] = useState<{ orgName: string; clinicianName: string } | null>(null);
   const [consult, setConsult] = useState<Consultation | null>(null);
   const [tick, setTick] = useState(0);
@@ -389,15 +391,14 @@ export function usePatientLive(connectToken: string | null, notify: (message: st
   }, [pending, token, code, consult, clearConnect]);
 
   /**
-   * 患者の QR と 6 桁コードの発行（既存の POST /api/v1/qr。1 回の発行で両方を同じグラントとして表示する）。
-   * 5 分・1 回限り。医療者が読み取り・入力した後も、患者の承認があるまで共有しない。
+   * QR を読み取れないときの 6 桁コードの発行（既存の POST /api/v1/qr）。5 分・1 回限り。
+   * 医療者が入力した後も、患者の承認があるまで共有しない。同じ発行で返る QR の URL（/c、互換用）は画面に出さない。
    */
   const issueCode = useCallback(async () => {
     try {
-      const g = await api<{ grantId: string; code: string; expiresAt: string; qrUrl: string }>("/api/v1/qr", { json: {} });
-      const qrDataUrl = await QRCode.toDataURL(g.qrUrl, { width: 320, margin: 1, color: { dark: "#243a3d", light: "#ffffff" } }).catch(() => null);
+      const g = await api<{ grantId: string; code: string; expiresAt: string }>("/api/v1/qr", { json: {} });
       setClaimed(null);
-      setCode({ grantId: g.grantId, code: g.code, expiresAt: new Date(g.expiresAt).getTime(), qrDataUrl });
+      setCode({ grantId: g.grantId, code: g.code, expiresAt: new Date(g.expiresAt).getTime() });
     } catch (e) {
       notifyRef.current(errorText(e));
     }
@@ -425,7 +426,7 @@ export function usePatientLive(connectToken: string | null, notify: (message: st
     clinicianName: consult?.clinicianName ?? null,
     clinicianLabel: consult ? `${consult.orgName} ${consult.clinicianName}` : null,
     remainingMin,
-    code: code ? { value: `${code.code.slice(0, 3)} ${code.code.slice(3)}`, remainingMin: Math.ceil(codeRemainingSec / 60), qrDataUrl: code.qrDataUrl } : null,
+    code: code ? { value: `${code.code.slice(0, 3)} ${code.code.slice(3)}`, remainingMin: Math.ceil(codeRemainingSec / 60) } : null,
     issueCode,
     cancelCode,
     approve,

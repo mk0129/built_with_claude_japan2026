@@ -11,7 +11,7 @@ async function connect(s: Page, p: Page) {
   const res = s.waitForResponse((r) => r.url().endsWith("/api/v1/connect") && r.request().method() === "POST");
   await s.getByRole("button", { name: /患者との接続を開始|新しく接続を申請/ }).click();
   const u = new URL((await (await res).json()).qrUrl);
-  await s.getByRole("button", { name: "患者へ承認を依頼する" }).click();
+  await expect(s.locator("[data-qr-waiting]")).toBeVisible(); // QR を表示したまま、患者の読み取りと承認を待つ
   await p.goto(`${u.pathname}${u.search}`);
   await p.locator(".d-consent input").check();
   await p.getByRole("button", { name: "この医療者に共有を許可する" }).click();

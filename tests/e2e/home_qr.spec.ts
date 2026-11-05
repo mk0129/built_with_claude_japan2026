@@ -2,7 +2,7 @@ import { test } from "@playwright/test";
 import { demoLogin, expect, newPage } from "./helpers";
 
 /**
- * 患者ホーム（次回診察日・ホームからの質問）と、患者が表示した QR を医療者が読み取る流れ（/c）。
+ * 患者ホーム（次回診察日・ホームからの質問）と、互換のため残している /c（患者発行のグラントの URL を医療者が開く）の流れ。
  * 読み取り後も患者本人の承認まで共有されない。終了後は 403。無効・使用済みの QR は申請できない。
  * 鈴木 美咲（架空）を使い、最後に登録した次回診察日と質問を元に戻す。
  */
@@ -60,14 +60,15 @@ test("ホーム: 次回診察日の登録（再読み込みで残る・当日・
   await patient.ctx.close();
 });
 
-test("患者の QR を医療者が読み取る（/c）→ 承認待ち → 患者が申請者を確認して承認 → 閲覧 → 終了で 403。無効・使用済みの QR は申請できない", async ({ browser }) => {
+test("互換: 6 桁コードと同時に発行される /c の URL（患者画面には QR を出さない）→ 承認待ち → 患者が申請者を確認して承認 → 閲覧 → 終了で 403。無効・使用済み・取り消し済みは申請できない", async ({ browser }) => {
   const patient = await newPage(browser, { width: 390, height: 844 });
   await demoLogin(patient.page, "patient", "鈴木 美咲");
   await patient.page.locator(".d-share-chip").click();
   const issued = patient.page.waitForResponse((r) => r.url().endsWith("/api/v1/qr") && r.request().method() === "POST");
   await patient.page.locator("[data-share-issue]").click();
   const g = await (await issued).json();
-  await expect(patient.page.locator("[data-share-qr] img")).toBeVisible();
+  // 患者画面には QR を出さない（コードのみ）。同じ発行の /c は互換のため残している
+  await expect(patient.page.locator("[data-share-code] img")).toHaveCount(0);
   await expect(patient.page.locator("[data-share-code]")).toContainText(`${g.code.slice(0, 3)} ${g.code.slice(3)}`);
   // 生のトークン（QR の URL）は画面の文字にも URL にも出ない
   expect(await patient.page.locator("body").innerText()).not.toContain(new URL(g.qrUrl).searchParams.get("t"));
@@ -117,7 +118,7 @@ test("患者の QR を医療者が読み取る（/c）→ 承認待ち → 患�
   const again = patient.page.waitForResponse((r) => r.url().endsWith("/api/v1/qr") && r.request().method() === "POST");
   await patient.page.locator("[data-share-issue]").click();
   const g2 = await (await again).json();
-  await patient.page.getByRole("button", { name: "QRとコードを取り消す" }).click();
+  await patient.page.getByRole("button", { name: "コードを取り消す" }).click();
   await expect(patient.page.locator("[data-share-code]")).toHaveCount(0);
   await staff.page.goto(`${new URL(g2.qrUrl).pathname}${new URL(g2.qrUrl).search}`);
   await expect(staff.page.locator("[data-claim-error]")).toBeVisible();

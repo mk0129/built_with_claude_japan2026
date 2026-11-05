@@ -16,7 +16,7 @@ async function connect(staff: Page, patient: Page) {
   await staff.getByRole("button", { name: /患者との接続を開始|新しく接続を申請/ }).click();
   const body = await (await res).json();
   await expect(staff.locator(".cd-qr-placeholder img")).toBeVisible();
-  await staff.getByRole("button", { name: "患者へ承認を依頼する" }).click();
+  await expect(staff.locator("[data-qr-waiting]")).toBeVisible(); // QR を表示したまま、患者の読み取りと承認を待つ
   const u = new URL(body.qrUrl as string);
   await patient.goto(`${u.pathname}${u.search}`);
   await patient.locator(".d-consent input").check();

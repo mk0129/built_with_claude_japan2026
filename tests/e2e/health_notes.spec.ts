@@ -115,7 +115,7 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   const res = s.waitForResponse((r) => r.url().endsWith("/api/v1/connect") && r.request().method() === "POST");
   await s.getByRole("button", { name: "患者との接続を開始" }).click();
   const u = new URL((await (await res).json()).qrUrl);
-  await s.getByRole("button", { name: "患者へ承認を依頼する" }).click();
+  await expect(s.locator("[data-qr-waiting]")).toBeVisible(); // QR を表示したまま、患者の読み取りと承認を待つ
   // 承認前: 医療者は体調記録・質問を読めない
   expect((await s.request.get("/api/v1/health/records")).status()).toBe(403);
   await p.locator(".d-share-notes").click();
