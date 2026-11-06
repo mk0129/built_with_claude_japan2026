@@ -247,6 +247,8 @@
 .cd-summary-narrative p.cd-severity-legend { font-size: 13px; }
 .cd-device-app .cd-key-summary li > b { font-size: 13px; }
 .cd-device-app .cd-key-sentence small { font-size: 12px; }
+/* 録画（1180px）: 患者さんが残した質問は、根拠の件数を文のすぐ後ろに置き、寄りの画面で文と根拠を同時に読めるように（文言・操作は変えない） */
+.cd-device-app [data-key-row="questions"] .cd-key-sentence { grid-template-columns: minmax(0, max-content) auto; justify-content: start; }
 .cd-device-app .cd-summary-title b { font-size: 13px; }
 /* 項目名 2 行（名前・単位）の行の高さを抑え、14 日分の表が 1 画面に収まるように */
 .cd-device-app .cd-course-table tbody th b,
