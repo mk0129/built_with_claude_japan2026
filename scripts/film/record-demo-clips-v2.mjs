@@ -17,7 +17,10 @@ import { prepIto } from "../demo/prep-filming.mjs";
 const B = process.env.BASE ?? "http://localhost:3470";
 if (/:3900\b/.test(B)) throw new Error("3900 の撮影環境には接続しません");
 const FILM = process.env.FILM ?? path.join(os.homedir(), "Developer/shiori-demo-film");
-const OUT = path.join(FILM, "v2");
+// 出力先（既定 FILM/v2）。ONLY で撮るクリップを絞る（指定外のクリップは操作だけして録画しない）
+const OUT = path.join(FILM, process.env.OUT_SUBDIR ?? "v2");
+const ONLY = new Set((process.env.ONLY ?? "").split(",").filter(Boolean));
+const want = (file) => ONLY.size === 0 || ONLY.has(file);
 const FFMPEG = process.env.FFMPEG;
 if (!FFMPEG || !existsSync(FFMPEG)) throw new Error("FFMPEG（ffmpeg のパス）を指定してください");
 const XF = 0.3; // ディゾルブの長さ（秒）
@@ -103,6 +106,7 @@ function encodeSegment(seg, dev, out) {
 }
 /** 区間をディゾルブ（XF 秒）でつないで 1 本に */
 function compose(file, segs, dev, note) {
+  if (!want(file)) return;
   const dir = path.join(TMP, file.replace(/\.mp4$/, ""));
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
@@ -229,15 +233,18 @@ await staff.locator(".cd-form-grid textarea").fill("院内作成の架空資料�
 await settle(staff, 500);
 const STUDIO_TITLE = JSON.parse(readFileSync("docs/design/phase2/step5/replay/studio_replay.json", "utf8")).material.title;
 {
-  // 1. 0〜3 秒: 施設の資料を登録（架空の院内資料を選ぶ → 利用許諾と個人情報の確認）
+  // ナレーション（スライド開始から「それぞれの施設の資料」5.2 秒・「クロードが教材のドラフト」7.2 秒・「医療者が確認をする」9.7 秒、
+  // スライドは 11.1 秒。動画はスライドの表示に合わせて約 0.66 秒後に始まる）に合わせ、
+  // 動画の 0〜5.5 秒 資料の登録／5.5〜8.0 秒 Claude の教材ドラフトと確認問題／8.0 秒〜 承認・公開 → 処方に追加（結果をスライド終了まで 1 秒以上）
+  // 1. 施設の資料を登録（架空の院内資料を選ぶ → 利用許諾と個人情報の確認）
   const s1 = await record(staff, async () => {
-    await hold(staff, 700);
+    await hold(staff, 1200);
     await staff.locator("[data-source-file]").setInputFiles("tests/fixtures/sources/hormone_therapy_detailed_demo.docx");
-    await hold(staff, 1000);
+    await hold(staff, 1500);
     await staff.locator(".cd-license-check input").nth(0).check();
-    await hold(staff, 700);
+    await hold(staff, 1100);
     await staff.locator(".cd-license-check input").nth(1).check();
-    await hold(staff, 900);
+    await hold(staff, 1400);
   });
   // （カット）作成方針 → Claude に構成案を依頼（記録済みの出力を再生）→ 案 1 → 必ず含める内容を原文と照合 → 下書き
   await staff.getByRole("button", { name: "次へ進む" }).click();
@@ -250,11 +257,11 @@ const STUDIO_TITLE = JSON.parse(readFileSync("docs/design/phase2/step5/replay/st
   await staff.locator("[data-studio-editor]").waitFor({ timeout: 60_000 });
   await staff.locator(C).first().evaluate((m) => (m.scrollTop = 0)); // 再生の表示（記録済みの Claude 出力）が見える位置
   await settle(staff, 500);
-  // 2. 3〜7 秒: Claude の教材ドラフト（記録済み出力の再生）→ 確認問題
+  // 2. Claude の教材ドラフト（記録済み出力の再生）→ 確認問題
   const s2 = await record(staff, async () => {
-    await hold(staff, 1700);
+    await hold(staff, 1300);
     await staff.locator(".cd-main").getByText("理解確認", { exact: true }).first().click();
-    await hold(staff, 2200);
+    await hold(staff, 1500);
   });
   // （カット）患者向けプレビュー → 承認依頼 → 医療者が確認項目を確かめる（画面の外。瞬時に終わったようには見せない）
   await staff.getByRole("button", { name: "次へ進む" }).click();
@@ -262,21 +269,23 @@ const STUDIO_TITLE = JSON.parse(readFileSync("docs/design/phase2/step5/replay/st
   await staff.getByRole("heading", { name: "医学的承認と公開" }).waitFor();
   for (const c of await staff.locator(".cd-approval-check input").all()) await c.check();
   await settle(staff, 400);
-  // 3. 7〜11 秒: 医療者の確認がそろった承認の画面 →「医学的に承認して公開」→ 公開 →（カット）情報処方に追加
+  // 3. 確認項目がそろった承認の画面 →「医学的に承認して公開」
   const s3 = await record(staff, async () => {
-    await hold(staff, 1100);
+    await hold(staff, 450);
     await staff.getByRole("button", { name: "医学的に承認して公開" }).click();
     await staff.getByRole("heading", { name: "教材を公開しました" }).waitFor({ timeout: 15_000 });
-    await hold(staff, 1000);
+    await hold(staff, 100);
   });
+  // （カット）教材ライブラリ（公開した教材のカード）
   await staff.locator(".cd-sidebar").getByRole("button", { name: "教材ライブラリ" }).click();
   await staff.locator(".cd-library-grid article").filter({ hasText: STUDIO_TITLE }).first().waitFor();
   await scrollTo(staff, C, `.cd-library-grid article:has-text("${STUDIO_TITLE}")`, 220);
   await settle(staff, 400);
+  // 4. 公開した教材を処方に追加 → 結果
   const s4 = await record(staff, async () => {
-    await hold(staff, 500);
+    await hold(staff, 250);
     await staff.locator(".cd-library-grid article").filter({ hasText: STUDIO_TITLE }).first().getByRole("button", { name: /処方に追加/ }).click();
-    await hold(staff, 1300);
+    await hold(staff, 1800);
   });
   compose("demo-step4-studio.mp4", [s1, s2, s3, s4], IPAD, "佐藤 花子との共有中（架空の院内資料）");
 }
