@@ -1,5 +1,5 @@
 import { test, type Page } from "@playwright/test";
-import { demoLogin, expect, newPage, shareByPatientCode } from "./helpers";
+import { demoLogin, expect, newPage, shareByPatientCode, expectShareEnded } from "./helpers";
 
 /**
  * Phase 2 Step 5: デモの通し（架空データ。Claude は開発用の擬似生成）。
@@ -96,7 +96,7 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await s.getByRole("button", { name: "1件の情報処方を確定" }).click();
   await expect(s.getByRole("heading", { name: "情報処方を届けました" })).toBeVisible();
   await s.getByRole("button", { name: "診察を終えて共有終了" }).click();
-  await expect(s.getByText("患者一覧はありません")).toBeVisible();
+  await expectShareEnded(s);
 
   // ---- 3. 患者が学習し、理解確認で「わからない」----
   await p.goto("/home");
@@ -147,7 +147,7 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
 
   // ---- 9. 追加入力なしで共有を終了 → アクセス拒否 ----
   await s.getByRole("button", { name: "診察を終えて共有終了" }).click();
-  await expect(s.getByText("患者一覧はありません")).toBeVisible();
+  await expectShareEnded(s);
   for (const path of ["patient", "intervisit", "health"]) expect((await s.request.get(`/api/v1/consultations/${sid}/${path}`)).status()).toBe(403);
   await p.goto("/home");
   await expect(p.locator(".d-next-card")).toContainText("今回の情報処方");

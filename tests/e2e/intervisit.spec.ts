@@ -1,5 +1,5 @@
 import { test, type Page } from "@playwright/test";
-import { demoLogin, expect, newPage, shareByPatientCode } from "./helpers";
+import { demoLogin, expect, newPage, shareByPatientCode, expectShareEnded } from "./helpers";
 
 /**
  * Phase 2 Step 4: 在宅経過表・バイタル統合グラフ・外来間の構造化サマリー・AI 要約（E2E は開発用の擬似生成。実 API は別スクリプト）。
@@ -144,7 +144,7 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
 
   // 15. 共有を終了すると、医療者の患者データアクセスは拒否され、画面から患者情報が消える
   await s.locator(".cd-app-header").getByRole("button", { name: "共有終了" }).click();
-  await expect(s.getByText("患者一覧はありません")).toBeVisible();
+  await expectShareEnded(s);
   await expect(s.locator("[data-intervisit]")).toHaveCount(0);
   for (const path of ["intervisit", "health", "patient"]) expect((await s.request.get(`/api/v1/consultations/${sid}/${path}`)).status()).toBe(403);
   expect((await s.request.post(`/api/v1/consultations/${sid}/intervisit/summary`, { data: {} })).status()).toBe(403);

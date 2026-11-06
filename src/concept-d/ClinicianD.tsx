@@ -17,7 +17,7 @@ import {
 } from "./healthData"
 
 export type ClinicianDViewport = "1180" | "820"
-type SessionState = "none" | "request" | "waiting" | "active" | "expired"
+type SessionState = "none" | "request" | "waiting" | "active" | "expired" | "ended"
 type Workspace = "visit" | "course" | "library" | "studio"
 type VisitPage = "summary" | "detail" | "prescribe" | "review" | "sent"
 type ClinicalScenario = "standard" | "many" | "noQuiz" | "clear"
@@ -513,9 +513,9 @@ export default function ClinicianD({
                   <CIcon name="shield" size={17} />
                   患者承認による一時共有
                 </p>
-                <button onClick={endSession}>
+                <button onClick={endSession} disabled={live?.ending} aria-busy={live?.ending}>
                   <CIcon name="lock" />
-                  共有を終了
+                  {live?.ending ? "終了しています…" : "共有を終了"}
                 </button>
               </div>
             </aside>
@@ -530,9 +530,9 @@ export default function ClinicianD({
                     </span>
                   </div>
                   <div className="cd-session-actions">
-                    <button className="cd-header-end" onClick={endSession}>
+                    <button className="cd-header-end" onClick={endSession} disabled={live?.ending} aria-busy={live?.ending}>
                       <CIcon name="lock" />
-                      共有終了
+                      {live?.ending ? "終了しています…" : "共有終了"}
                     </button>
                   </div>
                 </header>
@@ -582,9 +582,9 @@ export default function ClinicianD({
                     <i className="cd-live" />
                     {live ? `残り${live.remainingMin}分` : "残り42分"}
                   </span>
-                  <button className="cd-header-end" onClick={endSession}>
+                  <button className="cd-header-end" onClick={endSession} disabled={live?.ending} aria-busy={live?.ending}>
                     <CIcon name="lock" />
-                    共有終了
+                    {live?.ending ? "終了しています…" : "共有終了"}
                   </button>
                 </div>
               </header>
@@ -965,6 +965,30 @@ function SessionGate({
               onClick={() => setState("request")}
             >
               申請を取り消す
+            </button>
+          </div>
+        )}
+        {state === "ended" && (
+          <div className="cd-expired cd-ended" data-share-ended>
+            <span>
+              <CIcon name="check" size={38} />
+            </span>
+            <p className="cd-eyebrow">共有終了</p>
+            <h1>共有を終了しました</h1>
+            <p>
+              {live?.endedInfo?.patientName ? `${live.endedInfo.patientName}さんとの` : ""}一時共有を終了しました。患者の学習情報・体調記録は、この画面からは閲覧できません。
+            </p>
+            <div className="cd-expired-info">
+              <CIcon name="shield" />
+              <p>
+                次に閲覧するときは、新しい接続申請と患者本人の承認が必要です。
+              </p>
+            </div>
+            <button className="cd-primary" onClick={() => setState("none")}>
+              ホームへ戻る
+            </button>
+            <button className="cd-secondary" onClick={() => setState("request")}>
+              次の患者と接続する
             </button>
           </div>
         )}

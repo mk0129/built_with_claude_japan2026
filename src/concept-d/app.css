@@ -326,3 +326,20 @@
 .cd-scan-guide .cd-qr-placeholder { width: 120px; height: 120px; }
 .cd-scan-guide { grid-template-columns: 130px 1fr; }
 .cd-connect[data-connect-live] .cd-code-panel { min-height: 0; }
+
+/* 改行の位置: 単語の途中で折り返さない（<wbr> の位置か句読点で改行。収まらないときだけ任意の位置） */
+.au-keep, .d-keep { word-break: keep-all; overflow-wrap: anywhere; }
+.d-nowrap { white-space: nowrap; }
+
+/* 理解確認の結果: 記録を確認できなかったとき（成功の印を出さない） */
+.d-result-page[data-result-state="error"] { padding-top: 72px; }
+.d-result-page[data-result-state="error"] .primary-button { width: 100%; margin: 24px 0 10px; }
+
+/* 医療者のトースト: 失敗のとき（チェックの印を出さない） */
+.cd-toast.cd-toast-error { background: #8a2f2f; }
+
+/* ホーム: セット以外に新しく届いた教材（セットのカードの上に、別に案内する） */
+.d-new-rx { width: 100%; display: flex; align-items: center; gap: 12px; margin: 0 0 12px; padding: 12px 14px; border: 1px solid var(--line, #dfe6e7); border-radius: 14px; background: #fff; text-align: left; }
+.d-new-rx > span:nth-child(2) { flex: 1; display: grid; gap: 2px; }
+.d-new-rx b { font-size: 15px; }
+.d-new-rx small { color: var(--muted); font-size: 12px; }

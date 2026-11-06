@@ -108,16 +108,19 @@ export function ClinicianDApp({ sessionId = null, orgs = [], grantId = null }: {
   const s = useConceptDState()
   const wide = useMedia("(min-width: 1180px)", true)
   // 一時共有の通知は Figma の医療者用トースト（.cd-toast）で出す
-  const [notice, setNotice] = useState("")
-  const showNotice = (message: string) => {
-    setNotice(message)
-    window.setTimeout(() => setNotice(""), 2600)
+  // tone: error のときは成功の印（チェック）を出さない
+  const [notice, setNotice] = useState<{ message: string; tone: "info" | "error"; at: number } | null>(null)
+  const showNotice = (message: string, tone: "info" | "error" = "info") => {
+    setNotice({ message, tone, at: Date.now() })
+    window.setTimeout(() => setNotice(null), tone === "error" ? 6000 : 2600)
   }
+  const showError = (message: string) => showNotice(message, "error")
   const live = useClinicianLive(sessionId, orgs, showNotice, grantId)
-  // 患者が承認した有効な一時共有の間だけ、診察サマリーと処方の実データを読む（Step 2）
-  const record = useClinicianRecord(live.sessionId, live.state === "active", showNotice)
+  // 患者が承認した有効な一時共有の間だけ、診察サマリーと処方の実データを読む（Step 2）。共有の終了を送信中は読まない
+  const sharing = live.state === "active" && !live.ending
+  const record = useClinicianRecord(live.sessionId, sharing, showError)
   // 教材スタジオ（Step 5）: 申請先の医療機関で、教材編集・承認の権限があるときだけ使える（権限はサーバーで検証）
-  const studio = useStudio(live.org?.orgId ?? null, live.state === "active", showNotice)
+  const studio = useStudio(live.org?.orgId ?? null, sharing, showError)
   return (
     <div className="cd-app-stage">
       {/* Step 5 で医療者画面もすべて実データになったため、「架空データ」の表示は出さない */}
@@ -131,10 +134,11 @@ export function ClinicianDApp({ sessionId = null, orgs = [], grantId = null }: {
         activeSymptomIds={s.activeSymptomIds}
         customSymptomNames={s.customSymptomNames}
       />
-      {notice && (
-        <div className="cd-toast">
-          <CIcon name="check" />
-          {notice}
+      {/* 終了に失敗したあと、やり直して終了できたときは、前の失敗の通知を残さない */}
+      {notice && !(notice.tone === "error" && live.endedInfo && notice.at <= Date.parse(live.endedInfo.at)) && (
+        <div className={`cd-toast${notice.tone === "error" ? " cd-toast-error" : ""}`} role={notice.tone === "error" ? "alert" : "status"} data-toast-tone={notice.tone}>
+          <CIcon name={notice.tone === "error" ? "alert" : "check"} />
+          {notice.message}
         </div>
       )}
     </div>

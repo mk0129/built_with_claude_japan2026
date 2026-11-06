@@ -15,7 +15,8 @@ import QRCode from "qrcode";
 import { api, errorText } from "@/lib/api";
 import { setStoredOrgId, useStoredOrgId } from "@/lib/use-stored-org";
 
-type Session = "none" | "request" | "waiting" | "active" | "expired";
+/** ended: この医療者が共有を終了した直後（終了完了の画面）。expired: 期限切れ・患者による終了 */
+type Session = "none" | "request" | "waiting" | "active" | "expired" | "ended";
 type Consultation = {
   id: string;
   orgName: string;
@@ -54,7 +55,7 @@ export type ClinicianOrg = { orgId: string; orgName: string; displayName: string
  * initialGrantId: /c で読み取り要求済みのグラント。患者の承認を待つ画面から始める。
  * 同じアカウントの別の端末（例: スマートフォンで QR を読み取った）で要求・承認されたものは、接続前の画面で自動的に引き継ぐ。
  */
-export function useClinicianLive(initialSessionId: string | null, orgs: ClinicianOrg[], notify: (message: string) => void, initialGrantId: string | null = null) {
+export function useClinicianLive(initialSessionId: string | null, orgs: ClinicianOrg[], notify: (message: string, tone?: "info" | "error") => void, initialGrantId: string | null = null) {
   const [state, setStateRaw] = useState<Session>(initialSessionId ? "active" : initialGrantId ? "waiting" : "none");
   const [grantId, setGrantId] = useState<string | null>(initialSessionId ? null : initialGrantId);
   const [sessionId, setSessionId] = useState<string | null>(initialSessionId);
@@ -141,6 +142,7 @@ export function useClinicianLive(initialSessionId: string | null, orgs: Clinicia
   // 一時共有中: 期限・終了・延長を 5 秒ごとに確認
   const lastExpires = useRef<number | null>(null);
   const extRef = useRef(false);
+  const endingRef = useRef(false);
   useEffect(() => {
     if (state !== "active" || !sessionId) return;
     let stop = false;
@@ -163,6 +165,8 @@ export function useClinicianLive(initialSessionId: string | null, orgs: Clinicia
           setStateRaw("expired");
         }
       } catch {
+        // 終了の送信中・終了後に返った拒否は、終了の処理（end）に任せる
+        if (stop || endingRef.current) return;
         setUrlParam("s", null);
         setSessionId(null);
         setStateRaw("none");
@@ -204,13 +208,35 @@ export function useClinicianLive(initialSessionId: string | null, orgs: Clinicia
     }
   }, [sessionId]);
 
+  // 共有の終了: 送信中は患者情報の読み込みを止める（終了後に返る 403 は予期した拒否で、エラーとして出さない）。
+  // 終了できた → 終了完了の画面。すでに終了・期限切れだった → 終了済みの画面。通信エラー・権限エラー → 共有中のまま、失敗を知らせる（成功の表示は出さない）
+  const [ending, setEnding] = useState(false);
+  /** 終了完了の画面に出す内容（終了した共有の患者名・時刻）。患者情報はこれ以外に保持しない */
+  const [endedInfo, setEndedInfo] = useState<{ patientName: string | null; at: string } | null>(null);
   const end = useCallback(async () => {
-    if (sessionId) await api(`/api/v1/consultations/${sessionId}/end`, { json: {} }).catch(() => {});
-    setUrlParam("s", null);
-    setSessionId(null);
-    setConsult(null);
-    setStateRaw("none");
-  }, [sessionId]);
+    if (!sessionId || endingRef.current) return false;
+    endingRef.current = true;
+    setEnding(true);
+    const finish = (next: Session) => {
+      setEndedInfo(next === "ended" ? { patientName: consult?.patientName ?? null, at: new Date().toISOString() } : null);
+      setUrlParam("s", null);
+      setSessionId(null);
+      setConsult(null);
+      setExtensionRequested(false);
+      setStateRaw(next);
+    };
+    try {
+      const r = await api<{ alreadyEnded: boolean }>(`/api/v1/consultations/${sessionId}/end`, { json: {} });
+      finish(r.alreadyEnded ? "expired" : "ended");
+      return true;
+    } catch (e) {
+      notifyRef.current(`共有を終了できませんでした。通信の状態を確かめて、もう一度お試しください（${errorText(e)}）`, "error");
+      return false;
+    } finally {
+      endingRef.current = false;
+      setEnding(false);
+    }
+  }, [sessionId, consult]);
 
   const remainingSec = consult ? Math.max(0, Math.floor((new Date(consult.expiresAt).getTime() - now) / 1000)) : 0;
   return {
@@ -228,6 +254,9 @@ export function useClinicianLive(initialSessionId: string | null, orgs: Clinicia
     extensionRequested: extensionRequested || !!consult?.pendingExtension,
     requestExtension,
     end,
+    /** 共有の終了を送信中（患者情報の読み込みを止める） */
+    ending,
+    endedInfo,
   };
 }
 
@@ -419,6 +448,8 @@ export function usePatientLive(connectToken: string | null, notify: (message: st
     extensionPending,
     clinicianName: consult?.clinicianName ?? null,
     clinicianLabel: consult ? `${consult.orgName} ${consult.clinicianName}` : null,
+    /** 共有先の医療機関名（氏名の途中で改行しないよう、画面で医療機関名と氏名を分けて表示する） */
+    clinicianOrg: consult?.orgName ?? null,
     remainingMin,
     code: code ? { value: `${code.code.slice(0, 3)} ${code.code.slice(3)}`, remainingMin: Math.ceil(codeRemainingSec / 60), qrDataUrl: code.qrDataUrl } : null,
     issueCode,

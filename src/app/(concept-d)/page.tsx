@@ -11,7 +11,7 @@ export default async function Landing() {
     <main className="au-stage">
       <div className="au-column au-entry">
         <ShioriLogo variant="entry" />
-        <h1>治療の道のりを、自分のペースで。</h1>
+        <h1 className="au-keep">治療の道のりを、<wbr />自分のペースで。</h1>
         <p className="au-lead">医療者が選んだ説明を、読み・聞き・確かめて、次の診察につなげるためのノートです。</p>
         <div className="au-actions">
           <Link href="/login" className="primary-button au-primary" data-entry-patient>

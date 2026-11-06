@@ -1,5 +1,5 @@
 import { devices, test, type Browser, type Page } from "@playwright/test";
-import { demoLogin, expect, newPage } from "./helpers";
+import { demoLogin, expect, newPage, expectShareEnded } from "./helpers";
 
 /**
  * QR 一時共有の正式な方式: 患者が QR コードと 6 桁コードを表示（同じ発行・5 分・1 回限り）→ ログイン済みの医療者が読み取る
@@ -143,7 +143,7 @@ test("6 桁コード（PC にカメラがない場合）: 医療者が入力（�
   await expect(staff.page.locator(".cd-app-header")).not.toContainText("未登録");
   await expect(staff.page.locator(".cd-app-header")).not.toContainText("52歳");
   await staff.page.locator(".cd-sidebar").getByRole("button", { name: "共有を終了" }).click();
-  await expect(staff.page.getByText("患者一覧はありません")).toBeVisible();
+  await expectShareEnded(staff.page);
   expect((await staff.page.request.get(`/api/v1/consultations/${sid}/patient`)).status()).toBe(403);
   const { sessions } = await (await patient.page.request.get("/api/v1/sessions/mine")).json();
   expect(sessions[0]).toMatchObject({ active: false, endedBy: "clinician" });

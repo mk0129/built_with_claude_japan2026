@@ -279,6 +279,14 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     notifyRef.current = notify;
   });
   const sid = active ? sessionId : null;
+  // 今の共有（sid）。共有の終了中・終了後に返った応答（予期した 403 など）は、エラーとして通知しない
+  const sidRef = useRef(sid);
+  useEffect(() => {
+    sidRef.current = sid;
+  }, [sid]);
+  const fail = useCallback((forSid: string | null, e: unknown) => {
+    if (sidRef.current === forSid) notifyRef.current(errorText(e));
+  }, []);
 
   const reload = useCallback(async () => {
     if (!sid) return;
@@ -290,9 +298,9 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
       ]);
       setData({ sid, summary: s, materials: m.items, health: h });
     } catch (e) {
-      notifyRef.current(errorText(e));
+      fail(sid, e);
     }
-  }, [sid]);
+  }, [sid, fail]);
   useEffect(() => {
     // 共有が始まったら読み込む。共有が終わったら（sid なし）画面に保持した患者情報を消す
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -314,12 +322,12 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
         const d = await api<IntervisitApi>(`/api/v1/consultations/${sid}/intervisit${q}`);
         setIv({ sid, key: q, data: d });
       } catch (e) {
-        notifyRef.current(errorText(e));
+        fail(sid, e);
       } finally {
         setIvLoading(false);
       }
     },
-    [sid],
+    [sid, fail],
   );
   // Claude の外来間要約（期間ごと。サーバー側で同じデータなら再利用）
   const [ai, setAi] = useState<{ sid: string; key: string; data: AiSummaryApi } | null>(null);
@@ -342,13 +350,13 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
         });
         setAi({ sid, key, data: d });
       } catch (e) {
-        notifyRef.current(errorText(e));
+        fail(sid, e);
       } finally {
         if (aiInflight.current === flightKey) aiInflight.current = null;
         setAiLoading(false);
       }
     },
-    [sid],
+    [sid, fail],
   );
   // 処方テンプレート（セット）の読み取り（既存 API。読み取りのみ）
   const [tpl, setTpl] = useState<{ sid: string; items: TemplateApi[] } | null>(null);
@@ -358,9 +366,9 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
       const d = await api<{ templates: TemplateApi[] }>(`/api/v1/consultations/${sid}/templates`);
       setTpl({ sid, items: d.templates });
     } catch (e) {
-      notifyRef.current(errorText(e));
+      fail(sid, e);
     }
-  }, [sid]);
+  }, [sid, fail]);
   useEffect(() => {
     // 共有が終わったら外来間のデータ・要約も消す
     if (!sid) {
@@ -406,7 +414,7 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
         await reload();
         return ids.length;
       } catch (e) {
-        notifyRef.current(errorText(e));
+        fail(sid, e);
         return null;
       }
     },
@@ -423,11 +431,11 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
         void reload();
         return true;
       } catch (e) {
-        notifyRef.current(errorText(e));
+        fail(sid, e);
         return false;
       }
     },
-    [sid, reload],
+    [sid, fail, reload],
   );
 
   return {

@@ -1,5 +1,5 @@
 import { test, type Page } from "@playwright/test";
-import { demoLogin, expect, newPage, shareByPatientCode } from "./helpers";
+import { demoLogin, expect, newPage, shareByPatientCode, expectShareEnded } from "./helpers";
 
 /**
  * Phase 2 Step 2: 情報処方と学習記録を実 API・DB で通す（架空患者・架空医療者）。
@@ -106,7 +106,7 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
 
   // 1 回目の共有を医療者が終了（何も入力しない）
   await s.locator(".cd-sidebar").getByRole("button", { name: "共有を終了" }).click();
-  await expect(s.getByText("患者一覧はありません")).toBeVisible();
+  await expectShareEnded(s);
 
   // 8. 次の承認済み診察で、医療者が回答を確認できる
   await p.locator(".d-share-chip").click();
@@ -141,7 +141,7 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
 
   // 9. 何も追加入力せずに共有を終了できる
   await s.locator(".cd-app-header").getByRole("button", { name: "共有終了" }).click();
-  await expect(s.getByText("患者一覧はありません")).toBeVisible();
+  await expectShareEnded(s);
 
   // 10. 終了後は患者データへの API アクセスが拒否される
   for (const path of [`/api/v1/consultations/${sid2}/patient`, `/api/v1/consultations/${sid2}/materials`, `/api/v1/consultations/${sid1}/patient`]) {

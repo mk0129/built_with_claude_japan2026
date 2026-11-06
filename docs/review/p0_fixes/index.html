@@ -1,0 +1,17 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>P0修正 変更前後</title>
+<style>body{font-family:'Hiragino Sans','Noto Sans JP',sans-serif;margin:24px;background:#fff;color:#1f3237}h1{font-size:22px}section{margin:0 0 32px}h2{font-size:16px;margin:0 0 4px}p{margin:0 0 8px;color:#4a5b60}img{max-width:100%;border:1px solid #dfe6e7}</style>
+<h1>デモ撮影直前の P0 修正 — 変更前後</h1><p>架空データ。左が変更前（docs/review/final_ui_review）、右が変更後。</p>
+<section><h2>P0-1 理解確認の結果「学んだ教材」</h2><p>変更前は「学習を記録しました」なのに 0。変更後は DB と同じ件数（再読み込み後も同じ）</p><img src="sheets/P08_result_390.jpg" alt="P0-1 理解確認の結果「学んだ教材」"></section>
+<section><h2>P0-1 記録を確認できないとき（新規）</h2><p>一覧の読み込みに失敗したときは成功の印・「学習を記録しました」を出さず、再確認のボタン</p><img src="sheets/P08_result_error_390.jpg" alt="P0-1 記録を確認できないとき（新規）"></section>
+<section><h2>P0-2 シミュレーターの結果（390px）</h2><p>変更前は入力画面のスクロール位置のまま開き、金額が画面の上に隠れる。変更後は先頭から（手入力）</p><img src="sheets/P12_sim_result_390.jpg" alt="P0-2 シミュレーターの結果（390px）"></section>
+<section><h2>P0-2 架空の例で試す（390px）</h2><p>架空の例も先頭から。金額・意味・確定額ではない旨・計算の条件が初期表示で読める</p><img src="sheets/P12_sim_result_demo_390.jpg" alt="P0-2 架空の例で試す（390px）"></section>
+<section><h2>P0-2 シミュレーターの結果（430px）</h2><p>430px も先頭から</p><img src="sheets/P12_sim_result_430.jpg" alt="P0-2 シミュレーターの結果（430px）"></section>
+<section><h2>P0-3 医療者の共有終了（1180px）</h2><p>変更前はチェックの印つきで「有効な診察セッションがありません」。変更後は終了完了の画面（追加入力なし）</p><img src="sheets/C13_share_ended_1180.jpg" alt="P0-3 医療者の共有終了（1180px）"></section>
+<section><h2>P0-3 終了に失敗したとき（新規）</h2><p>通信エラーでは共有中のまま、失敗の通知（成功の印は出さない）</p><img src="sheets/C13_end_failed_1180.jpg" alt="P0-3 終了に失敗したとき（新規）"></section>
+<section><h2>P0-4 別の教材を追加処方したあとのホーム（390px）</h2><p>変更前（左は追加処方の前の画面）: 追加処方のあとはセットのカードが消えていた。変更後はセットが残り、新しい教材は別に案内</p><img src="sheets/P01_home_set_kept_390.jpg" alt="P0-4 別の教材を追加処方したあとのホーム（390px）"></section>
+<section><h2>P0-4 別の教材を追加処方したあとのホーム（430px）</h2><p>送り元・日付はセットを含む処方の記録。「今回の」とは書かない</p><img src="sheets/P01_home_set_kept_430.jpg" alt="P0-4 別の教材を追加処方したあとのホーム（430px）"></section>
+<section><h2>P1 入口の見出しの改行（390px）</h2><p>「自分のペー／ス」→ 句読点の位置で改行</p><img src="sheets/E01_entry_390.jpg" alt="P1 入口の見出しの改行（390px）"></section>
+<section><h2>P1 入口の見出しの改行（430px）</h2><p>「で。」だけが 2 行目に残らない</p><img src="sheets/E01_entry_430.jpg" alt="P1 入口の見出しの改行（430px）"></section>
+<section><h2>P1 「わからない」を記録しました の改行</h2><p>「た」1 文字の改行 → 「「わからない」を／記録しました」</p><img src="sheets/P07_quiz_unknown_390.jpg" alt="P1 「わからない」を記録しました の改行"></section>
+<section><h2>P1 共有先の氏名の改行</h2><p>「佐／藤 医師」→ 医療機関名と氏名の間で改行</p><img src="sheets/P21_sharing_390.jpg" alt="P1 共有先の氏名の改行"></section>
+</html>

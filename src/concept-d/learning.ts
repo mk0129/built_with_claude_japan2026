@@ -123,14 +123,17 @@ export function usePatientLearning(notify: (message: string) => void) {
   useEffect(() => {
     notifyRef.current = notify;
   });
-  const reload = useCallback(async () => {
+  /** 読み直す。成功したら true（失敗は通知し false。呼び出し側で「保存の確認に失敗」を出すため） */
+  const reload = useCallback(async (opts?: { silent?: boolean }) => {
     try {
       const r = await api<{ items: LibraryApiItem[]; latestSetTemplates?: LatestSetTemplate[]; prescribedSets?: PrescribedSetApi[] }>("/api/v1/library");
       setItems(r.items);
       setTemplates(r.latestSetTemplates ?? []);
       setPrescribedSets(r.prescribedSets ?? []);
+      return true;
     } catch (e) {
-      notifyRef.current(errorText(e));
+      if (!opts?.silent) notifyRef.current(errorText(e));
+      return false;
     }
   }, []);
   useEffect(() => {
@@ -154,7 +157,35 @@ export function usePatientLearning(notify: (message: string) => void) {
       name: patientSetName(t.name),
       description: t.description,
       lessons: lessons.filter((l) => l.latest && t.materialIds.includes(l.id)),
+      sender: latest ? `${latest.orgName} ${latest.clinicianName}` : null,
+      date: latest ? shortDate(latest.createdAt) : null,
+      inLatest: true,
     })),
+    /**
+     * これまでの処方に含まれるセット（テンプレートごとに、その教材がすべて含まれていた最新の処方）。新しい順。
+     * 後日ほかの教材が処方されても、ホームから続きを読めるようにする。送り元・日付はその処方の記録。
+     * 処方の記録にセットの ID はないため、「セットを使って処方した」とは断定しない（教材の一致で判定）
+     */
+    homeSets: (() => {
+      const latestSetId = latest?.setId ?? null;
+      const seen = new Set<string>();
+      const out: { id: string; name: string; description: string | null; lessons: LiveLesson[]; sender: string | null; date: string | null; inLatest: boolean }[] = [];
+      for (const rx of prescribedSets)
+        for (const t of rx.templates) {
+          if (seen.has(t.id)) continue;
+          seen.add(t.id);
+          out.push({
+            id: t.id,
+            name: patientSetName(t.name),
+            description: t.description,
+            lessons: lessons.filter((l) => t.materialIds.includes(l.id)),
+            sender: `${rx.orgName} ${rx.clinicianName}`,
+            date: shortDate(rx.createdAt),
+            inLatest: rx.setId === latestSetId,
+          });
+        }
+      return out;
+    })(),
     /**
      * テンプレート名（医療者向け）で、そのセットが処方された最新の記録（送り元・日付）を探す。
      * 判定は教材の一致（処方の記録にセットの ID はない）。見つからなければ null

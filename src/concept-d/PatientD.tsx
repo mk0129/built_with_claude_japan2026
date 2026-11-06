@@ -331,6 +331,8 @@ type DLiveInfo = {
   latest: PatientLearning["latest"]
   /** 今回の処方に含まれる情報処方セット（テンプレートの教材がすべて処方されたときだけ。なければ空） */
   latestSets: PatientLearning["latestSets"]
+  /** これまでの処方に含まれる情報処方セット（新しい順。後日ほかの教材が届いても残す） */
+  homeSets: PatientLearning["homeSets"]
   sharingLabel: string | null
   sharingRemainingMin: number
   /** 本番（Step 3）: 診察ノートの質問数・最後に体調を記録した日（未記録は null） */
@@ -754,6 +756,26 @@ export function DPrototype({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
   const attempt = quiz.attempt
+  // 結果の画面: 理解確認の完了はサーバーで記録済み（最後の回答で学習を完了にする）。一覧を読み直して件数を DB と合わせる。
+  // 読み直しの間は「確認中」、失敗したら成功の表示を出さない
+  // 確認の単位（教材・再試行の回数）。保存済みの確認結果がこの単位のものでなければ「確認中」
+  const [resultTry, setResultTry] = useState(0)
+  const resultKey = page === "result" ? `${versionId}:${resultTry}` : null
+  const [resultChecked, setResultChecked] = useState<{ key: string; ok: boolean } | null>(null)
+  const resultSync: "loading" | "ok" | "error" =
+    resultKey && resultChecked?.key === resultKey ? (resultChecked.ok ? "ok" : "error") : "loading"
+  useEffect(() => {
+    if (!learning || !resultKey) return
+    let stop = false
+    void learning.reload({ silent: true }).then((ok) => {
+      if (!stop) setResultChecked({ key: resultKey, ok })
+    })
+    return () => {
+      stop = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultKey])
+  const syncResult = () => setResultTry((n) => n + 1)
   const nextQuestion = attempt?.questions.find((question) => !question.answer) ?? null
   const shownQuestion =
     attempt?.questions.find((question) => question.questionId === quizQuestionId && question.answer) ??
@@ -822,7 +844,7 @@ export function DPrototype({
         />
       )
     if (page === "set") {
-      const sets = learning?.latestSets ?? []
+      const sets = learning?.homeSets ?? []
       const shownSet = sets.find((item) => item.id === setId) ?? sets[0]
       if (!shownSet || shownSet.lessons.length === 0)
         return learning?.loaded ? (
@@ -1071,6 +1093,12 @@ export function DPrototype({
                   answered: attempt ? attempt.nCorrect + attempt.nWrong + attempt.nUnknown : 0,
                   needsReview: attempt ? attempt.nWrong + attempt.nUnknown : 0,
                   learnedCount: visibleLessons.filter((lesson) => lesson.status !== "new").length,
+                  // 記録の状態: 挑戦が完了（サーバーの記録）し、一覧の読み直しも済んだときだけ「記録しました」
+                  state: !attempt || resultSync === "loading" ? "saving" : !attempt.completedAt || resultSync === "error" ? "error" : "saved",
+                  onRetry: () => {
+                    void quiz.load(false)
+                    void syncResult()
+                  },
                 }
               : undefined
           }
@@ -1159,6 +1187,7 @@ export function DPrototype({
         today: `${now.getMonth() + 1}月${now.getDate()}日 ${"日月火水木金土"[now.getDay()]}曜日`,
         latest: learning.latest,
         latestSets: learning.latestSets,
+        homeSets: learning.homeSets,
         sharingLabel: live?.clinicianName ?? null,
         sharingRemainingMin: live?.remainingMin ?? 0,
         noteCount,
@@ -2297,8 +2326,12 @@ function DHome({
     .slice(0, 1)
   const remainingMin = (lesson: DLesson) =>
     live ? Math.max(1, Math.round((lesson.time * (100 - lesson.progress)) / 100)) : 4
-  // 本番: 今回の処方に情報処方セット（例: 診断時セット）が含まれるときは、セットのカードを出す（なければ従来の「今回の情報処方」）
-  const homeSet = live?.latestSets.find((item) => item.lessons.length > 0)
+  // 本番: これまでの処方に情報処方セット（例: 診断時セット）が含まれるときは、セットのカードを出す（なければ従来の「今回の情報処方」）。
+  // 後日ほかの教材が処方されても、セットはホームに残し、新しく届いた教材は別に案内する
+  const homeSet = live?.homeSets.find((item) => item.lessons.length > 0)
+  const setIds = new Set(homeSet?.lessons.map((lesson) => lesson.id) ?? [])
+  // セットに含まれない、今回（最新）届いた教材
+  const newOutsideSet = homeSet ? prescriptions.filter((lesson) => !setIds.has(String(lesson.id))) : []
   return (
     <div className="d-home">
       <div className="d-welcome">
@@ -2321,14 +2354,28 @@ function DHome({
       <DVisitCard visit={visit} />
       {/* 次に学ぶ教材: 390px で「次の診察」「次に学ぶ教材」「診察で聞きたいこと」が 1 画面に収まるよう、最初の 1 件だけをコンパクトに表示 */}
       {live && !live.loaded ? null : homeSet ? (
-        <DHomeSetCard
-          set={homeSet}
-          extraCount={prescriptions.length - homeSet.lessons.length}
-          remainingMin={remainingMin}
-          onOpenSet={() => onOpenSet(homeSet.id)}
-          onOpen={onOpen}
-          onAll={() => setPage("prescriptions")}
-        />
+        <>
+          {!homeSet.inLatest && newOutsideSet.length > 0 && (
+            <button className="d-new-rx" data-new-rx onClick={() => setPage("prescriptions")}>
+              <span className="d-next-icon">
+                <Icon name="book" size={20} />
+              </span>
+              <span>
+                <b>新しく届いた教材 {newOutsideSet.length}件</b>
+                <small>{live?.latest ? `${live.latest.date} · ${live.latest.clinician}から` : ""}</small>
+              </span>
+              <Icon name="arrow" />
+            </button>
+          )}
+          <DHomeSetCard
+            set={homeSet}
+            extraCount={homeSet.inLatest ? newOutsideSet.length : 0}
+            remainingMin={remainingMin}
+            onOpenSet={() => onOpenSet(homeSet.id)}
+            onOpen={onOpen}
+            onAll={() => setPage("prescriptions")}
+          />
+        </>
       ) : prescriptions.length === 0 ? (
         <div className="d-home-empty">
           <h3>今届いている教材はありません</h3>
@@ -2450,7 +2497,7 @@ function DHome({
   )
 }
 
-type DHomeSet = PatientLearning["latestSets"][number]
+type DHomeSet = PatientLearning["homeSets"][number]
 
 /** 情報処方セットのカバー（public/covers/ に登録した画像。なければ色面と線の装飾だけの代替カバー） */
 function DSetCover({ name, size = "small" }: { name: string; size?: "small" | "large" }) {
@@ -2500,13 +2547,18 @@ function DHomeSetCard({
   const done = set.lessons.filter((lesson) => lesson.status === "done").length
   const next = nextInSet(set.lessons)
   return (
-    <section className="d-next-card d-set-card" data-set-card aria-label="今回届いた情報処方セット">
+    <section className="d-next-card d-set-card" data-set-card data-set-in-latest={set.inLatest} aria-label={set.inLatest ? "今回届いた情報処方セット" : "情報処方セット"}>
       <div className="d-set-card-main">
         <DSetCover name={set.name} />
         <div className="d-set-card-text">
-          <Pill tone="soft">今回の情報処方セット</Pill>
+          <Pill tone="soft">{set.inLatest ? "今回の情報処方セット" : "情報処方セット"}</Pill>
           <small className="d-set-sender">
-            {live?.latest ? `${live.latest.sender}から届きました・${live.latest.date}` : "医療者から届きました"}
+            {set.sender && set.date ? (
+              <>
+                <span className="d-nowrap">{set.sender}から</span>
+                <span className="d-nowrap">届きました・{set.date}</span>
+              </>
+            ) : live?.latest ? `${live.latest.sender}から届きました・${live.latest.date}` : "医療者から届きました"}
           </small>
           <h2>{set.name}</h2>
           {set.description && <p className="d-set-desc">{set.description}</p>}
@@ -2581,13 +2633,19 @@ function DSetDetail({
         <DSetCover name={set.name} size="large" />
         <div>
           <Pill tone="soft">情報処方セット</Pill>
-          {live?.latest && (
+          {set.sender && set.date ? (
+            <p className="d-set-sender">
+              {set.sender}から届きました
+              <br />
+              {set.date}
+            </p>
+          ) : live?.latest ? (
             <p className="d-set-sender">
               {live.latest.sender}から届きました
               <br />
               {live.latest.date}
             </p>
-          )}
+          ) : null}
           <p className="d-set-hero-count">
             {total}件のうち <b>{done}件</b> を学習済み
           </p>
@@ -3393,7 +3451,8 @@ function DLearning({
         <div className="d-learning-actions">
           <button onClick={live.onPrev}>前へ</button>
           <button className="primary-button" onClick={live.onNext} disabled={!slide}>
-            {!isLast ? "次へ" : live.hasQuiz ? "理解を確認する" : "学習を終える"}
+            {/* 読み込み中は最後のページ用の文言（学習を終える）を出さない */}
+            {!slide ? "次へ" : !isLast ? "次へ" : live.hasQuiz ? "理解を確認する" : "学習を終える"}
             <Icon name="arrow" />
           </button>
         </div>
@@ -3607,7 +3666,7 @@ function DExplanation({
               : unsure
                 ? preview
                   ? "「わからない」を選びました"
-                  : "「わからない」を記録しました"
+                  : <span className="d-keep">「わからない」を<wbr />記録しました</span>
                 : "いっしょに確認しましょう"}
           </h1>
         </div>
@@ -3865,7 +3924,16 @@ function DResult({
 }: {
   answer: string
   /** 本番: この教材の学習と理解確認の記録 */
-  live?: { title: string; slideCount: number; answered: number; needsReview: number; learnedCount: number }
+  live?: {
+    title: string
+    slideCount: number
+    answered: number
+    needsReview: number
+    learnedCount: number
+    /** saving: 記録を確認中／saved: DB に記録済みで件数も最新／error: 確認できない（成功の表示を出さない） */
+    state: "saving" | "saved" | "error"
+    onRetry: () => void
+  }
   healthDays: number
   questionCount: number
   motionEnabled: boolean
@@ -3874,12 +3942,28 @@ function DResult({
   onHome: () => void
 }) {
   const needsReview = live ? live.needsReview > 0 : answer !== "無理のない範囲でゆっくり動かす"
+  const state = live?.state ?? "saved"
+  if (state === "error")
+    return (
+      <div className="d-result-page no-motion" data-result-state="error">
+        <h1>学習の記録を確認できませんでした</h1>
+        <p role="alert">通信の状態を確かめて、もう一度お試しください。回答はこの画面を閉じても失われません。</p>
+        <button className="primary-button" onClick={live?.onRetry}>
+          もう一度確認する
+        </button>
+        <button className="secondary-button d-bottom-action" onClick={onHome}>
+          ホームへ戻る
+        </button>
+      </div>
+    )
   return (
-    <div className={`d-result-page ${motionEnabled ? "" : "no-motion"}`}>
+    <div className={`d-result-page ${motionEnabled ? "" : "no-motion"}`} data-result-state={state} aria-busy={state === "saving"}>
       <span className="d-result-mark">
         <Icon name="check" size={34} />
       </span>
-      <p className="eyebrow">学習を記録しました</p>
+      <p className="eyebrow" role="status">
+        {state === "saving" ? "学習の記録を確認しています" : "学習を記録しました"}
+      </p>
       <h1>今日もひとつ、知ることが増えました</h1>
       <p>
         学んだ内容は、いつでも振り返れます。正答率ではなく、確認した内容を残しています。
@@ -3906,7 +3990,7 @@ function DResult({
         <h2>これまでの積み重なり</h2>
         <div>
           <span>
-            <b>{live ? live.learnedCount : 4}</b>
+            <b data-learned-count>{!live ? 4 : state === "saving" ? "…" : live.learnedCount}</b>
             学んだ教材
           </span>
           <span>
@@ -4419,7 +4503,13 @@ function DShare({
           <div className="d-share-session">
             <span>
               <small>共有先</small>
-              <b>{live?.clinicianLabel ?? "乳腺外科 山田医師"}</b>
+              <b>
+                {live?.clinicianOrg && live.clinicianName ? (
+                  <>
+                    {live.clinicianOrg} <span className="d-nowrap">{live.clinicianName}</span>
+                  </>
+                ) : (live?.clinicianLabel ?? "乳腺外科 山田医師")}
+              </b>
             </span>
             <span>
               <small>残り時間</small>

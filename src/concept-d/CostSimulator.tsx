@@ -5,7 +5,7 @@
  * 計算は src/lib/high-cost-medical.ts の決定論的な関数だけで行う（Claude は使わない・入力はどこにも保存しない）。
  * 数段階で条件を選ぶ → 結果。対象外の条件を選んだら金額を出さず、理由と確認先を表示する。
  */
-import { useMemo, useState, type ReactNode } from "react"
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import {
   BRACKET_CRITERIA,
   BRACKET_INCOME_HINT,
@@ -63,6 +63,17 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
 
   const result = useMemo(() => (shown ? simulate(shown) : null), [shown])
 
+  // 手順や結果に切り替わったら、先頭が見える位置に戻す（前の画面のスクロール位置を引き継がない）。
+  // 患者画面は内側の領域（.d-main）がスクロールするため、スクロールしている祖先の要素とページ全体の両方を戻す
+  const rootRef = useRef<HTMLDivElement>(null)
+  const view = result ? `result:${result.kind}` : `step:${step}`
+  useLayoutEffect(() => {
+    for (let el = rootRef.current?.parentElement; el; el = el.parentElement) {
+      if (el.scrollTop > 0) el.scrollTop = 0
+    }
+    if (window.scrollY > 0) window.scrollTo({ top: 0 })
+  }, [view])
+
   /** 対象外の条件を選んだら、ほかの条件は計算できる値のまま結果（理由）を表示する */
   const choose = (patch: Draft, outOfScope = false) => {
     const next = { ...draft, ...patch }
@@ -95,7 +106,7 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
 
   if (result) {
     return (
-      <div className="d-sim" data-sim>
+      <div className="d-sim" data-sim ref={rootRef} data-sim-view={view}>
         <SimHeader onBack={() => setShown(null)} title="医療費の目安" />
         {result.kind === "result" ? (
           <SimResultView result={result} onEdit={editConditions} onRestart={restart} onOpenMaterial={onOpenMaterial} />
@@ -122,7 +133,7 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
   }
 
   return (
-    <div className="d-sim" data-sim>
+    <div className="d-sim" data-sim ref={rootRef} data-sim-view={view}>
       <SimHeader onBack={step === 0 ? onBack : () => setStep(step - 1)} title="医療費シミュレーター" />
       <section className="d-sim-intro">
         <span className="d-sim-intro-icon">

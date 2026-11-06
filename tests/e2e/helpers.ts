@@ -101,3 +101,18 @@ export async function shareByPatientCode(staff: Page, patient: Page) {
   await expect(staff.getByRole("heading", { name: "診察サマリー" })).toBeVisible({ timeout: 15_000 });
   return code;
 }
+
+/**
+ * 医療者が共有を終了した直後: 終了完了の画面が出て、失敗の通知（予期した 403 を含む）を出さない。
+ * そのあと「ホームへ戻る」で接続前のホームへ。
+ */
+export async function expectShareEnded(page: Page) {
+  const ended = page.locator("[data-share-ended]");
+  await expect(ended.getByRole("heading", { name: "共有を終了しました" })).toBeVisible();
+  // 終了の直前に送った読み込みの応答（403）が遅れて返っても、通知にしない
+  await page.waitForTimeout(1500);
+  await expect(page.locator(".cd-toast", { hasText: "有効な診察セッションがありません" })).toHaveCount(0);
+  await expect(page.locator("[data-toast-tone='error']")).toHaveCount(0);
+  await ended.getByRole("button", { name: "ホームへ戻る" }).click();
+  await expect(page.getByText("患者一覧はありません")).toBeVisible();
+}
