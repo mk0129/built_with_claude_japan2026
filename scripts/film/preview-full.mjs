@@ -4,6 +4,7 @@
  *   URL    : HTML を配信している URL（例 http://localhost:8765/shiori-intro.html。HTML と 14 本の MP4 を同じフォルダから配信）
  *   FILM   : 出力先（既定 ~/Developer/shiori-demo-film）。preview-full.mp4・narration.mp3・preview_qa.json
  *   FFMPEG : ffmpeg のパス
+ *   JPEG_Q / CRF : 画面配信の JPEG の品質（既定 85）と中間 MP4 の CRF（既定 20）。v7 は 95 / 16（合成後の文字の圧縮の劣化を減らす）
  * 音声: HTML に埋め込まれた MP3 を取り出し、再生が始まった時刻（audio の playing）に合わせて 1 本だけ重ねる（二重再生しない）。
  * 確認: 各動画の再生開始の時刻（ナレーションの時刻）、プレースホルダー（ファイル名の枠）が出た時間、動画の読み込み待ち。
  */
@@ -17,6 +18,7 @@ const URL = process.env.URL ?? "http://localhost:8765/shiori-intro.html";
 const FILM = process.env.FILM ?? path.join(os.homedir(), "Developer/shiori-demo-film");
 const FFMPEG = process.env.FFMPEG;
 if (!FFMPEG) throw new Error("FFMPEG を指定してください");
+const JPEG_Q = Number(process.env.JPEG_Q ?? 85), CRF = String(process.env.CRF ?? 20);
 const TMP = path.join(os.tmpdir(), "shiori-film-preview");
 rmSync(TMP, { recursive: true, force: true });
 mkdirSync(TMP, { recursive: true });
@@ -54,7 +56,7 @@ cdp.on("Page.screencastFrame", (e) => {
   list.push({ name, t: e.metadata?.timestamp ?? Date.now() / 1000 });
   cdp.send("Page.screencastFrameAck", { sessionId: e.sessionId }).catch(() => {});
 });
-await cdp.send("Page.startScreencast", { format: "jpeg", quality: 85, maxWidth: 1920, maxHeight: 1080, everyNthFrame: 1 });
+await cdp.send("Page.startScreencast", { format: "jpeg", quality: JPEG_Q, maxWidth: 1920, maxHeight: 1080, everyNthFrame: 1 });
 await p.waitForTimeout(800);
 await p.keyboard.press("h"); // 再生中の UI（ヒント・操作ボタン）を隠す
 await p.waitForTimeout(300);
@@ -89,7 +91,7 @@ writeFileSync(path.join(TMP, "list.txt"), lines.join("\n") + "\n");
 const first = list[0].t;
 const audioOffset = qa.audioStart - first;
 const silent = path.join(TMP, "silent.mp4");
-execFileSync(FFMPEG, ["-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", path.join(TMP, "list.txt"), "-vf", "fps=30,scale=1920:1080,format=yuv420p", "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-r", "30", "-an", silent]);
+execFileSync(FFMPEG, ["-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", path.join(TMP, "list.txt"), "-vf", "fps=30,scale=1920:1080,format=yuv420p", "-c:v", "libx264", "-preset", "medium", "-crf", CRF, "-r", "30", "-an", silent]);
 const out = path.join(FILM, "preview-full.mp4");
 execFileSync(FFMPEG, ["-y", "-loglevel", "error", "-i", silent, "-itsoffset", audioOffset.toFixed(3), "-i", mp3, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out]);
 const rel = (w) => +(w - qa.audioStart).toFixed(2);
