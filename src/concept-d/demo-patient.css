@@ -225,3 +225,7 @@
 
 /* グラフ枠の見出しアイコン: figma.css の「.d-health-chart svg」（グラフ用の幅 100%・高さ 130px）が当たって見えなくなるため、アイコンの大きさに戻す */
 .d-health-chart .d-health-step svg { width: 16px; height: 16px; overflow: hidden; }
+
+/* 教材の詳細: 主題が中央の帯に収まる線画は、低い横長の枠（120px）に切り抜く。画像なしの代替表示（96px）から大きく変えず、「学習を始める」を画面内に保つ */
+/* 内側の余白を小さくし、画像の表示域を 1600×470 の帯と同じ比率（約 3.4:1）にする（主題を切らない） */
+.d-detail > .d-image-slot.band .d-image-placeholder { aspect-ratio: auto; height: 124px; padding: 6px; }

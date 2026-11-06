@@ -1,32 +1,259 @@
 {
-  "_note": "正式画像（Codex 制作）の受け入れ一覧。key は登録先の辞書のキー（THUMBNAILS は DB の教材名と完全一致、SET_COVERS は患者向けのセット名、THEME_IMAGES はテーマ名）。画像が届くまで登録しない。検証: node scripts/assets/validate-images.mjs --dir <受け取ったフォルダ>",
-  "style": { "lineColor": "#315E68", "background": "transparent", "monochrome": true, "text": false },
+  "_note": "正式画像（Codex 制作）の受け入れ一覧。key は登録先の辞書のキー（THUMBNAILS は DB の教材名と完全一致、SET_COVERS は患者向けのセット名、THEME_IMAGES はテーマ名）。画像が届くまで登録しない。検証: node scripts/assets/validate-images.mjs --dir <受け取ったフォルダ> 2026-11-06: Codex の正式画像 10 点（shiori_demo_10_images.zip・assets_p0.csv）の実ファイル名に合わせた。",
+  "style": {
+    "lineColor": "#315E68",
+    "background": "transparent",
+    "monochrome": true,
+    "text": false
+  },
   "kinds": {
-    "thumbnail": { "dir": "public/thumbnails", "width": 1600, "height": 1200, "format": "webp", "registry": "THUMBNAILS" },
-    "cover": { "dir": "public/covers", "width": 800, "height": 1000, "format": "webp", "registry": "SET_COVERS", "allowScale": [1, 2] },
-    "theme": { "dir": "public/covers", "width": 800, "height": 1000, "format": "webp", "registry": "THEME_IMAGES", "allowScale": [1, 2] }
+    "thumbnail": {
+      "dir": "public/thumbnails",
+      "width": 1600,
+      "height": 1200,
+      "format": "webp",
+      "registry": "THUMBNAILS"
+    },
+    "cover": {
+      "dir": "public/covers",
+      "width": 800,
+      "height": 1000,
+      "format": "webp",
+      "registry": "SET_COVERS",
+      "allowScale": [
+        1,
+        2
+      ]
+    },
+    "theme": {
+      "dir": "public/covers",
+      "width": 800,
+      "height": 1000,
+      "format": "webp",
+      "registry": "THEME_IMAGES",
+      "allowScale": [
+        1,
+        2
+      ]
+    }
   },
   "assets": [
-    { "kind": "cover", "key": "診断時セット", "file": "cover_diagnosis_set.webp", "priority": "撮影必須", "source": "patientSetName(初回診断時セット)" },
-    { "kind": "cover", "key": "仕事とお金のこと", "file": "cover_work_money.webp", "priority": "撮影必須", "source": "MONEY_THEME" },
-    { "kind": "theme", "key": "医療費シミュレーター", "file": "theme_cost_simulator.webp", "priority": "撮影必須", "source": "SIMULATOR_NAME" },
-    { "kind": "thumbnail", "key": "乳がんの診断と病期の考え方", "file": "thumb_staging.webp", "priority": "撮影必須", "source": "DEMO_MATERIALS" },
-    { "kind": "thumbnail", "key": "サブタイプと治療方針のつながり", "file": "thumb_subtype.webp", "priority": "撮影必須", "source": "DEMO_MATERIALS" },
-    { "kind": "thumbnail", "key": "こころのケアと相談先", "file": "thumb_mind.webp", "priority": "撮影必須", "source": "DEMO_MATERIALS" },
-    { "kind": "thumbnail", "key": "治療と仕事を両立するために", "file": "thumb_work_balance.webp", "priority": "教材の承認後", "source": "MONEY_TITLES" },
-    { "kind": "thumbnail", "key": "傷病手当金を知る", "file": "thumb_sickness_allowance.webp", "priority": "教材の承認後", "source": "MONEY_TITLES" },
-    { "kind": "thumbnail", "key": "高額療養費制度を知る", "file": "thumb_high_cost.webp", "priority": "教材の承認後", "source": "MONEY_TITLES" },
-    { "kind": "thumbnail", "key": "困ったときの相談先", "file": "thumb_consult.webp", "priority": "教材の承認後", "source": "MONEY_TITLES" },
-    { "kind": "thumbnail", "key": "乳房の手術の種類と選び方", "file": "thumb_surgery_choice.webp", "priority": "医療者の教材ライブラリに映る", "source": "DEMO_MATERIALS" },
-    { "kind": "thumbnail", "key": "手術後の生活と気をつけること", "file": "thumb_after_surgery.webp", "priority": "医療者の教材ライブラリに映る", "source": "DEMO_MATERIALS" },
-    { "kind": "thumbnail", "key": "薬物療法の種類（化学療法・ホルモン療法・分子標的）", "file": "thumb_drug_therapy.webp", "priority": "医療者の教材ライブラリに映る", "source": "DEMO_MATERIALS" },
-    { "kind": "thumbnail", "key": "放射線治療の進め方と皮膚のケア", "file": "thumb_radiation.webp", "priority": "医療者の教材ライブラリに映る", "source": "DEMO_MATERIALS" },
-    { "kind": "thumbnail", "key": "さくら総合病院 外来化学療法室のご案内", "file": "thumb_sakura_chemo_room.webp", "priority": "医療者の教材ライブラリに映る", "source": "DEMO_MATERIALS" },
-    { "kind": "thumbnail", "key": "さくら総合病院 術後リンパ浮腫外来", "file": "thumb_sakura_lymph.webp", "priority": "医療者の教材ライブラリに映る", "source": "DEMO_MATERIALS" },
-    { "kind": "thumbnail", "key": "化学療法中の副作用とセルフケア", "file": "thumb_symptom_check.webp", "priority": "登録済み（既存）", "source": "DEMO_MATERIALS" },
-    { "kind": "thumbnail", "key": "乳がんの治療は、どう組み合わせて決める？", "file": "thumb_treatment_choices.webp", "priority": "登録済み（既存）", "source": "教材 v1.1（DB に未登録）" },
-    { "kind": "thumbnail", "key": "手術後の病理検査では、何がわかる？", "file": "thumb_pathology.webp", "priority": "登録済み（既存）", "source": "教材 v1.1（DB に未登録）" },
-    { "kind": "thumbnail", "key": "抗がん剤治療で気をつけたい体調の変化", "file": "thumb_symptom_check.webp", "priority": "登録済み（既存）", "source": "教材 v1.1（DB に未登録）" },
-    { "kind": "thumbnail", "key": "子どもに乳がんをどう伝える？", "file": "thumb_family_talk.webp", "priority": "登録済み（既存）", "source": "教材 v1.1（DB に未登録）" }
+    {
+      "kind": "cover",
+      "key": "診断時セット",
+      "file": "cover_diagnosis_set.webp",
+      "priority": "撮影必須",
+      "source": "patientSetName(初回診断時セット)",
+      "delivered": {
+        "id": "CV-DX",
+        "pack": "shiori_demo_10_images.zip",
+        "date": "2026-11-06",
+        "width": 800,
+        "height": 1000
+      }
+    },
+    {
+      "kind": "cover",
+      "key": "仕事とお金のこと",
+      "file": "cover_work_money.webp",
+      "priority": "撮影必須",
+      "source": "MONEY_THEME",
+      "delivered": {
+        "id": "CV-WM",
+        "pack": "shiori_demo_10_images.zip",
+        "date": "2026-11-06",
+        "width": 800,
+        "height": 1000
+      }
+    },
+    {
+      "kind": "theme",
+      "key": "医療費シミュレーター",
+      "file": "theme_cost_simulator.webp",
+      "priority": "撮影必須",
+      "source": "SIMULATOR_NAME",
+      "delivered": {
+        "id": "THEME-COST",
+        "pack": "shiori_demo_10_images.zip",
+        "date": "2026-11-06",
+        "width": 800,
+        "height": 1000
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "乳がんの診断と病期の考え方",
+      "file": "thumb_diagnosis_staging.webp",
+      "priority": "撮影必須",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "TH-DX01",
+        "pack": "shiori_demo_10_images.zip",
+        "date": "2026-11-06",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "サブタイプと治療方針のつながり",
+      "file": "thumb_subtypes_treatment.webp",
+      "priority": "撮影必須",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "TH-DX02",
+        "pack": "shiori_demo_10_images.zip",
+        "date": "2026-11-06",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "こころのケアと相談先",
+      "file": "thumb_emotional_support.webp",
+      "priority": "撮影必須",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "TH-DX03",
+        "pack": "shiori_demo_10_images.zip",
+        "date": "2026-11-06",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "治療と仕事を両立するために",
+      "file": "thumb_work_treatment.webp",
+      "priority": "教材の承認後",
+      "source": "MONEY_TITLES",
+      "delivered": {
+        "id": "TH-WM01",
+        "pack": "shiori_demo_10_images.zip",
+        "date": "2026-11-06",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "傷病手当金を知る",
+      "file": "thumb_sickness_allowance.webp",
+      "priority": "教材の承認後",
+      "source": "MONEY_TITLES",
+      "delivered": {
+        "id": "TH-WM02",
+        "pack": "shiori_demo_10_images.zip",
+        "date": "2026-11-06",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "高額療養費制度を知る",
+      "file": "thumb_high_cost_medical.webp",
+      "priority": "教材の承認後",
+      "source": "MONEY_TITLES",
+      "delivered": {
+        "id": "TH-WM03",
+        "pack": "shiori_demo_10_images.zip",
+        "date": "2026-11-06",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "困ったときの相談先",
+      "file": "thumb_support_contacts.webp",
+      "priority": "教材の承認後",
+      "source": "MONEY_TITLES",
+      "delivered": {
+        "id": "TH-WM04",
+        "pack": "shiori_demo_10_images.zip",
+        "date": "2026-11-06",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "乳房の手術の種類と選び方",
+      "file": "thumb_surgery_choice.webp",
+      "priority": "医療者の教材ライブラリに映る",
+      "source": "DEMO_MATERIALS"
+    },
+    {
+      "kind": "thumbnail",
+      "key": "手術後の生活と気をつけること",
+      "file": "thumb_after_surgery.webp",
+      "priority": "医療者の教材ライブラリに映る",
+      "source": "DEMO_MATERIALS"
+    },
+    {
+      "kind": "thumbnail",
+      "key": "薬物療法の種類（化学療法・ホルモン療法・分子標的）",
+      "file": "thumb_drug_therapy.webp",
+      "priority": "医療者の教材ライブラリに映る",
+      "source": "DEMO_MATERIALS"
+    },
+    {
+      "kind": "thumbnail",
+      "key": "放射線治療の進め方と皮膚のケア",
+      "file": "thumb_radiation.webp",
+      "priority": "医療者の教材ライブラリに映る",
+      "source": "DEMO_MATERIALS"
+    },
+    {
+      "kind": "thumbnail",
+      "key": "さくら総合病院 外来化学療法室のご案内",
+      "file": "thumb_sakura_chemo_room.webp",
+      "priority": "医療者の教材ライブラリに映る",
+      "source": "DEMO_MATERIALS"
+    },
+    {
+      "kind": "thumbnail",
+      "key": "さくら総合病院 術後リンパ浮腫外来",
+      "file": "thumb_sakura_lymph.webp",
+      "priority": "医療者の教材ライブラリに映る",
+      "source": "DEMO_MATERIALS"
+    },
+    {
+      "kind": "thumbnail",
+      "key": "化学療法中の副作用とセルフケア",
+      "file": "thumb_symptom_check.webp",
+      "priority": "登録済み（既存）",
+      "source": "DEMO_MATERIALS"
+    },
+    {
+      "kind": "thumbnail",
+      "key": "乳がんの治療は、どう組み合わせて決める？",
+      "file": "thumb_treatment_choices.webp",
+      "priority": "登録済み（既存）",
+      "source": "教材 v1.1（DB に未登録）"
+    },
+    {
+      "kind": "thumbnail",
+      "key": "手術後の病理検査では、何がわかる？",
+      "file": "thumb_pathology.webp",
+      "priority": "登録済み（既存）",
+      "source": "教材 v1.1（DB に未登録）"
+    },
+    {
+      "kind": "thumbnail",
+      "key": "抗がん剤治療で気をつけたい体調の変化",
+      "file": "thumb_symptom_check.webp",
+      "priority": "登録済み（既存）",
+      "source": "教材 v1.1（DB に未登録）"
+    },
+    {
+      "kind": "thumbnail",
+      "key": "子どもに乳がんをどう伝える？",
+      "file": "thumb_family_talk.webp",
+      "priority": "登録済み（既存）",
+      "source": "教材 v1.1（DB に未登録）"
+    }
   ]
 }

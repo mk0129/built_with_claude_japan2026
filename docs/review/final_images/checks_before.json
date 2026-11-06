@@ -1,0 +1,233 @@
+[
+  {
+    "id": "P01_home_390",
+    "scene": "患者ホーム（最初の画面）",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "セットの内容を見る: 画面内",
+      "続きから／学び始める: 画面内"
+    ]
+  },
+  {
+    "id": "P02_set_detail_390",
+    "scene": "診断時セットの内容（カバー・教材 3 件）",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "1 件目の教材: 画面内"
+    ]
+  },
+  {
+    "id": "P03_lesson_detail_390",
+    "scene": "教材の詳細",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "学習を始める: 画面外"
+    ]
+  },
+  {
+    "id": "P04_library_all_390",
+    "scene": "すべての公開教材（個別教材の一覧）",
+    "images": [
+      "shiori_mark.png 17×40",
+      "thumb_symptom_check.webp 76×60"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": []
+  },
+  {
+    "id": "P05_category_390",
+    "scene": "個別教材の一覧（検査・診断）",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": []
+  },
+  {
+    "id": "P05_category_mind_390",
+    "scene": "個別教材の一覧（日常生活・相談支援）",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": []
+  },
+  {
+    "id": "P06_home_money_card_390",
+    "scene": "患者ホームの「仕事とお金のこと」のカード",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "仕事とお金のこと: 画面内"
+    ]
+  },
+  {
+    "id": "P07_money_390",
+    "scene": "仕事とお金のこと（教材は準備中）",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "医療費シミュレーター: 画面内"
+    ]
+  },
+  {
+    "id": "P08_sim_start_390",
+    "scene": "医療費シミュレーター（入口の次）",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "架空の例で試す: 画面内"
+    ]
+  },
+  {
+    "id": "P01_home_430",
+    "scene": "患者ホーム（最初の画面）",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "セットの内容を見る: 画面内",
+      "続きから／学び始める: 画面内"
+    ]
+  },
+  {
+    "id": "P02_set_detail_430",
+    "scene": "診断時セットの内容（カバー・教材 3 件）",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "1 件目の教材: 画面内"
+    ]
+  },
+  {
+    "id": "P03_lesson_detail_430",
+    "scene": "教材の詳細",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "学習を始める: 画面内"
+    ]
+  },
+  {
+    "id": "P04_library_all_430",
+    "scene": "すべての公開教材（個別教材の一覧）",
+    "images": [
+      "shiori_mark.png 17×40",
+      "thumb_symptom_check.webp 76×60"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": []
+  },
+  {
+    "id": "P05_category_430",
+    "scene": "個別教材の一覧（検査・診断）",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": []
+  },
+  {
+    "id": "P05_category_mind_430",
+    "scene": "個別教材の一覧（日常生活・相談支援）",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": []
+  },
+  {
+    "id": "P06_home_money_card_430",
+    "scene": "患者ホームの「仕事とお金のこと」のカード",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "仕事とお金のこと: 画面内"
+    ]
+  },
+  {
+    "id": "P07_money_430",
+    "scene": "仕事とお金のこと（教材は準備中）",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "医療費シミュレーター: 画面内"
+    ]
+  },
+  {
+    "id": "P08_sim_start_430",
+    "scene": "医療費シミュレーター（入口の次）",
+    "images": [
+      "shiori_mark.png 17×40"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "架空の例で試す: 画面内"
+    ]
+  },
+  {
+    "id": "C01_library_1180",
+    "scene": "医療者の教材ライブラリ（最初の画面）",
+    "images": [
+      "shiori_mark.png 15×36",
+      "thumb_symptom_check.webp 300×88"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": [
+      "処方に追加（1 件目）: 画面内"
+    ]
+  },
+  {
+    "id": "C02_library_search_1180",
+    "scene": "医療者の教材検索（こころ）",
+    "images": [
+      "shiori_mark.png 15×36"
+    ],
+    "broken": 0,
+    "overlaps": [],
+    "buttons": []
+  }
+]

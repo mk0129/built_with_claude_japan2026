@@ -82,7 +82,7 @@ export type LiveLesson = {
   previouslyPrescribed: boolean
   selfLearning: boolean
   /** 登録済みの完成サムネイル（なければ Figma の「画像準備中」） */
-  thumbnail: { src: string; alt: string } | null
+  thumbnail: { src: string; alt: string; band?: true } | null
 };
 
 export function toLesson(i: LibraryApiItem): LiveLesson {

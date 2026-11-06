@@ -361,6 +361,7 @@ function DImageSlot({
   compact = false,
   image,
   fit = "contain",
+  band = false,
   seed,
 }: {
   kind: "medical" | "editorial"
@@ -371,6 +372,8 @@ function DImageSlot({
   image?: { src: string; alt: string }
   /** contain: 画像全体を枠内に表示（医学図解・教材詳細のサムネイル。切り取らない）。cover: 枠いっぱいに表示（教材カード） */
   fit?: "contain" | "cover"
+  /** 主題が中央の帯に収まる線画（教材の詳細で、低い横長の枠に切り抜く） */
+  band?: boolean
   /** 画像がないときの代替表示の色を決める文字列（教材名など） */
   seed?: string
 }) {
@@ -398,7 +401,7 @@ function DImageSlot({
     </>
   )
   return (
-    <div className={`d-image-slot ${compact ? "compact" : ""}`}>
+    <div className={`d-image-slot ${compact ? "compact" : ""}${band ? " band" : ""}`}>
       {onExpand ? (
         <button
           className="d-image-placeholder"
@@ -3246,7 +3249,9 @@ function DDetail({
         // 装飾用サムネイルの下には説明を出さない（監修済みの医学図解と区別する）。画像がないときは小さな代替表示だけ
         caption=""
         image={lesson.thumbnail ?? undefined}
-        fit="contain"
+        // 主題が中央の帯に収まる線画は、横長の枠に合わせて切り抜く（枠を低くして「学習を始める」を画面内に保つ）
+        fit={lesson.thumbnail?.band ? "cover" : "contain"}
+        band={!!lesson.thumbnail?.band}
         seed={lesson.title}
       />
       <div className="d-detail-meta">
