@@ -1343,6 +1343,10 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
           {ai && ai.status === "ai" && ai.rejected.length > 0 && !showRule && (
             <small data-ai-status="partial">元データで検証できなかった{ai.rejected.length}項目は表示していません。</small>
           )}
+          {/* 「1/4」などが分数・日付に見えないよう、程度の表記を説明する（要約の文は変えない） */}
+          <p className="cd-severity-legend" data-severity-legend>
+            <b>「1/4」などの数値</b>は、患者本人が記録した自覚症状の程度（0 なし・1 軽い・2 中くらい・3 強い・4 非常に強い）です。CTCAE Grade ではありません。
+          </p>
           <ul className="cd-key-summary" data-key-summary>
             {keyRows.map((row) => (
               <li key={row.key} data-key-row={row.key}>

@@ -116,6 +116,9 @@ test("佐藤 花子: 経過グラフ → 共有 → Claude外来間サマリー�
   const iv = staff.locator("[data-intervisit]");
   await expect(iv).toContainText("記録済みのClaude出力を再生", { timeout: 30_000 });
   await expect(iv.locator("[data-summary-item]")).toHaveCount(18);
+  // 「1/4」などの表記は自覚症状の程度（0〜4）であることを示す（要約の文は変えない）
+  await expect(staff.locator("[data-severity-legend]")).toContainText("自覚症状の程度");
+  await expect(staff.locator("[data-severity-legend]")).toContainText("CTCAE Grade ではありません");
   const key = staff.locator("[data-key-summary]");
   await expect(key.locator('[data-key-row="symptom"]')).toContainText("手足のしびれ");
   await expect(key.locator('[data-key-row="unknown"]')).toContainText("わからない");

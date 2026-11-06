@@ -155,6 +155,9 @@ test("P0-3: 医療者の共有終了 → 終了完了の画面（失敗の通知
   const s = staff.page;
   await shareByPatientCode(s, patient.page);
   const sid = new URL(s.url()).searchParams.get("s")!;
+  // 共有開始直後の残り時間は患者と医療者で同じ（61分にならない）
+  await expect(patient.page.locator(".d-share-session")).toContainText("60分");
+  await expect(s.locator(".cd-remaining").first()).toContainText("残り60分");
 
   // 通信エラーで終了できない → 共有中のまま、失敗の通知（成功の印・終了完了の画面は出さない）
   await s.route(`**/api/v1/consultations/${sid}/end`, (r) => r.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: "UNAVAILABLE" }) }));

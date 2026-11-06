@@ -28,6 +28,17 @@ type Consultation = {
   patientName: string | null;
 };
 
+/** 一時共有の長さ（承認・延長の承認から 60 分。サーバーの CONSULTATION_TTL_MS と同じ。表示の上限にだけ使う） */
+const SHARE_MAX_SEC = 60 * 60;
+/**
+ * 残り時間（秒・分）。患者と医療者で同じ計算にする（秒に切り捨ててから分に切り上げ、共有の長さを上限にする）。
+ * 端末の時計の 1 秒ごとの更新とサーバーの期限の差で「61分」にならないようにする
+ */
+export function remainingOf(expiresAt: string, now: number) {
+  const sec = Math.min(SHARE_MAX_SEC, Math.max(0, Math.floor((new Date(expiresAt).getTime() - now) / 1000)));
+  return { sec, min: Math.ceil(sec / 60) };
+}
+
 /** 1 秒ごとに再描画して残り時間を数える */
 function useNow(enabled: boolean) {
   const [now, setNow] = useState(() => Date.now());
@@ -238,7 +249,7 @@ export function useClinicianLive(initialSessionId: string | null, orgs: Clinicia
     }
   }, [sessionId, consult]);
 
-  const remainingSec = consult ? Math.max(0, Math.floor((new Date(consult.expiresAt).getTime() - now) / 1000)) : 0;
+  const remainingSec = consult ? remainingOf(consult.expiresAt, now).sec : 0;
   return {
     state,
     sessionId,
@@ -350,7 +361,7 @@ export function usePatientLive(connectToken: string | null, notify: (message: st
 
   const sharing = !!consult?.active;
   const extensionPending = sharing && !!consult?.pendingExtension;
-  const remainingMin = consult ? Math.max(0, Math.ceil((new Date(consult.expiresAt).getTime() - now) / 60000)) : 0;
+  const remainingMin = consult ? remainingOf(consult.expiresAt, now).min : 0;
   const pending = useMemo<PatientPending | null>(
     () =>
       token && connectReq

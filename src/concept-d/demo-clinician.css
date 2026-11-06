@@ -169,8 +169,9 @@
 .cd-summary-all-label { margin: 12px 0 2px !important; color: #687a7d !important; font-size: 10px !important; font-weight: 700; }
 .cd-summary-narrative p { font-size: 10px; line-height: 1.75; }
 .cd-summary-narrative .cd-summary-evidence { border-radius: 8px; }
-.cd-summary-evidence p { font-size: 10px; }
-.cd-summary-evidence small { font-size: 9px; }
+/* 根拠の記録は録画（1180px）で読める大きさに */
+.cd-summary-evidence p { font-size: 13px; line-height: 1.6; color: #34494d; }
+.cd-summary-evidence small { font-size: 12px; font-weight: 700; color: #4a5f63; }
 .cd-summary-actions button { font-size: 10px; }
 .cd-summary-safety { align-items: center; padding: 9px 11px; background: #f7f6f2; color: #687a7d; font-size: 9px; }
 .cd-intervisit-cards small { font-size: 9px; }
@@ -227,3 +228,26 @@
 
 /* ---- 教材スタジオ: 撮影用デモ環境の注記 ---- */
 .cd-replay-note { margin: 6px 0 0 !important; color: #8b6b38 !important; font-size: 11px; font-weight: 700; }
+
+/* 自覚症状の程度の表記（「1/4」）の説明 */
+.cd-severity-legend { margin: 10px 0 0; padding: 8px 12px; border-radius: 8px; background: #f3f6f6; color: #3d5257; font-size: 13px; line-height: 1.6; }
+.cd-severity-legend b { color: #1f3237; }
+
+/* 在宅経過表: 録画（1180px）で数値・日付・項目名が読める大きさに（列の幅・行の高さは変えない） */
+.cd-device-app .cd-course-table td button { font-size: 13px; }
+.cd-device-app .cd-course-table thead th { font-size: 12px; }
+.cd-device-app .cd-course-table thead th small { font-size: 11px; }
+.cd-device-app .cd-course-table tbody th b { font-size: 12px; }
+.cd-device-app .cd-course-table tbody th small { font-size: 11px; }
+.cd-device-app .cd-course-table tr.section th { font-size: 12px; }
+.cd-device-app .cd-course-legend span { font-size: 12px; }
+
+/* 録画（1180px）: 「1/4」の説明・要点の見出し・根拠の件数を読める大きさに */
+.cd-summary-narrative p.cd-severity-legend { font-size: 13px; }
+.cd-device-app .cd-key-summary li > b { font-size: 13px; }
+.cd-device-app .cd-key-sentence small { font-size: 12px; }
+.cd-device-app .cd-summary-title b { font-size: 13px; }
+/* 項目名 2 行（名前・単位）の行の高さを抑え、14 日分の表が 1 画面に収まるように */
+.cd-device-app .cd-course-table tbody th b,
+.cd-device-app .cd-course-table tbody th small { line-height: 1.25; }
+.cd-device-app .cd-course-table tbody th small { margin-top: 1px; }
