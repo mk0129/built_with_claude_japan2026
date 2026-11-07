@@ -651,8 +651,9 @@
 .d-health-history-v2 .d-health-list { margin-top: 16px; }
 
 /* 教材の詳細・探す・学習記録・聞きたいこと: 見出しと説明を減らす */
-.d-content-list.d-content-list-compact { display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--muted); font-size: 12px; }
-.d-content-list.d-content-list-compact span { display: inline; padding: 0; border: 0; background: none; }
+.d-main .d-detail .d-content-list.d-content-list-compact { display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px 12px; margin: 10px 0 0; padding: 0; border: 0; background: none; color: var(--muted); font-size: 12px; }
+.d-main .d-detail .d-content-list.d-content-list-compact > span { flex: 0 0 auto; width: auto; min-height: 0; display: inline-flex; align-items: center; gap: 0; margin: 0; padding: 0; border: 0; background: none; font-size: 12px; }
+.d-main .d-detail .d-content-list.d-content-list-compact > span + span::before { content: "·"; margin-right: 12px; color: #b9c6c7; }
 .d-notes .d-add-question { margin-top: 12px; }
 .d-notes .d-visit-date { min-height: 44px; }
 
