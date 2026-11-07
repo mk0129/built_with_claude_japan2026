@@ -4276,13 +4276,7 @@ function PrescriptionLibrary({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={item.thumbnail.src} alt={item.thumbnail.alt} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />
               </div>
-            ) : (
-            <div className="cd-material-image">
-              <span>医学図解</span>
-              <CIcon name="book" size={30} />
-              <small>図解は準備中</small>
-            </div>
-            )}
+            ) : null}
             <div className="cd-material-body">
               <div>
                 <Badge tone={item.scope === "施設内教材" ? "purple" : "blue"}>
@@ -4324,11 +4318,6 @@ function PrescriptionLibrary({
                   </>
                 )}
               </dl>
-              <p>
-                <CIcon name="check" />
-                {record ? "医学的承認済み（デモ・架空の承認者）· 公開中" : "医学的承認済み · 公開中"}
-                {item.prescribedBefore ? " · 以前に処方" : ""}
-              </p>
               {item.prescribedNow ? (
                 // 同じ診察では同じ教材を重複して処方しない
                 <button className="selected" disabled>

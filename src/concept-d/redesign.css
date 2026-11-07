@@ -775,3 +775,8 @@
 .cd-points button b { font-size: 16px; min-width: 24px; }
 .cd-summary-v2 .cd-title-row .cd-period-line { justify-content: flex-start; }
 .cd-summary-v2 .cd-period-line .cd-text-back { display: inline-flex; align-items: center; margin: 0 0 0 4px; }
+
+/* 教材ライブラリのカード: 図解がない教材は空の画像枠を出さない。承認済みの文言は見出しに集約。1180 では 3 列 */
+.cd-1180 .cd-library-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cd-library-grid article .cd-material-image { height: 84px; }
+.cd-library-grid article .cd-material-body > dl dd { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
