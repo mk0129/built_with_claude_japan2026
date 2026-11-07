@@ -26,7 +26,7 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   await expect(p.locator("[data-proto-flag]")).toHaveCount(0);
   await expect(p.locator(".d-home")).toContainText("まだ記録はありません");
 
-  // 2. バイタルと症状を記録（新しい記録は空欄から。前回の値は入らない）
+  // 2. バイタルと症状を記録（初回は前回の記録がないので空欄から）
   await p.locator(".d-nav").getByRole("button", { name: "体調記録" }).click();
   await expect(vital(p, "体温")).toHaveValue("");
   await vital(p, "体温").fill("36.8");
@@ -34,11 +34,16 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   await severity(p, "だるさ・倦怠感", 0); // なし
   await severity(p, "吐き気", 2); // 中くらい
   await severity(p, "発汗・ほてり", 1); // 軽い（このあと非表示にする）
-  await expect(symptom(p, "手足のしびれ")).toContainText("未回答（欠測として保存）");
+  await expect(symptom(p, "手足のしびれ")).toContainText("未回答");
   await p.getByRole("button", { name: "この記録を保存" }).click();
   await expect(p.locator(".toast")).toContainText("体調を記録しました");
   await expect(p.locator(".d-gentle-feedback")).toContainText("1");
-  // 保存後のフォームは空に戻る（次の記録に前回の値を使わない）
+  // 2026-11: 保存後のフォームには前回（いま保存した記録）の値が入り、変わったところだけ直せばよい。「空欄から記録」で空にできる
+  await expect(p.locator("[data-prefill-note]")).toBeVisible();
+  await expect(vital(p, "体温")).toHaveValue("36.8");
+  await expect(symptom(p, "吐き気").locator(".d-severity-scale button.active")).toContainText("中くらい");
+  await expect(symptom(p, "手足のしびれ")).toContainText("未回答");
+  await p.locator("[data-prefill-clear]").click();
   await expect(vital(p, "体温")).toHaveValue("");
   await expect(symptom(p, "吐き気")).toContainText("未回答");
 
@@ -72,7 +77,7 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   await severity(p, "足の裏のぴりぴり", 1);
   await p.getByRole("button", { name: "この記録を保存" }).click();
   await expect(p.locator(".toast")).toContainText("体調を記録しました");
-  await p.getByRole("button", { name: "履歴・グラフ" }).click();
+  await p.getByRole("button", { name: "履歴" }).click();
   await expect(p.locator(".d-health-list .d-section-head")).toContainText("1日分・2件");
 
   // 7. 欠測と「なし」が区別される / 非表示にした症状の過去の記録は残る
@@ -81,10 +86,10 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   await expect(items.nth(1)).toContainText("だるさ・倦怠感0 · なし");
   await expect(items.nth(1)).toContainText("発汗・ほてり1 · 軽い");
   await expect(items.nth(1)).not.toContainText("手足のしびれ");
-  await expect(items.nth(1)).toContainText("血圧 未記録");
+  await expect(items.nth(1)).toContainText("血圧 —");
   await items.nth(0).locator("summary").click(); // 2 回目
-  await expect(items.nth(0)).toContainText("118/74 mmHg");
-  await expect(items.nth(0)).toContainText("脈拍 未記録");
+  await expect(items.nth(0)).toContainText("118/74");
+  await expect(items.nth(0)).toContainText("脈拍 72"); // 2026-11: 前回の値（脈拍 72）を引き継いで保存
   await expect(items.nth(0)).toContainText("足の裏のぴりぴり1 · 軽い");
   // 過去の記録の編集（体温を直す）
   await items.nth(0).getByRole("button", { name: "この記録を編集" }).click();
@@ -94,7 +99,7 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   await expect(p.locator(".toast")).toContainText("記録を更新しました");
   const { records } = await (await p.request.get("/api/v1/health/records")).json();
   expect(records).toHaveLength(2);
-  expect(records[0].vitals).toMatchObject({ temperature: 37, systolic: 118, diastolic: 74, pulse: null, spo2: null });
+  expect(records[0].vitals).toMatchObject({ temperature: 37, systolic: 118, diastolic: 74, pulse: 72, spo2: null });
   expect(records[1].symptoms.map((s: { key: string }) => s.key)).not.toContain("numbness");
 
   // 8. 教材に紐づかない質問を作成

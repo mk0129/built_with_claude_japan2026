@@ -91,9 +91,9 @@ test("患者: ログイン後に Figma 版ホーム。主要な画面遷移、�
   await expect(page.getByRole("button", { name: "この医療者に共有を許可する" })).toHaveCount(0);
   await expect(page.getByText(/と一時共有中です/)).toHaveCount(0);
 
-  // PC: Figma のタブレット表示（768px）を中央に置く
+  // PC: 患者はスマートフォンで使う前提。430px のスマートフォン枠を中央に置く（2026-11: タブレット幅には広げない）
   await page.setViewportSize({ width: 1440, height: 948 });
-  expect(await device.boundingBox()).toMatchObject({ x: 336, y: 24, width: 768, height: 900 });
+  expect(await device.boundingBox()).toMatchObject({ x: 505, y: 24, width: 430, height: 900 });
   await ctx.close();
 });
 

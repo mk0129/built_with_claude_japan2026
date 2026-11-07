@@ -109,8 +109,9 @@ test("佐藤 花子: 経過グラフ → 共有 → Claude外来間サマリー�
 
   // 患者の経過グラフ: 記録のない日は線をつながず、「記録なし」と「なし（症状なし）」を分ける（閲覧だけ・記録は変えない）
   await patient.locator(".d-nav").getByRole("button", { name: "体調記録" }).click();
-  await patient.getByRole("button", { name: "履歴・グラフ" }).click();
-  const chart = patient.locator("[data-symptom-chart] [data-health-chart]"); // 2026-11: バイタルの推移が先頭に増えたため、症状のグラフを指定
+  await patient.getByRole("button", { name: "履歴" }).click();
+  await patient.locator("[data-history-mode='chart']").click(); // 2026-11: 履歴は表が既定。グラフは切り替えて見る（全症状を重ねる）
+  const chart = patient.locator("[data-symptom-chart] [data-health-chart]");
   await expect(chart).toBeVisible();
   await expect(chart.locator("[data-chart-missing]").first()).toBeAttached();
   // 期間の終わりは撮影の基準日（11/4）。医療者の在宅経過表・外来間サマリーと同じ観察期間

@@ -23,6 +23,9 @@ const severity = (p: Page, name: string, value: number) =>
 
 async function record(p: Page, daysAgo: number, hh: number, mm: number, v: Partial<Record<"体温" | "脈拍" | "SpO₂", string>> & { bp?: [string, string] }, numbness: number) {
   await p.locator(".d-measured-at input").fill(localInput(daysAgo, hh, mm));
+  // 2026-11: フォームには前回の値が入る。このテストは記録ごとの値を厳密に決めたいので、空欄から入力する
+  const clear = p.locator("[data-prefill-clear]");
+  if (await clear.isVisible().catch(() => false)) await clear.click();
   for (const [k, val] of Object.entries(v)) if (k !== "bp") await vital(p, k).fill(val as string);
   if (v.bp) {
     await p.getByLabel("収縮期血圧").fill(v.bp[0]);
@@ -199,7 +202,7 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
 
   // 13. 元データを変更すると、再生成した要約に反映される
   await p.goto("/home?view=health");
-  await p.getByRole("button", { name: "履歴・グラフ" }).click();
+  await p.getByRole("button", { name: "履歴" }).click();
   const target = p.locator(".d-health-list details").filter({ hasText: "37.4" });
   await target.locator("summary").click();
   await target.getByRole("button", { name: "この記録を編集" }).click();

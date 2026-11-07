@@ -568,3 +568,90 @@
 .d-device.viewport-tablet .d-home-bottom { padding-right: 36px; padding-left: 36px; }
 .d-device.viewport-tablet .d-journey-list { max-width: 680px; margin: 0 auto; }
 .d-device.viewport-tablet .d-home-top > * { max-width: 680px; margin-right: auto; margin-left: auto; width: 100%; }
+
+/* ---------- 体調記録 v2: 前回値を引き継いで直すだけ・囲いを減らす・保存ボタンは手元に ---------- */
+.d-health-v2 .d-health-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.d-main .d-health-v2 .d-health-head h1 { margin: 0; font-size: 24px; }
+.d-health-v2 .d-health-tabs { margin: 0; padding: 3px; }
+.d-health-v2 .d-health-tabs button { min-height: 36px; padding: 0 14px; font-size: 13px; white-space: nowrap; }
+.d-health-v2 .d-health-head h1 { white-space: nowrap; }
+.d-health-v2 .d-measured-at { min-height: 44px; margin-bottom: 8px; padding: 4px 10px; }
+.d-health-v2 .d-measured-at > span { font-size: 12px; }
+.d-prefill-note {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; margin: 0 0 12px; padding: 8px 12px;
+  border-radius: 10px; background: #eef5f0; color: #3f6f4d; font-size: 12px; line-height: 1.6;
+}
+.d-prefill-note.editing { background: #f4ede0; color: #7a5a2e; }
+.d-prefill-note .d-text-action { min-height: 32px; margin: 0; padding: 0; font-size: 12px; }
+.d-health-v2 .d-health-section { margin-bottom: 14px; padding: 0; border: 0; background: none; box-shadow: none; }
+.d-main .d-health-v2 .d-health-section > h2 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; font-size: 15px; line-height: 1.4; }
+.d-health-v2 .d-health-section > h2 small { color: var(--muted); font-size: 11.5px; font-weight: 400; }
+.d-health-v2 .d-health-section > h2 .d-link-button { margin-left: auto; }
+.d-link-button { display: inline-flex; align-items: center; gap: 3px; min-height: 32px; padding: 0 4px; border: 0; background: none; color: var(--blue-dark); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.d-health-v2 .d-vital-grid { gap: 8px; }
+.d-health-v2 .d-vital-card { min-height: 0; padding: 8px 10px 8px; border-radius: 12px; background: #fff; }
+.d-health-v2 .d-vital-card > label { display: flex; align-items: baseline; gap: 4px; margin-bottom: 2px; font-size: 12px; }
+.d-health-v2 .d-vital-card > label span { color: var(--muted); font-size: 10.5px; font-weight: 400; }
+.d-health-v2 .d-vital-card input { font-size: 22px; line-height: 1.3; }
+.d-health-v2 .d-vital-card input::placeholder { color: #c3cfd0; }
+.d-health-v2 .d-vital-card > p { margin: 4px 0 0; font-size: 10.5px; }
+.d-health-v2 .d-vital-card.blood-pressure input { font-size: 20px; }
+.d-health-v2 .d-oxygen-toggle { margin: 4px 0 0; }
+.d-health-v2 .d-symptom-records article { padding: 10px 0; }
+.d-health-v2 .d-symptom-title { flex-wrap: nowrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.d-health-v2 .d-symptom-title > b { flex: 1; min-width: 0; font-size: 15px; }
+.d-health-v2 .d-symptom-title > .d-missing-label { margin: 0; color: #9fb3b5; font-size: 10.5px; white-space: nowrap; }
+.d-health-v2 .d-symptom-title > button { min-height: 30px; padding: 0 8px; border: 0; border-radius: 8px; background: #f0f4f4; color: var(--blue-dark); font-size: 11.5px; font-weight: 700; }
+.d-health-v2 .d-symptom-title > button[aria-expanded="true"] { background: var(--blue-dark); color: #fff; }
+.d-health-v2 .d-severity-scale button { min-height: 52px; font-size: 9.5px; }
+.d-health-v2 .d-anchor-line { margin-top: 6px; font-size: 11.5px; }
+.d-health-v2 .d-symptom-setup-hint { margin: 0 0 8px; color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+.d-save-bar { position: sticky; bottom: -30px; /* .d-main の padding-bottom 108px − 下部ナビ 78px */ z-index: 2; margin: 6px -4px 0; padding: 8px 4px 10px; background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 30%); }
+.d-save-bar .d-save-health { width: 100%; min-height: 50px; margin: 0; font-size: 15px; }
+.d-health-v2 .d-gentle-feedback {
+  display: flex; align-items: center; gap: 8px; margin: 6px 0 0; padding: 10px 12px; border-radius: 12px;
+  background: #eef5f0; color: #3f6f4d; font-size: 13px;
+}
+.d-health-v2 .d-gentle-feedback > span { flex: 1; min-width: 0; }
+.d-health-v2 .d-gentle-feedback .d-text-action { min-height: 32px; margin: 0; padding: 0; font-size: 12px; }
+.d-health-v2 .d-feedback-close { width: 32px; height: 32px; border: 0; background: none; color: inherit; font-size: 18px; }
+.d-health-footnote { margin: 14px 0 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
+
+/* 履歴 v2: 表が既定（医療者の在宅経過表と同じ見方）。グラフは切り替え */
+.d-history-controls { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.d-health-history-v2 .d-chart-period { margin: 0; }
+.d-history-meta { margin: 0 0 10px; color: var(--muted); font-size: 11.5px; }
+.d-course-wrap { margin: 0; padding: 0 0 4px; overflow-x: auto; scrollbar-width: thin; }
+.d-course-table { border-collapse: separate; border-spacing: 0; font-size: 12px; }
+.d-course-table th, .d-course-table td { height: 36px; padding: 0 4px; border-bottom: 1px solid #e6eded; text-align: center; white-space: nowrap; }
+.d-course-table thead th { position: sticky; top: 0; background: #fff; color: var(--muted); font-size: 10.5px; font-weight: 600; min-width: 36px; }
+.d-course-table thead th.today span { display: inline-block; padding: 1px 5px; border-radius: 8px; background: var(--blue-dark); color: #fff; }
+.d-course-table tbody th { position: sticky; left: 0; z-index: 1; min-width: 72px; max-width: 110px; padding-right: 8px; background: #fff; color: var(--ink); font-size: 12px; font-weight: 700; text-align: left; white-space: normal; line-height: 1.3; box-shadow: 4px 0 6px -4px rgba(38, 63, 67, .18); }
+.d-course-table tbody th small { display: block; color: var(--muted); font-size: 9.5px; font-weight: 400; }
+.d-course-table tr.vital td { font-variant-numeric: tabular-nums; color: #334a4d; }
+.d-course-table td.vflag1 { color: #8a672f; font-weight: 700; }
+.d-course-table td.vflag2 { color: #a15349; font-weight: 700; }
+.d-course-table tr.symptom td { font-weight: 700; }
+.d-course-table td.s0 { color: #6f9a7a; }
+.d-course-table td.s1 { color: var(--blue-dark); background: #edf4f4; }
+.d-course-table td.s2 { color: #8a672f; background: #f7f1e5; }
+.d-course-table td.s3 { color: #a15349; background: #f8e9e6; }
+.d-course-table td.s4 { color: #fff; background: #a9574e; }
+.d-hc-missing { color: #c3cfd0; }
+.d-table-note { margin: 6px 0 0; color: var(--muted); font-size: 10.5px; }
+.d-health-history-v2 .d-health-chart { margin-top: 12px; padding: 12px 12px 10px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.d-chart-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.d-main .d-chart-head h2 { font-size: 14px; }
+.d-chart-head > span { color: var(--muted); font-size: 11px; }
+.d-series-legend { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.d-series-legend button { min-height: 30px; display: inline-flex; align-items: center; gap: 5px; padding: 0 9px; border: 1px solid var(--line); border-radius: 15px; background: #fff; color: #4c6467; font-size: 11.5px; }
+.d-series-legend button i { width: 9px; height: 9px; border-radius: 50%; }
+.d-series-legend button.active { border-color: var(--blue-dark); color: var(--ink); font-weight: 700; background: #eef3f3; }
+.d-health-history-v2 .d-health-chart > p { margin: 8px 0 0; color: var(--muted); font-size: 10.5px; line-height: 1.6; }
+.d-health-history-v2 .d-health-list { margin-top: 16px; }
+
+/* 教材の詳細・探す・学習記録・聞きたいこと: 見出しと説明を減らす */
+.d-content-list.d-content-list-compact { display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--muted); font-size: 12px; }
+.d-content-list.d-content-list-compact span { display: inline; padding: 0; border: 0; background: none; }
+.d-notes .d-add-question { margin-top: 12px; }
+.d-notes .d-visit-date { min-height: 44px; }
