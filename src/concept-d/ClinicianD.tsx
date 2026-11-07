@@ -3479,8 +3479,15 @@ function LiveSummary({
   const wrongCount = answered - correct - unknownCount
   const reco = record.recommendations
   const recoKind = reco ? (reco.generator === "claude" ? "Claude" : reco.generator === "rule" ? "ルールベース" : "開発用の擬似生成") : null
+  // 要点の帯: 1 画面目で「強い・悪化した症状」「未解決の質問」「つまずいた設問」「推薦」の数を示し、押すとその欄へ
+  const worsened = symptoms.filter((sym) => {
+    const t = symptomTrend(sym)
+    return t.last.severity >= 3 || (sym.count > 1 && t.last.severity > t.first.severity)
+  })
+  const rootRef = useRef<HTMLDivElement>(null)
+  const jump = (selector: string) => rootRef.current?.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" })
   return (
-    <div className="cd-content cd-summary cd-summary-v2" data-summary-v2>
+    <div className="cd-content cd-summary cd-summary-v2" data-summary-v2 ref={rootRef}>
       <div className="cd-title-row">
         <div>
           <h1>診察サマリー</h1>
@@ -3531,6 +3538,31 @@ function LiveSummary({
         </div>
       )}
 
+      {iv && (
+        <div className="cd-points" data-points role="navigation" aria-label="この診察の要点">
+          <button className={worsened.length ? "warn" : ""} onClick={() => jump("[data-so]")} data-point="symptoms">
+            <b>{worsened.length}</b>
+            強い・悪化した症状
+          </button>
+          <button className={questionsOpen.length ? "warn" : ""} onClick={() => jump("[data-questions]")} data-point="questions">
+            <b>{questionsOpen.length}</b>
+            未解決の質問
+          </button>
+          <button className={wrongCount + unknownCount ? "warn" : ""} onClick={() => jump("[data-checks]")} data-point="checks">
+            <b>{wrongCount + unknownCount}</b>
+            つまずいた設問
+          </button>
+          <button onClick={() => jump("[data-understanding]")} data-point="understanding">
+            <b>{pct === null ? "—" : `${pct}%`}</b>
+            正答率
+          </button>
+          <button onClick={() => jump("[data-recommendations]")} data-point="recommendations">
+            <b>{reco ? reco.items.length : "…"}</b>
+            処方の候補
+          </button>
+        </div>
+      )}
+
       {/* 1. S・O: 患者の今の状況 */}
       <section className="cd-panel cd-so" data-so>
         <div className="cd-panel-head">
@@ -3566,8 +3598,14 @@ function LiveSummary({
                           {t.last.severity}
                         </span>
                         <small>
-                          直近 {mdOf(t.last.at)} · 最大 {sym.max}（{mdOf(t.peak.at)}）· {sym.count}回
-                          {sym.count > 1 ? (delta > 0 ? " · 初回より強い" : delta < 0 ? " · 初回より軽い" : " · 変わらず") : ""}
+                          {mdOf(t.last.at)}
+                          {sym.count > 1 && (
+                            <em className={`cd-trend ${delta > 0 ? "up" : delta < 0 ? "down" : "flat"}`} title={delta > 0 ? "初回より強い" : delta < 0 ? "初回より軽い" : "変わらず"}>
+                              {delta > 0 ? "↑" : delta < 0 ? "↓" : "→"}
+                            </em>
+                          )}
+                          {sym.max > t.last.severity ? ` · 最大 ${sym.max}（${mdOf(t.peak.at)}）` : ""}
+                          {` · ${sym.count}回`}
                         </small>
                         <span className="cd-so-spark" aria-hidden="true">
                           {[...sym.entries]
@@ -4131,9 +4169,8 @@ function PrescriptionLibrary({
           </button>
         )}
         <div>
-          <p className="cd-eyebrow">承認済みの教材のみ</p>
           <h1>{standalone ? "教材ライブラリ" : "情報処方を作成"}</h1>
-          <p>公開・医学的承認済みの教材だけが表示されています。</p>
+          <p>公開・承認済みの教材だけを表示</p>
         </div>
         <button
           className="cd-primary"
@@ -4148,7 +4185,7 @@ function PrescriptionLibrary({
         <section className="cd-template-sets" data-template-sets>
           <div className="cd-template-head">
             <h2>セットから選ぶ</h2>
-            <p>セットの教材をまとめて選択に追加します。内容は確定前に確認できます。</p>
+            <p>まとめて選択に追加（確定前に確認できます）</p>
           </div>
           <div className="cd-template-list">
             {templateSets.map(({ t, cards, addable, pending }) => (
