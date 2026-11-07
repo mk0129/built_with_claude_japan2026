@@ -132,14 +132,15 @@ for (const vp of [
 
     // 手入力: 手順どおりに選び、総医療費の画面を下までスクロールして計算
     await p.getByRole("button", { name: "最初から選び直す" }).click();
-    await p.locator("[data-sim-step='1']").getByRole("button", { name: "2026年11月" }).click();
     await p.locator("[data-sim-choice='under70']").click();
     await p.locator("[data-sim-choice='employee']").click();
     await p.locator("[data-sim-choice='bracket-c']").click();
+    await p.locator("[data-sim-mode='amount']").click();
     await p.locator("[data-sim-cost-input]").fill("1000000");
+    // 入力画面を下までスクロールしてから進めても、結果は先頭から（短い画面ではスクロールしないこともある）
     await main.evaluate((el) => (el.scrollTop = el.scrollHeight));
-    expect(await main.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
-    await p.locator("[data-sim-calc]").click();
+    await p.locator("[data-sim-next]").click();
+    await p.locator("[data-sim-choice='many-no']").click();
     await expect(p.locator("[data-sim-amount]")).toHaveText("92,940円");
     await resultTop();
     await shot(p, `P12_sim_result_manual_${vp.name}`);

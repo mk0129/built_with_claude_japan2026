@@ -14,7 +14,7 @@ export type ApiRecord = {
   measuredAt: string;
   createdAt: string;
   updatedAt: string;
-  vitals: Record<"temperature" | "systolic" | "diastolic" | "pulse" | "spo2", number | null>;
+  vitals: Record<"temperature" | "systolic" | "diastolic" | "pulse" | "spo2", number | null> & { oxygenFlow?: number | null };
   symptoms: { key: string; name: string; severity: number; count: number | null; location: string | null; interference: string | null }[];
 };
 
@@ -34,7 +34,7 @@ export function toFigma(r: ApiRecord): HealthRecord & { updatedAt: string; creat
     measuredAt: toLocalInput(r.measuredAt),
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
-    vitals: { temperature: und(r.vitals.temperature), systolic: und(r.vitals.systolic), diastolic: und(r.vitals.diastolic), pulse: und(r.vitals.pulse), spo2: und(r.vitals.spo2) },
+    vitals: { temperature: und(r.vitals.temperature), systolic: und(r.vitals.systolic), diastolic: und(r.vitals.diastolic), pulse: und(r.vitals.pulse), spo2: und(r.vitals.spo2), oxygenFlow: und(r.vitals.oxygenFlow ?? null) },
     symptoms: Object.fromEntries(
       r.symptoms.map((s) => [
         s.key,
@@ -52,7 +52,7 @@ export function toFigma(r: ApiRecord): HealthRecord & { updatedAt: string; creat
 
 export type HealthInput = {
   measuredAt: string;
-  vitals: Partial<Record<"temperature" | "systolic" | "diastolic" | "pulse" | "spo2", number | null>>;
+  vitals: Partial<Record<"temperature" | "systolic" | "diastolic" | "pulse" | "spo2" | "oxygenFlow", number | null>>;
   symptoms: { key: string; severity: number; count?: number | null; location?: string | null; interference?: string | null }[];
 };
 
@@ -149,6 +149,8 @@ export type VisitNote = {
   source: "free" | "quiz";
   materialId: string | null;
   materialTitle: string | null;
+  /** 患者が「聞けた・解決した」と印を付けた日時（null は未解決） */
+  resolvedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -192,6 +194,8 @@ export function usePatientNotes(notify: (message: string) => void) {
     create: (body: string, link?: { versionId: string; questionId: string } | null) =>
       run(() => api("/api/v1/notes", { json: { body, ...(link ? link : {}) } })),
     update: (id: string, body: string) => run(() => api(`/api/v1/notes/${id}`, { method: "PATCH", json: { body } })),
+    /** 「聞けた・解決した」の印（原文はそのまま。外すこともできる） */
+    resolve: (id: string, resolved: boolean) => run(() => api(`/api/v1/notes/${id}`, { method: "PATCH", json: { resolved } })),
     remove: (id: string) => run(() => api(`/api/v1/notes/${id}`, { method: "DELETE" })),
     reload,
   };

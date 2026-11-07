@@ -18,6 +18,13 @@ async function connect(staff: Page, patient: Page) {
   return new URL(staff.url()).searchParams.get("s")!;
 }
 
+/** 2026-11: AI 外来間サマリー（要約・根拠・タイムライン）は診察サマリーの折りたたみの中。開いてから確認する */
+async function openAi(page: import("@playwright/test").Page) {
+  const t = page.locator("[data-ai-fold] .cd-ai-fold-toggle");
+  await t.waitFor({ timeout: 15_000 });
+  if ((await t.getAttribute("aria-expanded")) !== "true") await t.click();
+}
+
 test("処方 → 患者が学習・「わからない」と誤答 → 再読み込みで保持 → 次の診察で医療者が確認 → 入力なしで終了 → API 拒否", async ({ browser }) => {
   const staff = await newPage(browser, { width: 1440, height: 900 });
   await demoLogin(staff.page, "staff", "山田 太郎");
@@ -124,9 +131,11 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   await expect(unknown).toContainText("「患者さんの年齢」");
   await expect(unknown).toContainText(`関連教材：${MATERIAL}`);
   await expect(unknown).toContainText(/回答/);
-  // 領域別（点数で断定しない）と学習履歴の根拠
+  // 理解度（合計の正答率を押すと領域別。点数で断定しない）と学習履歴の根拠
+  await s.locator("[data-understanding] .cd-score-main").click();
   await expect(s.locator(".cd-area-compact")).toContainText("検査・診断");
-  await expect(s.locator(".cd-area-compact button").filter({ hasText: "検査・診断" })).toContainText("0 / 2");
+  await expect(s.locator(".cd-area-compact .cd-area-line").filter({ hasText: "検査・診断" })).toContainText("0 / 2");
+  await openAi(s);
   await s.locator(".cd-intervisit-cards article").filter({ hasText: "学習履歴" }).getByRole("button").click();
   await expect(s.locator("[data-learning-evidence]")).toContainText(`${MATERIAL}（第1版）：学習途中`);
   await expect(s.locator("[data-intervisit]")).toContainText("直近14日間");

@@ -61,7 +61,7 @@ test("患者: ログイン後に Figma 版ホーム。主要な画面遷移、�
   const css = await page.evaluate(() => ({ html: getComputedStyle(document.documentElement).fontSize, font: getComputedStyle(document.body).fontFamily }));
   expect(css.html).toBe("16px");
   expect(css.font).toContain("Noto Sans JP");
-  await expect(page.getByRole("heading", { name: "今日、確認すること" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "今日のしおり" })).toBeVisible();
 
   // 実データ（Step 2）: 今回の処方の教材 → 詳細 → 学習 → 再読み込みで同じページ → 閉じてホーム（理解確認の通しは prescribe_learn.spec.ts）
   await page.locator(".d-next-card .primary-button").click();
@@ -74,12 +74,12 @@ test("患者: ログイン後に Figma 版ホーム。主要な画面遷移、�
   await page.getByRole("button", { name: "閉じる" }).click();
   await expect(page).toHaveURL(/\/home(\?lesson=[^&]+)?$/);
   await expect(page.locator(".toast")).toContainText("学習位置を保存しました");
-  for (const tab of ["教材を探す", "学習記録", "体調記録", "診察ノート"]) {
+  for (const tab of ["教材を探す", "学習記録", "体調記録", "聞きたいこと"]) {
     await page.locator(".d-nav").getByRole("button", { name: tab }).click();
     await expect(page.locator(".d-nav button.active")).toContainText(tab);
   }
   await page.reload();
-  await expect(page.locator(".d-nav button.active")).toContainText("診察ノート");
+  await expect(page.locator(".d-nav button.active")).toContainText("聞きたいこと");
   await page.goBack();
   await expect(page.locator(".d-nav button.active")).toContainText("体調記録");
   expect(await noHScroll(page)).toBe(0);

@@ -123,28 +123,38 @@ const outlineJob = {
 };
 const draftJob={...outlineJob,id:"judge-studio-draft",mode:"generate",outputPayload:replay.material,outputVersionId:JUDGE_STUDIO_DRAFT};
 const fixedSource = {title:sourceTitle,filename:"乳がんのホルモン療法.docx",size:7875,charCount:1630,warnings:[] as string[]};
+void SOURCE_DOCX;
 
 /** Start the genuine Studio editor when the judge opens it. All draft updates use the per-visit adapter. */
 export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:string)=>void): StudioLive {
   const [requested,setRequested]=useState(()=>new URLSearchParams(window.location.search).get("draft")===JUDGE_STUDIO_DRAFT);
   const [sourcePresent,setSourcePresent]=useState(false);
+  const [chosen,setChosen]=useState<typeof fixedSource|null>(null);
   const setForSidebar=useRef(false);
   const live=useStudio(orgId,enabled&&requested,notify);
   useEffect(()=>{
     if(!enabled)return;
     const open=(event:Event)=>{
       const el=event.target instanceof Element ? event.target.closest("button") : null;
-      // The judge case has one fictional, pre-authorized file. Never open the computer's
-      // file chooser or send a selected file to a server.
+      // 審査用デモ: 手元のファイルをそのまま選べる（ブラウザから外へは送らない）。選んだあと、許諾の欄が空なら例文を入れる
       if(el?.matches(".cd-studio .cd-upload")){
         const input=el.closest(".cd-studio")?.querySelector<HTMLInputElement>("[data-source-file]");
-        if(input){
-          event.preventDefault();event.stopPropagation();
-          const transfer=new DataTransfer();
-          transfer.items.add(new File([Uint8Array.from(atob(SOURCE_DOCX),c=>c.charCodeAt(0))],fixedSource.filename,
-            {type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}));
-          input.files=transfer.files;input.dispatchEvent(new Event("change",{bubbles:true}));
-          notify("審査用の架空資料を選びました。作成元には「さくら総合病院」、根拠には「架空の院内資料」と入力できます。");
+        if(input && !input.dataset.judgeHooked){
+          input.dataset.judgeHooked="1";
+          input.addEventListener("change",()=>{
+            window.setTimeout(()=>{
+              const fields=document.querySelectorAll<HTMLInputElement|HTMLTextAreaElement>(".cd-studio .cd-form-grid input, .cd-studio .cd-form-grid textarea");
+              const fill=(field:HTMLInputElement|HTMLTextAreaElement|undefined,value:string)=>{
+                if(!field||field.value)return;
+                const proto=field instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;
+                Object.getOwnPropertyDescriptor(proto,"value")?.set?.call(field,value);
+                field.dispatchEvent(new Event("input",{bubbles:true}));
+              };
+              fill(fields[1],"さくら総合病院（架空）");
+              fill(fields[2] as HTMLTextAreaElement,"架空の院内資料のため、教材化と患者への公開を確認済み（デモ）");
+              notify("資料を選びました。デモ環境ではファイルの本文は解析せず、記録済みのClaude出力で構成案を再生します。");
+            },0);
+          });
         }
         return;
       }
@@ -164,18 +174,18 @@ export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:strin
     history.replaceState(history.state,"",url);
     setForSidebar.current=false;
   },[live.openedFromUrl]);
-  const recordedOnly=()=>{notify("審査用に用意した院内資料と、記録済みのClaude出力を使用します。");};
+  const recordedOnly=()=>{notify("AI処理の許可と、個人情報を含まないことの確認が必要です。デモ環境では記録済みのClaude出力を使用します。");};
   return {
-    ...live, sourceId:sourcePresent?sourceId:null,sourceInfo:sourcePresent?fixedSource:null,
+    ...live, sourceId:sourcePresent?sourceId:null,sourceInfo:sourcePresent?(chosen??fixedSource):null,
     outlineJob:requested?outlineJob:null,draftJob:requested?draftJob:null,
     outlines:requested?replay.outline.outlines as Outline[]:[],
     candidates:requested?replay.outline.mustCoverCandidates.map((c,i)=>({...c,id:"mc"+(i+1)})) as MustCandidate[]:[],
     // Arbitrary uploads and live AI are not enabled for a publicly accessible fictional exercise.
     upload:async(file,meta)=>{
-      if(file.size!==fixedSource.size || !meta.piiAttestedNone || !meta.perm.allowAi){recordedOnly();return null;}
-      const bytes=new Uint8Array(await crypto.subtle.digest("SHA-256",await file.arrayBuffer()));
-      const hash=Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");
-      if(hash!==replay.sourceSha256){recordedOnly();return null;}
+      // 審査用デモ: 手元のファイルを選んで次へ進める。ファイルはブラウザの外へ送らず、本文も解析しない（Claude は呼ばない）
+      if(!meta.piiAttestedNone || !meta.perm.allowAi){recordedOnly();return null;}
+      if(file.size>15*1024*1024){notify("15MB 以下のファイルを選んでください");return null;}
+      setChosen({title:meta.title||file.name.replace(/\.[^.]+$/,""),filename:file.name,size:file.size,charCount:fixedSource.charCount,warnings:["デモ環境: ファイルの本文は解析していません。構成案と下書きは記録済みのClaude出力を再生します。"]});
       setSourcePresent(true);return sourceId;
     },
     updatePermissions:async()=>{recordedOnly();return null;},

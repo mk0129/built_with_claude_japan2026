@@ -134,3 +134,68 @@ describe("対象外・入力の確認（金額を出さない）", () => {
     expect(run({ serviceMonth }).kind).toBe("invalid");
   });
 });
+
+import { simulateV2 } from "@/lib/high-cost-medical";
+import { recommendMaterials } from "@/lib/recommend";
+
+describe("医療費シミュレーター（拡張版）: 70 歳以上・小学校入学前・区分不明", () => {
+  const b = { serviceMonth: "2026-11", age: "under70" as const, insurance: "employee" as const, bracket: "c" as const, totalCost: 1_000_000, manyTimes: "no" as const };
+  it("70 歳未満・区分ウは従来と同じ 92,940 円", () => {
+    const r = simulateV2(b);
+    expect(r.kind === "result" && r.scenarios[0].main.outOfPocket).toBe(92_940);
+  });
+  it("区分が不明なら 5 区分の目安を並べる", () => {
+    const r = simulateV2({ ...b, bracket: "unknown", insurance: "unknown" });
+    expect(r.kind === "result" && r.assumed).toBe(true);
+    expect(r.kind === "result" && r.scenarios.map((s) => s.main.outOfPocket)).toEqual([271_290, 183_130, 92_940, 61_500, 36_900]);
+  });
+  it("小学校入学前は 2 割の窓口負担で、上限は世帯の区分", () => {
+    const r = simulateV2({ ...b, age: "preschool", totalCost: 200_000 });
+    expect(r.kind === "result" && r.rate).toBe(2);
+    expect(r.kind === "result" && r.scenarios[0].main).toMatchObject({ copay: 40_000, outOfPocket: 40_000, reachedLimit: false });
+  });
+  it("70 歳以上・一般・2 割: 外来は 22,000 円、入院は 61,500 円（多数回該当 44,400 円）", () => {
+    const out = simulateV2({ ...b, age: "over70", copayRate: 2, seniorTier: "general", setting: "outpatient", totalCost: 300_000 });
+    expect(out.kind === "result" && out.scenarios[0].main.outOfPocket).toBe(22_000);
+    const inn = simulateV2({ ...b, age: "over70", copayRate: 2, seniorTier: "general", setting: "inpatient", totalCost: 1_000_000, manyTimes: "unknown" });
+    expect(inn.kind === "result" && inn.scenarios[0].main.outOfPocket).toBe(61_500);
+    expect(inn.kind === "result" && inn.scenarios[0].ifManyTimes?.outOfPocket).toBe(44_400);
+  });
+  it("70 歳以上・3 割・現役並みI は 70 歳未満のウと同じ式", () => {
+    const r = simulateV2({ ...b, age: "over70", copayRate: 3, seniorTier: "active1" });
+    expect(r.kind === "result" && r.scenarios[0].main.outOfPocket).toBe(92_940);
+  });
+  it("低所得I の入院には多数回該当がない", () => {
+    const r = simulateV2({ ...b, age: "over70", copayRate: 1, seniorTier: "low1", setting: "inpatient", manyTimes: "unknown" });
+    expect(r.kind === "result" && r.scenarios[0].main.outOfPocket).toBe(15_700);
+    expect(r.kind === "result" && r.scenarios[0].ifManyTimes).toBeNull();
+  });
+  it("対象外は診療月だけ", () => {
+    expect(simulateV2({ ...b, serviceMonth: "2026-07" }).kind).toBe("unsupported");
+    expect(simulateV2({ ...b, serviceMonth: "2027-08" }).kind).toBe("unsupported");
+  });
+});
+
+describe("情報処方のリコメンド（ルールベース）", () => {
+  const materials = [
+    { materialId: "m1", title: "化学療法中の副作用とセルフケア", summary: "副作用", primaryDomain: "side_effects_daily_life", prescribedNow: false, prescribedBefore: true },
+    { materialId: "m2", title: "こころのケアと相談先", summary: null, primaryDomain: "mental_care_support", prescribedNow: false, prescribedBefore: false },
+    { materialId: "m3", title: "高額療養費制度を知る", summary: null, primaryDomain: "mental_care_support", prescribedNow: true, prescribedBefore: false },
+  ];
+  it("質問・症状・つまずきから候補を作り、この診察で処方済みの教材は出さない", () => {
+    const r = recommendMaterials({
+      materials,
+      questions: [{ id: "q1", body: "医療費が心配です。しびれも続いています", materialId: null }],
+      misses: [{ materialId: "m1", materialTitle: "化学療法中の副作用とセルフケア", stem: "発熱したら", isUnknown: true }],
+      symptoms: [{ key: "numbness", name: "手足のしびれ", max: 3 }],
+      unlearned: [],
+    });
+    expect(r.map((x) => x.materialId)).toEqual(["m1", "m2"]);
+    expect(r[0].rePrescribe).toBe(true);
+    expect(r[0].reasons.map((x) => x.kind)).toContain("miss");
+    expect(r[0].reasons.map((x) => x.kind)).toContain("symptom");
+  });
+  it("材料がなければ空", () => {
+    expect(recommendMaterials({ materials, questions: [], misses: [], symptoms: [], unlearned: [] })).toEqual([]);
+  });
+});

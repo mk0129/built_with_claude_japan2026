@@ -5,6 +5,7 @@ import { SAFETY_KINDS, type Draft, type StudioLive } from "./studio"
 import { DDraftPreview } from "./PatientD"
 import { areaOf } from "./learning"
 import { ShioriLogo } from "./ShioriLogo"
+import { VITAL_FLAG_NOTE, vitalFlag } from "@/lib/recommend"
 import {
   currentVisitDate,
   formatShortDate,
@@ -1096,6 +1097,11 @@ function VisitWorkspace({
         }}
         onPrescribe={() => setPage("prescribe")}
         onOpenCourse={onOpenCourse}
+        prescription={prescription}
+        onAddToPrescription={(id) => {
+          if (!prescription.includes(id)) setPrescription([...prescription, id])
+          notify("処方候補に追加しました")
+        }}
       />
     )
   if (page === "detail")
@@ -1182,7 +1188,7 @@ function dateRange(start: string, end: string) {
 /** 教材への反応で、患者が自由記述をせずに選んだ回答 */
 const SELECTION_LABEL = { have_question: "質問がある", explain_again: "もう一度説明してほしい" } as const
 
-function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onOpenCourse?: () => void }) {
+function LiveIntervisit({ record, onOpenCourse, embedded = false }: { record: ClinicianRecord; onOpenCourse?: () => void; embedded?: boolean }) {
   const [expanded, setExpanded] = useState<"vitals" | "symptoms" | "learning" | "questions" | null>(null)
   const [timelineOpen, setTimelineOpen] = useState(false)
   const [periodEdit, setPeriodEdit] = useState(false)
@@ -1200,11 +1206,13 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
   // サーバーの既定期間の終了日（撮影用デモ環境ではデモの基準日、通常は今日）。期間の変更で未来日を選ばせない
   const maxDay = record.defaultTo
   useEffect(() => {
+    // 診察サマリー（LiveSummary）に埋め込まれているときは、親が同じ期間で読み込む
+    if (embedded) return
     void record.loadIntervisit(period)
     // 要約は構造化データと同じ期間で 1 回生成（同じデータならサーバーが再利用。元データが変わっていれば再生成）
     void record.loadAiSummary(period)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [period?.from, period?.to, record.sessionId])
+  }, [period?.from, period?.to, record.sessionId, embedded])
   const periodKey = period ? `?from=${period.from}&to=${period.to}` : ""
   // 選んだ期間の構造化データだけを表示する（別の期間の応答は、読み込み中として扱う）
   const data = record.intervisitKey === periodKey ? record.intervisit : null
@@ -1431,8 +1439,8 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
           ? "開発用の擬似生成です。Claude ではありません。"
           : "保存された記録から自動で整理しました（AI を使っていません）。"
   return (
-    <section className="cd-intervisit" data-intervisit>
-      <div className="cd-intervisit-head">
+    <section className={`cd-intervisit${embedded ? " cd-intervisit-embedded" : ""}`} data-intervisit>
+      <div className="cd-intervisit-head" hidden={embedded}>
         <p className="cd-period-line" data-period-line>
           <b>観察期間</b>
           <span>
@@ -1449,7 +1457,7 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
         </p>
         {periodButton}
       </div>
-      {periodEditor}
+      {!embedded && periodEditor}
       <div className="cd-medical-summary">
         <div className="cd-summary-narrative" data-summary-kind={kind}>
           <ul className="cd-key-summary" data-key-summary>
@@ -2125,6 +2133,7 @@ function HomeCourse({
   }
   const [view, setView] = useState<"table" | "vitals" | "symptom">("table")
   const [chartSymptomRaw, setChartSymptom] = useState("numbness")
+  const [overlayAll, setOverlayAll] = useState(false)
   // 本番: 選んだ症状に記録がなければ、記録のある最初の症状
   const hasSymptom = (id: string) => records.some((record) => record.symptoms[id])
   const chartSymptom =
@@ -2201,7 +2210,13 @@ function HomeCourse({
       unit: "%",
       value: (record?: HealthRecord) => record?.vitals.spo2,
     },
-  ]
+    {
+      key: "oxygenFlow",
+      label: "酸素投与量",
+      unit: "L/分",
+      value: (record?: HealthRecord) => record?.vitals.oxygenFlow,
+    },
+  ].filter((row) => row.key !== "oxygenFlow" || records.some((record) => record.vitals.oxygenFlow !== undefined))
   const chartRecords = records
     .filter(
       (record) =>
@@ -2227,8 +2242,8 @@ function HomeCourse({
    * 本番の症状グラフ: 横軸は日付（期間の各日を等間隔）。0（なし）は値として描き、記録のない日は点を置かない。
    * 記録のない日をはさむ 2 点は線で結ばない（欠測を連続した経過のように描かない）。
    */
-  const liveChart = (() => {
-    if (!live) return null
+  /** 症状ごとの点と線分（隣の日は実線、間に記録のない日があれば破線で結ぶ。欠測の日に点は置かない） */
+  const seriesFor = (id: string) => {
     const n = Math.max(dates.length, 1)
     const xOf = (measuredAt: string) => {
       const day = dates.indexOf(measuredAt.slice(0, 10))
@@ -2237,18 +2252,16 @@ function HomeCourse({
       return { day, x: 35 + ((day + frac) / n) * 620 }
     }
     const points = chartRecords
-      .filter((record) => record.symptoms[chartSymptom])
-      .map((record) => ({ ...xOf(record.measuredAt), value: record.symptoms[chartSymptom].severity, at: record.measuredAt }))
+      .filter((record) => record.symptoms[id])
+      .map((record) => ({ ...xOf(record.measuredAt), value: record.symptoms[id].severity, at: record.measuredAt }))
       .filter((p) => p.day >= 0)
-    const segments: (typeof points)[] = []
-    for (const point of points) {
-      const last = segments[segments.length - 1]
-      const prev = last?.[last.length - 1]
-      if (prev && point.day - prev.day <= 1) last.push(point)
-      else segments.push([point])
-    }
-    return { points, segments }
-  })()
+    const links: { a: (typeof points)[number]; b: (typeof points)[number]; gap: boolean }[] = []
+    for (let k = 1; k < points.length; k++) links.push({ a: points[k - 1], b: points[k], gap: points[k].day - points[k - 1].day > 1 })
+    return { id, points, links }
+  }
+  const liveChart = live ? seriesFor(chartSymptom) : null
+  const overlaySeries = live && overlayAll ? symptomIds.map(seriesFor).filter((x) => x.points.length > 0) : []
+  const overlayColors = ["#3f7180", "#ba6e63", "#9a7135", "#6f6489", "#4f785b", "#a15349", "#527f89", "#8a672f"]
 
   return (
     <div className="cd-content cd-home-course">
@@ -2368,10 +2381,13 @@ function HomeCourse({
                       if (live) {
                         const measured = (recordsByDate[date] ?? []).filter((record) => row.value(record) !== undefined)
                         const last = measured[measured.length - 1]
+                        const flag = last ? vitalFlag(row.key, Number(row.value(last))) : 0
                         return (
                           <td key={date}>
                             <button
                               disabled={!last}
+                              className={flag ? `vflag${flag}` : ""}
+                              data-vital-flag={last ? flag : undefined}
                               onClick={() =>
                                 setSelected({
                                   record: last,
@@ -2496,7 +2512,18 @@ function HomeCourse({
             <span>
               <i>—</i>{live ? "記録なし" : "未記録"}
             </span>
+            {live && (
+              <>
+                <span className="vflag1">
+                  <i>!</i>バイタル 注意の目安
+                </span>
+                <span className="vflag2">
+                  <i>!!</i>バイタル 要確認の目安
+                </span>
+              </>
+            )}
           </div>
+          {live && <p className="cd-course-flag-note">{VITAL_FLAG_NOTE}</p>}
         </>
       ) : view === "vitals" ? (
         <VitalCombinedGraph
@@ -2513,9 +2540,15 @@ function HomeCourse({
               <h2>個別症状の推移</h2>
             </div>
             <select
-              value={chartSymptom}
-              onChange={(event) => setChartSymptom(event.target.value)}
+              value={overlayAll ? "__all" : chartSymptom}
+              onChange={(event) => {
+                if (event.target.value === "__all") return setOverlayAll(true)
+                setOverlayAll(false)
+                setChartSymptom(event.target.value)
+              }}
+              data-symptom-select
             >
+              {live && <option value="__all">すべての症状を重ねる</option>}
               {symptomIds.map((id) => (
                 <option key={id} value={id}>
                   {symptomLabel(id)}
@@ -2523,6 +2556,16 @@ function HomeCourse({
               ))}
             </select>
           </div>
+          {live && overlayAll && (
+            <div className="cd-overlay-legend" data-overlay-legend>
+              {overlaySeries.map((sr, i) => (
+                <span key={sr.id}>
+                  <i style={{ background: overlayColors[i % overlayColors.length] }} />
+                  {symptomLabel(sr.id)}
+                </span>
+              ))}
+            </div>
+          )}
           <svg
             viewBox="0 0 700 170"
             role="img"
@@ -2543,16 +2586,21 @@ function HomeCourse({
             ))}
             {liveChart ? (
               <>
-                {liveChart.segments
-                  .filter((segment) => segment.length > 1)
-                  .map((segment) => (
-                    <polyline key={segment[0].at} points={segment.map((p) => `${p.x},${135 - p.value * 27}`).join(" ")} />
-                  ))}
-                {liveChart.points.map((p) => (
-                  <circle key={p.at} cx={p.x} cy={135 - p.value * 27} r="5">
-                    <title>{`${formatShortDate(p.at)} ${p.value} / 4（${severityLabels[p.value]}）`}</title>
-                  </circle>
-                ))}
+                {(overlayAll ? overlaySeries : [liveChart]).map((sr, si) => {
+                  const color = overlayAll ? overlayColors[si % overlayColors.length] : undefined
+                  return (
+                    <g key={sr.id} style={color ? { stroke: color } : undefined}>
+                      {sr.links.map((l) => (
+                        <line key={`${l.a.at}-${l.b.at}`} x1={l.a.x} y1={135 - l.a.value * 27} x2={l.b.x} y2={135 - l.b.value * 27} className={l.gap ? "cd-gap" : "cd-link"} data-chart-segment={l.gap ? "gap" : "solid"} />
+                      ))}
+                      {sr.points.map((p) => (
+                        <circle key={p.at} cx={p.x} cy={135 - p.value * 27} r={overlayAll ? 4 : 5} style={color ? { stroke: color } : undefined}>
+                          <title>{`${symptomLabel(sr.id)} ${formatShortDate(p.at)} ${p.value} / 4（${severityLabels[p.value]}）`}</title>
+                        </circle>
+                      ))}
+                    </g>
+                  )
+                })}
                 {dates.length > 0 && (
                   <>
                     <text x="35" y="162">{formatShortDate(dates[0])}</text>
@@ -2578,7 +2626,7 @@ function HomeCourse({
           </svg>
           <p>
             {live
-              ? "0は「なし」（患者が記録した値）です。記録のない日は点を置かず、記録のない日をはさむ点は線で結びません。"
+              ? "0は「なし」（患者が記録した値）です。記録のある点どうしを線で結び、間に記録のない日があるところは破線です。線の途中は実測値ではなく、記録のない日を「症状なし」とは扱いません。"
               : "記録がある日のみ線で結んでいます。間の日を「症状なし」とは扱いません。"}
           </p>
         </section>
@@ -2907,7 +2955,9 @@ function VitalCombinedGraph({
                   value: number
                 } => item.value !== undefined,
               )
-            const pathParts: string[] = []
+            // 記録のある点どうしを続けて結ぶ。間にその指標を測らなかった日があるところは別の線（破線）にして、欠測を連続測定のように見せない
+            const solidParts: string[] = []
+            const gapParts: string[] = []
             let previous: {
               record: HealthRecord
               index: number
@@ -2915,26 +2965,25 @@ function VitalCombinedGraph({
             } | undefined
             const dayIndex = (iso: string) => Math.floor(new Date(`${iso.slice(0, 10)}T00:00:00`).getTime() / 86400000)
             values.forEach((item) => {
-              const connects =
-                Boolean(previous) &&
-                (!breakGaps || dayIndex(item.record.measuredAt) - dayIndex(previous!.record.measuredAt) <= 1)
-              pathParts.push(
-                `${connects ? "L" : "M"} ${xFor(item.record.measuredAt)} ${yFor(
-                  item.value,
-                  metric.min,
-                  metric.max,
-                )}`,
-              )
+              const x = xFor(item.record.measuredAt)
+              const y = yFor(item.value, metric.min, metric.max)
+              if (previous) {
+                const gap = breakGaps && dayIndex(item.record.measuredAt) - dayIndex(previous.record.measuredAt) > 1
+                const px = xFor(previous.record.measuredAt)
+                const py = yFor(previous.value, metric.min, metric.max)
+                ;(gap ? gapParts : solidParts).push(`M ${px} ${py} L ${x} ${y}`)
+              }
               previous = item
             })
             return (
               <g key={metric.key} className={`metric ${metric.key}`}>
                 <path
-                  d={pathParts.join(" ")}
+                  d={solidParts.join(" ")}
                   fill="none"
                   stroke={metric.color}
                   strokeDasharray={metric.dash}
                 />
+                <path d={gapParts.join(" ")} fill="none" stroke={metric.color} strokeDasharray="3 5" opacity={0.6} data-vital-gap />
                 {values.map((item) => {
                   const out = item.value < metric.min || item.value > metric.max
                   return (
@@ -2991,7 +3040,7 @@ function VitalCombinedGraph({
       </div>
       <p className="cd-vital-explanation">
         <CIcon name="help" />
-        異なる単位の指標を、変化を比較するため個別スケールで重ねています。各線は記録された測定点同士を結ぶ視覚ガイドで、線上の中間位置は実測値ではありません。
+        異なる単位の指標を、変化を比較するため個別スケールで重ねています。各線は記録された測定点同士を結ぶ視覚ガイドで、線上の中間位置は実測値ではありません。間に測定のない日がある区間は細い破線です。
       </p>
       <p className="cd-vital-safety">
         線の高さは指標間の医学的な大小関係を示しません。未測定の項目と実測値・単位はカーソル表示で確認できます。表示範囲は固定で、正常・異常の医学的判定は行いません。
@@ -3007,6 +3056,8 @@ function Summary({
   onConcern,
   onPrescribe,
   onOpenCourse,
+  prescription = [],
+  onAddToPrescription,
 }: {
   scenario: ClinicalScenario
   healthRecords: HealthRecord[]
@@ -3014,15 +3065,19 @@ function Summary({
   onConcern: (id: number | string) => void
   onPrescribe: () => void
   onOpenCourse?: () => void
+  prescription?: (number | string)[]
+  onAddToPrescription?: (id: string) => void
 }) {
   const [areaDetail, setAreaDetail] = useState<string | null>(null)
   const [expandedQuestion, setExpandedQuestion] = useState<number | string | null>(null)
   const [expandedCheck, setExpandedCheck] = useState<number | string | null>(null)
-  // 本番: サマリーを開くたびに最新の学習記録を読み直す
+  // 本番: サマリーを開くたびに最新の学習記録を読み直す（本番の表示は LiveSummary が自分で読み直す）
   useEffect(() => {
-    void record?.reload()
+    if (!record?.summary) void record?.reload()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+  // 本番: 2026-11 の見直し（S・O → 質問・確認事項 → 理解度・AI リコメンド）
+  if (record?.summary) return <LiveSummary record={record} onConcern={onConcern} onPrescribe={onPrescribe} onOpenCourse={onOpenCourse} prescription={prescription} onAddToPrescription={onAddToPrescription} />
   const figmaQuestions: ConcernItem[] =
     scenario === "clear"
       ? []
@@ -3313,6 +3368,474 @@ function Summary({
               </button>
             </section>
           )}
+        </aside>
+      </div>
+    </div>
+  )
+}
+
+
+/** 日付の短い表示（M/D） */
+const mdOf = (iso: string) => {
+  const d = new Date(iso)
+  return `${d.getMonth() + 1}/${d.getDate()}`
+}
+
+/**
+ * 本番の診察サマリー（2026-11 の見直し）。多忙な外来で「患者の今の状況」と「この患者に今足りていない情報」が一目でわかる並びにする。
+ * 1. S・O（自覚症状・バイタルの最新と推移）→ 2. 患者の質問・理解につまずいたこと → 3. 理解度（合計の正答率を大きく、押すと内訳）と AI の情報処方リコメンド。
+ * AI 外来間サマリー（要約・根拠・タイムライン）は折りたたみ。観察期間はここで選び、在宅経過表と共有する。
+ */
+function LiveSummary({
+  record,
+  onConcern,
+  onPrescribe,
+  onOpenCourse,
+  prescription,
+  onAddToPrescription,
+}: {
+  record: ClinicianRecord
+  onConcern: (id: number | string) => void
+  onPrescribe: () => void
+  onOpenCourse?: () => void
+  prescription: (number | string)[]
+  onAddToPrescription?: (id: string) => void
+}) {
+  const { period, setPeriod } = record
+  const [periodEdit, setPeriodEdit] = useState(false)
+  const [draft, setDraft] = useState<{ from: string; to: string } | null>(null)
+  const [understandingOpen, setUnderstandingOpen] = useState(false)
+  const [aiOpen, setAiOpen] = useState(false)
+  const [resolvedOpen, setResolvedOpen] = useState(false)
+  const [openQuestion, setOpenQuestion] = useState<string | number | null>(null)
+  const [openCheck, setOpenCheck] = useState<string | number | null>(null)
+  // 本番: サマリーを開くたびに最新の学習記録とリコメンドを読み直す
+  useEffect(() => {
+    void record.reload()
+    void record.loadRecommendations()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [record.sessionId])
+  useEffect(() => {
+    void record.loadIntervisit(period)
+    void record.loadAiSummary(period)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period?.from, period?.to, record.sessionId])
+  const periodKey = period ? `?from=${period.from}&to=${period.to}` : ""
+  const data = record.intervisitKey === periodKey ? record.intervisit : null
+  const iv = data?.intervisit ?? null
+  const summary = record.summary!
+  const maxDay = record.defaultTo
+  const openPeriodEditor = () => {
+    const to = record.defaultTo ?? localDate(new Date())
+    const from = new Date(`${to}T00:00:00`)
+    from.setDate(from.getDate() - 13)
+    setDraft(period ?? (iv ? { from: iv.period.from, to: iv.period.to } : { from: localDate(from), to }))
+    setPeriodEdit(!periodEdit)
+  }
+  // S: 症状（記録のあるもの。最大の程度が高い順）
+  const symptoms = iv ? [...iv.symptoms].filter((x) => x.count > 0).sort((a, b) => b.max - a.max || b.count - a.count) : []
+  const symptomTrend = (sym: (typeof symptoms)[number]) => {
+    const e = [...sym.entries].sort((a, b) => a.at.localeCompare(b.at))
+    const first = e[0]
+    const last = e[e.length - 1]
+    return { first, last, peak: e.reduce((m, x) => (x.severity > m.severity ? x : m), e[0]) }
+  }
+  // O: バイタル（期間内の最新値と範囲、目安の色）
+  const vitalRows = iv
+    ? (["temperature", "systolic", "diastolic", "pulse", "spo2"] as const).map((k) => {
+        const m = iv.vitals.metrics[k]
+        const last = m?.values[m.values.length - 1] ?? null
+        return { key: k, label: m?.label ?? k, unit: m?.unit ?? "", last, min: m?.min ?? null, max: m?.max ?? null, count: m?.count ?? 0, flag: last ? vitalFlag(k, last.value) : 0 }
+      })
+    : []
+  // 質問: 未解決を先に（新しい順）。「聞けた」は折りたたみ
+  const questionsOpen = record.questions.filter((q) => !q.resolved)
+  const questionsResolved = record.questions.filter((q) => q.resolved)
+  const checks = record.checks
+  // 理解度: 合計の正答率（回答がなければ出さない）
+  const answered = summary.answers.length
+  const correct = summary.answers.filter((a) => a.isCorrect).length
+  const pct = answered ? Math.round((correct / answered) * 100) : null
+  const unknownCount = summary.answers.filter((a) => a.isUnknown).length
+  const wrongCount = answered - correct - unknownCount
+  const reco = record.recommendations
+  const recoKind = reco ? (reco.generator === "claude" ? "Claude" : reco.generator === "rule" ? "ルールベース" : "開発用の擬似生成") : null
+  return (
+    <div className="cd-content cd-summary cd-summary-v2" data-summary-v2>
+      <div className="cd-title-row">
+        <div>
+          <p className="cd-eyebrow">診察</p>
+          <h1>診察サマリー</h1>
+          <p className="cd-period-line" data-period-line>
+            <b>観察期間</b>
+            {iv ? (
+              <>
+                <span>
+                  {iv.fmt.from}〜{iv.fmt.to}（{iv.period.days}日間）
+                </span>
+                <small>{iv.period.isDefault ? iv.period.label : "指定期間"}</small>
+              </>
+            ) : (
+              <span>{period ? `${period.from.replaceAll("-", "/")}〜${period.to.replaceAll("-", "/")}（読み込んでいます…）` : "読み込んでいます…"}</span>
+            )}
+            <button className="cd-text-back" onClick={openPeriodEditor}>
+              期間を変更
+            </button>
+          </p>
+        </div>
+        <p className="cd-zero-doc">
+          <CIcon name="shield" />
+          閲覧だけで終了できます。診療記録は電子カルテへ。
+        </p>
+      </div>
+      {periodEdit && draft && (
+        <div className="cd-period-editor">
+          <label>
+            開始日
+            <input type="date" value={draft.from} max={draft.to} onChange={(event) => setDraft({ ...draft, from: event.target.value })} />
+          </label>
+          <label>
+            終了日
+            <input type="date" value={draft.to} min={draft.from} max={maxDay ?? undefined} onChange={(event) => setDraft({ ...draft, to: event.target.value })} />
+          </label>
+          <p>
+            前回外来日が確認できないため、期間は医療者が選択します。{" "}
+            <button
+              className="cd-text-back"
+              onClick={() => {
+                setPeriod(draft)
+                setPeriodEdit(false)
+              }}
+            >
+              この期間で表示
+            </button>
+          </p>
+        </div>
+      )}
+
+      {/* 1. S・O: 患者の今の状況 */}
+      <section className="cd-panel cd-so" data-so>
+        <div className="cd-panel-head">
+          <div>
+            <p className="cd-eyebrow">S・O　患者の今の状況</p>
+            <h2>在宅での体調（患者本人の記録）</h2>
+          </div>
+          {onOpenCourse && (
+            <button className="cd-so-course" onClick={onOpenCourse}>
+              在宅経過表・グラフ
+              <CIcon name="arrow" size={14} />
+            </button>
+          )}
+        </div>
+        {!iv ? (
+          <p className="cd-so-loading">読み込んでいます…</p>
+        ) : (
+          <div className="cd-so-grid">
+            <div className="cd-so-col" data-so-symptoms>
+              <h3>
+                S　自覚症状 <small>患者評価 0〜4（CTCAE Grade ではありません）</small>
+              </h3>
+              {symptoms.length === 0 ? (
+                <p className="cd-so-none">この期間に症状の記録はありません（記録なし。「症状なし」とは扱いません）</p>
+              ) : (
+                <ul className="cd-so-symptoms">
+                  {symptoms.slice(0, 6).map((sym) => {
+                    const t = symptomTrend(sym)
+                    const delta = t.last.severity - t.first.severity
+                    return (
+                      <li key={sym.key} data-so-symptom={sym.key}>
+                        <b>{sym.name}</b>
+                        <span className={`cd-sev s${t.last.severity}`} title="直近の記録">
+                          {t.last.severity}
+                        </span>
+                        <small>
+                          直近 {mdOf(t.last.at)} · 最大 {sym.max}（{mdOf(t.peak.at)}）· {sym.count}回
+                          {sym.count > 1 ? (delta > 0 ? " · 初回より強い" : delta < 0 ? " · 初回より軽い" : " · 変わらず") : ""}
+                        </small>
+                        <span className="cd-so-spark" aria-hidden="true">
+                          {[...sym.entries]
+                            .sort((a, b) => a.at.localeCompare(b.at))
+                            .slice(-8)
+                            .map((e) => (
+                              <i key={e.sourceId} className={`s${e.severity}`} style={{ height: `${4 + e.severity * 3}px` }} />
+                            ))}
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+              {symptoms.length > 6 && <small className="cd-so-more">ほか {symptoms.length - 6} 症状は在宅経過表で</small>}
+            </div>
+            <div className="cd-so-col" data-so-vitals>
+              <h3>
+                O　バイタル <small>期間内 {iv.vitals.recordDays}日・{iv.vitals.recordCount}件</small>
+              </h3>
+              {iv.vitals.recordCount === 0 ? (
+                <p className="cd-so-none">この期間にバイタルの記録はありません</p>
+              ) : (
+                <ul className="cd-so-vitals">
+                  {vitalRows.map((v) => (
+                    <li key={v.key} className={`flag${v.flag}`} data-so-vital={v.key}>
+                      <small>{v.label}</small>
+                      <b>{v.last ? `${v.last.value}` : "—"}</b>
+                      <em>{v.unit}</em>
+                      <span>{v.last ? `${mdOf(v.last.at)}${v.count > 1 && v.min && v.max ? ` · ${v.min.value}〜${v.max.value}` : ""}` : "記録なし"}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <small className="cd-so-note">{VITAL_FLAG_NOTE}</small>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <div className="cd-clinical-grid cd-clinical-grid-v2">
+        <div className="cd-clinical-main">
+          {/* 2. 患者の質問 */}
+          <section className="cd-panel cd-question-priority" data-questions>
+            <div className="cd-panel-head">
+              <div>
+                <p className="cd-eyebrow">患者の質問</p>
+                <h2>患者が診察で聞きたいこと</h2>
+              </div>
+              <Badge tone={questionsOpen.length ? "purple" : "green"}>{questionsOpen.length ? `${questionsOpen.length}件` : "質問なし"}</Badge>
+            </div>
+            {questionsOpen.length ? (
+              <div className="cd-question-list">
+                {questionsOpen.map((item, index) => (
+                  <article key={item.id}>
+                    <button className="cd-question-toggle" onClick={() => setOpenQuestion(openQuestion === item.id ? null : item.id)} aria-expanded={openQuestion === item.id}>
+                      <span className="cd-question-number">{index + 1}</span>
+                      <span>
+                        <b>{item.title}</b>
+                        <small>
+                          {item.source}
+                          {item.materialTitle ? ` · 教材「${item.materialTitle}」から` : " · 自由な質問"}
+                        </small>
+                      </span>
+                      <span>{openQuestion === item.id ? "閉じる" : "詳細"}</span>
+                    </button>
+                    {openQuestion === item.id && (
+                      <div className="cd-question-expanded">
+                        <p>{item.detail}</p>
+                        {item.related && (
+                          <p>
+                            関連する理解確認: 「{item.related.stem}」 · 回答「{item.related.answer}」
+                          </p>
+                        )}
+                        <div>
+                          <span>患者が入力した原文は変更されません</span>
+                          <button onClick={() => onConcern(item.id)}>
+                            詳しく確認
+                            <CIcon name="arrow" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="cd-nothing-to-review">
+                <CIcon name="check" />
+                <span>
+                  <b>未解決の質問はありません</b>
+                  <small>対応操作は必要ありません</small>
+                </span>
+              </div>
+            )}
+            {questionsResolved.length > 0 && (
+              <button className="cd-text-back cd-resolved-toggle" aria-expanded={resolvedOpen} onClick={() => setResolvedOpen(!resolvedOpen)}>
+                {resolvedOpen ? "閉じる" : `患者が「聞けた」にした質問（${questionsResolved.length}件）`}
+              </button>
+            )}
+            {resolvedOpen && (
+              <ul className="cd-resolved-list">
+                {questionsResolved.map((q) => (
+                  <li key={q.id}>
+                    「{q.title}」<small>{q.source}</small>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+          {/* 3. 理解につまずいたこと */}
+          <section className="cd-panel cd-understanding" data-checks>
+            <div className="cd-panel-head">
+              <div>
+                <p className="cd-eyebrow">理解確認</p>
+                <h2>理解につまずいたこと</h2>
+              </div>
+              <Badge tone={checks.length ? "amber" : "green"}>{answered === 0 ? "未回答" : checks.length ? `${checks.length}件` : "要確認なし"}</Badge>
+            </div>
+            {answered === 0 ? (
+              <div className="cd-unanswered">
+                <CIcon name="help" />
+                <div>
+                  <b>確認問題は未回答です</b>
+                  <p>理解確認への回答はまだありません。理解度0%とは表示しません。</p>
+                </div>
+              </div>
+            ) : checks.length ? (
+              <div className="cd-check-list">
+                {checks.map((item) => (
+                  <article key={item.id}>
+                    <button onClick={() => setOpenCheck(openCheck === item.id ? null : item.id)} aria-expanded={openCheck === item.id}>
+                      <Badge tone={item.tone}>{item.type}</Badge>
+                      <span>
+                        <b>{item.title}</b>
+                        <small>
+                          {item.materialTitle} · 回答「{item.answer}」
+                        </small>
+                      </span>
+                      <span>{openCheck === item.id ? "閉じる" : "詳細"}</span>
+                    </button>
+                    {openCheck === item.id && (
+                      <div className="cd-check-expanded">
+                        <p>
+                          <b>正答・解説：</b>「{item.correct}」 {item.explanation ?? ""}
+                        </p>
+                        <p>
+                          <b>回答：</b>
+                          {item.source}
+                        </p>
+                        <div>
+                          <span>関連教材：{item.materialTitle}</span>
+                          <button onClick={() => onConcern(item.id)}>詳しく確認</button>
+                        </div>
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="cd-nothing-to-review">
+                <CIcon name="check" />
+                <span>
+                  <b>誤答・「わからない」はありません</b>
+                  <small>追加の確認操作は必要ありません</small>
+                </span>
+              </div>
+            )}
+          </section>
+          {/* AI 外来間サマリー（折りたたみ） */}
+          <section className="cd-panel cd-ai-fold" data-ai-fold>
+            <button className="cd-ai-fold-toggle" aria-expanded={aiOpen} onClick={() => setAiOpen(!aiOpen)}>
+              <span>
+                <CIcon name="studio" size={18} />
+                <b>AI外来間サマリー</b>
+                <small>要約の各文から根拠の記録・統合タイムライン（Claude による要約は検証済みの文だけ表示）</small>
+              </span>
+              <span>{aiOpen ? "閉じる" : "開く"}</span>
+            </button>
+            {aiOpen && <LiveIntervisit record={record} onOpenCourse={onOpenCourse} embedded />}
+          </section>
+        </div>
+        <aside className="cd-clinical-side">
+          {/* 理解度 */}
+          <section className="cd-panel cd-score" data-understanding>
+            <button className="cd-score-main" aria-expanded={understandingOpen} onClick={() => setUnderstandingOpen(!understandingOpen)} disabled={answered === 0}>
+              <p className="cd-eyebrow">理解確認の正答率</p>
+              <b data-understanding-pct>{pct === null ? "—" : `${pct}%`}</b>
+              <small>
+                {pct === null ? "回答なし（0%とは表示しません）" : `${answered}問中 ${correct}問正答 · 不正解 ${wrongCount} · わからない ${unknownCount}`}
+              </small>
+              {answered > 0 && <span className="cd-score-hint">{understandingOpen ? "内訳を閉じる" : "押すと領域別・つまずいた設問"}</span>}
+            </button>
+            {understandingOpen && (
+              <div className="cd-score-detail" data-understanding-detail>
+                <h3>領域別</h3>
+                <div className="cd-area-compact">
+                  {record.areas.map((area) => (
+                    <div key={String(area[0])} className="cd-area-line">
+                      <span>
+                        <b>{area[0]}</b>
+                        <small>学習 {area[1]}</small>
+                      </span>
+                      <span>
+                        <small>確認問題</small>
+                        <b>{area[2]}</b>
+                      </span>
+                      <Badge tone={area[3] === "なし" ? "gray" : "amber"}>{area[3]}</Badge>
+                    </div>
+                  ))}
+                </div>
+                {checks.length > 0 && (
+                  <>
+                    <h3>つまずいた設問</h3>
+                    <ul className="cd-score-misses">
+                      {checks.map((c) => (
+                        <li key={c.id}>
+                          <Badge tone={c.tone}>{c.type}</Badge> {c.title}
+                          <small>{c.materialTitle}</small>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                <p className="cd-clinical-note">
+                  <CIcon name="shield" />
+                  学習進捗と確認問題は別の指標です。医学的理解を断定しません。
+                </p>
+              </div>
+            )}
+          </section>
+          {/* AI 情報処方リコメンド */}
+          <section className="cd-panel cd-reco" data-recommendations>
+            <div className="cd-panel-head">
+              <div>
+                <p className="cd-eyebrow">AI 情報処方リコメンド</p>
+                <h2>今回の外来で処方を検討したい教材</h2>
+              </div>
+              {recoKind && <Badge tone={reco?.generator === "claude" ? "blue" : "gray"}>{recoKind}</Badge>}
+            </div>
+            {!reco && record.recommendationsLoading && <p className="cd-so-loading">候補を整理しています…</p>}
+            {reco && reco.items.length === 0 && <p className="cd-so-none">{reco.note ?? "候補はありません"}</p>}
+            {reco && reco.items.length > 0 && (
+              <ol className="cd-reco-list">
+                {reco.items.map((item, index) => {
+                  const added = prescription.includes(item.materialId)
+                  const nowPrescribed = record.library?.find((l) => l.id === item.materialId)?.prescribedNow
+                  return (
+                    <li key={item.materialId} data-reco-item={item.materialId}>
+                      <span className="cd-reco-no">{index + 1}</span>
+                      <div>
+                        <b>{item.title}</b>
+                        {item.rePrescribe && <Badge tone="purple">再処方</Badge>}
+                        <p>{item.aiReason ?? item.reasons[0]?.text}</p>
+                        {!item.aiReason && item.reasons.length > 1 && <small>{item.reasons.slice(1, 3).map((r) => r.text).join(" / ")}</small>}
+                        {item.aiReason && <small>根拠: {item.reasons.map((r) => r.text).join(" / ")}</small>}
+                      </div>
+                      {nowPrescribed ? (
+                        <span className="cd-reco-added">処方済み</span>
+                      ) : (
+                        <button className={added ? "selected" : ""} disabled={added || !onAddToPrescription} onClick={() => onAddToPrescription?.(item.materialId)} data-reco-add>
+                          <CIcon name={added ? "check" : "plus"} size={14} />
+                          {added ? "追加済み" : "候補に追加"}
+                        </button>
+                      )}
+                    </li>
+                  )
+                })}
+              </ol>
+            )}
+            <p className="cd-reco-note">
+              {reco?.generator === "claude"
+                ? "患者の質問・症状・理解確認の記録から Claude が候補を絞り、理由を医療者向けに言い換えています。候補はルールベースで作った教材だけで、採用は医療者が判断します。"
+                : "患者の質問・症状・理解確認の記録から、関係しうる承認済み教材をルールで並べています。採用は医療者が判断します。"}
+            </p>
+            <div className="cd-reco-actions">
+              <button className="cd-primary" onClick={onPrescribe}>
+                {prescription.length ? `選択中 ${prescription.length}件を確認` : "教材ライブラリで選ぶ"}
+                <CIcon name="arrow" />
+              </button>
+              <button className="cd-text-back" disabled={record.recommendationsLoading} onClick={() => void record.loadRecommendations({ regenerate: true })}>
+                {record.recommendationsLoading ? "更新中…" : "候補を更新"}
+              </button>
+            </div>
+          </section>
         </aside>
       </div>
     </div>
@@ -3659,18 +4182,41 @@ function PrescriptionLibrary({
             placeholder={record ? "教材名・学習目標で検索" : "教材名・対象者・学習目標で検索"}
           />
         </label>
-        <select value={area} onChange={(event) => setArea(event.target.value)}>
-          <option>すべて</option>
-          <option>検査・診断</option>
-          <option>手術</option>
-          <option>薬物療法</option>
-          <option>放射線療法</option>
-          <option>副作用・支持療法</option>
-          <option>日常生活・相談支援</option>
-        </select>
       </div>
-      <div className="cd-library-grid">
-        {results.map((item) => (
+      <div className="cd-area-chips" role="tablist" aria-label="学習領域">
+        {["すべて", "検査・診断", "手術", "薬物療法", "放射線療法", "副作用・支持療法", "日常生活・相談支援"].map((name) => {
+          const count = name === "すべて" ? items.length : items.filter((item) => item.area === name).length
+          return (
+            <button key={name} role="tab" aria-selected={area === name} className={area === name ? "active" : ""} onClick={() => setArea(name)} data-area-chip={name}>
+              {name}
+              <small>{count}</small>
+            </button>
+          )
+        })}
+      </div>
+      {record && (
+        <p className="cd-library-status-legend" data-library-legend>
+          <span className="now">
+            <CIcon name="check" size={12} />
+            この診察で処方済み
+          </span>
+          <span className="before">以前に処方（再処方できます）</span>
+          <span className="new">未処方</span>
+        </p>
+      )}
+      {(area === "すべて" ? ["検査・診断", "手術", "薬物療法", "放射線療法", "副作用・支持療法", "日常生活・相談支援"] : [area]).map((group) => {
+        const list = results.filter((item) => item.area === group)
+        if (list.length === 0) return null
+        return (
+          <section key={group} className="cd-library-group" data-library-group={group}>
+            {area === "すべて" && (
+              <h2 className="cd-library-group-title">
+                {group}
+                <small>{list.length}件</small>
+              </h2>
+            )}
+            <div className="cd-library-grid">
+              {list.map((item) => (
           <article
             key={item.id}
             className={selected.includes(item.id) ? "selected" : ""}
@@ -3697,7 +4243,23 @@ function PrescriptionLibrary({
                   {item.time}分
                 </span>
               </div>
-              <h2>{item.title}</h2>
+              <h2>
+                {item.prescribedNow ? (
+                  <span className="cd-rx-status now" data-rx-status="now">
+                    <CIcon name="check" size={11} />
+                    処方済み
+                  </span>
+                ) : item.prescribedBefore ? (
+                  <span className="cd-rx-status before" data-rx-status="before">
+                    以前に処方
+                  </span>
+                ) : record ? (
+                  <span className="cd-rx-status new" data-rx-status="new">
+                    未処方
+                  </span>
+                ) : null}
+                {item.title}
+              </h2>
               <dl>
                 {known(item.target) && (
                   <>
@@ -3738,8 +4300,11 @@ function PrescriptionLibrary({
               )}
             </div>
           </article>
-        ))}
-      </div>
+              ))}
+            </div>
+          </section>
+        )
+      })}
       {results.length === 0 && (
         <div className="cd-empty-results">
           <CIcon name="search" size={34} />
@@ -3997,8 +4562,27 @@ function Studio({
     }
     setStep(step + 1)
   }
+  const replayEnv = !!live && (live.outlineJob?.generator === "replay" || live.draftJob?.generator === "replay" || !live.config?.claudeConfigured)
+  const missingStep1 = live && step === 1
+    ? [
+        !(live.sourceId || file) ? "資料を選ぶ" : null,
+        !srcMeta.rightsHolder.trim() ? "作成元（許諾元）" : null,
+        !srcMeta.evidenceNote.trim() ? "利用許諾の根拠" : null,
+        !aiAllowed ? "AI処理の許可" : null,
+        !licenseChecked ? "利用許諾の確認" : null,
+        !piiChecked ? "個人情報を含まないことの確認" : null,
+      ].filter((x): x is string => !!x)
+    : []
   return (
     <div className="cd-content cd-studio">
+      {replayEnv && (
+        <p className="cd-studio-env" data-studio-env role="note">
+          <CIcon name="alert" size={14} />
+          {live?.outlineJob?.generator === "replay" || live?.draftJob?.generator === "replay"
+            ? `デモ環境: 記録済みのClaude出力（${live.draftJob?.model ?? live.outlineJob?.model}）を再生しています。今回はClaudeを呼び出していません。`
+            : "デモ環境: Claude API は設定されていません。構成案と下書きは記録済みの出力、または開発用の擬似生成です。"}
+        </p>
+      )}
       <div className="cd-title-row">
         <div>
           <p className="cd-eyebrow">Claude 教材スタジオ</p>
@@ -4065,11 +4649,6 @@ function Studio({
         </div>
       ) : (
       <div className="cd-studio-body">
-        {live && (live.outlineJob?.generator === "replay" || live.draftJob?.generator === "replay") && (
-          <p className="cd-studio-busy" data-studio-replay>
-            撮影用デモ環境: 記録済みのClaude出力（{live.draftJob?.model ?? live.outlineJob?.model}）を再生しています。今回はClaudeを呼び出していません。
-          </p>
-        )}
         {live && live.busy && (
           <p className="cd-studio-busy" data-studio-busy>
             {live.busy === "upload"
@@ -4222,8 +4801,8 @@ function Studio({
             {step === 1 && !aiAllowed && (
               <span>AI処理が許可されていないため進めません</span>
             )}
-            {live && step === 1 && aiAllowed && (!licenseChecked || !piiChecked) && (
-              <span>利用許諾と個人情報の確認が必要です</span>
+            {live && step === 1 && aiAllowed && missingStep1.length > 0 && (
+              <span data-studio-missing>次に進むには: {missingStep1.join("・")}</span>
             )}
             {step === 4 && (live ? !live.candidates.every((c) => mustChecked[c.id]) : !mustCover.every(Boolean)) && (
               <span>「必ず含める内容」に未確認の項目があります</span>
@@ -4324,9 +4903,9 @@ function SourceStep({
           ) : live ? (
             <button className="cd-upload" onClick={() => fileRef.current?.click()}>
               <CIcon name="upload" size={32} />
-              <b>PDF・テキスト資料を登録</b>
-              <span>クリックしてファイルを選択</span>
-              <small>PDF / Word / PowerPoint / TXT · 最大15MB</small>
+              <b>PDF・Word などの資料を登録</b>
+              <span>クリックして手元のファイルを選ぶ</span>
+              <small>PDF / Word / PowerPoint / TXT · 最大15MB · 患者個人情報を含まない資料だけ</small>
             </button>
           ) : !sourceReady ? (
             <button className="cd-upload" onClick={() => setSourceReady(true)}>
@@ -4354,12 +4933,12 @@ function SourceStep({
                 <input value={live.meta.title} disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, title: event.target.value })} />
               </label>
               <label>
-                作成元（許諾元）
-                <input value={live.meta.rightsHolder} disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, rightsHolder: event.target.value })} />
+                作成元（許諾元）<em className="cd-required">必須</em>
+                <input value={live.meta.rightsHolder} placeholder="例: さくら総合病院 乳腺外科（院内資料）" disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, rightsHolder: event.target.value })} />
               </label>
               <label className="wide">
-                利用許諾の根拠（確認した内容）
-                <textarea value={live.meta.evidenceNote} disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, evidenceNote: event.target.value })} />
+                利用許諾の根拠（確認した内容）<em className="cd-required">必須</em>
+                <textarea value={live.meta.evidenceNote} placeholder="例: 院内作成資料のため、教材化と患者への公開を部門で確認済み" disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, evidenceNote: event.target.value })} />
               </label>
             </div>
           ) : (

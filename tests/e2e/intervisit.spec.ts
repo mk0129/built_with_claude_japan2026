@@ -34,6 +34,13 @@ async function record(p: Page, daysAgo: number, hh: number, mm: number, v: Parti
   await p.locator(".d-feedback-close").click();
 }
 
+/** 2026-11: AI 外来間サマリー（要約・根拠・タイムライン）は診察サマリーの折りたたみの中。開いてから確認する */
+async function openAi(page: import("@playwright/test").Page) {
+  const t = page.locator("[data-ai-fold] .cd-ai-fold-toggle");
+  await t.waitFor({ timeout: 15_000 });
+  if ((await t.getAttribute("aria-expanded")) !== "true") await t.click();
+}
+
 test("在宅経過表・バイタル統合グラフ・外来間サマリー（構造化・AI）・根拠・再生成・代替表示・終了後の拒否", async ({ browser }) => {
   const patient = await newPage(browser, { width: 390, height: 844 });
   await demoLogin(patient.page, "patient", "高橋 由美");
@@ -84,6 +91,7 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   const sid = new URL(s.url()).searchParams.get("s")!;
 
   // 10. 外来間の構造化サマリー（実データから）。前回外来日ではなく期間と前回共有日を明記
+  await openAi(s);
   const iv = s.locator("[data-intervisit]");
   await expect(iv.locator("[data-period-line]")).toContainText("直近14日間");
   await expect(iv).toContainText("前回の共有記録なし");
@@ -183,9 +191,11 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await s.locator(".cd-vital-plot rect.hover-zone").nth(1).hover();
   await expect(s.locator(".cd-vital-tooltip")).toContainText("37.4 ℃");
   await expect(s.locator(".cd-vital-tooltip")).toContainText("未測定");
-  // 欠測期間（4・5 日前）を線で結ばない: 体温の線は 6 日前と 3 日前を結ばない
-  const tempPath = await s.locator(".cd-vital-plot g.metric.temperature path").getAttribute("d");
-  expect(tempPath?.match(/M /g)?.length).toBeGreaterThanOrEqual(2);
+  // 欠測期間（4・5 日前、2 日前）をはさむ区間は破線（data-vital-gap）で結び、実線（隣の日どうし）にはしない
+  const gapPath = await s.locator(".cd-vital-plot g.metric.temperature path[data-vital-gap]").getAttribute("d");
+  expect(gapPath?.match(/M /g)?.length).toBeGreaterThanOrEqual(2);
+  const solidPath = await s.locator(".cd-vital-plot g.metric.temperature path:not([data-vital-gap])").getAttribute("d");
+  expect(solidPath ?? "").not.toContain("L ");
 
   // 13. 元データを変更すると、再生成した要約に反映される
   await p.goto("/home?view=health");
@@ -197,12 +207,14 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await p.getByRole("button", { name: "この記録を更新" }).click();
   await expect(p.locator(".toast")).toContainText("記録を更新しました");
   await s.locator(".cd-sidebar").getByRole("button", { name: "診察" }).click();
+  await openAi(s);
   await s.locator("[data-intervisit] [data-summary-all-toggle]").click();
   await s.getByRole("button", { name: "外来間サマリーを再生成" }).click();
   await expect(s.locator("[data-intervisit]")).toContainText(`手足のしびれは${md(6)}に1/4、${md(1)}に2/4と記録されました（期間内の最大は${md(3)}の2/4、4回記録）。`, { timeout: 15_000 });
 
   // 14. AI 生成エラー・検証不合格時は安全な代替表示（ルールベース）。元データは閲覧できる
   await s.goto(`/staff?s=${sid}&aisim=invalid`);
+  await openAi(s);
   await expect(s.locator('.cd-summary-narrative[data-summary-kind="rule"]')).toBeVisible({ timeout: 15_000 });
   await expect(s.locator("[data-ai-status='fallback']")).toContainText("AI要約は表示していません");
   // 擬似生成の不正な出力（「改善」「39.9℃」「理解力」）は表示されない
@@ -212,15 +224,17 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await s.locator("[data-intervisit] [data-summary-all-toggle]").click();
   await expect(s.locator("[data-intervisit]")).toContainText("体調記録は14日中3日、4件です。");
   await s.goto(`/staff?s=${sid}&aisim=error`);
+  await openAi(s);
   await expect(s.locator("[data-ai-status='fallback']")).toContainText("AI 要約を生成できませんでした", { timeout: 15_000 });
   // 代替表示でも、患者の質問は原文のまま先頭に出る（AI の文に置き換えない）
   await expect(s.locator('[data-key-row="questions"] [data-key-question]').first()).toContainText("「仕事に戻る時期の目安を相談したいです。」");
 
   // 14-2. 期間を変える（質問を保存する前の 6〜5 日前だけ）: 質問がない状態を区別し、前の期間の質問を出さない
   await s.goto(`/staff?s=${sid}`);
+  await openAi(s);
   const iv2 = s.locator("[data-intervisit]");
   await expect(iv2.locator('[data-key-row="questions"] [data-key-question]').first()).toBeVisible({ timeout: 15_000 });
-  await iv2.getByRole("button", { name: "期間を確認・変更" }).click();
+  await s.locator("[data-summary-v2]").getByRole("button", { name: "期間を変更" }).click();
   const dIn = (n: number) => localInput(n, 0).slice(0, 10);
   await s.locator(".cd-period-editor input").first().fill(dIn(6));
   await s.locator(".cd-period-editor input").nth(1).fill(dIn(5));

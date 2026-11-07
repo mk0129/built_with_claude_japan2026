@@ -48,9 +48,10 @@ function Home(){
         </button>
         <button className="j-role" onClick={openConsult} aria-labelledby="clinician-role" aria-describedby="clinician-device">
           <span id="clinician-role">医療者として体験</span>
-          <small id="clinician-device">タブレット推奨</small>
+          <small id="clinician-device">タブレット推奨 · 架空患者の記録が共有された状態から始まります</small>
         </button>
       </div>
+      <p className="j-home-note">どちらから始めても大丈夫です。上部の「患者側」「医師側」でいつでも切り替えられます。扱うデータはすべて架空です。</p>
     </div>
   </main>;
 }
@@ -61,7 +62,7 @@ function Ended(){
  <div className="j-end-buttons"><Action onClick={()=>go("patient")}>患者の画面を見る</Action><Action secondary onClick={()=>go("home")}>入口へ戻る</Action></div></main>;
 }
 function Help(){
- return <details className="j-help"><summary>操作ガイド</summary><div><b>おすすめの3ステップ</b><ol><li>診察サマリーの「患者の質問」から「根拠 1件」を押します。</li><li>「在宅経過表」で、表の10月28日・手足のしびれのセルを開きます。</li><li>「教材ライブラリ」から教材を選び、確認して確定します。上部の「患者側」で受け取れます。</li></ol><p>教材スタジオでは、記録済みのClaudeの下書きを編集できます。</p></div></details>;
+ return <details className="j-help"><summary>操作ガイド</summary><div><b>おすすめの3ステップ</b><ol><li>診察サマリーの上部で、在宅での症状・バイタル（S・O）と患者の質問を確認します。右の「理解確認の正答率」を押すと内訳が開きます。</li><li>「AI 情報処方リコメンド」の候補を「候補に追加」し、「選択中 N件を確認」から処方を確定します。上部の「患者側」で、届いた教材をすぐ確認できます。</li><li>「在宅経過」で、バイタルの色分けと症状グラフ（すべての症状を重ねる）を見ます。</li></ol><p>教材スタジオでは、手元の PDF を選んで手順を進められます（デモ環境では記録済みの Claude 出力を再生します）。</p></div></details>;
 }
 function App(){
  const v=useRoute();const s=useSyncExternalStore(subscribeJudgeSession,getJudgeSession);

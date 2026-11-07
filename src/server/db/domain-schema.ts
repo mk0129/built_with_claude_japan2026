@@ -597,6 +597,8 @@ export const healthRecords = pgTable(
     diastolic: integer("diastolic"),
     pulse: integer("pulse"),
     spo2: integer("spo2"),
+    /** 酸素投与量（L/分）。在宅酸素など酸素を吸入している患者だけが任意で記録する（未記録は null） */
+    oxygenFlow: numeric("oxygen_flow", { precision: 4, scale: 1 }),
     createdAt: ts("created_at").notNull().defaultNow(),
     updatedAt: ts("updated_at").notNull().defaultNow(),
   },
@@ -659,6 +661,8 @@ export const visitNotes = pgTable(
     materialId: uuid("material_id").references(() => materials.id),
     materialVersionId: uuid("material_version_id").references(() => materialVersions.id),
     quizQuestionId: uuid("quiz_question_id").references(() => quizQuestions.id),
+    /** 患者が「聞けた・解決した」と印を付けた日時（ストック型: 質問は消さず、診察ごとの振り返りに残す）。null は未解決 */
+    resolvedAt: ts("resolved_at"),
     createdAt: ts("created_at").notNull().defaultNow(),
     updatedAt: ts("updated_at").notNull().defaultNow(),
   },

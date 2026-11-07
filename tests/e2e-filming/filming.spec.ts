@@ -19,6 +19,13 @@ const sessionIdOf = async (staff: Page) => {
   return live.activeSessionId as string;
 };
 
+/** 2026-11: AI 外来間サマリー（要約・根拠・タイムライン）は診察サマリーの折りたたみの中。開いてから確認する */
+async function openAi(page: import("@playwright/test").Page) {
+  const t = page.locator("[data-ai-fold] .cd-ai-fold-toggle");
+  await t.waitFor({ timeout: 15_000 });
+  if ((await t.getAttribute("aria-expanded")) !== "true") await t.click();
+}
+
 test("伊藤 涼子: 診断時セットの処方 → 患者ホーム → セットの内容 → 学習 → 理解確認 → 質問", async ({ browser }) => {
   const s = await newPage(browser, { width: 1180, height: 820 });
   const p = await newPage(browser, { width: 390, height: 844 });
@@ -99,20 +106,21 @@ test("佐藤 花子: 経過グラフ → 共有 → Claude外来間サマリー�
   // 患者の経過グラフ: 記録のない日は線をつながず、「記録なし」と「なし（症状なし）」を分ける（閲覧だけ・記録は変えない）
   await patient.locator(".d-nav").getByRole("button", { name: "体調記録" }).click();
   await patient.getByRole("button", { name: "履歴・グラフ" }).click();
-  const chart = patient.locator("[data-health-chart]");
+  const chart = patient.locator("[data-symptom-chart] [data-health-chart]"); // 2026-11: バイタルの推移が先頭に増えたため、症状のグラフを指定
   await expect(chart).toBeVisible();
   await expect(chart.locator("[data-chart-missing]").first()).toBeAttached();
   // 期間の終わりは撮影の基準日（11/4）。医療者の在宅経過表・外来間サマリーと同じ観察期間
-  const chartBox = patient.locator(".d-health-chart");
+  const chartBox = patient.locator("[data-symptom-chart]");
   await expect(chartBox).toContainText("11/4");
   await expect(chartBox).not.toContainText("11/5");
-  await expect(patient.getByText("記録のない日は線をつなぎません", { exact: false })).toBeVisible();
+  await expect(patient.getByText("記録のある日どうしを線で結んでいます", { exact: false })).toBeVisible();
 
   // 共有 → 診察サマリー
   await shareByPatientCode(staff, patient);
   const sid = await sessionIdOf(staff);
 
   // Claude外来間サマリー: 記録済みの Claude 出力の再生（18 項目・再検証済み）と冒頭の要点 3 項目
+  await openAi(staff);
   const iv = staff.locator("[data-intervisit]");
   await expect(iv.locator('[data-summary-kind="replay"]')).toBeVisible({ timeout: 30_000 }); // 記録済みの Claude 出力の再生
   await expect(iv.locator("[data-summary-item]")).toHaveCount(0); // 全項目は開いたときだけ

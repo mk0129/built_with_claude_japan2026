@@ -13,6 +13,13 @@ async function connect(s: Page, p: Page) {
   return new URL(s.url()).searchParams.get("s")!;
 }
 
+/** 2026-11: AI 外来間サマリー（要約・根拠・タイムライン）は診察サマリーの折りたたみの中。開いてから確認する */
+async function openAi(page: import("@playwright/test").Page) {
+  const t = page.locator("[data-ai-fold] .cd-ai-fold-toggle");
+  await t.waitFor({ timeout: 15_000 });
+  if ((await t.getAttribute("aria-expanded")) !== "true") await t.click();
+}
+
 test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わからない」→ 体調と質問 → QR 共有 → AI サマリーと根拠 → 追加処方 → 入力なしで終了", async ({ browser }) => {
   test.setTimeout(240_000);
   const staff = await newPage(browser, { width: 1440, height: 900 });
@@ -127,6 +134,7 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
 
   // ---- 5. QR 共有を承認 → 6. AI 外来間サマリー → 7. 根拠の記録 ----
   const sid = await connect(s, p);
+  await openAi(s);
   await expect(s.locator('.cd-summary-narrative[data-summary-kind="fake"]')).toBeVisible({ timeout: 15_000 });
   const iv = s.locator("[data-intervisit]");
   // 患者の質問（原文）が先頭の行に出る

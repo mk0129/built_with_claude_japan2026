@@ -2,10 +2,10 @@ import { expect, test } from "@playwright/test";
 import { demoLogin, newPage } from "./helpers";
 
 /**
- * 「仕事とお金のこと」→ 医療費シミュレーター（架空の条件）。計算は決定論的な関数（Claude は使わない・入力は保存しない）。
- * 教材 4 件は内容の確認後に登録するため、現時点のテーマの画面は「準備中」の案内とシミュレーター。
+ * 「仕事とお金のこと」→ 医療費シミュレーター（2026-11 の見直し）。計算は決定論的な関数（Claude は使わない・入力は保存しない）。
+ * 1 問ずつ選ぶだけで進み、70 歳以上・小学校入学前・保険や区分が「わからない」場合も目安を出す。医療費は金額の入力か、治療内容からの概算。
  */
-test("患者ホーム → 仕事とお金のこと → 医療費シミュレーター（架空の例・入力の変更・対象外の条件）", async ({ browser }) => {
+test("患者ホーム → 仕事とお金のこと → 医療費シミュレーター（架空の例・入力の変更・区分不明・70歳以上・治療内容から）", async ({ browser }) => {
   const { ctx, page: p } = await newPage(browser, { width: 390, height: 844 });
   await demoLogin(p, "patient", "伊藤 涼子");
 
@@ -13,100 +13,85 @@ test("患者ホーム → 仕事とお金のこと → 医療費シミュレー�
   const theme = p.locator("[data-money-theme]");
   await expect(theme).toBeVisible();
   await expect(theme.getByRole("heading", { name: "仕事とお金のこと" })).toBeVisible();
-  await expect(theme).toContainText("このアプリでは判定しません");
-  await expect(p.locator("[data-money-pending]")).toBeVisible(); // 教材は未登録（準備中）
+  await expect(p.locator("[data-money-lesson]")).toHaveCount(4); // 社会制度の 4 教材（登録済み）
 
   // 架空の例をワンタップ → 結果（区分ウ・総医療費100万円: 85,800＋(1,000,000−286,000)×1% = 92,940円）
   await p.locator("[data-simulator-open]").click();
-  // 入力: 進捗（1/5 診療月）と質問。適用範囲は短く示し、長い説明は「対象条件を見る」を開いたときだけ
   await expect(p.locator("[data-sim-progress]")).toContainText("1/5");
-  await expect(p.locator("[data-sim-progress]")).toContainText("診療月");
-  const scope = p.locator("[data-sim-scope]");
-  await expect(scope.getByText("院外処方の薬局の分", { exact: false })).toBeHidden();
-  await scope.getByText("対象条件を見る").click();
-  await expect(scope.getByText("1つの医療機関の外来か入院のどちらか一方", { exact: false })).toBeVisible();
-  await expect(scope.getByText("院外処方の薬局の分", { exact: false })).toBeVisible();
+  await expect(p.locator("[data-sim-progress]")).toContainText("年齢");
   await p.locator("[data-sim-demo]").click();
   const result = p.locator("[data-sim-result]");
   await expect(result).toBeVisible();
-  // 結果の先頭: 対象月・意味・金額・確定額ではない旨・架空例の明示・主操作（初期表示で見える）
-  const top = p.locator("[data-sim-summary]");
   await expect(p.locator("[data-sim-amount]")).toHaveText("92,940円");
-  await expect(top).toContainText("2026年11月の診療分");
-  await expect(top).toContainText("保険診療1か月分の自己負担の目安");
-  await expect(top).toContainText("確定した請求額ではありません");
+  await expect(p.locator("[data-sim-summary]")).toContainText("2026年11月の診療分");
+  await expect(p.locator("[data-sim-summary]")).toContainText("確定した請求額ではありません");
   await expect(p.locator("[data-sim-demo-badge]")).toHaveText("架空の例");
   await expect(p.locator("[data-sim-key-conditions]")).toContainText("区分ウ");
-  await expect(p.locator("[data-sim-key-conditions]")).toContainText("架空の条件");
-  await expect(p.getByRole("button", { name: "医療費を変えて計算する" })).toBeVisible();
-  // 詳細は見出しから開く（開く前は見えない → 開いて内容を確認）
   const breakdown = result.locator("[data-sim-detail='breakdown']");
-  await expect(breakdown.getByText("207,060円", { exact: false })).toBeHidden();
   await breakdown.locator("summary").click();
-  await expect(breakdown.getByText("300,000円", { exact: false })).toBeVisible();
   await expect(breakdown.getByText("207,060円", { exact: false })).toBeVisible();
-  await expect(breakdown.getByText("92,940円", { exact: false })).toBeVisible();
-  const excluded = result.locator("[data-sim-detail='excluded']");
-  await excluded.locator("summary").click();
-  for (const t of ["年間上限", "世帯合算", "同じ医療機関の入院と外来の合算", "払い戻しの時期・手続きは加入している健康保険に確認", "差額ベッド代", "加入している健康保険（保険者）"])
-    await expect(excluded.getByText(t, { exact: false }).first()).toBeVisible();
-  await expect(result).not.toContainText("2027年8月以降に");
-  const sources = result.locator("[data-sim-detail='sources']");
-  await sources.locator("summary").click();
-  await expect(sources.getByText("2026年8月〜2027年7月の診療分", { exact: false })).toBeVisible();
-  await expect(sources.locator("a[href^='https://www.mhlw.go.jp/']").first()).toBeVisible();
 
-  // 実際の入力で結果が変わる: 直前の条件を引き継いで総医療費だけ変える（200万円 → 85,800＋17,140 = 102,940円）
+  // 医療費を変えて計算する（直前の条件を引き継ぐ）→ 200 万円 → 102,940 円
   await p.getByRole("button", { name: "医療費を変えて計算する" }).click();
-  await expect(p.locator("[data-sim-progress]")).toContainText("5/5");
+  await p.locator("[data-sim-mode='amount']").click();
   await expect(p.locator("[data-sim-cost-input]")).toHaveValue("1,000,000");
-  await expect(p.locator("[data-sim-step='5']")).toContainText("保険診療の総医療費（10割）");
-  await expect(p.locator("[data-sim-step='5']")).toContainText("窓口で支払った額（3割）ではありません");
   await p.locator("[data-sim-cost-input]").fill("2000000");
-  await p.locator("[data-sim-calc]").click();
+  await p.locator("[data-sim-next]").click();
+  await p.locator("[data-sim-choice='many-unknown']").click();
   await expect(p.locator("[data-sim-amount]")).toHaveText("102,940円");
-  await expect(p.locator("[data-sim-key-conditions]")).toContainText("区分ウ");
-  await expect(p.locator("[data-sim-key-conditions]")).toContainText("2,000,000円");
-
-  // 多数回該当「わからない」→ 該当しない場合と該当する場合の両方を最初から表示（推測しない）
-  await p.getByRole("button", { name: "医療費を変えて計算する" }).click();
-  await p.getByRole("radio", { name: "わからない" }).click();
-  await p.locator("[data-sim-calc]").click();
-  await expect(p.locator("[data-sim-amount]")).toHaveText("102,940円");
-  await expect(p.locator("[data-sim-alt]")).toBeVisible();
-  await expect(p.locator("[data-sim-alt]")).toContainText("44,400円");
-  await expect(p.locator("[data-sim-key-conditions]")).toContainText("多数回該当は加入している健康保険に確認");
-
-  // 最初から: 手順どおりに選ぶ（2027年1月・70歳未満・国民健康保険・区分エ・30万円）→ 61,500円
-  await p.getByRole("button", { name: "最初から選び直す" }).click();
-  await p.locator("[data-sim-step='1']").getByRole("button", { name: "2027年1月" }).click();
-  await p.locator("[data-sim-choice='under70']").click();
-  await p.locator("[data-sim-choice='national']").click();
-  await expect(p.locator("[data-sim-step='4']")).toContainText("旧ただし書き所得"); // 国民健康保険の判定基準
-  await expect(p.locator("[data-sim-step='4']")).not.toContainText("標準報酬月額");
-  await p.locator("[data-sim-choice='bracket-d']").click();
-  await p.getByRole("button", { name: "30万円" }).click();
-  await p.locator("[data-sim-calc]").click();
-  await expect(p.locator("[data-sim-amount]")).toHaveText("61,500円");
+  await expect(p.locator("[data-sim-alt]")).toContainText("44,400円"); // 多数回該当する場合
   await expect(p.locator("[data-sim-demo-badge]")).toHaveCount(0); // 手入力の結果は架空例と表示しない
 
-  // 対象外の条件では金額を出さない
+  // 最初から: 国民健康保険・年収の目安で区分エ → 金額入力 → 61,500 円
   await p.getByRole("button", { name: "最初から選び直す" }).click();
-  await p.locator("[data-sim-step='1']").getByRole("button", { name: "2026年11月" }).click();
+  await p.locator("[data-sim-choice='under70']").click();
+  await p.locator("[data-sim-choice='national']").click();
+  await expect(p.locator("[data-sim-step='bracket']")).toContainText("旧ただし書き所得");
+  await p.locator("[data-sim-choice='bracket-d']").click();
+  await p.locator("[data-sim-mode='amount']").click();
+  await p.locator("[data-sim-cost-input]").fill("1000000");
+  await p.locator("[data-sim-next]").click();
+  await p.locator("[data-sim-choice='many-no']").click();
+  await expect(p.locator("[data-sim-amount]")).toHaveText("61,500円");
+
+  // 所得区分が「わからない」: 金額を出さずに止めず、区分ごとの幅と表を出す
+  await p.getByRole("button", { name: "最初から選び直す" }).click();
+  await p.locator("[data-sim-choice='under70']").click();
+  await p.locator("[data-sim-choice='insurance-unknown']").click();
+  await p.locator("[data-sim-choice='bracket-unknown']").click();
+  await p.locator("[data-sim-mode='amount']").click();
+  await p.locator("[data-sim-cost-input]").fill("1000000");
+  await p.locator("[data-sim-next]").click();
+  await p.locator("[data-sim-choice='many-no']").click();
+  await expect(p.locator("[data-sim-amount]")).toHaveText("36,900円〜271,290円");
+  await expect(p.locator("[data-sim-scenarios]")).toContainText("区分ウ");
+  await expect(p.locator("[data-sim-scenarios]")).toContainText("92,940円");
+
+  // 70 歳以上・2 割・一般・外来: 外来（個人ごと）の上限 22,000 円
+  await p.getByRole("button", { name: "最初から選び直す" }).click();
   await p.locator("[data-sim-choice='over70']").click();
-  await expect(p.locator("[data-sim-unsupported]")).toContainText("70歳以上");
-  await expect(p.locator("[data-sim-amount]")).toHaveCount(0);
-  await p.getByRole("button", { name: "条件を選び直す" }).click();
-  await p.locator("[data-sim-step='1']").getByRole("button", { name: "2026年7月以前" }).click();
-  await expect(p.locator("[data-sim-unsupported]")).toContainText("見直し前の制度");
-  await p.getByRole("button", { name: "条件を選び直す" }).click();
-  await p.locator("[data-sim-step='1']").getByRole("button", { name: "2026年11月" }).click();
+  await p.locator("[data-sim-choice='rate-2']").click();
+  await p.locator("[data-sim-choice='senior-general']").click();
+  await p.locator("[data-sim-mode='amount']").click();
+  await p.locator("[data-sim-cost-input]").fill("300000");
+  await p.locator("[data-sim-next]").click();
+  await p.locator("[data-sim-choice='many-no']").click();
+  await expect(p.locator("[data-sim-amount]")).toHaveText("22,000円");
+  await expect(p.locator("[data-sim-key-conditions]")).toContainText("外来（個人の上限）");
+
+  // 治療内容から: EC療法（3週ごと）を選ぶ → 総医療費の幅と自己負担の目安の幅
+  await p.getByRole("button", { name: "最初から選び直す" }).click();
   await p.locator("[data-sim-choice='under70']").click();
   await p.locator("[data-sim-choice='employee']").click();
-  await p.locator("[data-sim-choice='bracket-unknown']").click();
-  await expect(p.locator("[data-sim-unsupported]")).toContainText("所得区分は加入している健康保険が判定します");
-  await expect(p.locator("[data-sim-amount]")).toHaveCount(0);
-  await expect(p.locator("[data-sim-unsupported]").getByText("加入している健康保険（保険者）")).toBeVisible(); // 確認・相談先
+  await p.locator("[data-sim-choice='bracket-c']").click();
+  await p.locator("[data-sim-mode='treatment']").click();
+  await p.locator("[data-sim-treatment='ec']").click();
+  await expect(p.locator("[data-sim-treatment-sum]")).toContainText("約5万〜16万円");
+  await p.locator("[data-sim-next]").click();
+  await p.locator("[data-sim-choice='many-no']").click();
+  await expect(p.locator("[data-sim-range]")).toContainText("総医療費 約5万〜16万円");
+  await expect(p.locator("[data-sim-range]")).toContainText("15,000円〜48,000円");
+  await expect(result.locator("[data-sim-detail='treatments']")).toContainText("選んだ治療と費用の目安");
 
   await ctx.close();
 });

@@ -22,7 +22,11 @@ export const THUMBNAILS: Record<string, Thumbnail> = {
   "乳がんの診断と病期の考え方": { file: "thumb_diagnosis_staging.webp", alt: "開いたノートとペンの線画", band: true },
   "サブタイプと治療方針のつながり": { file: "thumb_subtypes_treatment.webp", alt: "書類と虫めがねの線画", band: true },
   "こころのケアと相談先": { file: "thumb_emotional_support.webp", alt: "向かい合う 2 つの椅子の線画", band: true },
-  // 社会制度の 4 教材の画像は受け取り済み（docs/design/final_assets/pending_social/）。教材の承認・登録と同時にここへ追加する
+  // 社会制度の 4 教材（2026-11 登録。Codex 制作の線画・透過 WebP）
+  "治療と仕事を両立するために": { file: "thumb_work_treatment.webp", alt: "机と書類と医療者の線画" },
+  "傷病手当金を知る": { file: "thumb_sickness_allowance.webp", alt: "カレンダーと封筒の線画" },
+  "高額療養費制度を知る": { file: "thumb_high_cost_medical.webp", alt: "領収書と上限の線画" },
+  "困ったときの相談先": { file: "thumb_support_contacts.webp", alt: "相談窓口の線画" },
 };
 
 export function thumbnailFor(title: string): { src: string; alt: string; band?: true } | null {

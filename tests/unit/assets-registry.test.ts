@@ -26,11 +26,9 @@ describe("画像の登録", () => {
       expect(THUMBNAILS[key], key).toBeTruthy();
     }
   });
-  it("社会制度の 4 教材の画像は、教材の承認・登録まで登録しない", () => {
-    for (const t of MONEY_TITLES) expect(thumbnailFor(t), t).toBeNull();
-    for (const f of ["thumb_work_treatment", "thumb_sickness_allowance", "thumb_high_cost_medical", "thumb_support_contacts"]) {
-      expect(existsSync(`public/thumbnails/${f}.webp`), f).toBe(false);
-      expect(existsSync(`docs/design/final_assets/pending_social/${f}.webp`), f).toBe(true);
-    }
+  it("社会制度の 4 教材の画像は、教材の登録（2026-11）と同時に登録されている", () => {
+    for (const t of MONEY_TITLES) expect(thumbnailFor(t), t).not.toBeNull();
+    for (const f of ["thumb_work_treatment", "thumb_sickness_allowance", "thumb_high_cost_medical", "thumb_support_contacts"])
+      expect(existsSync(`public/thumbnails/${f}.webp`), f).toBe(true);
   });
 });

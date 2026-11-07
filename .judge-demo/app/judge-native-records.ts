@@ -5,7 +5,7 @@ import fixture from "./fixtures/consultation.json";
 import { ApiError } from "./judge-errors";
 import { nativePatientMaterial, patientAnsweredQuestion, patientLearningChanges } from "./judge-patient-api";
 
-type Note = { id: string; body: string; source: "free" | "quiz"; materialId: string | null; materialTitle: string | null; primaryDomain: string | null; createdAt: string; updatedAt: string };
+type Note = { id: string; body: string; source: "free" | "quiz"; materialId: string | null; materialTitle: string | null; primaryDomain: string | null; resolvedAt?: string | null; createdAt: string; updatedAt: string };
 type Settings = { active: string[]; hidden: string[]; customNames: Record<string,string> };
 type Records = { records: ApiRecord[]; notes: Note[]; settings: Settings; visit: {date:string; updatedAt:string}|null; changed: boolean };
 const key = "shiori:judge:patient-records:v1";
@@ -38,15 +38,15 @@ const wall=(v:string)=>new Date(Date.parse(v)+9*3600000).toISOString().slice(0,-
 const deviceToCase=(d:Date)=>new Date(d.getTime()-d.getTimezoneOffset()*60000-9*3600000).toISOString();
 const now=()=>deviceToCase(new Date());
 function patientRecord(r:ApiRecord) {return {...r,measuredAt:wall(r.measuredAt),createdAt:wall(r.createdAt),updatedAt:wall(r.updatedAt)};}
-function patientNote(n:Note) {return {...n,createdAt:wall(n.createdAt),updatedAt:wall(n.updatedAt)};}
-const limits={temperature:[30,45],systolic:[50,260],diastolic:[30,160],pulse:[20,250],spo2:[50,100]} as const;
+function patientNote(n:Note) {return {...n,createdAt:wall(n.createdAt),updatedAt:wall(n.updatedAt),resolvedAt:n.resolvedAt?wall(n.resolvedAt):null};}
+const limits={temperature:[30,45],systolic:[50,260],diastolic:[30,160],pulse:[20,250],spo2:[50,100],oxygenFlow:[0,15]} as const;
 const isKnown=(key:string)=>symptomLibrary.some(s=>s.id===key);
 const isCustom=(key:string)=>/^custom-[a-z0-9-]{4,60}$/i.test(key);
 function cleanVitals(input:HealthInput["vitals"]):ApiRecord["vitals"] {
   const values={} as ApiRecord["vitals"];
   for(const k of Object.keys(limits) as (keyof typeof limits)[]) {
     const value=input?.[k]??null;
-    if(value!==null && (!Number.isFinite(value)||value<limits[k][0]||value>limits[k][1]||(k!=="temperature"&&!Number.isInteger(value)))) throw invalid("INVALID_VITAL","測定値の範囲を確認してください");
+    if(value!==null && (!Number.isFinite(value)||value<limits[k][0]||value>limits[k][1]||(k!=="temperature"&&k!=="oxygenFlow"&&!Number.isInteger(value)))) throw invalid("INVALID_VITAL","測定値の範囲を確認してください");
     values[k]=value;
   }
   return values;
@@ -130,7 +130,12 @@ export function nativeRecordApi(url:URL,method:string,input?:any):{handled:boole
     const i=state.notes.findIndex(n=>n.id===id);
     if(i<0) throw missing("NOTE_NOT_FOUND");
     if(method==="DELETE"){state.notes.splice(i,1);save();return ok({deleted:true});}
-    if(method==="PATCH"){const note={...state.notes[i],body:bodyOf(input?.body),updatedAt:now()};state.notes[i]=note;save();return ok({note:patientNote(note)});}
+    if(method==="PATCH"){
+      const note={...state.notes[i]};
+      if(input?.body!==undefined){note.body=bodyOf(input.body);note.updatedAt=now();}
+      if(typeof input?.resolved==="boolean")note.resolvedAt=input.resolved?now():null;
+      state.notes[i]=note;save();return ok({note:patientNote(note)});
+    }
   }
   return {handled:false};
 }

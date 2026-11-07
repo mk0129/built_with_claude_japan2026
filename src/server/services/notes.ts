@@ -21,6 +21,8 @@ export type VisitNoteView = {
   materialId: string | null;
   materialTitle: string | null;
   primaryDomain: string | null;
+  /** 患者が「聞けた・解決した」と印を付けた日時。null は未解決（ストック型: 質問は消さず残す） */
+  resolvedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -41,6 +43,7 @@ export async function listVisitNotes(patientId: string, db: Db = getDb()): Promi
       materialId: visitNotes.materialId,
       materialTitle: materials.title,
       primaryDomain: materials.primaryDomain,
+      resolvedAt: visitNotes.resolvedAt,
       createdAt: visitNotes.createdAt,
       updatedAt: visitNotes.updatedAt,
     })
@@ -85,10 +88,18 @@ export async function createVisitNote(
   return (await listVisitNotes(patientId, db)).find((n) => n.id === row.id)!;
 }
 
-export async function updateVisitNote(patientId: string, noteId: string, body: string, db: Db = getDb()) {
+export async function updateVisitNote(patientId: string, noteId: string, patch: { body?: string; resolved?: boolean }, db: Db = getDb()) {
+  const set: Partial<typeof visitNotes.$inferInsert> = {};
+  if (patch.body !== undefined) {
+    set.body = cleanBody(patch.body);
+    set.updatedAt = new Date();
+  }
+  // 「聞けた・解決した」の印（本文の更新日時は変えない。原文はそのまま）
+  if (patch.resolved !== undefined) set.resolvedAt = patch.resolved ? new Date() : null;
+  if (Object.keys(set).length === 0) throw badRequest("EMPTY_PATCH");
   const updated = await db
     .update(visitNotes)
-    .set({ body: cleanBody(body), updatedAt: new Date() })
+    .set(set)
     .where(and(eq(visitNotes.id, noteId), eq(visitNotes.patientId, patientId)))
     .returning({ id: visitNotes.id });
   if (updated.length !== 1) throw notFound("NOTE_NOT_FOUND");

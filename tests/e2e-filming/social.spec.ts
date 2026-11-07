@@ -2,13 +2,14 @@ import { expect, test } from "@playwright/test";
 import { demoLogin, newPage, shareByPatientCode } from "../e2e/helpers";
 
 /**
- * 「仕事とお金のこと」の撮影条件（基準日 2026-11-04・Claude を呼ばない）。社会制度の 4 教材は医療者（プロジェクトオーナー）の承認まで登録しない。
+ * 「仕事とお金のこと」の撮影条件（基準日 2026-11-04・Claude を呼ばない）。社会制度の 4 教材は 2026-11 にシードへ登録した（SOCIAL_SUPPORT_SEEDED=0 で登録前の確認）。
  * - 承認前（既定）: 教材は「準備中」。公開済みのように見せない（教材のカード・リンク・医療者の教材ライブラリ・テンプレートに出ない）。シミュレーターはテーマの画面から開ける
  * - 承認後（SOCIAL_SUPPORT_SEEDED=1 のときだけ実行）: 4 教材と「仕事とお金のこと」セットが登録され、教材「高額療養費制度を知る」からシミュレーターへ進める
  * 伊藤 涼子で確認する（佐藤 花子の記録は変えない）。
  */
 const MONEY_TITLES = ["治療と仕事を両立するために", "傷病手当金を知る", "高額療養費制度を知る", "困ったときの相談先"];
-const seeded = process.env.SOCIAL_SUPPORT_SEEDED === "1";
+// 2026-11: 社会制度の 4 教材はシードに登録済み（医療者の承認は架空の承認者。本番の制度的監修ではない）。承認前のテストは登録前の環境でだけ実行する
+const seeded = process.env.SOCIAL_SUPPORT_SEEDED !== "0";
 
 test("仕事とお金のこと（教材の承認前）: 教材は準備中・公開済みに見せない・シミュレーターはテーマから開ける", async ({ browser }) => {
   test.skip(seeded, "教材を登録した撮影環境では、承認後のテストで確認する");
@@ -76,6 +77,7 @@ test("仕事とお金のこと（教材の承認後）: 4 教材・セット・�
   await pg.locator("[data-open-simulator]").click();
   await pg.locator("[data-sim-demo]").click();
   await expect(pg.locator("[data-sim-amount]")).toHaveText("92,940円");
+  await expect(pg.locator("[data-sim-amount]")).toBeInViewport();
   await pg.locator(".d-sim").getByRole("button").first().click(); // 結果 → 入力
   await pg.locator(".d-sim").getByRole("button").first().click(); // 入力 → 教材の詳細
   await expect(pg.locator(".d-detail > h1")).toHaveText("高額療養費制度を知る");

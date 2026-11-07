@@ -83,6 +83,9 @@ export type LiveLesson = {
   selfLearning: boolean
   /** 登録済みの完成サムネイル（なければ Figma の「画像準備中」） */
   thumbnail: { src: string; alt: string; band?: true } | null
+  /** 最新の挑戦の誤答・「わからない」の数（復習の案内に使う） */
+  nWrong: number
+  nUnknown: number
 };
 
 export function toLesson(i: LibraryApiItem): LiveLesson {
@@ -109,6 +112,8 @@ export function toLesson(i: LibraryApiItem): LiveLesson {
     previouslyPrescribed: !!i.prescribed && !i.prescribed.latest,
     selfLearning: i.selfLearning,
     thumbnail: thumbnailFor(i.title),
+    nWrong: i.nWrong,
+    nUnknown: i.nUnknown,
   };
 }
 

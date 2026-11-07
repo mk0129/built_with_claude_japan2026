@@ -1,0 +1,448 @@
+/*
+ * 2026-11 の UI/UX 見直し（審査フィードバック対応）。患者画面（.d-*）と医療者画面（.cd-*）の追加・上書きスタイル。
+ * 配色・角丸・余白は figma.css のトークンに合わせる。高齢の患者にも読めるよう、最小の文字サイズを 11px 以上にそろえる。
+ */
+
+/* ---------- 患者ホーム: 4 つのブロック ---------- */
+.d-home-v2 .d-welcome { margin-bottom: 10px; }
+.d-home-v2 .d-welcome h1 { font-size: 22px; }
+.d-home-block { margin-top: 18px; }
+.d-block-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.d-block-no {
+  width: 24px; height: 24px; flex: 0 0 24px; display: grid; place-items: center;
+  border-radius: 50%; background: var(--blue-dark); color: #fff; font-size: 12px; font-weight: 700;
+}
+.d-main .d-block-head h2 { font-size: 17px; line-height: 1.4; }
+.d-block-meta { margin-left: auto; color: var(--muted); font-size: 12px; white-space: nowrap; }
+.d-home-health-card {
+  width: 100%; min-height: 72px; display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: 16px; background: #fff; color: var(--ink); text-align: left;
+}
+.d-home-health-card > span:nth-child(2) { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.d-home-health-card b { font-size: 15px; line-height: 1.4; }
+.d-home-health-card small { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.d-home-health-card .stat-icon { width: 44px; height: 44px; border-radius: 12px; }
+.d-home-more { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 18px; }
+.d-device.viewport-tablet .d-home-more { grid-template-columns: 1fr 1fr; }
+.d-more-card {
+  min-height: 60px; display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 14px; background: #fafcfc; color: var(--ink); text-align: left;
+}
+.d-more-card > span:nth-child(2) { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.d-more-card b { font-size: 13px; line-height: 1.4; }
+.d-more-card small { color: var(--muted); font-size: 11px; }
+.d-more-icon { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border-radius: 10px; background: var(--d-tone, var(--blue-pale)); color: var(--blue-dark); }
+.d-home-v2 .d-home-empty p { font-size: 13px; }
+.d-home-v2 .d-home-footnote { margin-top: 14px; }
+
+/* 次の診察（目立たせる） */
+.d-visit-card.d-visit-hero {
+  min-height: 78px; margin-bottom: 10px; padding: 12px 14px;
+  border: 0; border-radius: 18px; background: linear-gradient(135deg, #e3f0f1, #f3f8f6); box-shadow: 0 8px 22px rgba(49, 94, 104, .08);
+}
+.d-visit-hero .d-visit-icon { width: 44px; height: 44px; border-radius: 13px; background: #fff; }
+.d-visit-hero .d-visit-text > small { font-size: 12px; color: #4c6467; }
+.d-visit-hero .d-visit-days { font-size: 14px; }
+.d-visit-hero .d-visit-days b { font-size: 28px; }
+.d-visit-hero.today { background: linear-gradient(135deg, #e9f3ea, #f4f9f3); }
+.d-visit-hero.today .d-visit-days b { font-size: 20px; color: #3f6f4d; }
+.d-visit-hero.past { background: #fbf4ec; }
+.d-visit-hero.empty .d-visit-text > b { font-size: 15px; }
+.d-visit-hero .d-visit-register { font-size: 12px; background: var(--blue-dark); color: #fff; border-color: var(--blue-dark); }
+.d-visit-hero .d-visit-change { font-size: 13px; }
+
+/* リマインド（任意・閉じられる） */
+.d-reminder {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 8px 10px;
+  border-radius: 12px; background: #fbf6ea; border: 1px solid #ecdcb9; color: #6b5a3a;
+}
+.d-reminder p { flex: 1; margin: 0; font-size: 12.5px; line-height: 1.5; }
+.d-reminder-icon { width: 30px; height: 30px; flex: 0 0 30px; display: grid; place-items: center; border-radius: 9px; background: #fff; color: #8a672f; }
+.d-reminder-go { min-height: 36px; padding: 0 10px; border: 0; border-radius: 9px; background: #8a672f; color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.d-reminder-close { width: 32px; height: 32px; display: grid; place-items: center; border: 0; background: none; color: #8a672f; }
+
+/* 聞きたいこと（ホーム） */
+.d-home-v2 .d-home-ask { margin-top: 18px; }
+.d-home-ask-list li { display: flex; align-items: center; gap: 8px; }
+.d-home-ask-list li > span { flex: 1; min-width: 0; font-size: 14px; }
+.d-ask-done {
+  flex: 0 0 auto; min-height: 34px; display: inline-flex; align-items: center; gap: 4px; padding: 0 10px;
+  border: 1px solid #bcd3c3; border-radius: 9px; background: #fff; color: #3f6f4d; font-size: 12px; font-weight: 700;
+}
+.d-home-ask-empty { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.6; }
+
+/* ---------- 聞きたいこと（一覧） ---------- */
+.d-note-row { display: grid; grid-template-columns: 28px 1fr; gap: 8px; padding: 13px; border: 1px solid var(--line); border-radius: 12px; }
+.d-note-row > div { grid-column: 2; display: flex; flex-wrap: wrap; gap: 7px; }
+.d-note-row.resolved { background: #f6f9f6; border-color: #dbe8de; }
+.d-note-row.resolved > p { color: #5e7366; }
+.d-note-row.resolved .d-note-number { background: #e3f0e6; color: #3f6f4d; }
+.d-saved-notes button.d-note-resolve { border-color: #9dbdad; background: #edf6ef; color: #3f6f4d; font-weight: 700; }
+.d-saved-notes button { font-size: 12px; min-height: 40px; }
+.d-saved-notes p { font-size: 15px; line-height: 1.7; }
+.d-note-meta { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+.d-notes-return { margin-bottom: 16px; background: var(--blue-pale); border-color: transparent; }
+.d-notes-return > .icon:first-child { transform: rotate(180deg); }
+.d-notes-hint { display: flex; align-items: flex-start; gap: 6px; margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.d-notes-empty { margin: 4px 0 8px; padding: 12px; border-radius: 10px; background: #f4f7f7; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.d-notes-resolved { margin-top: 22px; }
+.d-notes-resolved-toggle {
+  width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); font-size: 14px; font-weight: 700;
+}
+.d-notes-resolved-toggle > span:first-child { display: inline-flex; align-items: center; gap: 6px; color: #3f6f4d; }
+.d-notes-resolved-toggle > span:last-child { color: var(--blue-dark); font-size: 12px; }
+.d-notes .d-not-emergency { margin-top: 22px; }
+.d-notes .d-visit-date small { font-size: 11px; }
+
+/* ---------- 学習画面 ---------- */
+.d-learning-plain { display: flex; flex-direction: column; gap: 10px; margin: 2px 0 6px; }
+.d-slide-art {
+  display: grid; place-items: center; width: 100%; height: 132px; border-radius: 16px;
+  background: var(--d-tone, #e7eff0); color: var(--blue-dark); overflow: hidden; position: relative;
+}
+.d-slide-art::after { content: ""; position: absolute; width: 46%; aspect-ratio: 1; right: -10%; bottom: -24%; border: 1px solid rgba(49, 94, 104, .14); border-radius: 50%; }
+.d-slide-art svg { width: 84px; height: 84px; position: relative; z-index: 1; }
+.d-slide-art.compact { height: 92px; }
+.d-slide-art.compact svg { width: 60px; height: 60px; }
+.d-audio-notice { margin: -8px 0 12px; padding: 8px 10px; border-radius: 9px; background: #fbf6ea; color: #6b5a3a; font-size: 12px; line-height: 1.6; }
+.d-learning .d-disclosure b { font-size: 14px; }
+.d-learning .d-detail-copy { font-size: 14px; white-space: pre-line; }
+/* 画像が入った枠には配置ガイドの点線を出さない */
+.d-image-placeholder:has(> img) { border: 0; background: #fff; padding: 0; }
+.d-image-slot > p:empty { display: none; }
+
+/* 理解確認の正誤 */
+.d-answer-result.wrong { background: #f9ebe8; }
+.d-answer-result.wrong > span { color: #a15349; }
+.d-verdict-badge {
+  display: inline-block; margin: 2px 0 6px; padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: .04em;
+}
+.d-verdict-badge.correct { background: #4f785b; color: #fff; }
+.d-verdict-badge.wrong { background: #a15349; color: #fff; }
+.d-verdict-badge.unsure { background: #8a672f; color: #fff; }
+.d-answer-result h1 { font-size: 19px; }
+
+/* ---------- 体調記録 ---------- */
+.d-health-section-head p { font-size: 11px; }
+.d-health-section-head > button { font-size: 11px; padding: 0 10px; }
+.d-badge-like { font-size: 10px; }
+.d-vital-card > label { font-size: 12px; }
+.d-vital-card > div > span { font-size: 11px; }
+.d-vital-card > p { font-size: 10px; }
+.d-value-policy { font-size: 10.5px; }
+.d-oxygen-toggle { margin: 6px auto 0; font-size: 12px; min-height: 36px; }
+.d-symptom-setup-hint { margin: -4px 0 12px; padding: 10px 12px; border-radius: 10px; background: var(--blue-pale); color: #4c6467; font-size: 12.5px; line-height: 1.6; }
+.d-symptom-title { flex-wrap: wrap; }
+.d-symptom-title > div { flex: 1 1 100%; }
+.d-symptom-title b { font-size: 15px; }
+.d-symptom-title small { font-size: 10.5px; }
+.d-symptom-title > button { min-height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff; font-size: 11px; }
+.d-symptom-title > button[aria-expanded="true"] { background: var(--blue-pale); border-color: transparent; }
+.d-severity-scale button { font-size: 9px; min-height: 58px; }
+.d-severity-scale button > span { font-size: 11px; width: 22px; height: 22px; }
+.d-anchor-line { margin: 7px 0 0; padding: 7px 10px; border-radius: 8px; background: #f4f7f7; color: #4c6467; font-size: 12px; line-height: 1.6; }
+.d-anchor-line b { color: var(--blue-dark); }
+.d-anchor-list { margin: 8px 0 0; padding: 10px 12px; list-style: none; display: grid; gap: 6px; border-radius: 10px; background: #f4f7f7; }
+.d-anchor-list li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: start; font-size: 12.5px; line-height: 1.6; color: #3f5457; }
+.d-anchor-list li b { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; background: #fff; color: var(--blue-dark); font-size: 11px; }
+.d-anchor-list li.active { font-weight: 700; color: var(--ink); }
+.d-anchor-list li.active b { background: var(--blue-dark); color: #fff; }
+.d-anchor-list .d-anchor-note { grid-template-columns: 1fr; color: var(--muted); font-size: 11px; }
+.d-missing-label { font-size: 10.5px; }
+.d-symptom-detail label { font-size: 11px; }
+.d-symptom-detail input { font-size: 13px; height: 42px; }
+.d-symptom-comment { grid-column: 1 / -1; }
+.d-symptom-comment textarea {
+  min-height: 84px; padding: 10px; border: 1px solid #c9d8d8; border-radius: 9px; background: #fff; color: var(--ink); font-size: 14px; line-height: 1.6; resize: vertical;
+}
+.d-quiet-toggle {
+  width: 100%; min-height: 42px; display: flex; align-items: center; gap: 6px; margin-top: 8px; padding: 8px 10px;
+  border: 1px dashed #bcd3c3; border-radius: 10px; background: #f6faf7; color: #3f6f4d; font-size: 12px; text-align: left;
+}
+.d-scale-note p, .d-monitoring-note p, .d-share-health { font-size: 11px; }
+.d-terminology-note { font-size: 11px; margin: 14px 0 0; }
+.d-active-symptoms b { font-size: 13px; }
+.d-active-symptoms button { font-size: 11px; padding: 0 8px; }
+.d-category-chips button { font-size: 11px; }
+.d-symptom-library b { font-size: 13px; }
+.d-symptom-library small { font-size: 10.5px; }
+.d-symptom-library button { font-size: 11px; padding: 0 10px; }
+.d-custom-symptom h3 { font-size: 13px; }
+.d-custom-symptom input, .d-custom-symptom button { font-size: 13px; }
+
+/* 治療から症状を選ぶ */
+.d-treatment-setup { margin: 0 0 22px; }
+.d-treatment-toggle {
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid #c9dcdc; border-radius: 14px; background: var(--blue-pale); color: var(--ink); text-align: left;
+}
+.d-treatment-toggle > span:nth-child(2) { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.d-treatment-toggle b { font-size: 14px; line-height: 1.4; }
+.d-treatment-toggle small { color: #4c6467; font-size: 11.5px; line-height: 1.5; }
+.d-treatment-icon { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border-radius: 10px; background: #fff; color: var(--blue-dark); }
+.d-treatment-arrow { color: var(--blue-dark); font-size: 20px; }
+.d-treatment-body { padding: 12px 4px 0; display: grid; gap: 12px; }
+.d-treatment-group > small { display: block; margin-bottom: 6px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.d-treatment-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.d-treatment-chips button {
+  min-height: 38px; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px; border: 1px solid var(--line); border-radius: 19px; background: #fff; color: var(--ink); font-size: 12.5px;
+}
+.d-treatment-chips button.active { border-color: var(--blue-dark); background: var(--blue-dark); color: #fff; font-weight: 700; }
+.d-treatment-preview { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: #f4f7f7; }
+.d-treatment-preview p { margin: 0; font-size: 12.5px; line-height: 1.8; }
+.d-treatment-preview p span { display: inline-block; margin: 2px 4px 2px 0; padding: 1px 8px; border-radius: 999px; background: #fff; border: 1px solid var(--line); font-size: 12px; }
+.d-treatment-preview p span.have { color: var(--muted); border-style: dashed; }
+.d-treatment-preview small { color: var(--muted); font-size: 11px; line-height: 1.6; }
+.d-treatment-preview .primary-button { min-height: 46px; }
+
+/* 履歴・グラフ */
+.d-health-history .d-chart-period { margin: 0 0 12px; }
+.d-health-chart svg line.d-chart-line { stroke: var(--blue); stroke-width: 2.5; stroke-linecap: round; }
+.d-health-chart svg line.d-chart-gap { stroke: var(--blue); stroke-width: 2; stroke-dasharray: 4 4; stroke-linecap: round; opacity: .7; }
+.d-health-chart svg circle.s3, .d-health-chart svg circle.s4 { fill: var(--coral); stroke: var(--coral); }
+.d-health-chart svg circle.s2 { fill: var(--amber); stroke: var(--amber); }
+.d-health-chart svg text { font-size: 9px; }
+.d-health-chart select { font-size: 12px; max-width: 140px; height: 38px; }
+.d-chart-legend .gap::before { width: 12px; height: 0; border: 0; border-top: 2px dashed var(--blue); border-radius: 0; }
+.d-chart-empty { margin: 4px 0; padding: 14px; border-radius: 10px; background: #f4f7f7; color: var(--muted); font-size: 12.5px; text-align: center; }
+.d-record-picker { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--blue-dark); font-size: 12px; font-weight: 700; }
+.d-record-picker input { flex: 1; min-width: 0; height: 36px; border: 0; color: var(--ink); font-size: 13px; }
+.d-record-picker .d-text-action { margin: 0; min-height: 36px; }
+.d-record-week { margin-bottom: 8px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.d-record-week-toggle { width: 100%; min-height: 46px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 0; background: #f4f7f7; color: var(--ink); text-align: left; }
+.d-record-week-toggle b { font-size: 13px; }
+.d-record-week-toggle small { color: var(--muted); font-size: 11px; }
+.d-record-week-toggle > span { margin-left: auto; color: var(--blue-dark); font-size: 12px; font-weight: 700; }
+.d-record-week details { padding: 0 12px; }
+.d-health-list summary b { font-size: 13px; }
+.d-health-list summary small { font-size: 10.5px; }
+.d-health-list summary > span:nth-child(2) { font-size: 11px; }
+.d-health-list details > div p { font-size: 11px; }
+.d-health-list details > div > span { font-size: 12px; align-items: center; gap: 6px; }
+.d-health-list details > div > span > b { margin-left: auto; }
+.d-record-memo { color: var(--muted); font-size: 11px; }
+.d-health-list details > div > span.s3 b, .d-health-list details > div > span.s4 b { color: #a15349; }
+
+/* ---------- 教材を探す・学習記録 ---------- */
+.d-filter-help { margin: -4px 0 10px; color: var(--muted); font-size: 11.5px; line-height: 1.6; }
+.d-area-1 .d-category-icon { background: #e3eef0; color: #2f6672; }
+.d-area-2 .d-category-icon { background: #f8ece5; color: #a4583f; }
+.d-area-3 .d-category-icon { background: #ece8f3; color: #6c5a86; }
+.d-area-4 .d-category-icon { background: #fbf1dc; color: #9a6a1e; }
+.d-area-5 .d-category-icon { background: #e6f1e7; color: #3f7250; }
+.d-area-6 .d-category-icon { background: #e9eff6; color: #3f5f86; }
+.d-category-cards > button.d-area-1 { border-left: 4px solid #2f6672; }
+.d-category-cards > button.d-area-2 { border-left: 4px solid #c27a5d; }
+.d-category-cards > button.d-area-3 { border-left: 4px solid #8a76a6; }
+.d-category-cards > button.d-area-4 { border-left: 4px solid #d0a04c; }
+.d-category-cards > button.d-area-5 { border-left: 4px solid #5f9a70; }
+.d-category-cards > button.d-area-6 { border-left: 4px solid #5f7fa8; }
+.d-category-cards b { font-size: 14px; }
+.d-category-cards small { font-size: 11px; }
+.d-review-section { margin-bottom: 24px; padding: 14px; border-radius: 14px; background: #fbf6ea; }
+.d-main .d-review-section h2 { font-size: 16px; }
+.d-review-section .d-support-copy { margin: -4px 0 10px; font-size: 12px; }
+.d-review-list { display: grid; gap: 8px; }
+.d-review-item {
+  width: 100%; display: grid; grid-template-columns: 1fr 18px; gap: 2px 8px; padding: 10px 12px; border: 1px solid #ecdcb9; border-radius: 12px; background: #fff; color: var(--ink); text-align: left;
+}
+.d-review-item .d-review-badge { grid-column: 1; color: #8a672f; font-size: 11px; font-weight: 700; }
+.d-review-item b { grid-column: 1; font-size: 14px; line-height: 1.45; }
+.d-review-item small { grid-column: 1; color: var(--muted); font-size: 11px; }
+.d-review-item .icon { grid-column: 2; grid-row: 1 / span 3; align-self: center; color: var(--muted); }
+
+/* ---------- 仕事とお金のこと（文字を大きく） ---------- */
+.d-money .d-set-hero-count { font-size: 14px; line-height: 1.7; }
+.d-money .d-set-note { font-size: 13.5px; line-height: 1.75; padding: 12px 14px; }
+.d-money .d-set-lesson-meta { font-size: 12px; }
+.d-money-sim-card b { font-size: 17px; }
+.d-money-sim-card small { font-size: 13px; }
+.d-money-pending { font-size: 14px; }
+.d-money .d-set-lesson b { font-size: 15px; }
+
+/* ---------- 医療費シミュレーター（2026-11: 1 問ずつ・治療内容から概算） ---------- */
+.d-sim-v2 .d-sim-step h2 { font-size: 20px; }
+.d-sim-v2 .d-sim-choice b { font-size: 16px; }
+.d-sim-v2 .d-sim-choice small { font-size: 12.5px; }
+.d-sim-v2 .d-sim-help { font-size: 13px; }
+.d-sim-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 12px 0; padding: 4px; border-radius: 12px; background: #edf2f2; }
+.d-sim-mode button { min-height: 44px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font-size: 12.5px; font-weight: 600; line-height: 1.3; }
+.d-sim-mode button.active { background: #fff; color: var(--blue-dark); font-weight: 700; box-shadow: 0 2px 7px rgba(40,60,65,.08); }
+.d-sim-treatment-group { margin-bottom: 12px; }
+.d-sim-treatment-group > small { display: block; margin: 0 0 6px; color: var(--blue-dark); font-size: 12px; font-weight: 700; }
+.d-sim-treatment {
+  width: 100%; display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 10px; margin-bottom: 6px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); text-align: left;
+}
+.d-sim-treatment.selected { border-color: var(--blue-dark); background: #f3f8f8; box-shadow: inset 0 0 0 1px var(--blue-dark); }
+.d-sim-treatment > span:nth-child(2) { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.d-sim-treatment b { font-size: 13.5px; line-height: 1.45; }
+.d-sim-treatment small { color: var(--muted); font-size: 11px; line-height: 1.5; }
+.d-sim-treatment em { font-style: normal; font-size: 12.5px; font-weight: 700; color: var(--blue-dark); white-space: nowrap; }
+.d-sim-check { width: 24px; height: 24px; display: grid; place-items: center; border: 1.5px solid var(--line); border-radius: 7px; background: #fff; color: #fff; font-size: 14px; font-weight: 700; }
+.d-sim-treatment.selected .d-sim-check { background: var(--blue-dark); border-color: var(--blue-dark); }
+.d-sim-treatment-sum { display: grid; gap: 4px; margin-top: 8px; padding: 12px 14px; border-radius: 12px; background: var(--blue-pale); }
+.d-sim-treatment-sum span { color: #4c6467; font-size: 12px; }
+.d-sim-treatment-sum b { font-size: 20px; color: var(--blue-dark); }
+.d-sim-treatment-sum small { color: var(--muted); font-size: 11px; }
+.d-sim-month-change { margin-left: auto; padding: 2px 8px; border: 1px solid rgba(255,255,255,.6); border-radius: 999px; background: transparent; color: #fff; font-size: 11px; }
+.d-sim-months-inline { margin: 6px 0 4px; }
+.d-sim-months-inline button { min-height: 36px; font-size: 12px; }
+.d-sim-range { margin: 4px 0 0; font-size: 12.5px; line-height: 1.7; opacity: .95; }
+.d-sim-range b { font-size: 16px; }
+.d-sim-notes { margin: 12px 0 0; padding: 10px 14px 10px 30px; border-radius: 12px; background: var(--cream); color: #6b5a3a; font-size: 12.5px; line-height: 1.7; display: grid; gap: 4px; }
+.d-sim-scenarios { margin-top: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.d-sim-scenarios h3 { margin: 0 0 8px; font-size: 14px; }
+.d-sim-scenarios table { width: 100%; border-collapse: collapse; }
+.d-sim-scenarios th { padding: 6px 4px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 11px; font-weight: 700; text-align: left; }
+.d-sim-scenarios td { padding: 8px 4px; border-bottom: 1px solid #edf1f1; vertical-align: top; }
+.d-sim-scenarios td b { display: block; font-size: 14px; }
+.d-sim-scenarios td small { display: block; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.d-sim-scenarios td:last-child { text-align: right; white-space: nowrap; }
+.d-sim-scenarios td:last-child b { font-variant-numeric: tabular-nums; }
+.d-sim-scenarios > p { margin: 10px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.d-sim-treatment-list, .d-sim-treatment-notes { margin: 0 0 8px; padding-left: 18px; display: grid; gap: 4px; font-size: 12.5px; line-height: 1.7; }
+.d-sim-treatment-notes { color: #6b5a3a; }
+.d-sim-source-line { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+
+/* ---------- 医療者: 診察サマリー（2026-11: S・O → 質問・確認 → 理解度・リコメンド） ---------- */
+.cd-summary-v2 .cd-title-row .cd-period-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 6px 0 0; font-size: 11px; }
+.cd-summary-v2 .cd-period-line b { color: var(--blue-dark); font-size: 11px; }
+.cd-summary-v2 .cd-period-line small { color: var(--muted); font-size: 10px; }
+.cd-summary-v2 .cd-period-line .cd-text-back { min-height: 0; padding: 0; font-size: 10.5px; }
+.cd-so { border-top: 3px solid var(--blue); margin-bottom: 13px; }
+.cd-so-course { min-height: 32px; display: inline-flex; align-items: center; gap: 4px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--blue-dark); font-size: 11px; font-weight: 700; }
+.cd-so-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 14px; }
+.cd-device.cd-820 .cd-so-grid { grid-template-columns: 1fr; }
+.cd-so-col h3 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; color: var(--blue-dark); font-size: 12px; }
+.cd-so-col h3 small { color: var(--muted); font-size: 9.5px; font-weight: 500; }
+.cd-so-none, .cd-so-loading { margin: 0; padding: 10px; border-radius: 8px; background: #f4f7f7; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.cd-so-symptoms { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.cd-so-symptoms li { display: grid; grid-template-columns: 1fr 30px 92px; grid-template-areas: "name sev spark" "meta meta spark"; align-items: center; gap: 2px 8px; padding: 7px 8px; border-radius: 8px; background: #fbfcfc; border: 1px solid #edf1f1; }
+.cd-so-symptoms li b { grid-area: name; font-size: 12.5px; }
+.cd-so-symptoms li small { grid-area: meta; color: var(--muted); font-size: 10px; }
+.cd-so-symptoms li .cd-sev { grid-area: sev; justify-self: end; }
+.cd-so-symptoms li .cd-so-spark { grid-area: spark; }
+.cd-sev { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; font-size: 12px; font-weight: 700; }
+.cd-sev.s0 { background: #edf5ef; color: #52745a; }
+.cd-sev.s1 { background: #e7f0f1; color: var(--blue-dark); }
+.cd-sev.s2 { background: #f4e9d4; color: #7d5c2c; }
+.cd-sev.s3 { background: #f1d6d1; color: #954a42; }
+.cd-sev.s4 { background: #dcaea8; color: #71352f; }
+.cd-so-spark { display: flex; align-items: flex-end; gap: 3px; height: 18px; }
+.cd-so-spark i { width: 7px; border-radius: 2px 2px 0 0; background: #c9d8d8; }
+.cd-so-spark i.s0 { background: #b8d4bf; }
+.cd-so-spark i.s1 { background: #8fb3b9; }
+.cd-so-spark i.s2 { background: #d9b87a; }
+.cd-so-spark i.s3 { background: #d08b81; }
+.cd-so-spark i.s4 { background: #a9574e; }
+.cd-so-more { display: block; margin-top: 6px; color: var(--muted); font-size: 10px; }
+.cd-so-vitals { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.cd-so-vitals li { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "label label" "value unit" "when when"; align-items: baseline; gap: 0 4px; padding: 8px 10px; border-radius: 8px; background: #fbfcfc; border: 1px solid #edf1f1; }
+.cd-so-vitals li small { grid-area: label; color: var(--muted); font-size: 10px; }
+.cd-so-vitals li b { grid-area: value; font-size: 18px; }
+.cd-so-vitals li em { grid-area: unit; justify-self: start; font-style: normal; color: var(--muted); font-size: 10px; }
+.cd-so-vitals li span { grid-area: when; color: var(--muted); font-size: 9.5px; }
+.cd-so-vitals li.flag1 { background: #fbf4e6; border-color: #e6cf9c; }
+.cd-so-vitals li.flag1 b { color: #8a672f; }
+.cd-so-vitals li.flag2 { background: #f9ebe8; border-color: #e0a79f; }
+.cd-so-vitals li.flag2 b { color: #a15349; }
+.cd-so-note { display: block; margin-top: 8px; color: var(--muted); font-size: 9.5px; line-height: 1.6; }
+.cd-clinical-grid-v2 { grid-template-columns: minmax(0, 1fr) 360px; }
+.cd-device.cd-820 .cd-clinical-grid-v2 { grid-template-columns: 1fr; }
+.cd-device.cd-820 .cd-clinical-grid-v2 .cd-clinical-side { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
+.cd-reco-list li > div { min-width: 0; overflow-wrap: anywhere; }
+.cd-summary-v2 .cd-question-toggle b { font-size: 12px; }
+.cd-summary-v2 .cd-question-toggle small { font-size: 9.5px; }
+.cd-summary-v2 .cd-question-expanded > p, .cd-summary-v2 .cd-check-expanded > p { font-size: 11px; }
+.cd-summary-v2 .cd-check-list article > button b { font-size: 11px; }
+.cd-summary-v2 .cd-check-list article > button small { font-size: 9.5px; }
+.cd-resolved-toggle { margin-top: 6px; font-size: 10.5px; }
+.cd-resolved-list { margin: 6px 0 0; padding: 8px 10px 8px 24px; border-radius: 8px; background: #f4f7f7; color: #536669; font-size: 10.5px; line-height: 1.7; }
+.cd-resolved-list small { margin-left: 6px; color: var(--muted); }
+.cd-ai-fold { padding: 0; overflow: hidden; }
+.cd-ai-fold-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border: 0; background: #f7fafa; color: var(--ink); text-align: left; }
+.cd-ai-fold-toggle > span:first-child { display: grid; grid-template-columns: 18px 1fr; align-items: center; gap: 2px 8px; color: var(--blue-dark); }
+.cd-ai-fold-toggle b { font-size: 12.5px; }
+.cd-ai-fold-toggle small { grid-column: 2; color: var(--muted); font-size: 9.5px; }
+.cd-ai-fold-toggle > span:last-child { color: var(--blue-dark); font-size: 11px; font-weight: 700; white-space: nowrap; }
+.cd-intervisit-embedded { margin: 0; border: 0; border-radius: 0; background: #fff; }
+.cd-score { text-align: center; }
+.cd-score-main { width: 100%; display: grid; gap: 4px; padding: 6px 4px 8px; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
+.cd-score-main:disabled { cursor: default; }
+.cd-score-main > b { font-family: 'Zen Old Mincho', serif; font-size: 44px; line-height: 1.1; color: var(--blue-dark); }
+.cd-score-main > small { color: var(--muted); font-size: 10.5px; line-height: 1.6; }
+.cd-score-hint { color: var(--blue-dark); font-size: 10.5px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.cd-score-detail { text-align: left; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px; }
+.cd-score-detail h3 { margin: 6px 0 4px; font-size: 11px; color: var(--blue-dark); }
+.cd-area-line { display: grid; grid-template-columns: 1fr 74px auto; align-items: center; gap: 7px; padding: 7px 1px; border-top: 1px solid #edf1f1; }
+.cd-area-line:first-child { border-top: 0; }
+.cd-area-line > span { display: flex; flex-direction: column; gap: 2px; }
+.cd-area-line > span:nth-child(2) { text-align: right; }
+.cd-area-line b { font-size: 10px; }
+.cd-area-line small { color: var(--muted); font-size: 9px; }
+.cd-score-misses { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.cd-score-misses li { font-size: 10.5px; line-height: 1.5; }
+.cd-score-misses li small { display: block; color: var(--muted); font-size: 9px; }
+.cd-reco { border-top: 3px solid var(--blue-dark); }
+.cd-reco-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.cd-reco-list li { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; align-items: start; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: #fbfcfc; }
+.cd-reco-no { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; background: var(--blue-dark); color: #fff; font-size: 10px; font-weight: 700; }
+.cd-reco-list li > div { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.cd-reco-list li > div b { font-size: 12px; line-height: 1.45; }
+.cd-reco-list li > div p { margin: 0; color: #34494d; font-size: 11px; line-height: 1.6; }
+.cd-reco-list li > div small { color: var(--muted); font-size: 9.5px; line-height: 1.5; }
+.cd-reco-list li .cd-badge { align-self: flex-start; }
+.cd-reco-list li > button { min-height: 32px; display: inline-flex; align-items: center; gap: 4px; padding: 0 10px; border: 1px solid var(--blue-dark); border-radius: 8px; background: #fff; color: var(--blue-dark); font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+.cd-reco-list li > button.selected, .cd-reco-list li > button:disabled { background: var(--blue-pale); border-color: transparent; }
+.cd-reco-added { color: #52745a; font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+.cd-reco-note { margin: 10px 0 0; color: var(--muted); font-size: 9.5px; line-height: 1.6; }
+.cd-reco-actions { display: grid; gap: 6px; margin-top: 10px; }
+.cd-reco-actions .cd-primary { width: 100%; }
+.cd-reco-actions .cd-text-back { font-size: 10.5px; }
+
+/* 在宅経過: バイタルの目安の色、症状の重ね描き */
+.cd-course-table td button.vflag1 { background: #fbf4e6; color: #8a672f; font-weight: 700; }
+.cd-course-table td button.vflag2 { background: #f9ebe8; color: #a15349; font-weight: 700; }
+.cd-course-legend .vflag1 i { background: #fbf4e6; color: #8a672f; }
+.cd-course-legend .vflag2 i { background: #f9ebe8; color: #a15349; }
+.cd-course-flag-note { margin: 6px 0 0; color: var(--muted); font-size: 9.5px; line-height: 1.6; }
+.cd-course-chart svg line.cd-link { stroke: var(--blue); stroke-width: 3; stroke-linecap: round; }
+.cd-course-chart svg line.cd-gap { stroke: var(--blue); stroke-width: 2; stroke-dasharray: 5 6; stroke-linecap: round; opacity: .7; }
+.cd-course-chart svg g[style] line.cd-link, .cd-course-chart svg g[style] line.cd-gap { stroke: inherit; }
+.cd-overlay-legend { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 4px 0 8px; }
+.cd-overlay-legend span { display: inline-flex; align-items: center; gap: 5px; color: #536669; font-size: 10px; }
+.cd-overlay-legend i { width: 14px; height: 3px; border-radius: 2px; }
+.cd-course-table { font-size: 9px; }
+.cd-course-table tbody th b { font-size: 9px; }
+.cd-course-table td button { font-size: 9.5px; }
+
+/* 教材ライブラリ: 領域のチップ・グループ・処方状況 */
+.cd-area-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 8px; }
+.cd-area-chips button { min-height: 36px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; border: 1px solid var(--line); border-radius: 18px; background: #fff; color: var(--ink); font-size: 11.5px; font-weight: 600; }
+.cd-area-chips button small { padding: 1px 6px; border-radius: 999px; background: #edf1f1; color: var(--muted); font-size: 9.5px; }
+.cd-area-chips button.active { border-color: var(--blue-dark); background: var(--blue-dark); color: #fff; }
+.cd-area-chips button.active small { background: rgba(255,255,255,.2); color: #fff; }
+.cd-library-status-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0 0 10px; color: var(--muted); font-size: 10px; }
+.cd-library-status-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.cd-library-status-legend span::before { content: ""; width: 9px; height: 9px; border-radius: 3px; background: #edf1f1; }
+.cd-library-status-legend .now::before { background: #4f785b; }
+.cd-library-status-legend .before::before { background: #826d91; }
+.cd-library-status-legend .new::before { background: #c9d8d8; }
+.cd-library-group { margin-bottom: 14px; }
+.cd-library-group-title { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--line); color: var(--blue-dark); font-size: 12px; }
+.cd-library-group-title small { color: var(--muted); font-size: 10px; font-weight: 500; }
+.cd-rx-status { display: inline-flex; align-items: center; gap: 3px; margin-right: 6px; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 700; vertical-align: middle; }
+.cd-rx-status.now { background: #e7f2e9; color: #4f785b; }
+.cd-rx-status.before { background: #f0ebf3; color: #715d7f; }
+.cd-rx-status.new { background: #edf1f1; color: #697779; }
+.cd-library-grid article:has(.cd-rx-status.now) { border-color: #bcd3c3; }
+.cd-material-body h2 { min-height: 0; font-size: 12px; }
+.cd-material-body dd { font-size: 9.5px; }
+.cd-material-body > button { font-size: 10.5px; }
+
+/* 教材スタジオ: 環境の注記を外枠へ・必須項目の案内 */
+.cd-studio-env { display: flex; align-items: center; gap: 6px; margin: -8px -8px 12px; padding: 7px 12px; border-radius: 8px; background: #fbf4e6; border: 1px solid #e6cf9c; color: #6b5a3a; font-size: 10.5px; line-height: 1.5; }
+.cd-required { margin-left: 6px; padding: 1px 6px; border-radius: 999px; background: #f8e8e5; color: #a15349; font-style: normal; font-size: 8.5px; font-weight: 700; }
+.cd-wizard-actions span[data-studio-missing] { color: #8a672f; font-size: 10.5px; }
+.cd-form-grid input::placeholder, .cd-form-grid textarea::placeholder { color: #a7b1b2; }

@@ -39,10 +39,10 @@ describe("体調記録（Step 3）", () => {
       await createRecord(req(pb, { measuredAt: at(3), vitals: { temperature: 36.8, pulse: 72 }, symptoms: [{ key: "fatigue", severity: 0 }, { key: "nausea", severity: 2, interference: "食事が半分" }] })),
     );
     expect(first.status).toBe(200);
-    expect(first.json.record.vitals).toEqual({ temperature: 36.8, systolic: null, diastolic: null, pulse: 72, spo2: null });
+    expect(first.json.record.vitals).toEqual({ temperature: 36.8, systolic: null, diastolic: null, pulse: 72, spo2: null, oxygenFlow: null });
     // 同じ日の 2 回目（前回の値は引き継がない）
     const second = await body(await createRecord(req(pb, { measuredAt: at(1), vitals: { systolic: 118, diastolic: 74 }, symptoms: [] })));
-    expect(second.json.record.vitals).toEqual({ temperature: null, systolic: 118, diastolic: 74, pulse: null, spo2: null });
+    expect(second.json.record.vitals).toEqual({ temperature: null, systolic: 118, diastolic: 74, pulse: null, spo2: null, oxygenFlow: null });
     expect(second.json.record.symptoms).toEqual([]);
     const list = (await body(await listRecords(req(pb)))).json.records;
     expect(list).toHaveLength(2);

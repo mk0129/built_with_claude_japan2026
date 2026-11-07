@@ -10,6 +10,13 @@ const symptom = (p: Page, name: string) => p.locator(".d-symptom-records article
 const vital = (p: Page, label: string) => p.locator(".d-vital-card").filter({ hasText: label }).locator("input").first();
 const severity = (p: Page, name: string, value: number) => symptom(p, name).locator(".d-severity-scale button").nth(value).click();
 
+/** 2026-11: AI 外来間サマリー（要約・根拠・タイムライン）は診察サマリーの折りたたみの中。開いてから確認する */
+async function openAi(page: import("@playwright/test").Page) {
+  const t = page.locator("[data-ai-fold] .cd-ai-fold-toggle");
+  await t.waitFor({ timeout: 15_000 });
+  if ((await t.getAttribute("aria-expanded")) !== "true") await t.click();
+}
+
 test("体調記録・症状の設定・診察ノート → QR 共有で医療者が質問を確認 → 終了後は拒否", async ({ browser }) => {
   // 1. 患者がログイン（患者B: 履歴なし）
   const patient = await newPage(browser, { width: 390, height: 844 });
@@ -91,7 +98,7 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   expect(records[1].symptoms.map((s: { key: string }) => s.key)).not.toContain("numbness");
 
   // 8. 教材に紐づかない質問を作成
-  await p.locator(".d-nav").getByRole("button", { name: "診察ノート" }).click();
+  await p.locator(".d-nav").getByRole("button", { name: "聞きたいこと" }).click();
   await expect(p.locator(".d-visit-date")).toContainText("次回診察日：未登録");
   await p.locator(".d-add-question textarea").fill("治療中に旅行に行ってもよいですか？");
   await p.getByRole("button", { name: "質問を保存" }).click();
@@ -131,9 +138,11 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   // 11. 医療者が診察サマリーで質問を確認（教材に紐づかない質問。閲覧だけで操作は求めない）
   const q = s.locator(".cd-question-priority article").filter({ hasText: "来月、2泊の旅行に行ってもよいですか？" });
   await expect(q).toBeVisible();
-  await expect(q).toContainText("診察ノート · 患者原文");
+  await expect(q).toContainText("診察ノート ·");
+  await expect(q).toContainText("自由な質問");
   await q.getByRole("button").first().click();
-  await expect(q).toContainText("関連教材：なし（自由な質問）");
+  await expect(q).toContainText("患者が入力した原文は変更されません");
+  await openAi(s);
   await expect(s.locator("[data-intervisit]")).toContainText("来月、2泊の旅行に行ってもよいですか？");
   // 体調記録の取得 API（Step 4 の経過表で使う）は共有中だけ読める
   const h = await (await s.request.get(`/api/v1/consultations/${sid}/health`)).json();
@@ -170,11 +179,12 @@ test("理解確認から作った質問候補は、患者が確認して保存�
   await p.getByRole("button", { name: "理解を確認する" }).click();
   await p.locator(".d-answer-list button").filter({ hasText: "わからない" }).click();
   await p.getByRole("button", { name: "この回答で確定する" }).click();
-  await p.getByRole("button", { name: "この内容から質問候補を作る" }).click();
+  await p.getByRole("button", { name: "この内容を「聞きたいこと」に入れる" }).click();
   // 入力欄に候補が入るだけ（まだ記録されない）
   await expect(p.locator(".d-add-question textarea")).toHaveValue(/について、私の場合を教えてください/);
   expect((await (await p.request.get("/api/v1/notes")).json()).notes.length).toBe(before);
-  await p.getByRole("button", { name: "質問を保存" }).click();
+  await expect(p.locator("[data-notes-return]")).toBeVisible(); // 理解確認へ戻れる
+  await p.getByRole("button", { name: "質問を保存", exact: true }).click();
   await expect(p.locator(".toast")).toContainText("質問を保存しました");
   const { notes } = await (await p.request.get("/api/v1/notes")).json();
   expect(notes.length).toBe(before + 1);

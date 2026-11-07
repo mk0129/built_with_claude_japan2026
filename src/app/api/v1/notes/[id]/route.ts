@@ -8,8 +8,8 @@ type Ctx = { params: Promise<{ id: string }> };
 export const PATCH = route(async (req: Request, { params }: Ctx) => {
   const p = await requirePatient(req.headers);
   const { id } = await params;
-  const { body } = await parseBody(req, z.object({ body: z.string().max(NOTE_MAX * 2) }));
-  return ok({ note: await updateVisitNote(p.userId, id, body) });
+  const patch = await parseBody(req, z.object({ body: z.string().max(NOTE_MAX * 2).optional(), resolved: z.boolean().optional() }));
+  return ok({ note: await updateVisitNote(p.userId, id, patch) });
 });
 
 export const DELETE = route(async (req: Request, { params }: Ctx) => {

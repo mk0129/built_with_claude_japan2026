@@ -106,3 +106,9 @@ button,a{touch-action:manipulation}button{cursor:pointer}
  .j-screen .cd-library-tools input{min-width:0}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+.j-home-note{margin:18px 0 0;color:var(--j-muted);font-size:12.5px;line-height:1.7}
+.j-demo-connect{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:12px auto 0;padding:12px 16px;max-width:980px;width:calc(100% - 32px);border:1px solid #e6cf9c;border-radius:12px;background:#fbf4e6;color:#6b5a3a}
+.j-demo-connect b{display:block;font-size:13px;margin-bottom:2px}.j-demo-connect p{margin:0;font-size:12px;line-height:1.6}.j-demo-connect code{padding:1px 6px;border-radius:6px;background:#fff;font-size:14px;font-weight:700;letter-spacing:.1em;color:#315e68}
+.j-demo-connect .j-primary{flex:0 0 auto;min-height:42px;padding:10px 16px;font-size:13px}
+@media(max-width:700px){.j-demo-connect{flex-direction:column;align-items:stretch}}
