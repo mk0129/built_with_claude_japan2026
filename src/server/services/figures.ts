@@ -64,9 +64,12 @@ function tabLabelOf(caption: string | null): string | null {
   return caption.split(/[。（(]/)[0].slice(0, 12);
 }
 
-/** 監修前の医学的図解の保管場所（git 管理外）と公開場所 */
+/** 監修前の医学的図解の保管場所（git 管理外）。テストでは PRIVATE_ASSETS_ROOT で公開可能な仮画像に切り替える */
+export function privateAssetsRoot() {
+  return process.env.PRIVATE_ASSETS_ROOT ?? `${process.cwd()}/private_assets`;
+}
 export function privatePath(type: string, filename: string) {
-  return `${process.cwd()}/private_assets/${type}/${filename}`;
+  return `${privateAssetsRoot()}/${type}/${filename}`;
 }
 /** 公開ディレクトリ（テストでは PUBLIC_ASSETS_ROOT で一時ディレクトリに切り替え、実ファイルに触れない） */
 export function publicAssetsRoot() {

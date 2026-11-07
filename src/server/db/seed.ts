@@ -119,8 +119,9 @@ export async function seed(db: Db = getDb()) {
   for (const f of SEED_FIGURES) {
     // 納品済みファイルが public にあれば登録。装飾（editorial）は医学的監修の対象外なので公開可 = approved とする。
     // 医学的図解（medical）は納品済みでも pending_review のまま（監修プレビューから承認する）
-    const deliveredDir = f.type === "medical" ? "private_assets" : "public/assets";
-    const delivered = f.delivered && existsSync(`${process.cwd()}/${deliveredDir}/${f.type}/${f.delivered.filename}`) ? f.delivered : null;
+    // 医学的図解の保管場所は figures.ts の privateAssetsRoot と同じ（テストでは PRIVATE_ASSETS_ROOT の仮画像）
+    const deliveredDir = f.type === "medical" ? (process.env.PRIVATE_ASSETS_ROOT ?? `${process.cwd()}/private_assets`) : `${process.cwd()}/public/assets`;
+    const delivered = f.delivered && existsSync(`${deliveredDir}/${f.type}/${f.delivered.filename}`) ? f.delivered : null;
     await db
       .insert(figureAssets)
       .values({
