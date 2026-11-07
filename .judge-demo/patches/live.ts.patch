@@ -1,0 +1,35 @@
+--- a/src/concept-d/live.ts
++++ b/src/concept-d/live.ts
+@@ -14,6 +14,7 @@
+ import QRCode from "qrcode";
+ import { api, errorText } from "@/lib/api";
+ import { setStoredOrgId, useStoredOrgId } from "@/lib/use-stored-org";
++import { getNativePatientGrant } from "@judge/patient-api";
+ 
+ /** ended: この医療者が共有を終了した直後（終了完了の画面）。expired: 期限切れ・患者による終了 */
+ type Session = "none" | "request" | "waiting" | "active" | "expired" | "ended";
+@@ -280,8 +281,22 @@
+   const [token, setToken] = useState<string | null>(connectToken);
+   const [connectReq, setConnectReq] = useState<{ orgName: string; clinicianName: string } | null>(null);
+   // 患者が発行した共有コード（QR と 6 桁コードは同じグラント。5 分・1 回限り）。QR は画像だけを持ち、トークンを文字で表示・保存しない
+-  const [code, setCode] = useState<{ grantId: string; code: string; expiresAt: number; qrDataUrl: string | null } | null>(null);
+-  const [claimed, setClaimed] = useState<{ orgName: string; clinicianName: string } | null>(null);
++  // The judge switches roles in a single tab. Restore the issued grant on returning to its patient.
++  const [restored] = useState(getNativePatientGrant);
++  const [code, setCode] = useState<{ grantId: string; code: string; expiresAt: number; qrDataUrl: string | null } | null>(() =>
++    restored ? {grantId: restored.grantId, code: restored.code, expiresAt: new Date(restored.expiresAt).getTime(), qrDataUrl: null} : null
++  );
++  const [claimed, setClaimed] = useState<{ orgName: string; clinicianName: string } | null>(() => restored?.claimed ?? null);
++  useEffect(() => {
++    if (!restored) return;
++    let active = true;
++    void QRCode.toDataURL(restored.qrUrl, { width: 320, margin: 1, color: { dark: "#243a3d", light: "#ffffff" } })
++      .then(qrDataUrl => {
++        if (active) setCode(old => old?.grantId === restored.grantId ? {...old, qrDataUrl} : old);
++      })
++      .catch(() => {});
++    return () => { active = false; };
++  }, [restored]);
+   const [consult, setConsult] = useState<Consultation | null>(null);
+   const [tick, setTick] = useState(0);
+   const notifyRef = useRef(notify);

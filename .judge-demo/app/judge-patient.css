@@ -1,0 +1,43 @@
+@font-face {
+  font-family: "Noto Sans JP";
+  src: url("/fonts/patient-sans.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zen Old Mincho";
+  src: url("/fonts/patient-mincho.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
+/* The public demo adds a role switch above the production patient screen. */
+.j-view-patient .d-app-stage {
+  min-height: calc(100dvh - var(--j-toolbar));
+  font-family: "Noto Sans JP", sans-serif;
+  color: var(--ink);
+}
+
+.j-view-patient .d-device.d-device-app {
+  height: calc(100dvh - var(--j-toolbar));
+}
+
+/* The submitted Next build generates this Tailwind utility for accessible field labels. */
+.j-view-patient .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@media (min-width: 816px) {
+  .j-view-patient .d-device.d-device-app.viewport-tablet {
+    height: calc(100dvh - var(--j-toolbar) - 48px);
+  }
+}

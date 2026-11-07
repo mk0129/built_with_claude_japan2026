@@ -1,0 +1,11 @@
+--- a/src/concept-d/healthData.ts
++++ b/src/concept-d/healthData.ts
+@@ -482,6 +482,8 @@
+ ] as const
+ 
+ export function formatShortDate(value: string) {
++  const calendarDate = /^\d{4}-(\d{2})-(\d{2})$/.exec(value)
++  if (calendarDate) return `${Number(calendarDate[1])}/${Number(calendarDate[2])}`
+   const date = new Date(value)
+   return `${date.getMonth() + 1}/${date.getDate()}`
+ }

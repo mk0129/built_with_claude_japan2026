@@ -1,0 +1,7 @@
+{
+  "name": "shiori-judge-demo",
+  "private": true,
+  "scripts": {
+    "build": "node tools/build.mjs"
+  }
+}
