@@ -40,10 +40,15 @@ const settle = async (p, ms = 400) => {
   await p.locator("[data-sim]").waitFor();
   await settle(p);
   await shot(p, "phone_sim_01_start");
-  await p.locator("[data-sim-step='1']").getByRole("button", { name: "2026年11月" }).click();
-  await p.locator("[data-sim-choice='under70']").click();
-  await p.locator("[data-sim-choice='employee']").click();
-  await p.locator("[data-sim-choice='bracket-c']").click();
+  const simConditions = async (many) => {
+    await p.locator("[data-sim-choice='entry-known']").click();
+    await p.locator("[data-sim-step='1']").getByRole("button", { name: "2026年11月" }).click();
+    await p.locator("[data-sim-choice='under70']").click();
+    await p.locator("[data-sim-choice='employee']").click();
+    await p.locator("[data-sim-choice='bracket-c']").click();
+    await p.locator(`[data-sim-choice='many-${many}']`).click();
+  };
+  await simConditions("no");
   await p.locator("[data-sim-cost-input]").fill("1000000");
   await settle(p);
   await shot(p, "phone_sim_02_cost_input");
@@ -58,7 +63,10 @@ const settle = async (p, ms = 400) => {
     await p.getByRole("button", { name: "医療費を変えて計算する" }).click();
     await settle(p, 200);
     await shot(p, "phone_sim_x2_recalc_keeps_conditions");
-    await p.getByRole("radio", { name: "わからない" }).click();
+    // 多数回該当は総医療費より前の一問になったため、条件を選び直して「わからない」で計算する
+    await p.goto("/home?view=simulator");
+    await simConditions("unknown");
+    await p.locator("[data-sim-cost-input]").fill("1000000");
     await p.locator("[data-sim-calc]").click();
     await p.locator("[data-sim-amount]").waitFor();
     await settle(p, 200);

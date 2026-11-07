@@ -145,12 +145,14 @@ const ito = await session("patient", "伊藤 涼子", PHONE);
 
 // #3 医療費シミュレーター: 条件（手順 1〜5・総医療費 1,000,000 円）を表示した状態から →「計算する」→ 92,940円
 await ito.goto("/home?view=simulator");
+await ito.locator("[data-sim-choice='entry-known']").click();
 await ito.locator("[data-sim-step='1']").getByRole("button", { name: "2026年11月" }).click();
 await ito.locator("[data-sim-choice='under70']").click();
 await ito.locator("[data-sim-choice='employee']").click();
 await ito.locator("[data-sim-choice='bracket-c']").click();
+await ito.locator("[data-sim-choice='many-no']").click();
 await ito.getByRole("button", { name: "100万円", exact: true }).click();
-await scrollTo(ito, M, "[data-sim-step='5'], [data-sim-cost-input]", 170);
+await scrollTo(ito, M, "[data-sim-step='6'], [data-sim-cost-input]", 170);
 await settle(ito, 500);
 {
   const s1 = await record(ito, async () => {
