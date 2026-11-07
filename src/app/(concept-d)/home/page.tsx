@@ -13,5 +13,5 @@ export default async function PatientHome({ searchParams }: { searchParams: Prom
     redirect(`/login?returnTo=${encodeURIComponent(`/home?view=share&connect=${encodeURIComponent(sp.connect)}`)}`);
   }
   const u = await requirePageUser("patient");
-  return <PatientDApp initial={sp} userName={u.name} />;
+  return <PatientDApp initial={sp} userName={u.name} patientId={u.id} />;
 }

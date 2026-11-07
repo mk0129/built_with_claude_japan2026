@@ -66,7 +66,7 @@ function useMedia(query: string, serverValue: boolean) {
 }
 
 /** 患者: 700px 以下はスマートフォン表示（Figma の 390/430 は幅以外同一）、それより広い画面はタブレット表示 */
-export function PatientDApp({ initial = {}, userName }: { initial?: UrlInit; userName?: string }) {
+export function PatientDApp({ initial = {}, userName, patientId }: { initial?: UrlInit; userName?: string; patientId?: string }) {
   const s = useConceptDState()
   const tablet = useMedia("(min-width: 701px)", false)
   const connect = typeof initial.connect === "string" ? initial.connect : null
@@ -85,6 +85,7 @@ export function PatientDApp({ initial = {}, userName }: { initial?: UrlInit; use
         live={live}
         learning={learning}
         userName={userName}
+        patientId={patientId}
         health={health}
         notesLive={notesLive}
         visit={visit}

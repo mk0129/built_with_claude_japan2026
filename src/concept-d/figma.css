@@ -3861,6 +3861,46 @@
 }
 .d-monitoring-note b { display: block; color: #805d2e; }
 .d-save-health { width: 100%; min-height: 52px; }
+/* 保存前の入力（下書き）: 戻したことを控えめに伝え、入力があるあいだは保存ボタンを下部ナビの上に留める */
+.d-draft-restored {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -6px 0 14px;
+  padding: 8px 6px 8px 12px;
+  border-radius: 12px;
+  background: var(--blue-pale);
+  color: var(--blue-dark);
+}
+.d-draft-restored > .icon { flex: none; }
+.d-draft-restored p { flex: 1; margin: 0; font-size: 12px; line-height: 1.55; }
+.d-draft-restored b { display: block; font-size: 13px; }
+.d-draft-restored .d-text-action { flex: none; margin: 0; padding: 0 8px; }
+.d-save-dock.sticky {
+  position: sticky;
+  bottom: 88px;
+  z-index: 3;
+  margin: 0 -8px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255,255,255,.97);
+  box-shadow: 0 6px 20px rgba(40,60,65,.12);
+}
+.d-save-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 4px 7px;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.d-save-summary span { flex: none; color: var(--muted); font-weight: 500; }
 .d-share-health { margin: 9px 0 0; background: transparent; }
 .d-symptom-manager > .d-support-copy { margin-top: -10px; }
 .d-terminology-note {

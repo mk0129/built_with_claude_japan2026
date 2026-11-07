@@ -11,6 +11,7 @@ import { MONEY_THEME, MONEY_TITLES, SIMULATOR_MATERIAL, SIMULATOR_NAME } from ".
 import { daysUntil, visitDateLabel, type PatientVisit } from "./visit"
 import type { PatientLive } from "./live"
 import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes } from "./health"
+import { answeredSymptoms, clearHealthDraft, hasDraftInput, readHealthDraft, writeHealthDraft } from "./healthDraft"
 import {
   saveProgress,
   useAttempt,
@@ -589,6 +590,7 @@ export function DPrototype({
   live,
   learning,
   userName,
+  patientId,
   health,
   notesLive,
   visit,
@@ -609,6 +611,8 @@ export function DPrototype({
   learning?: PatientLearning
   /** 本番: 患者の表示名（ホームの呼びかけ） */
   userName?: string
+  /** 本番: ログイン中の患者の ID（体調記録の下書きの持ち主。画面には出さない） */
+  patientId?: string
   /** 本番（Step 3）: 体調記録・症状の設定の実 API。なければ Figma の架空の記録 */
   health?: PatientHealth
   /** 本番（Step 3）: 診察ノートの実 API。なければ Figma の架空の質問メモ */
@@ -656,6 +660,12 @@ export function DPrototype({
   ])
   // 本番: 体調記録・症状の設定（Figma の架空の記録の代わり）
   const records = health ? health.records : healthRecords
+  // 体調記録の下書きの持ち主（患者 ID がない公開デモはタブに 1 人の架空患者だけ）
+  const draftOwner = health ? patientId || "local" : undefined
+  useEffect(() => {
+    // 別の患者の下書きが同じタブに残っていれば、体調記録を開く前でも消す（患者を切り替えても持ち越さない）
+    if (draftOwner) readHealthDraft(draftOwner)
+  }, [draftOwner])
   const noteCount = notesLive ? notesLive.notes.length : notes.length
   const [quizAnswer, setQuizAnswer] = useState("")
   const [motionEnabled, setMotionEnabled] = useState(true)
@@ -1165,6 +1175,7 @@ export function DPrototype({
           customNames={health ? health.customNames : customSymptomNames}
           setCustomNames={setCustomSymptomNames}
           health={health}
+          draftOwner={draftOwner}
           learnedCount={visibleLessons.filter((lesson) => lesson.status !== "new").length}
           noteCount={noteCount}
           motionEnabled={motionEnabled}
@@ -1316,11 +1327,14 @@ function DHealthTracker({
   setMotionEnabled,
   notify,
   health,
+  draftOwner,
   learnedCount,
   noteCount,
 }: {
   /** 本番（Step 3）: 体調記録の実 API。1 回の測定 = 1 記録（同じ日でも別の記録）。新しい記録は空欄から始める */
   health?: PatientHealth
+  /** 本番: 保存前の入力（下書き）の持ち主。同じ患者がこの画面に戻ったときだけ入力を戻す（healthDraft.ts） */
+  draftOwner?: string
   learnedCount?: number
   noteCount?: number
   records: HealthRecord[]
@@ -1372,6 +1386,34 @@ function DHealthTracker({
   const [customName, setCustomName] = useState("")
   const [chartSymptom, setChartSymptom] = useState("numbness")
   const [feedbackOpen, setFeedbackOpen] = useState(false)
+  // 本番: 保存前の入力（下書き）。このタブの sessionStorage にだけ置き、サーバーへは送らない
+  const draftEnabled = !!health && !!draftOwner
+  const healthLoaded = !!health?.loaded
+  const [draftReady, setDraftReady] = useState(false)
+  const [draftRestored, setDraftRestored] = useState(false)
+  // 連続タップでも保存は 1 回だけ（saving の state が反映される前の 2 回目を止める）
+  const savingRef = useRef(false)
+  useEffect(() => {
+    if (!draftEnabled || !healthLoaded || draftReady || !health || !draftOwner) return
+    const draft = readHealthDraft(draftOwner)
+    if (draft) {
+      // 編集中だった記録が削除されていれば、新しい記録として戻す
+      const editing = draft.editingId && health.records.some((record) => record.id === draft.editingId) ? draft.editingId : null
+      /* eslint-disable react-hooks/set-state-in-effect -- sessionStorage（外部）からの復元は表示後に一度だけ */
+      setMeasuredAt(draft.measuredAt)
+      setVitals(draft.vitals)
+      setSymptoms(draft.symptoms)
+      setDetails(draft.details)
+      setEditingId(editing)
+      setDraftRestored(true)
+    }
+    setDraftReady(true)
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [draftEnabled, healthLoaded, draftReady, health, draftOwner])
+  useEffect(() => {
+    if (!draftEnabled || !draftReady || !draftOwner) return
+    writeHealthDraft(draftOwner, { measuredAt, vitals, symptoms: answeredSymptoms(symptoms), details, editingId })
+  }, [draftEnabled, draftReady, draftOwner, measuredAt, vitals, symptoms, details, editingId])
 
   const limits: Record<string, [number, number]> = {
     temperature: [30, 45],
@@ -1398,6 +1440,13 @@ function DHealthTracker({
   const recordedDayCount = new Set(
     records.map((record) => record.measuredAt.slice(0, 10)),
   ).size
+  // 本番: 保存前の入力があるか（あれば保存ボタンを画面の下に留め、症状一つだけでもすぐ保存できるようにする）
+  const answered = answeredSymptoms(symptoms)
+  const answeredIds = Object.keys(answered)
+  const hasInput = draftEnabled && hasDraftInput({ vitals, symptoms: answered, details })
+  const inputSummary = answeredIds.length
+    ? `${displayName(answeredIds[0])} ${answered[answeredIds[0]]}・${severityLabels[answered[answeredIds[0]]]}${answeredIds.length > 1 ? ` ほか${answeredIds.length - 1}件` : ""}`
+    : "バイタルサイン"
 
   const loadRecordForDate = (value: string) => {
     setMeasuredAt(value)
@@ -1455,6 +1504,7 @@ function DHealthTracker({
     setView("record")
   }
   const resetForm = () => {
+    setDraftRestored(false)
     setEditingId(null)
     setMeasuredAt(toLocalInput(new Date()))
     setVitals(emptyVitals)
@@ -1463,7 +1513,7 @@ function DHealthTracker({
     setDetailOpen(null)
   }
   const saveLive = async () => {
-    if (!health || invalidFields.length || saving) return
+    if (!health || invalidFields.length || saving || savingRef.current) return
     const n = (v: string) => (v === "" ? null : Number(v))
     const input: HealthInput = {
       measuredAt,
@@ -1479,11 +1529,16 @@ function DHealthTracker({
           interference: details[key]?.interference || null,
         })),
     }
+    savingRef.current = true
     setSaving(true)
     const wasEditing = !!editingId
     const ok = await health.save(input, editingId)
+    savingRef.current = false
     setSaving(false)
+    // 失敗したときは下書きを残す（入力を失わない）
     if (!ok) return
+    // 記録になった入力は下書きから消す（戻っても同じ入力が二重に保存されない）
+    clearHealthDraft()
     resetForm()
     setFeedbackOpen(true)
     notify(wasEditing ? "記録を更新しました" : "体調を記録しました")
@@ -1581,6 +1636,18 @@ function DHealthTracker({
       </div>
       {view === "record" ? (
         <>
+          {draftRestored && hasInput && (
+            <div className="d-draft-restored" role="status" data-health-draft-restored>
+              <Icon name="clock" />
+              <p>
+                <b>保存前の入力を戻しました</b>
+                まだ記録には残っていません。
+              </p>
+              <button className="d-text-action" onClick={resetForm}>
+                入力を消す
+              </button>
+            </div>
+          )}
           <label className="d-measured-at">
             <span>
               <Icon name="calendar" />
@@ -1802,14 +1869,22 @@ function DHealthTracker({
               記録しただけでは医療者へ通知されません。急な症状や強い苦痛がある場合は、医療機関から案内された連絡先へご相談ください。
             </p>
           </div>
-          <button
-            className="primary-button d-save-health"
-            disabled={invalidFields.length > 0 || saving}
-            onClick={saveRecord}
-          >
-            <Icon name="check" />
-            {health ? (editingId ? "この記録を更新" : "この記録を保存") : "この日の記録を保存"}
-          </button>
+          <div className={`d-save-dock${hasInput ? " sticky" : ""}`} data-health-save-dock>
+            {hasInput && (
+              <p className="d-save-summary" aria-live="polite">
+                <span>入力中</span>
+                {inputSummary}
+              </p>
+            )}
+            <button
+              className="primary-button d-save-health"
+              disabled={invalidFields.length > 0 || saving}
+              onClick={saveRecord}
+            >
+              <Icon name="check" />
+              {health ? (editingId ? "この記録を更新" : "この記録を保存") : "この日の記録を保存"}
+            </button>
+          </div>
           {health && editingId && (
             <button className="d-text-action" onClick={resetForm}>
               編集をやめて新しい記録にする
