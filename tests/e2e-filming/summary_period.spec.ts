@@ -29,7 +29,7 @@ test("期間を素早く変えても、遅れて返った古い期間の質問�
   const s = st.page;
   await shareByPatientCode(s, pt.page);
   const iv = s.locator("[data-intervisit]");
-  await expect(iv).toContainText("記録済みのClaude出力を再生", { timeout: 30_000 });
+  await expect(iv.locator('[data-summary-kind="replay"]')).toBeVisible({ timeout: 30_000 }); // 記録済みの Claude 出力の再生
   await expect(iv.locator("[data-key-question]").first()).toContainText(NOTE);
 
   // A（10/29〜10/31）の応答（構造化データ・AI 要約）を保留する
@@ -74,7 +74,7 @@ test("期間を素早く変えても、遅れて返った古い期間の質問�
   const y1 = (await q.boundingBox())!.y;
   for (const r of heldAi) await r.continue();
   await s.unroute(/\/intervisit\/summary$/);
-  await expect(s.locator("[data-intervisit]")).toContainText("記録済みのClaude出力を再生", { timeout: 30_000 });
+  await expect(s.locator('[data-intervisit] [data-summary-kind="replay"]')).toBeVisible({ timeout: 30_000 });
   await expect(s.locator("[data-ai-status='loading']")).toHaveCount(0);
   expect(Math.abs((await q.boundingBox())!.y - y1)).toBeLessThan(2);
 

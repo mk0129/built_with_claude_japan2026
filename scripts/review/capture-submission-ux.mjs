@@ -101,7 +101,7 @@ const settle = async (p, ms = 400) => {
   await staff.waitForTimeout(150);
   await shot(staff, "ipad_summary_01_just_shared");
   // 要約の表示後（記録済みの Claude 出力の再生）
-  await staff.locator("[data-intervisit]").getByText("記録済みのClaude出力を再生", { exact: false }).first().waitFor({ timeout: 30_000 });
+  await staff.locator('[data-intervisit] [data-summary-kind=\"replay\"]').waitFor({ timeout: 30_000 });
   await settle(staff, 600);
   await shot(staff, "ipad_summary_02_loaded");
   // 根拠を開いた状態: 患者の質問（手のしびれ）の根拠
@@ -111,9 +111,9 @@ const settle = async (p, ms = 400) => {
   await staff.locator("[data-summary-sources]").first().waitFor();
   await settle(staff, 300);
   await shot(staff, "ipad_summary_03_evidence_open");
-  if (process.env.EXTRA && (await staff.locator("[data-question-more]").count())) {
+  if (process.env.EXTRA && (await staff.locator('[data-row-more="questions"]').count())) {
     await q.click(); // 根拠を閉じる
-    await staff.locator("[data-question-more]").click();
+    await staff.locator('[data-row-more="questions"]').click();
     await settle(staff, 200);
     await shot(staff, "ipad_summary_x1_more_questions");
     await staff.locator("[data-summary-all-toggle]").click();

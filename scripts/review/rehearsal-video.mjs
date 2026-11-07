@@ -260,7 +260,7 @@ await step("09_15_share_hanako", async () => {
   sidHanako = (await (await s.request.get("/api/v1/staff/live")).json()).activeSessionId;
 });
 await step("12_summary", async () => {
-  await s.locator("[data-intervisit]").getByText("記録済みのClaude出力を再生", { exact: false }).first().waitFor({ timeout: 30_000 });
+  await s.locator('[data-intervisit] [data-summary-kind=\"replay\"]').waitFor({ timeout: 30_000 });
   await shot(s, "12_summary_1180", "Claude外来間サマリー（要点3項目）", "12 Claude外来間サマリー");
   await shot(s, "12_summary_full_1180", "診察サマリー（全体）", "12 Claude外来間サマリー", { fullPage: true });
   const key = s.locator("[data-key-summary]");

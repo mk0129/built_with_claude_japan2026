@@ -71,8 +71,12 @@ const numbers = (t: string) => [...t.matchAll(/\d+(?:\.\d+)?/g)].map((m) => m[0]
 /** 日付は「M月D日」の形だけを日付とみなす（「3/4」は程度の表記） */
 const dates = (t: string) => [...t.matchAll(/(\d{1,2})月(\d{1,2})日/g)].map((m) => `${Number(m[1])}/${Number(m[2])}`);
 
+/** 教材への反応で、患者が自由記述をせずに選んだ回答（選択コードに対応するラベル） */
+export const SELECTION_LABEL = { have_question: "質問がある", explain_again: "もう一度説明してほしい" } as const;
+
 export function validateItems(items: SummaryItem[], iv: Intervisit) {
   const index = sourceIndex(iv);
+  const questionById = new Map(iv.questions.map((q) => [q.sourceId, q]));
   const valid: SummaryItem[] = [];
   const rejected: { index: number; reason: string }[] = [];
   let safetyViolation = false;
@@ -96,14 +100,21 @@ export function validateItems(items: SummaryItem[], iv: Intervisit) {
     const pool = srcs.flatMap((x) => x!.values).join(" ");
     // 引用（「」内）は根拠の原文・教材名・設問に含まれる文字列であること（質問の意味を変えない）
     for (const q of quotes(item.text)) if (q && !pool.includes(q) && !["わからない", "誤答", "正答"].includes(q)) return reject("引用が原文と一致しない");
-    // 患者の質問: 「患者からの質問」の節では、参照した質問の原文全体をそのまま「」で引用する（意味を変えない）。
+    // 患者の質問: 「患者からの質問」の節では、参照した記録ごとに、自由記述なら原文全体をそのまま「」で引用し、
+    // 選択のみ（定型の回答）なら「選択した回答：<その記録の選択に対応するラベル>」と書く（自由記述の引用に見せない）。
+    // 種類は構造化データ（input・selection）で判定し、同じ文で別の記録を取り違えないよう、根拠 ID ごとに照合する。
     // 言い換え（引用符なしの短い言及）は「時系列の経過」の節だけで許す。言い換えを「」に入れて直接引用のように見せることは上の引用の照合で拒否される
-    const qSrcs = srcs.filter((x) => x!.kind === "vn" || x!.kind === "fb")
+    const qIds = item.sourceIds.filter((id) => { const k = index.get(id)?.kind; return k === "vn" || k === "fb"; });
+    const qOk = (id: string) => {
+      const q = questionById.get(id);
+      if (q?.input === "selection") return plain.includes(`選択した回答：${SELECTION_LABEL[q.selection ?? "have_question"]}`) && !quotes(item.text).includes(q.body);
+      return quotes(item.text).includes(q?.body ?? index.get(id)?.body ?? "");
+    };
     if (item.section === "患者からの質問") {
-      if (qSrcs.length === 0 && !/質問は(ありません|ない)/.test(plain)) return reject("質問の根拠がない");
-      for (const x of qSrcs) if (!quotes(item.text).includes(x!.body ?? "")) return reject("質問の原文が引用されていない");
-    } else if (qSrcs.length > 0 && item.section !== "時系列の経過") {
-      for (const x of qSrcs) if (!quotes(item.text).includes(x!.body ?? "")) return reject("質問の言い換えは時系列の経過だけで使える");
+      if (qIds.length === 0 && !/質問は(ありません|ない)/.test(plain)) return reject("質問の根拠がない");
+      for (const id of qIds) if (!qOk(id)) return reject(questionById.get(id)?.input === "selection" ? "選んだ回答のラベルが根拠の記録と一致しない" : "質問の原文が引用されていない");
+    } else if (qIds.length > 0 && item.section !== "時系列の経過") {
+      for (const id of qIds) if (!qOk(id)) return reject("質問の言い換えは時系列の経過だけで使える");
     }
     // 日付は根拠の出来事の日付（日本時間）か期間の端であること
     const okDays = new Set<string>();
@@ -187,18 +198,21 @@ const fmtShort = (iso: string) => {
 };
 
 // ---------- プロンプト ----------
-const SYSTEM = `あなたは外来診察の前に医療者が読む「外来間の経過」の要約を作る補助者です。与えられた構造化データ（患者が自宅で記録した体調・学習・理解確認・質問）だけを使い、日本語で短く整理します。
+const SYSTEM = `あなたは外来診察の前に医師が読む「外来間の経過」の確認事項を作る補助者です。与えられた構造化データ（患者が自宅で記録した体調・学習・理解確認・質問）だけを使います。
+書き方:
+- 診察前に医師が読む日本語で、1項目に1つの確認事項を書く。1項目は1文、60字程度まで（長くても120字）。AIや検証方法の紹介文は本文に含めない。
+- 症状は、症状名・日付・患者評価（「3/4」の形）を組み合わせる。列挙が長い場合は、記録された代表値（最大の値とその日付）と直近の記録を日付付きで示す。直近に記録がない期間の状態を推定しない。
+- 複数の異なる症状、別時刻の入力、持続・欠測に意味がある場合は一律に削らない（症状ごと・内容ごとに別の項目にする）。
+- 同じ事実を複数の節に繰り返さない。「時系列の経過」には、ほかの節で書いていない出来事の順序だけを書く。
 必ず守ること:
-- データにない症状・日時・測定値・出来事を書かない。数値と日付はデータの値をそのまま書く（日付は「11月4日」の形）。
-- 自覚症状の 0〜4 は患者本人による程度で、CTCAE Grade ではない。Grade を推定しない。「3/4」のように書く。
-- 診断・推測（〜の可能性、疑い）をしない。治療薬・治療と症状の因果関係を書かない。治療の変更や対応を提案しない。
-- 記録がない日・回答がない症状は「欠測」と書き、「症状なし」「正常」「改善」「悪化」と解釈しない。正常・異常の判定をしない。
-- バイタル・症状の値には評価の語を付けない。「高め」「低め」「やや高い」「正常範囲」「基準値内」「安定」「改善」「悪化」「軽快」「問題ない」などは使わず、記録された値と日時だけを書く（例:「10月28日 21:05 に体温 37.4℃」）。
-- 「わからない」という回答を、患者の理解力や能力の評価に置き換えない（「『わからない』と回答した」と事実だけを書く）。
-- 患者の質問は原文を「」で引用し、言い換えない。教材名・設問文も「」で囲み、データのとおりに書く。
-- 各項目の sourceIds には、その文の根拠となる出来事 ID・集計 ID（データ中の id）をすべて入れる。根拠のない文は書かない。
-構成（section）: 「体調の変化」（バイタルと症状の推移を日付・程度とともに）、「学習の状況」（教材の状態、誤答、「わからない」）、「患者からの質問」（原文）、「時系列の経過」（必要な出来事を日付順に 3〜8 項目）。1 項目は 1〜2 文・120 字程度まで（長くても 250 字以内）、合計 20 項目以内。根拠 ID は 1 項目 20 件以内。
-「患者からの質問」の各項目には、質問の原文全体を「」でそのまま引用する。件数を書くときは、sourceIds に入れた記録を数えた値と一致させる。`;
+- データにない症状・日時・測定値・出来事を書かない。数値、単位、日付、引用は、その項目の sourceIds で照合できるものだけを出す（日付は「11月4日」の形）。
+- 自覚症状の 0〜4 は患者本人による評価で、CTCAE Grade ではない。
+- 診断、重症度の推定、因果関係、治療提案は生成しない（〜の可能性・疑い・原因・治療の変更や対応の提案を書かない）。
+- 記録がない日・回答がない症状は「欠測」と書き、「症状なし」「正常」「改善」「悪化」と解釈しない。値に評価の語（「高め」「低め」「安定」「問題ない」など）を付けず、記録された値と日時だけを書く。
+- 「わからない」と回答したことを、患者の理解力や能力の評価に置き換えない（「『わからない』と回答した」と事実だけを書く）。
+- 質問は、input が free_text なら患者の原文全体を「」で引用し、言い換えない。input が selection なら「選択した回答：（selectedLabel の文字列）」と書き、「」で囲まない（自由記述の引用に見せない）。教材名・設問文は「」で囲み、データのとおりに書く。
+- 各項目の sourceIds には、その文の根拠となる出来事 ID・集計 ID（データ中の id）をすべて入れる。根拠のない文は書かない。件数を書くときは、sourceIds に入れた記録を数えた値と一致させる。
+構成（section）: 「体調の変化」（症状ごと・バイタルごとに 1 項目）、「学習の状況」（教材の状態、誤答、「わからない」）、「患者からの質問」（1 件 1 項目）、「時系列の経過」（ほかの節にない出来事を日付順に 2〜6 項目）。合計 16 項目以内。根拠 ID は 1 項目 20 件以内。`;
 
 function buildUser(iv: Intervisit) {
   const index = sourceIndex(iv);
@@ -215,7 +229,12 @@ function buildUser(iv: Intervisit) {
       noAnswerInLaterRecords: s.stoppedRecording,
     })),
     learning: iv.learning.map((l) => ({ title: l.title, version: l.versionNo, status: l.status, answers: l.answersInPeriod.map((a) => ({ id: a.sourceId, result: a.result, stem: a.stem, at: fmtDateTime(new Date(a.at)) })) })),
-    questions: iv.questions.map((q) => ({ id: q.sourceId, kind: q.kind, text: q.body, at: fmtDateTime(new Date(q.createdAt)), material: q.materialTitle })),
+    // 自由記述は原文、選択のみは選んだ回答のラベル（構造化データの種類で区別する）
+    questions: iv.questions.map((q) =>
+      q.input === "selection"
+        ? { id: q.sourceId, kind: q.kind, input: "selection", selectedLabel: SELECTION_LABEL[q.selection ?? "have_question"], at: fmtDateTime(new Date(q.createdAt)), material: q.materialTitle }
+        : { id: q.sourceId, kind: q.kind, input: "free_text", text: q.body, at: fmtDateTime(new Date(q.createdAt)), material: q.materialTitle },
+    ),
     sources,
   };
   return `<intervisit_data>\n${JSON.stringify(data, null, 1)}\n</intervisit_data>\n上のデータだけから要約項目を作ってください。`;
@@ -367,7 +386,7 @@ async function generate(
       const max = process.env.INTERVISIT_AI_MAX_CALLS ? Number(process.env.INTERVISIT_AI_MAX_CALLS) : Infinity;
       if (mode === "claude" && (g.__shioriIntervisitAiCalls ?? 0) >= max) return fallback("AI 要約の呼び出し回数の上限に達したため、ルールベースで表示しています");
       if (mode === "claude") g.__shioriIntervisitAiCalls = (g.__shioriIntervisitAiCalls ?? 0) + 1;
-      // 出力の上限: 指示は 20 項目以内・1 項目 1〜2 文（目安 120 字）。検証の上限（40 項目・1 文 260 字）まで出力しても切れないよう
+      // 出力の上限: 指示は 16 項目以内・1 項目 1 文（目安 60 字・長くても 120 字）。検証の上限（40 項目・1 文 260 字）まで出力しても切れないよう
       // max_tokens に余裕を持たせる（40 × 260 字 ≒ 1 万字 ≒ 1.2 万トークン以下）
       const r = await callClaudeStructured({ system: SYSTEM, user: buildUser(iv), schema: AiSummarySchema, schemaName: "intervisit_summary", maxTokens: 16000 });
       items = r.data.items;

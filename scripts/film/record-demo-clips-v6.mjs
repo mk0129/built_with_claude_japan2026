@@ -127,7 +127,7 @@ const replayCheck = async () => {
 };
 
 // #10 Claude 外来間サマリー: v5 と同じ位置（外来間の経過の見出しから）。画面は静止、寄りは撮影後に付ける
-await staff.locator("[data-intervisit]").getByText("記録済みのClaude出力を再生", { exact: false }).first().waitFor({ timeout: 30_000 });
+await staff.locator('[data-intervisit] [data-summary-kind=\"replay\"]').waitFor({ timeout: 30_000 });
 await settle(staff, 600);
 await scrollTo(staff, C, "[data-intervisit]", 20);
 await settle(staff, 500);

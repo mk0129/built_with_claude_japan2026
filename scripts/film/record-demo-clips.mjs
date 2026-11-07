@@ -314,7 +314,7 @@ if (on8) encode("demo-step3-qr.mp4", [seg8], PHONE, "佐藤 花子");
 if (on9) encode("demo-step3-receive.mp4", [seg9], IPAD, "佐藤 花子");
 
 // #10 Claude 外来間サマリー（記録済みの出力の再生・18/18 検証済み）
-await staff.locator("[data-intervisit]").getByText("記録済みのClaude出力を再生", { exact: false }).first().waitFor({ timeout: 30_000 });
+await staff.locator('[data-intervisit] [data-summary-kind=\"replay\"]').waitFor({ timeout: 30_000 });
 await settle(staff, 600);
 await scrollTo(staff, C, "[data-intervisit]", 20, 1);
 await settle(staff, 300);
@@ -339,7 +339,7 @@ await clip("demo-step3-claude-source.mp4", staff, "佐藤 花子", [["shot", asy
 
 // #12 AI は診断しない: 要約の範囲の注意書き（アプリにある文言。CSS で 13px に拡大）
 await staff.locator(".cd-sidebar").getByRole("button", { name: "診察" }).click();
-await staff.locator("[data-intervisit]").getByText("記録済みのClaude出力を再生", { exact: false }).first().waitFor({ timeout: 30_000 });
+await staff.locator('[data-intervisit] [data-summary-kind=\"replay\"]').waitFor({ timeout: 30_000 });
 await settle(staff, 500);
 await scrollTo(staff, C, "[data-intervisit]", 20, 1);
 await settle(staff, 300);

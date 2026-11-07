@@ -273,3 +273,26 @@
 .cd-summary-all-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; margin: 10px 0 4px; padding: 8px 10px; border: 1px solid #dbe4e4; border-radius: 8px; background: #fff; color: #315e68; font: inherit; font-size: 11px; font-weight: 700; text-align: left; cursor: pointer; }
 .cd-summary-all-toggle span { font-size: 11px; }
 .cd-summary-all-section p { margin: 6px 0 0; }
+
+/* ---- 診察サマリー（短縮版）: 観察期間 1 行・質問／症状／学習・生成元は 1 回・作成情報は開いて読む ---- */
+.cd-intervisit-head .cd-period-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; }
+.cd-period-line b { color: #315e68; font-size: 12px; }
+.cd-period-line span { color: #243a3d; font-size: 15px; font-weight: 700; }
+.cd-period-line small { color: #687a7d; font-size: 11px; }
+.cd-key-summary > li > b small { display: block; margin-top: 2px; color: #687a7d; font-size: 10.5px; font-weight: 500; }
+.cd-device-app .cd-key-summary > li > b small { font-size: 11.5px; }
+.cd-key-sentence > span strong { font-weight: 700; }
+.cd-ai-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 10px 0 2px; }
+.cd-ai-kind { padding: 2px 10px; border-radius: 99px; background: #e8f1f2; color: #315e68; font-size: 11px; font-weight: 700; }
+.cd-ai-line small { color: #8a5a2b; font-size: 11px; }
+.cd-ai-line .cd-text-back { width: auto; min-height: 0; padding: 2px 0; font-size: 11px; text-decoration: underline; }
+.cd-ai-info { display: grid; gap: 6px; margin: 4px 0 6px; padding: 10px 12px; border-radius: 8px; background: #f7f9f9; }
+.cd-ai-info > p { margin: 0 !important; font-size: 11px; line-height: 1.7; }
+.cd-ai-info > p > b { margin-right: 8px; color: #315e68; }
+.cd-ai-info .cd-summary-safety { padding: 8px 10px; }
+.cd-device-app .cd-ai-kind,
+.cd-device-app .cd-ai-line small,
+.cd-device-app .cd-ai-line .cd-text-back,
+.cd-device-app .cd-ai-info > p { font-size: 12px; }
+.cd-device-app .cd-period-line b { font-size: 13px; }
+.cd-device-app .cd-period-line small { font-size: 12px; }

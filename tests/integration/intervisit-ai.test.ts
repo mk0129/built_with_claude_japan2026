@@ -21,7 +21,7 @@ import { DR_YAMADA, PATIENT_A, PATIENT_B, loginHeaders, setupDb, startSession, t
 type Mock = (args: { system: string; user: string; schemaName: string }) => Promise<unknown>;
 const g = globalThis as { __shioriClaudeMock?: Mock };
 let calls = 0;
-const mock = (fn: (data: { sources: { id: string; at?: string; content: string }[]; questions: { id: string; text: string }[] }) => unknown) => {
+const mock = (fn: (data: { sources: { id: string; at?: string; content: string }[]; questions: { id: string; text: string; input?: string }[] }) => unknown) => {
   g.__shioriClaudeMock = async ({ user }) => {
     calls++;
     const json = JSON.parse(user.match(/<intervisit_data>\n([\s\S]*)\n<\/intervisit_data>/)![1]);
@@ -72,6 +72,8 @@ describe("Claude の外来間要約（Step 4-C・モック）", () => {
     mock((data) => {
       const sym = data.sources.filter((s) => s.id.startsWith("hs:"));
       const q = data.questions[0];
+      // 質問は入力の種類つきで渡す（自由記述は原文）
+      expect(q).toMatchObject({ input: "free_text", text: "しびれは治療終了後に戻りますか？" });
       return {
         items: [
           { section: "体調の変化", text: `${md(sym[0].at!.replace(/^(\d+)月(\d+)日.*/, "") || jst(6, 8))}に手足のしびれを3/4と記録し、${md(jst(1, 8))}は2/4でした。`, sourceIds: [sym[0].id, sym[1].id] },
@@ -146,6 +148,35 @@ describe("Claude の外来間要約（Step 4-C・モック）", () => {
       "引用が原文と一致しない",
       "質問の言い換えは時系列の経過だけで使える",
       "引用が原文と一致しない",
+    ]);
+  });
+
+  it("質問は入力の種類で照合する: 自由記述は原文の完全引用、選択のみは選んだ回答のラベル。別の記録と取り違えない", async () => {
+    const base = await buildIntervisit({ patientId: seeded.users.get(PATIENT_B)!, sessionId });
+    const q = base.questions[0];
+    const at = q.createdAt;
+    // 選択のみの教材への反応（自由記述なし・「もう一度説明してほしい」）を 1 件加えた構造化データ
+    const sel = { sourceId: "fb:00000000-0000-0000-0000-0000000000aa", kind: "学習後の質問" as const, body: "（自由記述なし）もう一度説明してほしい", createdAt: at, updatedAt: at, materialTitle: null, input: "selection" as const, selection: "explain_again" as const };
+    const iv = {
+      ...base,
+      questions: [...base.questions, sel],
+      events: [...base.events, { id: sel.sourceId, kind: "feedback", at, day: localDay(new Date(at)), label: `質問（学習後の質問）：「${sel.body}」`, ref: { table: "patient_feedback", id: "x" }, data: { body: sel.body, materialTitle: null, updatedAt: at } }],
+    } as typeof base;
+    const { valid, rejected } = validateItems(
+      [
+        { section: "患者からの質問", text: "選択した回答：もう一度説明してほしい", sourceIds: [sel.sourceId] },
+        { section: "患者からの質問", text: `「${sel.body}」`, sourceIds: [sel.sourceId] },
+        { section: "患者からの質問", text: "選択した回答：質問がある", sourceIds: [sel.sourceId] },
+        { section: "患者からの質問", text: "選択した回答：もう一度説明してほしい", sourceIds: [q.sourceId] },
+        { section: "患者からの質問", text: `「${q.body}」`, sourceIds: [q.sourceId] },
+      ],
+      iv,
+    );
+    expect(valid.map((v) => v.text)).toEqual(["選択した回答：もう一度説明してほしい", `「${q.body}」`]);
+    expect(rejected.map((r) => r.reason)).toEqual([
+      "選んだ回答のラベルが根拠の記録と一致しない",
+      "選んだ回答のラベルが根拠の記録と一致しない",
+      "質問の原文が引用されていない",
     ]);
   });
 

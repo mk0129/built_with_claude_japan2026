@@ -85,7 +85,7 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
 
   // 10. 外来間の構造化サマリー（実データから）。前回外来日ではなく期間と前回共有日を明記
   const iv = s.locator("[data-intervisit]");
-  await expect(iv).toContainText("直近14日間の経過");
+  await expect(iv.locator("[data-period-line]")).toContainText("直近14日間");
   await expect(iv).toContainText("前回の共有記録なし");
   // 10-2. 患者が今日聞きたいこと: 先頭に新しい質問の原文 1 件、ほかは「ほか1件」で開く。要約の読み込みで位置が動かない
   const qRow = iv.locator('[data-key-row="questions"]');
@@ -97,8 +97,8 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await expect(s.locator('.cd-summary-narrative[data-summary-kind="fake"]')).toBeVisible({ timeout: 15_000 });
   expect(Math.abs((await firstQ.boundingBox())!.y - y1)).toBeLessThan(2);
   await expect(qRow).not.toContainText("しびれは治療終了後に戻りますか？");
-  await expect(qRow.locator("[data-question-more]")).toHaveText("ほか2件");
-  await qRow.locator("[data-question-more]").click();
+  await expect(qRow.locator('[data-row-more="questions"]')).toHaveText("ほか2件");
+  await qRow.locator('[data-row-more="questions"]').click();
   await expect(qRow.locator("[data-key-question]").nth(1)).toContainText("「しびれは治療終了後に戻りますか？」");
   // 選択のみの反応は「患者が選んだ回答」と表示し、原文の引用に見せない（入力の種類で区別）
   const sel = qRow.locator("[data-key-question][data-question-input='selection']");
@@ -128,8 +128,23 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await qRow.locator("[data-key-question]").nth(1).locator("button.cd-key-sentence").click();
   await expect(qRow.locator("[data-summary-sources]")).toHaveCount(0);
   await expect(qRow.locator("[data-key-question]").nth(1)).toBeInViewport();
-  // 症状の数値は患者本人の評価であることを添える
-  await expect(iv.locator('[data-key-row="symptom"] [data-severity-legend]')).toContainText("患者本人が記録した");
+  // 症状のそばに「患者評価 0〜4」を 1 回。細かい尺度の説明は「作成情報」を開いて読む
+  await expect(iv.locator('[data-key-row="symptom"] [data-severity-scale]')).toHaveText("患者評価 0〜4");
+  await expect(iv.locator("[data-severity-legend]")).toHaveCount(0);
+  // 症状は記録された値を日付つきで（言い換えない）。元の記録を 1 操作で開ける
+  const numb = iv.locator('[data-key-row="symptom"] [data-symptom="numbness"]');
+  await expect(numb).toContainText(`${md(3)} 3/4`);
+  await expect(numb).toContainText(`直近の記録は${md(1)} 2/4`);
+  await numb.locator("button.cd-key-sentence").click();
+  await expect(numb.locator("[data-summary-sources] [data-source-id^='hs:']")).toHaveCount(4);
+  await numb.locator("button.cd-key-sentence").click();
+  // 生成元は 1 回だけ短く示し、作成情報を開くと生成元・照合方法・尺度の説明
+  await expect(iv.locator("[data-ai-kind]")).toHaveCount(1);
+  await expect(iv.locator("[data-ai-kind]")).toHaveText("開発用の擬似要約（AIではありません）");
+  await iv.locator("[data-ai-info-toggle]").click();
+  await expect(iv.locator("[data-ai-info]")).toContainText("開発用の擬似生成です。Claude ではありません。");
+  await expect(iv.locator("[data-severity-legend]")).toContainText("患者本人が記録した");
+  await iv.locator("[data-ai-info-toggle]").click();
   // 全項目は必要なときに開く（開く前は表示しない → 開いて内容を確認）
   await expect(iv.locator("[data-summary-item]")).toHaveCount(0);
   await iv.locator("[data-summary-all-toggle]").click();

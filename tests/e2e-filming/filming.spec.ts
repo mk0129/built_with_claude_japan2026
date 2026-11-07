@@ -114,25 +114,35 @@ test("佐藤 花子: 経過グラフ → 共有 → Claude外来間サマリー�
 
   // Claude外来間サマリー: 記録済みの Claude 出力の再生（18 項目・再検証済み）と冒頭の要点 3 項目
   const iv = staff.locator("[data-intervisit]");
-  await expect(iv).toContainText("記録済みのClaude出力を再生", { timeout: 30_000 });
+  await expect(iv.locator('[data-summary-kind="replay"]')).toBeVisible({ timeout: 30_000 }); // 記録済みの Claude 出力の再生
   await expect(iv.locator("[data-summary-item]")).toHaveCount(0); // 全項目は開いたときだけ
   await iv.locator("[data-summary-all-toggle]").click();
   await expect(iv.locator("[data-summary-item]")).toHaveCount(18);
-  // 「1/4」などの表記は自覚症状の程度（0〜4）であることを示す（要約の文は変えない）
+  // 生成元は 1 回（「AI要約（記録再生）」）。作成情報を開くと、記録済みの出力の再生・生成日・照合方法と「1/4」の説明
+  await expect(iv.locator("[data-ai-kind]")).toHaveText("AI要約（記録再生）");
+  await iv.locator("[data-ai-info-toggle]").click();
+  await expect(iv.locator("[data-ai-info]")).toContainText("記録済みの Claude 出力");
+  await expect(iv.locator("[data-ai-info]")).toContainText("2026-11-04 生成");
+  await expect(iv.locator("[data-ai-info]")).toContainText("今回は Claude を呼び出していません");
   await expect(staff.locator("[data-severity-legend]")).toContainText("自覚症状の程度");
   await expect(staff.locator("[data-severity-legend]")).toContainText("CTCAE Grade ではありません");
   const key = staff.locator("[data-key-summary]");
   await expect(key.locator('[data-key-row="symptom"]')).toContainText("手足のしびれ");
   await expect(key.locator('[data-key-row="unknown"]')).toContainText("わからない");
   await expect(key.locator('[data-key-row="questions"] [data-key-question]').first()).toContainText("手のしびれは、治療が終わったら戻りますか？");
-  // 要点の文は検証済みの項目の本文そのもの（新しい文を作らない）
-  const keyTexts = await key.locator("[data-summary-key-item]").allTextContents();
-  const itemTexts = (await iv.locator("[data-summary-item]").allTextContents()).join("\n");
-  for (const t of keyTexts) expect(itemTexts).toContain(t.trim().slice(0, 20));
-  // 根拠の展開
-  await key.locator("[data-summary-key-item]").first().click();
-  await expect(staff.locator("[data-summary-sources]")).toBeVisible();
-  await expect(staff.locator("[data-summary-sources] [data-source-id]").first()).toBeVisible();
+  // 症状は記録された値（最大とその日付・直近の記録）。同じ日の 2 回の入力は別々の元の記録として開ける
+  const numb = key.locator('[data-symptom="numbness"]');
+  await expect(numb).toContainText("10月28日 3/4");
+  await expect(numb).toContainText("直近の記録は11月3日 1/4");
+  await numb.locator("button.cd-key-sentence").click();
+  const src = numb.locator("[data-summary-sources] [data-source-id^='hs:']");
+  await expect(src).toHaveCount(8);
+  await expect(src.filter({ hasText: "10/28 08:22" })).toContainText("3/4");
+  await expect(src.filter({ hasText: "10/28 21:05" })).toContainText("3/4");
+  // 学習: 「わからない」と回答した設問 → 教材名・設問・回答・日時
+  await key.locator('[data-key-row="unknown"] button.cd-key-sentence').first().click();
+  await expect(key.locator('[data-key-row="unknown"] [data-summary-sources] [data-source-id^="qa:"]')).toContainText("回答「わからない」");
+  await expect(key.locator('[data-key-row="unknown"] [data-summary-sources] [data-source-id^="qa:"]')).toContainText("教材「");
 
   // 在宅経過表: 端末の日付（撮影日）ではなく、サマリーと同じ観察期間（10月22日〜11月4日）
   await staff.locator(".cd-sidebar").getByRole("button", { name: "在宅経過" }).click();

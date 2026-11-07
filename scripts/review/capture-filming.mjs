@@ -159,7 +159,7 @@ await step("F_S_share_flow", async () => {
   await shot(h, "F_P13_sharing_390");
 });
 await step("F_C04_summary_1180", async () => {
-  await s.locator("[data-intervisit]").getByText("記録済みのClaude出力を再生", { exact: false }).first().waitFor({ timeout: 30_000 });
+  await s.locator('[data-intervisit] [data-summary-kind=\"replay\"]').waitFor({ timeout: 30_000 });
   await shot(s, "F_C04_summary_1180");
   await shot(s, "F_C04_summary_full_1180", { fullPage: true });
 });
