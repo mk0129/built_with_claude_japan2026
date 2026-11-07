@@ -732,7 +732,6 @@ export function DPrototype({
   const unresolvedNotes = notesLive ? notesLive.notes.filter((note) => !note.resolvedAt) : null
   const noteCount = unresolvedNotes ? unresolvedNotes.length : notes.length
   const [quizAnswer, setQuizAnswer] = useState("")
-  const [motionEnabled, setMotionEnabled] = useState(true)
   const [lessonStates, setLessonStates] = useState<Record<string, {
     status: DLesson["status"]
     progress: number
@@ -762,7 +761,7 @@ export function DPrototype({
   })
   const figmaLessons =
     scenario === 6
-      ? [...scenarioLessons, ...dLessons.slice(3, 8).map((lesson, index) => ({
+      ? [...scenarioLessons, ...dLessons.slice(3, 8).map((lesson) => ({
             ...lesson,
             id: Number(lesson.id) + 20,
             title: `${lesson.title}：詳しく知る`,
@@ -1228,8 +1227,6 @@ export function DPrototype({
             ).size
           }
           questionCount={noteCount}
-          motionEnabled={motionEnabled}
-          setMotionEnabled={setMotionEnabled}
           onNotes={() => setPage("notes")}
           onHome={() => setPage("home")}
         />
@@ -2037,18 +2034,15 @@ function DSymptomManager({
   const groups = ["化学療法", "分子標的薬", "ホルモン療法", "放射線", "その他"] as const
   return (
     <div className="d-symptom-manager">
-      <DPageHeader title="記録する症状" eyebrow="体調記録の設定" onBack={onBack} />
-      <p className="d-support-copy">
-        非表示にしても過去の記録は削除されません。毎日すべてに回答する必要はありません。
-      </p>
+      <DPageHeader title="記録する症状" onBack={onBack} />
       <section className="d-treatment-setup" data-treatment-setup>
         <button className="d-treatment-toggle" aria-expanded={treatmentOpen} onClick={() => setTreatmentOpen(!treatmentOpen)}>
           <span className="d-treatment-icon">
             <Icon name="pill" size={18} />
           </span>
           <span>
-            <b>受けている治療・薬から症状をまとめて選ぶ</b>
-            <small>治療ごとに起こりやすい症状を、記録項目として最初から並べます</small>
+            <b>治療・薬からまとめて選ぶ</b>
+            <small>起こりやすい症状を一度に追加</small>
           </span>
           <span className="d-treatment-arrow">{treatmentOpen ? "−" : "＋"}</span>
         </button>
@@ -2101,7 +2095,7 @@ function DSymptomManager({
                 >
                   {newIds.length === 0 ? "すべて追加済みです" : `${newIds.length}件を記録項目に追加`}
                 </button>
-                <small>治療や薬の名前は保存しません。症状の並びだけを設定します。わからないときは医療者に確認してください。</small>
+                <small>治療や薬の名前は保存しません（症状の並びだけ）。</small>
               </div>
             )}
           </div>
@@ -2109,10 +2103,10 @@ function DSymptomManager({
       </section>
       <section>
         <div className="d-section-head">
-          <h2>日々の入力に表示中</h2>
+          <h2>記録している症状</h2>
           <span>{activeIds.length}項目</span>
         </div>
-        {activeIds.length === 0 && <p className="d-notes-empty">まだ選ばれていません。上の治療から選ぶか、下の一覧から追加してください。</p>}
+        {activeIds.length === 0 && <p className="d-notes-empty">まだありません。治療から選ぶか、下の一覧から追加してください。</p>}
         <div className="d-active-symptoms">
           {activeIds.map((id, index) => (
             <div key={id}>
@@ -2130,7 +2124,7 @@ function DSymptomManager({
               <button
                 onClick={() => {
                   setActiveIds(activeIds.filter((item) => item !== id))
-                  notify("日々の入力から非表示にしました。過去の記録は残ります")
+                  notify("非表示にしました（過去の記録は残ります）")
                 }}
               >
                 非表示
@@ -2193,7 +2187,7 @@ function DSymptomManager({
           })}
         </div>
         <div className="d-custom-symptom">
-          <h3>その他の症状を自由に追加</h3>
+          <h3>その他（自由に入力）</h3>
           <div>
             <input
               value={customName}
@@ -2219,9 +2213,7 @@ function DSymptomManager({
             </button>
           </div>
         </div>
-        <p className="d-terminology-note">
-          候補名はCTCAE v5.0の症候性有害事象名を参考にした患者向けの表現です。程度の目安も同じ考え方で言い換えており、正式なGrade判定ではありません。
-        </p>
+        <p className="d-health-footnote">候補名と程度の目安は CTCAE v5.0 を参考にした患者向けの言い換えで、正式な Grade 判定ではありません。</p>
       </section>
     </div>
   )
@@ -3059,7 +3051,6 @@ function DSetDetail({
         </div>
       </section>
       {set.description && <p className="d-set-detail-desc">{set.description}</p>}
-      <p className="d-set-note">順番は決まっていません。今気になるものから、体調に合わせて進めてください。</p>
       <div className="d-set-lessons">
         {set.lessons.map((lesson, index) => (
           <button
@@ -3166,9 +3157,7 @@ function DMoneyTheme({
           )}
         </div>
       </section>
-      <p className="d-set-note">
-        制度を使えるかどうかは、加入している健康保険・勤務先によって違います。医療費シミュレーターでは、年齢・保険・所得の目安を選ぶだけで、自己負担の上限の目安を計算できます。最終的な判定は加入している健康保険（保険者）に確認してください。
-      </p>
+      <p className="d-set-note">使えるかどうかは、加入している健康保険・勤務先で異なります。最終的な判定は保険者に確認してください。</p>
       <div className="d-set-lessons">
         {lessons.map((lesson, index) => (
           <button key={lesson.id} className="d-set-lesson" data-money-lesson onClick={() => onOpen(lesson)}>
@@ -3201,7 +3190,7 @@ function DMoneyTheme({
         <DThemeImage name={SIMULATOR_NAME} />
         <span>
           <b>{SIMULATOR_NAME}</b>
-          <small>年齢・保険・年収の目安・治療内容を選ぶだけで、保険診療1か月分の自己負担の目安を計算します</small>
+          <small>年齢・保険・年収の目安・治療内容から、1か月の自己負担の目安</small>
         </span>
         <Icon name="arrow" />
       </button>
@@ -3394,9 +3383,6 @@ function DPrescriptions({
           <small>{live?.latest ? `${live.latest.date}に届きました · ${lessons.length}件` : "6月12日に届きました · 3件"}</small>
         </span>
       </div>
-      <p className="d-gentle-copy">
-        次の診察までの目安です。体調や時間に合わせて進めてください。
-      </p>
       <div className="d-card-list">
         {lessons.map((lesson) => (
           <DLessonCard
@@ -3553,7 +3539,7 @@ function DCategory({
   const shown = lessons.length || !fallback ? lessons : figmaFallback
   return (
     <div>
-      <DPageHeader title={category} eyebrow="学習領域" onBack={onBack} />
+      <DPageHeader title={category} onBack={onBack} />
       <div className={`d-area-overview ${areaTone(category)}`}>
         <span className="d-category-icon">
           <Icon
@@ -3570,9 +3556,6 @@ function DCategory({
               shown.length}
             件
           </b>
-          <p>
-            教材を読む順番は決まっていません。必要な内容から選んでください。
-          </p>
         </div>
       </div>
       <div className="d-card-list">
@@ -4027,9 +4010,6 @@ function DQuiz({
         理解の確認{live && live.total > 1 ? ` · ${live.index + 1} / ${live.total}` : ""}
       </p>
       <h1>{live ? (live.question?.stem ?? "読み込んでいます…") : "腕を動かすとき、適切なのはどれですか？"}</h1>
-      <p className="d-quiz-support">
-        今の理解を振り返るための確認です。迷ったときは「わからない」を選べます。
-      </p>
       <div className="d-answer-list">
         {answers.map((item, index) => (
           <button
@@ -4043,11 +4023,7 @@ function DQuiz({
           </button>
         ))}
       </div>
-      <div className="d-selection-note">
-        {answer
-          ? `「${answer}」を選択しています`
-          : "選択しただけでは回答は記録されません"}
-      </div>
+      <div className="d-selection-note">{answer ? `「${answer}」を選択しています` : "迷ったときは「わからない」を選べます"}</div>
       <button
         className="primary-button d-bottom-action"
         disabled={!answer || !!live?.busy || (!!live && !live.question)}
@@ -4162,9 +4138,6 @@ function DExplanation({
           この内容を「聞きたいこと」に入れる
         </button>
       )}
-      <p className="d-understanding-note">
-        この回答だけで、医学的な理解を判断するものではありません。
-      </p>
       <button className="primary-button d-bottom-action" onClick={onNext}>
         {live?.review ? (live.remaining > 0 ? "次の問題へ" : "学習記録に戻る") : live && live.remaining > 0 ? "次の問題へ" : "振り返りへ"}
         <Icon name="arrow" />
@@ -4353,8 +4326,6 @@ function DResult({
   live,
   healthDays,
   questionCount,
-  motionEnabled,
-  setMotionEnabled,
   onNotes,
   onHome,
 }: {
@@ -4372,8 +4343,6 @@ function DResult({
   }
   healthDays: number
   questionCount: number
-  motionEnabled: boolean
-  setMotionEnabled: (value: boolean) => void
   onNotes: () => void
   onHome: () => void
 }) {
@@ -4393,7 +4362,7 @@ function DResult({
       </div>
     )
   return (
-    <div className={`d-result-page ${motionEnabled ? "" : "no-motion"}`} data-result-state={state} aria-busy={state === "saving"}>
+    <div className="d-result-page" data-result-state={state} aria-busy={state === "saving"}>
       <span className="d-result-mark">
         <Icon name="check" size={34} />
       </span>
@@ -4401,9 +4370,6 @@ function DResult({
         {state === "saving" ? "学習の記録を確認しています" : "学習を記録しました"}
       </p>
       <h1>今日もひとつ、知ることが増えました</h1>
-      <p>
-        学んだ内容は、いつでも振り返れます。正答率ではなく、確認した内容を残しています。
-      </p>
       <div className="d-result-summary">
         <div>
           <span>教材</span>
@@ -4423,7 +4389,7 @@ function DResult({
         </div>
       </div>
       <div className="d-growth-summary">
-        <h2>これまでの積み重なり</h2>
+        <h2>これまで</h2>
         <div>
           <span>
             <b data-learned-count>{!live ? 4 : state === "saving" ? "…" : live.learnedCount}</b>
@@ -4438,9 +4404,6 @@ function DResult({
             診察につなげた質問
           </span>
         </div>
-        <p>
-          記録しなかった日や迷った回答も、失敗ではありません。必要なときに、自分のペースで続けられます。
-        </p>
       </div>
       {needsReview && (
         <button className="d-next-note" onClick={onNotes}>
@@ -4448,20 +4411,14 @@ function DResult({
             <Icon name="note" />
           </span>
           <span>
-            <b>診察ノートを確認する</b>
-            <small>質問候補を編集できます</small>
+            <b>聞きたいことを確認する</b>
+            <small>質問の候補を編集できます</small>
           </span>
           <Icon name="arrow" />
         </button>
       )}
       <button className="primary-button d-bottom-action" onClick={onHome}>
         ホームへ戻る
-      </button>
-      <button
-        className="d-motion-toggle"
-        onClick={() => setMotionEnabled(!motionEnabled)}
-      >
-        動きの効果：{motionEnabled ? "オン" : "オフ"}
       </button>
     </div>
   )
@@ -4796,7 +4753,7 @@ function DShareLiveIntro({ live }: { live: PatientLive }) {
         <ol className="d-share-steps" data-share-steps>
           <li>「QRコードと6桁コードを表示する」を押す</li>
           <li>医療者がQRコードを読み取るか、6桁コードを入力する</li>
-          <li>この画面に出る医療機関・医療者・共有する内容・有効期間を確認して承認すると、60分間だけ共有されます</li>
+          <li>表示された医療機関・医療者を確認して承認すると、60分間だけ共有されます</li>
         </ol>
       </>
     )
@@ -4862,7 +4819,7 @@ function DShareCode({ live }: { live: PatientLive }) {
         <b>あと{live.code.remainingMin}分・1回限り</b>
       </span>
       <span className="wide">
-        <small>医療者のパソコンにカメラがない場合は、6桁コードを入力してもらってください。読み取り・入力の後、この画面に表示される共有先をあなたが確認して承認したときに、共有が始まります。電話やメールでは送らないでください。</small>
+        <small>カメラがなければ 6 桁コードを入力してもらいます。表示された共有先をあなたが承認したときに共有が始まります。コードは電話やメールで送らないでください。</small>
         <button className="d-text-action" onClick={() => void live.cancelCode()}>
           QRとコードを取り消す
         </button>
@@ -4888,17 +4845,6 @@ function DShare({
       <DPageHeader title="医療者との一時共有" onBack={onBack} />
       {!sharing ? (
         <>
-          {!live?.code && (
-          <div className="d-share-visual">
-            <span>
-              <Icon name="qr" size={46} />
-            </span>
-            <i />
-            <span>
-              <Icon name="user" size={40} />
-            </span>
-          </div>
-          )}
           <h2>あなたの承認後に、医療者が閲覧できます</h2>
           {live ? (
             <DShareLiveIntro live={live} />
@@ -4921,7 +4867,7 @@ function DShare({
             </span>
             <span>
               <Icon name="check" />
-              診察ノートの質問
+              聞きたいこと（質問）
             </span>
             <span>
               <Icon name="check" />
