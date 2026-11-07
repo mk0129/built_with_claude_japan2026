@@ -231,12 +231,24 @@
 .d-area-4 .d-category-icon { background: #fbf1dc; color: #9a6a1e; }
 .d-area-5 .d-category-icon { background: #e6f1e7; color: #3f7250; }
 .d-area-6 .d-category-icon { background: #e9eff6; color: #3f5f86; }
-.d-category-cards > button.d-area-1 { border-left: 4px solid #2f6672; }
-.d-category-cards > button.d-area-2 { border-left: 4px solid #c27a5d; }
-.d-category-cards > button.d-area-3 { border-left: 4px solid #8a76a6; }
-.d-category-cards > button.d-area-4 { border-left: 4px solid #d0a04c; }
-.d-category-cards > button.d-area-5 { border-left: 4px solid #5f9a70; }
-.d-category-cards > button.d-area-6 { border-left: 4px solid #5f7fa8; }
+/* 領域の色: 左の縁ではなく箱全体を淡い色にし、アイコンは白地に領域色。教材カードにも同じ領域色（分類名の色と点）を使う */
+.d-area-1 { --area: #2f6672; --area-bg: #eaf1f2; --area-line: #cfdfe1; }
+.d-area-2 { --area: #a4583f; --area-bg: #f9eee9; --area-line: #ecd3cb; }
+.d-area-3 { --area: #6c5a86; --area-bg: #f0edf5; --area-line: #dbd4e6; }
+.d-area-4 { --area: #9a6a1e; --area-bg: #faf3e3; --area-line: #ecdcb8; }
+.d-area-5 { --area: #3f7250; --area-bg: #eaf3ed; --area-line: #cfe1d4; }
+.d-area-6 { --area: #3f5f86; --area-bg: #eaeff6; --area-line: #d0dae8; }
+.d-category-cards > button[class*="d-area-"], .d-area-list > button[class*="d-area-"] { background: var(--area-bg); border-color: var(--area-line); }
+.d-category-cards > button[class*="d-area-"] .d-category-icon, .d-area-list > button[class*="d-area-"] .d-category-icon { background: #fff; color: var(--area); }
+.d-category-cards > button[class*="d-area-"] small, .d-area-list > button[class*="d-area-"] small { color: var(--area); opacity: .85; }
+.d-area-list > button[class*="d-area-"] .d-area-progress i { background: var(--area); }
+.d-theme-card { --area: #8a672f; --area-bg: #f7f1e4; --area-line: #e6d6b4; background: var(--area-bg); border: 1px solid var(--area-line); border-left-width: 1px; }
+.d-theme-card .d-category-icon { background: #fff; color: var(--area); }
+.d-theme-card small { color: var(--area); opacity: .85; }
+.d-lesson-card[class*="d-area-"] .d-card-meta .d-category { display: inline-flex; align-items: center; gap: 5px; color: var(--area); }
+.d-lesson-card[class*="d-area-"] .d-card-meta .d-category::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--area); }
+.d-lesson-card[class*="d-area-"] .d-image-fallback { background: var(--area-bg); border-color: var(--area-line); }
+.d-lesson-card[class*="d-area-"] .d-image-fallback .d-art-icon { color: var(--area); }
 .d-category-cards b { font-size: 14px; }
 .d-category-cards small { font-size: 11px; }
 .d-review-section { margin-bottom: 24px; padding: 14px; border-radius: 14px; background: #fbf6ea; }
@@ -465,10 +477,12 @@
 .d-home-top .d-sharing-banner { margin: 0; }
 .d-visit-card.d-visit-top { min-height: 0; margin: 0; padding: 2px 2px 4px; gap: 10px; border: 0; border-radius: 0; background: none; box-shadow: none; }
 .d-visit-top .d-visit-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0; }
-.d-visit-top .d-visit-days { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 8px; font-size: 14px; color: var(--ink); }
-.d-visit-top .d-visit-days small { color: #4c6467; font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+/* 1 行目: 「次の診察まで」。2 行目: 大きな残り日数と日付を同じベースラインに */
+.d-visit-top .d-visit-days { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 10px; font-size: 14px; color: var(--ink); }
+.d-visit-top .d-visit-days small { flex: 1 1 100%; color: #4c6467; font-size: 12px; font-weight: 700; letter-spacing: .04em; line-height: 1.4; }
 .d-visit-top .d-visit-days b { font-family: 'Zen Old Mincho', serif; font-size: 34px; line-height: 1.15; color: var(--blue-dark); letter-spacing: .02em; }
-.d-visit-top .d-visit-when { color: #4c6467; font-size: 13px; }
+.d-visit-top .d-visit-when { color: #4c6467; font-size: 14px; font-style: normal; }
+.d-visit-top .d-visit-text > .d-visit-when { margin-top: 2px; }
 .d-visit-top .d-visit-change {
   flex: 0 0 auto; min-width: 48px; min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
   padding: 2px; border: 0; border-radius: 12px; background: none; color: var(--blue-dark); text-decoration: none;
@@ -554,7 +568,7 @@
 /* 探す画面: テーマ（仕事とお金のこと） */
 .d-theme-card {
   width: 100%; min-height: 60px; display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 10px 12px;
-  border: 1px solid var(--line); border-left: 4px solid #8a672f; border-radius: 14px; background: #fff; color: var(--ink); text-align: left;
+  border: 1px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink); text-align: left;
 }
 .d-theme-card > span:nth-child(2) { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .d-theme-card b { font-size: 14px; }
@@ -608,13 +622,15 @@
 .d-health-v2 .d-symptom-setup-hint { margin: 0 0 8px; color: var(--muted); font-size: 12.5px; line-height: 1.7; }
 .d-save-bar { position: sticky; bottom: -30px; /* .d-main の padding-bottom 108px − 下部ナビ 78px */ z-index: 2; margin: 6px -4px 0; padding: 8px 4px 10px; background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 30%); }
 .d-save-bar .d-save-health { width: 100%; min-height: 50px; margin: 0; font-size: 15px; }
-.d-health-v2 .d-gentle-feedback {
-  display: flex; align-items: center; gap: 8px; margin: 6px 0 0; padding: 10px 12px; border-radius: 12px;
-  background: #eef5f0; color: #3f6f4d; font-size: 13px;
+.d-health-v2 .d-gentle-feedback { /* 保存直後に見える位置（日時・前回値の案内の下） */
+  position: static; display: flex; align-items: center; gap: 8px; margin: 0 0 12px; padding: 10px 12px; border: 1px solid #cfe2d3; border-radius: 12px;
+  background: #eef5f0; color: #3f6f4d; font-size: 13px; animation: none;
 }
 .d-health-v2 .d-gentle-feedback > span { flex: 1; min-width: 0; }
 .d-health-v2 .d-gentle-feedback .d-text-action { min-height: 32px; margin: 0; padding: 0; font-size: 12px; }
-.d-health-v2 .d-feedback-close { width: 32px; height: 32px; border: 0; background: none; color: inherit; font-size: 18px; }
+.d-health-v2 .d-feedback-close { position: static; flex: 0 0 32px; width: 32px; height: 32px; margin: 0; padding: 0; border: 0; background: none; color: inherit; font-size: 18px; line-height: 1; }
+.d-health-v2 .d-gentle-feedback > span { white-space: normal; }
+.d-health-v2 .d-gentle-feedback .d-text-action { white-space: nowrap; }
 .d-health-footnote { margin: 14px 0 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
 
 /* 履歴 v2: 表が既定（医療者の在宅経過表と同じ見方）。グラフは切り替え */

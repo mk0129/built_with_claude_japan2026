@@ -534,7 +534,7 @@ function DLessonCard({
 }) {
   return (
     <button
-      className={`d-lesson-card ${horizontal ? "horizontal" : ""}`}
+      className={`d-lesson-card ${horizontal ? "horizontal" : ""} ${areaTone(lesson.category)}`}
       onClick={onOpen}
     >
       <DImageSlot
@@ -1718,6 +1718,21 @@ function DHealthTracker({
             </p>
           )}
 
+          {savedCount !== null && (
+            <div className="d-gentle-feedback" role="status">
+              <Icon name="check" size={18} />
+              <span>
+                保存しました · 記録した日 <b>{savedCount}</b>日
+              </span>
+              <button className="d-text-action" onClick={() => setView("history")}>
+                一覧で見る
+              </button>
+              <button className="d-feedback-close" onClick={() => setSavedCount(null)} aria-label="閉じる">
+                ×
+              </button>
+            </div>
+          )}
+
           <section className="d-health-section">
             <h2>バイタルサイン <small>測ったものだけ</small></h2>
             <div className="d-vital-grid">
@@ -1904,20 +1919,6 @@ function DHealthTracker({
               {health ? (editingId ? "この記録を更新" : "この記録を保存") : "この日の記録を保存"}
             </button>
           </div>
-          {savedCount !== null && (
-            <div className="d-gentle-feedback" role="status">
-              <Icon name="check" size={18} />
-              <span>
-                保存しました · 記録した日 <b>{savedCount}</b>日
-              </span>
-              <button className="d-text-action" onClick={() => setView("history")}>
-                一覧で見る
-              </button>
-              <button className="d-feedback-close" onClick={() => setSavedCount(null)} aria-label="閉じる">
-                ×
-              </button>
-            </div>
-          )}
           <p className="d-health-footnote">
             記録は医療者に自動では届きません（QR 共有を承認したときだけ閲覧できます）。急な症状や強い苦痛は、病院から案内された連絡先へ。
           </p>
@@ -3228,9 +3229,8 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
       <section className="d-visit-card d-visit-top" aria-label="次回の診察日">
         <span className="d-visit-text">
           <span className="d-visit-days">
-            <small>次の診察まで</small> <b>あと6日</b>
+            <small>次の診察まで</small> <b>あと6日</b> <em className="d-visit-when">6月20日（木）</em>
           </span>
-          <small className="d-visit-when">6月20日（木）</small>
         </span>
       </section>
     )
@@ -3292,18 +3292,23 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
   return (
     <section className={`d-visit-card d-visit-top${days === 0 ? " today" : days < 0 ? " past" : ""}`} aria-label="次回の診察日">
       <span className="d-visit-text">
-        <span className="d-visit-days" data-visit-days>
-          {days > 0 ? (
-            <>
-              <small>次の診察まで</small> <b>あと{days}日</b>
-            </>
-          ) : days === 0 ? (
-            <b>今日が診察日です</b>
-          ) : (
-            <>登録した診察日を過ぎました。次の日付を登録してください</>
-          )}
-        </span>
-        <small className="d-visit-when">{visitDateLabel(visit.date)}</small>
+        {days > 0 ? (
+          <span className="d-visit-days" data-visit-days>
+            <small>次の診察まで</small> <b>あと{days}日</b> <em className="d-visit-when">{visitDateLabel(visit.date)}</em>
+          </span>
+        ) : days === 0 ? (
+          <>
+            <span className="d-visit-days" data-visit-days>
+              <b>今日が診察日です</b>
+            </span>
+            <em className="d-visit-when">{visitDateLabel(visit.date)}</em>
+          </>
+        ) : (
+          <>
+            <span className="d-visit-days" data-visit-days>登録した診察日を過ぎました。次の日付を登録してください</span>
+            <em className="d-visit-when">{visitDateLabel(visit.date)}</em>
+          </>
+        )}
       </span>
       <button className="d-visit-change" data-visit-edit onClick={startEdit} aria-label="次回の診察日を変更">
         <Icon name="calendar" size={20} />
@@ -3770,9 +3775,24 @@ function DLearning({
     setAudioPlaying(false)
     setDetailOpen(false)
   }
+  // 読み上げ中にページを送ったら、次のページも続けて読む（止めてから送ったときは読まない）
+  const continueReading = useRef(false)
+  const liveSlide = live?.slide ?? null
+  const liveSeq = live?.seq ?? 0
+  useEffect(() => {
+    if (!continueReading.current || !liveSlide) return
+    continueReading.current = false
+    const text = [liveSlide.title, liveSlide.proposition, liveSlide.voiceText !== liveSlide.proposition ? liveSlide.voiceText : null].filter(Boolean).join("。")
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 読み上げの開始に合わせて表示を切り替える
+    if (speakText(text, () => setAudioPlaying(false))) setAudioPlaying(true)
+  }, [liveSeq, liveSlide])
   if (live) {
     const slide = live.slide
     const figure = slide?.figures[0]
+    const turnPage = (go: () => void) => {
+      continueReading.current = audioPlaying
+      go()
+    }
     const toggleAudio = () => {
       if (!slide) return
       if (audioPlaying) {
@@ -3879,8 +3899,8 @@ function DLearning({
           <h1>読み込んでいます…</h1>
         )}
         <div className="d-learning-actions">
-          <button onClick={live.onPrev}>前へ</button>
-          <button className="primary-button" onClick={live.onNext} disabled={!slide}>
+          <button onClick={() => turnPage(live.onPrev)}>前へ</button>
+          <button className="primary-button" onClick={() => turnPage(live.onNext)} disabled={!slide}>
             {/* 読み込み中は最後のページ用の文言（学習を終える）を出さない */}
             {!slide ? "次へ" : !isLast ? "次へ" : live.hasQuiz ? "理解を確認する" : "学習を終える"}
             <Icon name="arrow" />
@@ -4753,20 +4773,15 @@ function DShareLiveIntro({ live }: { live: PatientLive }) {
   const p = live.pending
   if (!p && live.code)
     return (
-      <p className="d-share-intro">
-        医療者にQRコードを読み取ってもらうか、6桁コードを入力してもらってください。
-      </p>
+      <p className="d-share-intro">医療者に QR を読み取ってもらうか、6 桁コードを伝えてください。</p>
     )
   if (!p)
     return (
       <>
-        <p className="d-share-intro">
-          診察のときに、あなたのQRコードと6桁コードを表示して、医療者に読み取ってもらってください。
-        </p>
+        <p className="d-share-intro">診察のときに、QRコードと6桁コードを表示して医療者に読み取ってもらいます。</p>
         <ol className="d-share-steps" data-share-steps>
-          <li>「QRコードと6桁コードを表示する」を押す</li>
-          <li>医療者がQRコードを読み取るか、6桁コードを入力する</li>
-          <li>表示された医療機関・医療者を確認して承認すると、60分間だけ共有されます</li>
+          <li>下のボタンで QR と 6 桁コードを表示</li>
+          <li>医療者が読み取ったら、表示された医療機関・医療者を確認して承認（60 分間だけ共有）</li>
         </ol>
       </>
     )
@@ -4774,8 +4789,8 @@ function DShareLiveIntro({ live }: { live: PatientLive }) {
     <>
       <p className="d-share-intro">
         {p.kind === "extension"
-          ? "共有中の医療者が、共有時間の延長を申請しています。"
-          : "次の医療者が閲覧を申請しています。共有する内容を確認してください。"}
+          ? "共有中の医療者が、延長を申請しています。"
+          : "次の医療者が閲覧を申請しています。確認して承認してください。"}
       </p>
       <div className="d-share-session d-share-request" data-share-request>
         <span>
@@ -4811,7 +4826,7 @@ function DShareCode({ live }: { live: PatientLive }) {
           <Icon name="qr" />
           QRコードと6桁コードを表示する
         </button>
-        <small>5分間・1回限り有効です。読み取り・入力されただけでは共有されません。</small>
+        <small>5 分間・1 回限り。読み取られただけでは共有されません。</small>
       </div>
     )
   return (
@@ -4832,7 +4847,7 @@ function DShareCode({ live }: { live: PatientLive }) {
         <b>あと{live.code.remainingMin}分・1回限り</b>
       </span>
       <span className="wide">
-        <small>カメラがなければ 6 桁コードを入力してもらいます。表示された共有先をあなたが承認したときに共有が始まります。コードは電話やメールで送らないでください。</small>
+        <small>共有は、表示された共有先をあなたが承認したときに始まります。コードは電話やメールで送らないでください。</small>
         <button className="d-text-action" onClick={() => void live.cancelCode()}>
           QRとコードを取り消す
         </button>
@@ -4897,8 +4912,8 @@ function DShare({
               onChange={(event) => setConfirmed(event.target.checked)}
             />
             <span>
-              <b>一時共有の内容を確認しました</b>
-              <small>共有はいつでも終了できます</small>
+              <b>共有する内容を確認しました</b>
+              <small>いつでも終了できます</small>
             </span>
           </label>
           <button
@@ -4920,9 +4935,7 @@ function DShare({
           )}
           </>
           )}
-          <p className="d-privacy-caption">
-            患者情報はあなたが管理します。医療者側に患者一覧として保存されません。
-          </p>
+          <p className="d-privacy-caption">情報はあなたが管理し、医療者側に患者一覧として残りません。</p>
         </>
       ) : (
         <div className="d-sharing-active">

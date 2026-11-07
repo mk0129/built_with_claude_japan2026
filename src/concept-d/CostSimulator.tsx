@@ -614,7 +614,7 @@ function SimResultView({
         </dl>
       </details>
       <details className="d-sim-fold" data-sim-detail="excluded">
-        <summary>対象外の費用・相談先</summary>
+        <summary>含まれない費用・制度と出典・相談先</summary>
         <section className="d-sim-excluded">
           <h3>この目安に含まれないもの</h3>
           <ul>
@@ -623,11 +623,7 @@ function SimResultView({
             ))}
           </ul>
         </section>
-        <SimContacts />
-      </details>
-      <details className="d-sim-fold" data-sim-detail="sources">
-        <summary>制度と出典</summary>
-        <dl className="d-sim-conditions">
+        <dl className="d-sim-conditions" data-sim-detail="sources">
           <div>
             <dt>適用した制度</dt>
             <dd>
@@ -649,6 +645,7 @@ function SimResultView({
             ))}
           </ul>
         </section>
+        <SimContacts />
       </details>
       <div className="d-sim-actions">
         <button className="secondary-button" onClick={onRestart}>
