@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { checkBundle, checkMarker, entryBundles } from './verify-dist.mjs';
+import { checkBundle, checkMarker, checkPageRevision, entryBundles } from './verify-dist.mjs';
 
 const [address, expectedSha, expectedDirectory] = process.argv.slice(2);
 if (!address || !expectedSha) throw new Error('Usage: node verify-live.mjs <public-url> <expected-commit> [local-dist]');
@@ -18,6 +18,7 @@ async function fetchFile(name) {
 
 checkMarker(JSON.parse((await fetchFile('judge-release.json')).toString('utf8')), expectedSha);
 const html = (await fetchFile('')).toString('utf8');
+checkPageRevision(html, expectedSha);
 const bundles = entryBundles(html);
 if (expectedDirectory) {
   const localHtml = await readFile(path.join(expectedDirectory, 'index.html'), 'utf8');

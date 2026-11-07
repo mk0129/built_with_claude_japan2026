@@ -15,6 +15,11 @@ export function checkMarker(release, expectedSha) {
   if (expectedSha) assert.equal(release.commit, expectedSha, 'release commit does not match the checked-out revision');
 }
 
+export function checkPageRevision(html, expectedSha) {
+  const match = html.match(/<meta\s+name="shiori-source-commit"\s+content="([0-9a-f]{40})"\s*\/?>/i);
+  assert.equal(match?.[1], expectedSha, 'the entry page does not match the release commit');
+}
+
 export function entryBundles(html) {
   const links = [...html.matchAll(/(?:src|href)="\/(judge-[a-f0-9]{12}\.(?:css|js))"/g)].map(match => match[1]);
   assert.equal(links.filter(link => link.endsWith('.js')).length, 1, 'expected one fingerprinted script in index.html');
@@ -58,6 +63,7 @@ export async function verifyDist(directory, expectedSha) {
 
   const release = JSON.parse(await readFile(path.join(directory, 'judge-release.json'), 'utf8'));
   checkMarker(release, expectedSha);
+  checkPageRevision(html, release.commit);
   const periods = JSON.parse(await readFile(path.join(directory, 'fixtures/periods.json'), 'utf8'));
   assert.ok(Object.keys(periods).some(key => /^\d{4}-\d\d-\d\d\/\d{4}-\d\d-\d\d$/.test(key)),
     'fictional consultation periods are missing');

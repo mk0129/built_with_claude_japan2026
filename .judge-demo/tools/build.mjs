@@ -150,6 +150,7 @@ async function build() {
   }
   if (!names['.js'] || !names['.css']) throw new Error('Judge client bundles are incomplete');
   const html = fs.readFileSync(path.join(demo, 'app/index.html'), 'utf8')
+    .replace('__SHIORI_COMMIT__', release.commit)
     .replace('/judge.js', '/'+names['.js']).replace('/judge.css', '/'+names['.css']);
   fs.writeFileSync(path.join(result, 'index.html'), html);
   fs.writeFileSync(path.join(result, 'judge-release.json'), JSON.stringify(release)+'\n');
