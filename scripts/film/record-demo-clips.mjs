@@ -327,7 +327,8 @@ await clip("demo-step3-claude-summary.mp4", staff, "佐藤 花子", [["shot", as
 // #11 要約から元の記録 → 在宅経過表（グラフ・表）
 await clip("demo-step3-claude-source.mp4", staff, "佐藤 花子", [["shot", async () => {
   await hold(staff, 700);
-  await staff.locator("[data-key-row] [data-summary-key-item]").filter({ hasText: "わからない" }).first().click();
+  // 提出版: 「学習」の行の「わからない」と回答した設問（根拠を開く）
+  await staff.locator('[data-key-row="unknown"] button.cd-key-sentence').first().click();
   await staff.locator("[data-summary-sources]").waitFor();
   await scrollTo(staff, C, "[data-key-summary]", 60, 700);
   await hold(staff, 2200);

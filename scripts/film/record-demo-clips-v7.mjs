@@ -170,6 +170,9 @@ await settle(staff, 500);
 events.replayAfterSummary = await replayCheck();
 
 // #12 AI は診断しない: v1 と同じ操作（外来間の経過の見出しから、1.3 秒後に要約の範囲の注意書きまで 1.3 秒でスクロール）
+// 提出版では注意書きは「作成情報」の中にあるため、撮影の前に開いておく（画面の外の操作）
+await staff.locator("[data-ai-info-toggle]").click();
+await staff.locator("[data-intervisit] .cd-summary-safety").waitFor();
 await scrollTo(staff, C, "[data-intervisit]", 20);
 await settle(staff, 400);
 {
