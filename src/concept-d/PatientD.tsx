@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode, type RefObject } from "react"
 import { useUrlState } from "./urlState"
 import { ShioriLogo } from "./ShioriLogo"
 import { setCoverFor, themeImageFor, toneFor } from "./thumbnails"
@@ -2773,222 +2773,301 @@ function DHome({
   /** 「聞けた」の印（本番だけ） */
   onResolveNote?: (id: string) => void
 }) {
-  const completed = prescriptions.filter((lesson) => lesson.status === "done")
   const live = useContext(LiveInfoContext)
+  const completed = prescriptions.filter((lesson) => lesson.status === "done")
   // 本番: 今回の処方をすべて学習済み（Figma の検証シナリオ 4 と同じ表示）
   const allDone = live
     ? prescriptions.length > 0 && completed.length === prescriptions.length
     : scenario === 4
-  const homeLessons = [...prescriptions]
-    .sort((a, b) => homeLessonOrder[a.status] - homeLessonOrder[b.status])
-    .filter((lesson) => lesson.status !== "done")
-    .slice(0, 1)
+  const ordered = [...prescriptions].sort((a, b) => homeLessonOrder[a.status] - homeLessonOrder[b.status])
+  // 今日取り組む 1 件（学習途中 → 未学習）。残りは見出しと所要時間だけで並べ、先にやりたければ選べる
+  const next = active && active.status !== "done" ? active : ordered.find((lesson) => lesson.status !== "done")
+  const remaining = ordered.filter((lesson) => lesson.status !== "done" && lesson !== next)
   const remainingMin = (lesson: DLesson) =>
     live ? Math.max(1, Math.round((lesson.time * (100 - lesson.progress)) / 100)) : 4
-  // 本番: これまでの処方に情報処方セット（例: 診断時セット）が含まれるときは、セットのカードを出す（なければ従来の「今回の情報処方」）。
+  // 本番: これまでの処方に情報処方セット（例: 診断時セット）が含まれるときは、歩みの起点にセットを置く。
   // 後日ほかの教材が処方されても、セットはホームに残し、新しく届いた教材は別に案内する
   const homeSet = live?.homeSets.find((item) => item.lessons.length > 0)
   const setIds = new Set(homeSet?.lessons.map((lesson) => lesson.id) ?? [])
-  // セットに含まれない、今回（最新）届いた教材
   const newOutsideSet = homeSet ? prescriptions.filter((lesson) => !setIds.has(String(lesson.id))) : []
-  const unlearned = prescriptions.filter((lesson) => lesson.status !== "done").length
-  const daysToVisit = visit?.date ? daysUntil(visit.date) : null
-  // リマインド: 今日の体調記録がない／次の診察が近いのに未学習の教材がある（どちらも任意。押しつけない）
-  const [dismissed, setDismissed] = useState<string[]>([])
-  const reminders: { key: string; icon: string; text: string; action: string; page: DPage }[] = []
-  if (live && live.loaded && !live.recordedToday) reminders.push({ key: "health", icon: "pulse", text: "今日の体調はまだ記録していません", action: "記録する", page: "health" })
-  if (live && daysToVisit !== null && daysToVisit >= 0 && daysToVisit <= 7 && unlearned > 0)
-    reminders.push({ key: "learn", icon: "book", text: `次の診察まであと${daysToVisit}日。まだ読んでいない教材が${unlearned}件あります`, action: "教材を見る", page: "prescriptions" })
-  const shownReminders = reminders.filter((r) => !dismissed.includes(r.key))
+  // 前回の診察 = 教材が届いた日（処方の記録）。Figma の架空データでは 6月12日
+  const since = live ? live.latest : { sender: "さくら総合病院 山田 医師", clinician: "山田 医師", org: "さくら総合病院", date: "6月12日" }
+  const recordedToday = live ? live.recordedToday : false
+  const total = prescriptions.length
+  // 初回表示: 学習済みが多くて「今」のカードが画面の下に隠れるときだけ、歩みをその位置まで送る（過去は上にスクロールすると見える）
+  const journeyRef = useRef<HTMLDivElement>(null)
+  const nowRef = useRef<HTMLLIElement>(null)
+  const loaded = !live || live.loaded
+  const nextId = next ? String(next.id) : null
+  const scrolledFor = useRef<string | null>(null)
+  useEffect(() => {
+    if (!loaded || scrolledFor.current === nextId) return
+    scrolledFor.current = nextId
+    const box = journeyRef.current
+    const now = nowRef.current
+    if (!box || !now) return
+    const over = now.getBoundingClientRect().bottom - box.getBoundingClientRect().bottom
+    if (over > 0) box.scrollTop += over + 8
+  }, [loaded, nextId])
   return (
-    <div className="d-home d-home-v2">
-      <div className="d-welcome">
-        <div>
-          <p>こんにちは、{live ? live.familyName : "佐藤"}さん</p>
-          <h1>今日のしおり</h1>
+    <div className="d-home d-home-v3" data-home-v3>
+      {/* 上: 次の診察と今日の体調（固定） */}
+      <div className="d-home-top" data-home-top>
+        <div className="d-home-greet">
+          <h1>こんにちは、{live ? live.familyName : "佐藤"}さん</h1>
+          <span>{live ? live.today : "6月14日 金曜日"}</span>
         </div>
-        <span>{live ? live.today : "6月14日 金曜日"}</span>
-      </div>
-      {sharing && (
-        <button className="d-sharing-banner" onClick={() => setPage("share")}>
-          <Icon name="shield" />
-          <span>
-            <b>{live ? `${live.sharingLabel ?? "医療者"}と一時共有中` : "山田医師と一時共有中"}</b>
-            <small>{live ? `残り${live.sharingRemainingMin}分` : "残り24分"} · タップして管理</small>
-          </span>
-          <Icon name="arrow" />
-        </button>
-      )}
-      <DVisitCard visit={visit} />
-      {shownReminders.map((r) => (
-        <div key={r.key} className="d-reminder" role="status" data-reminder={r.key}>
-          <span className="d-reminder-icon">
-            <Icon name={r.icon} size={18} />
-          </span>
-          <p>{r.text}</p>
-          <button className="d-reminder-go" onClick={() => setPage(r.page)}>
-            {r.action}
-          </button>
-          <button className="d-reminder-close" aria-label="閉じる" onClick={() => setDismissed([...dismissed, r.key])}>
-            <Icon name="x" size={14} />
-          </button>
-        </div>
-      ))}
-
-      {/* 1. 届いた教材 */}
-      <section className="d-home-block" data-home-block="lessons">
-        <div className="d-block-head">
-          <span className="d-block-no">1</span>
-          <h2>届いた教材</h2>
-          <span className="d-block-meta">{prescriptions.length > 0 ? `${completed.length} / ${prescriptions.length} 学習済み` : ""}</span>
-        </div>
-        {live && !live.loaded ? null : homeSet ? (
-          <>
-            {!homeSet.inLatest && newOutsideSet.length > 0 && (
-              <button className="d-new-rx" data-new-rx onClick={() => setPage("prescriptions")}>
-                <span className="d-next-icon">
-                  <Icon name="book" size={20} />
-                </span>
-                <span>
-                  <b>新しく届いた教材 {newOutsideSet.length}件</b>
-                  <small>{live?.latest ? `${live.latest.date} · ${live.latest.clinician}から` : ""}</small>
-                </span>
-                <Icon name="arrow" />
-              </button>
-            )}
-            <DHomeSetCard
-              set={homeSet}
-              extraCount={homeSet.inLatest ? newOutsideSet.length : 0}
-              remainingMin={remainingMin}
-              onOpenSet={() => onOpenSet(homeSet.id)}
-              onOpen={onOpen}
-              onAll={() => setPage("prescriptions")}
-            />
-          </>
-        ) : prescriptions.length === 0 ? (
-          <div className="d-home-empty">
-            <h3>今届いている教材はありません</h3>
-            <p>医療者から教材が届くと、ここに表示されます。公開教材はいつでも探せます。</p>
-            <button className="secondary-button" onClick={() => setPage("library")}>
-              教材を探す
-              <Icon name="arrow" size={16} />
-            </button>
-          </div>
-        ) : allDone ? (
-          <section className="d-complete-hero d-home-compact">
-            <span className="d-complete-icon">
-              <Icon name="check" size={22} />
+        {sharing && (
+          <button className="d-sharing-banner" onClick={() => setPage("share")}>
+            <Icon name="shield" />
+            <span>
+              <b>{live ? `${live.sharingLabel ?? "医療者"}と一時共有中` : "山田医師と一時共有中"}</b>
+              <small>{live ? `残り${live.sharingRemainingMin}分` : "残り24分"} · タップして管理</small>
             </span>
-            <div>
-              <Pill tone="soft">今回の情報処方</Pill>
-              <h2>{live ? prescriptions.length : 3}件すべて確認しました</h2>
-              <p>必要なときは、いつでも読み直せます。</p>
-            </div>
-            <button onClick={() => setPage("prescriptions")}>
-              学習済みを見る
-            </button>
-          </section>
-        ) : (
-          <section className="d-next-card d-home-compact" aria-label="次に学ぶ教材">
-            <div className="d-next-meta">
-              <Pill>今回の情報処方</Pill>
-              <span>{live?.latest ? `${live.latest.date} · ${live.latest.clinician}から` : "6月12日 · 山田医師から"}</span>
-            </div>
-            <h2>
-              {active?.status === "doing"
-                ? "続きから再開できます"
-                : "新しい教材が届いています"}
-            </h2>
-            {homeLessons.map((lesson) => (
-              <div key={lesson.id} className="d-home-lesson" data-home-lesson>
-                <div className="d-next-lesson">
-                  <span className="d-next-icon">
-                    <Icon
-                      name={lesson.status === "doing" ? "play" : "book"}
-                      size={20}
-                    />
-                  </span>
-                  <span>
-                    <b>{lesson.title}</b>
-                    <small>
-                      <DStatus lesson={lesson} short />
-                      {lesson.status === "doing"
-                        ? `${lesson.progress}%まで · あと約${remainingMin(lesson)}分`
-                        : `約${lesson.time}分`}
-                    </small>
-                  </span>
-                </div>
-                <button className="primary-button" onClick={() => onOpen(lesson)}>
-                  {lesson.status === "doing" ? "続きから学ぶ" : "教材を確認する"}
-                  <Icon name="arrow" size={18} />
-                </button>
-              </div>
-            ))}
-            <button
-              className="d-text-action"
-              onClick={() => setPage("prescriptions")}
-            >
-              今回の教材をすべて見る（{prescriptions.length}件）
-            </button>
-          </section>
+            <Icon name="arrow" />
+          </button>
         )}
-      </section>
-
-      {/* 2. 聞きたいこと */}
-      <DHomeAsk recentNotes={recentNotes} onAddNote={onAddNote} onResolve={onResolveNote} setPage={setPage} />
-
-      {/* 3. 今日の体調 */}
-      <section className="d-home-block" data-home-block="health">
-        <div className="d-block-head">
-          <span className="d-block-no">3</span>
-          <h2>今日の体調</h2>
-          <span className="d-block-meta">任意</span>
-        </div>
-        <button className="d-home-health-card" data-home-health onClick={() => setPage("health")}>
-          <span className="stat-icon blue">
-            <Icon name="pulse" size={22} />
+        <DVisitCard visit={visit} />
+        <button className={`d-home-health-card d-home-health-top${recordedToday ? " done" : ""}`} data-home-health onClick={() => setPage("health")}>
+          <span className="d-health-mark">
+            <Icon name={recordedToday ? "check" : "pulse"} size={18} />
           </span>
           <span>
-            <b>{live && live.recordedToday ? "今日の記録を見る・追加する" : "今日の体調を記録する"}</b>
+            <b>{recordedToday ? "今日の体調は記録済み" : "今日の体調を記録する"}</b>
             <small>
-              気になることだけでも ·{" "}
-              {live ? (live.lastHealthDate ? `前回 ${live.lastHealthDate}` : "まだ記録はありません") : "前回 6月19日"}
+              {recordedToday
+                ? "見る・追加する"
+                : live
+                  ? live.lastHealthDate
+                    ? `前回 ${live.lastHealthDate}`
+                    : "まだ記録はありません"
+                  : "前回 6月19日"}
             </small>
           </span>
           <Icon name="arrow" />
         </button>
-      </section>
+      </div>
 
-      {/* そのほか（ホームでは小さく） */}
-      <section className="d-home-more">
-        {onOpenMoney && (
-          <button className="d-more-card" data-money-card onClick={onOpenMoney}>
-            <span className="d-more-icon tone-1">
-              <Icon name="wallet" size={18} />
+      {/* 中: 前回の診察から次の診察までの歩み（スクロール） */}
+      <div className="d-journey" data-home-journey ref={journeyRef}>
+        <div className="d-journey-head">
+          <h2>次の診察までの歩み</h2>
+          {total > 0 && (
+            <span className="d-journey-count" aria-label={`教材 ${total}件のうち ${completed.length}件が完了`}>
+              <i style={{ width: `${Math.round((completed.length / total) * 100)}%` }} />
+              <b>
+                {completed.length} / {total}
+              </b>
+            </span>
+          )}
+        </div>
+        {live && !live.loaded ? (
+          <div className="d-journey-loading" aria-hidden />
+        ) : (
+          <ol className="d-journey-list">
+            {/* 起点: 前回の診察（届いた教材・セット） */}
+            {homeSet ? (
+              <DJourneyNode state="done" icon="user" label={`${homeSet.date ?? since?.date ?? ""} · 前回の診察`}>
+                <section className="d-jn-set" data-set-card data-set-in-latest={homeSet.inLatest} aria-label={homeSet.inLatest ? "今回届いた情報処方セット" : "情報処方セット"}>
+                  <button className="d-jn-set-btn" data-set-open onClick={() => onOpenSet(homeSet.id)}>
+                    <DSetCover name={homeSet.name} />
+                    <span>
+                      <span className="d-jn-set-head">
+                        <Pill tone="soft">{homeSet.inLatest ? "今回の情報処方セット" : "情報処方セット"}</Pill>
+                        <small className="d-set-sender">{homeSet.sender ?? since?.sender ?? "医療者"}から届きました</small>
+                      </span>
+                      <b>{homeSet.name}</b>
+                      <small className="d-jn-set-stats">
+                        教材 {homeSet.lessons.length}件 · 学習済み {homeSet.lessons.filter((lesson) => lesson.status === "done").length} / {homeSet.lessons.length} · <u>セットの内容を見る</u>
+                      </small>
+                    </span>
+                    <Icon name="arrow" size={16} />
+                  </button>
+                </section>
+              </DJourneyNode>
+            ) : total > 0 ? (
+              <DJourneyNode state="done" icon="user" label={`${since?.date ?? ""} · 前回の診察`}>
+                <button className="d-jn-row" onClick={() => setPage("prescriptions")}>
+                  <span>
+                    <b>{since ? `${since.sender}から教材 ${total}件が届きました` : `教材 ${total}件が届きました`}</b>
+                    <small>届いた教材をすべて見る</small>
+                  </span>
+                  <Icon name="arrow" size={16} />
+                </button>
+              </DJourneyNode>
+            ) : (
+              <DJourneyNode state="todo" icon="user" label="前回の診察">
+                <div className="d-jn-row static">
+                  <span>
+                    <b>教材はまだ届いていません</b>
+                    <small>医療者から届くと、ここから歩みが始まります</small>
+                  </span>
+                </div>
+              </DJourneyNode>
+            )}
+            {homeSet && !homeSet.inLatest && newOutsideSet.length > 0 && (
+              <DJourneyNode state="todo" icon="book" label={since ? `${since.date} · 新しく届いた教材` : "新しく届いた教材"}>
+                <button className="d-jn-row" data-new-rx onClick={() => setPage("prescriptions")}>
+                  <span>
+                    <b>新しく届いた教材 {newOutsideSet.length}件</b>
+                    <small>{since ? `${since.clinician}から` : ""}</small>
+                  </span>
+                  <Icon name="arrow" size={16} />
+                </button>
+              </DJourneyNode>
+            )}
+
+            {/* 学習済み */}
+            {completed.map((lesson) => (
+              <DJourneyNode key={lesson.id} state="done" label={`${lesson.completedAt ? `${lesson.completedAt} · ` : ""}完了`}>
+                <button className="d-jn-row" onClick={() => onOpen(lesson)}>
+                  <span>
+                    <b>{lesson.title}</b>
+                    <small>読み直す · 約{lesson.time}分</small>
+                  </span>
+                  <Icon name="arrow" size={16} />
+                </button>
+              </DJourneyNode>
+            ))}
+
+            {/* 今日 */}
+            <DJourneyNode state="now" nodeRef={nowRef}>
+              {next ? (
+                <section className="d-jn-now-card" data-home-lesson aria-label="今日のおすすめ">
+                  <Pill>{next.status === "doing" ? "続きから" : "今日のおすすめ"}</Pill>
+                  <h3>{next.title}</h3>
+                  <small>
+                    {next.status === "doing"
+                      ? `前回の続き · ${next.progress}%まで · あと約${remainingMin(next)}分`
+                      : `${next.category} · 約${next.time}分`}
+                  </small>
+                  <button className="primary-button" onClick={() => onOpen(next)}>
+                    {next.status === "doing" ? "続きを学ぶ" : "学び始める"}
+                    <Icon name="arrow" size={18} />
+                  </button>
+                </section>
+              ) : allDone ? (
+                <section className="d-jn-now-card done" aria-label="今回の教材はすべて完了">
+                  <Pill tone="soft">今回の情報処方</Pill>
+                  <h3>{total}件すべて確認しました</h3>
+                  <small>必要なときは、いつでも読み直せます。</small>
+                  <button className="secondary-button" onClick={() => setPage("prescriptions")}>
+                    学習済みを見る
+                  </button>
+                </section>
+              ) : (
+                <section className="d-jn-now-card" aria-label="自分で学ぶ">
+                  <Pill tone="soft">自分で学ぶ</Pill>
+                  <h3>今届いている教材はありません</h3>
+                  <small>医療者から教材が届くと、ここに表示されます。公開教材はいつでも探せます。</small>
+                  <button className="secondary-button" onClick={() => setPage("library")}>
+                    教材を探す
+                    <Icon name="arrow" size={16} />
+                  </button>
+                </section>
+              )}
+            </DJourneyNode>
+
+            {/* これから */}
+            {remaining.map((lesson, index) => (
+              <DJourneyNode key={lesson.id} state="todo" label={index === 0 ? "診察までに" : undefined}>
+                <button className="d-jn-row" data-journey-todo onClick={() => onOpen(lesson)}>
+                  <span>
+                    <b>{lesson.title}</b>
+                    <small>{lesson.status === "doing" ? `${lesson.progress}%まで · あと約${remainingMin(lesson)}分` : `約${lesson.time}分`}</small>
+                  </span>
+                  <Icon name="arrow" size={16} />
+                </button>
+              </DJourneyNode>
+            ))}
+
+            {/* 終点: 次の診察と聞きたいこと */}
+            <DJourneyNode
+              state="end"
+              icon="calendar"
+              label={visit ? (visit.date ? `${visitDateLabel(visit.date)} · 診察` : "次の診察 · 日付は未登録") : "6月20日（木）· 診察"}
+            >
+              <div className="d-jn-end">
+                <b>{recentNotes.length > 0 ? `聞きたいこと ${recentNotes.length}件を確認` : "聞きたいことをメモしておきましょう"}</b>
+                {recentNotes.length > 0 && (
+                  <ul className="d-home-ask-list">
+                    {recentNotes.slice(0, 3).map((note) => (
+                      <li key={note.id}>
+                        <span>{note.body}</span>
+                        {onResolveNote && (
+                          <button className="d-ask-done" title="聞けた" aria-label="聞けた印を付ける" onClick={() => onResolveNote(note.id)}>
+                            <Icon name="check" size={14} />
+                            聞けた
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <button className="d-text-action" onClick={() => setPage("notes")}>
+                  {recentNotes.length > 3 ? `すべての質問を見る（${recentNotes.length}件）` : "質問の一覧を開く"}
+                </button>
+              </div>
+            </DJourneyNode>
+          </ol>
+        )}
+
+        {/* そのほか（歩みの下に小さく） */}
+        <section className="d-home-more">
+          {onOpenMoney && (
+            <button className="d-more-card" data-money-card onClick={onOpenMoney}>
+              <span className="d-more-icon tone-1">
+                <Icon name="wallet" size={18} />
+              </span>
+              <span>
+                <b>{MONEY_THEME}</b>
+                <small>制度と医療費の目安</small>
+              </span>
+            </button>
+          )}
+          <button className="d-more-card" onClick={() => setPage("library")}>
+            <span className="d-more-icon tone-0">
+              <Icon name="search" size={18} />
             </span>
             <span>
-              <b>{MONEY_THEME}</b>
-              <small>制度と医療費の目安</small>
+              <b>自分で教材を探す</b>
+              <small>公開教材から選ぶ</small>
             </span>
           </button>
-        )}
-        <button className="d-more-card" onClick={() => setPage("library")}>
-          <span className="d-more-icon tone-0">
-            <Icon name="search" size={18} />
-          </span>
-          <span>
-            <b>自分で教材を探す</b>
-            <small>公開教材から選ぶ</small>
-          </span>
-        </button>
-      </section>
-      {completed.length > 0 && (
-        <p className="d-home-footnote">
-          <Icon name="check" size={16} />
-          学習済みの教材は「学習記録」から読み直せます
-        </p>
-      )}
+        </section>
+      </div>
+
+      {/* 下: 次の診察で聞きたいこと（固定） */}
+      <DHomeAsk recentNotes={recentNotes} onAddNote={onAddNote} />
     </div>
+  )
+}
+
+/** ホームの歩み: 1 つの節目（済 = チェック、今 = 「今」、これから = 白丸、終点 = 診察） */
+function DJourneyNode({
+  state,
+  icon,
+  label,
+  children,
+  nodeRef,
+}: {
+  state: "done" | "now" | "todo" | "end"
+  icon?: string
+  /** 節目の見出し（日付や「診察までに」）。なければ出さない */
+  label?: string
+  children: ReactNode
+  nodeRef?: RefObject<HTMLLIElement | null>
+}) {
+  return (
+    <li className={`d-jn d-jn-${state}`} data-journey-node={state} ref={nodeRef}>
+      <span className="d-jn-mark" aria-hidden="true">
+        {state === "done" ? <Icon name="check" size={14} /> : state === "now" ? "今" : icon ? <Icon name={icon} size={15} /> : null}
+      </span>
+      <div className="d-jn-body">
+        {label && <small className="d-jn-label">{label}</small>}
+        {children}
+      </div>
+    </li>
   )
 }
 
@@ -3016,96 +3095,6 @@ function DSetCover({ name, size = "small" }: { name: string; size?: "small" | "l
 /** セットの教材から、次に学ぶ 1 件（学習途中 → 未学習） */
 const nextInSet = (lessons: DLesson[]) =>
   [...lessons].sort((a, b) => homeLessonOrder[a.status] - homeLessonOrder[b.status]).find((lesson) => lesson.status !== "done")
-
-/**
- * ホーム: 今回届いた情報処方セットのカード（Figma Production UX の PrescriptionSetCard）。
- * 届いた医療者・日付、セット名・説明、教材数と学習状況、「セットの内容を見る」、続きから学ぶ教材 1 件。
- */
-function DHomeSetCard({
-  set,
-  extraCount,
-  remainingMin,
-  onOpenSet,
-  onOpen,
-  onAll,
-}: {
-  set: DHomeSet
-  /** セット以外に今回届いた教材の数 */
-  extraCount: number
-  remainingMin: (lesson: DLesson) => number
-  onOpenSet: () => void
-  onOpen: (lesson: DLesson) => void
-  onAll: () => void
-}) {
-  const live = useContext(LiveInfoContext)
-  const total = set.lessons.length
-  const done = set.lessons.filter((lesson) => lesson.status === "done").length
-  const next = nextInSet(set.lessons)
-  return (
-    <section className="d-next-card d-set-card" data-set-card data-set-in-latest={set.inLatest} aria-label={set.inLatest ? "今回届いた情報処方セット" : "情報処方セット"}>
-      <div className="d-set-card-main">
-        <DSetCover name={set.name} />
-        <div className="d-set-card-text">
-          <Pill tone="soft">{set.inLatest ? "今回の情報処方セット" : "情報処方セット"}</Pill>
-          <small className="d-set-sender">
-            {set.sender && set.date ? (
-              <>
-                <span className="d-nowrap">{set.sender}から</span>
-                <span className="d-nowrap">届きました・{set.date}</span>
-              </>
-            ) : live?.latest ? `${live.latest.sender}から届きました・${live.latest.date}` : "医療者から届きました"}
-          </small>
-          <h2>{set.name}</h2>
-          {set.description && <p className="d-set-desc">{set.description}</p>}
-        </div>
-      </div>
-      <div className="d-set-stats">
-        <span>
-          教材 <b>{total}件</b>
-        </span>
-        <span>
-          学習済み{" "}
-          <b>
-            {done} / {total}
-          </b>
-        </span>
-      </div>
-      <div className="d-set-progress" aria-hidden="true">
-        <i style={{ width: `${total ? Math.round((done / total) * 100) : 0}%` }} />
-      </div>
-      <button className="d-set-open" data-set-open onClick={onOpenSet}>
-        セットの内容を見る
-        <Icon name="arrow" size={18} />
-      </button>
-      {next ? (
-        <div className="d-home-lesson d-set-resume" data-home-lesson>
-          <span className="d-set-resume-text">
-            <small>{next.status === "doing" ? "続きから" : "次に学ぶ教材"}</small>
-            <b>{next.title}</b>
-            <small>
-              {next.status === "doing"
-                ? `${next.progress}%まで · あと約${remainingMin(next)}分`
-                : `約${next.time}分`}
-            </small>
-          </span>
-          <button className="primary-button" onClick={() => onOpen(next)}>
-            {next.status === "doing" ? "続きから学ぶ" : "学び始める"}
-          </button>
-        </div>
-      ) : (
-        <p className="d-set-done">
-          <Icon name="check" size={16} />
-          このセットの教材をすべて学習しました。いつでも読み直せます。
-        </p>
-      )}
-      {extraCount > 0 && (
-        <button className="d-text-action" onClick={onAll}>
-          今回の教材をすべて見る（{total + extraCount}件）
-        </button>
-      )}
-    </section>
-  )
-}
 
 /** 情報処方セットの内容（Figma Production UX の SetDetail）。今回処方された教材を 1 件ずつカードで表示する */
 function DSetDetail({
@@ -3308,8 +3297,22 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState("")
   const [busy, setBusy] = useState(false)
-  if (!visit) return null
-  if (!visit.loaded) return <div className="d-visit-card loading" aria-hidden />
+  // Figma の架空データ表示（visit なし）: 画面例と同じ固定の日付
+  if (!visit)
+    return (
+      <section className="d-visit-card d-visit-top" aria-label="次回の診察日">
+        <span className="d-visit-text">
+          <span className="d-visit-days">
+            <small>次の診察まで</small> <b>あと6日</b>
+          </span>
+          <small className="d-visit-when">6月20日（木）</small>
+        </span>
+        <span className="d-visit-icon">
+          <Icon name="calendar" size={24} />
+        </span>
+      </section>
+    )
+  if (!visit.loaded) return <div className="d-visit-card d-visit-top loading" aria-hidden />
   const startEdit = () => {
     setValue(visit.date ?? "")
     setEditing(true)
@@ -3322,7 +3325,7 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
   }
   if (editing)
     return (
-      <section className="d-visit-card editing" aria-label="次回の診察日">
+      <section className="d-visit-card d-visit-top editing" aria-label="次回の診察日">
         <label htmlFor="d-visit-input">
           <Icon name="calendar" />
           次回の診察日
@@ -3352,31 +3355,25 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
     )
   if (!visit.date)
     return (
-      <section className="d-visit-card d-visit-hero empty" aria-label="次回の診察日">
-        <span className="d-visit-icon">
-          <Icon name="calendar" size={22} />
-        </span>
+      <section className="d-visit-card d-visit-top empty" aria-label="次回の診察日">
         <span className="d-visit-text">
           <small>次の診察</small>
           <b>診察日は未登録です</b>
         </span>
         <button className="d-visit-register" data-visit-edit onClick={startEdit}>
+          <Icon name="calendar" size={16} />
           日付を登録
         </button>
       </section>
     )
   const days = daysUntil(visit.date)
   return (
-    <section className={`d-visit-card d-visit-hero${days === 0 ? " today" : days < 0 ? " past" : ""}`} aria-label="次回の診察日">
-      <span className="d-visit-icon">
-        <Icon name="calendar" size={22} />
-      </span>
+    <section className={`d-visit-card d-visit-top${days === 0 ? " today" : days < 0 ? " past" : ""}`} aria-label="次回の診察日">
       <span className="d-visit-text">
-        <small>次の診察 · {visitDateLabel(visit.date)}</small>
         <span className="d-visit-days" data-visit-days>
           {days > 0 ? (
             <>
-              次の診察まで <b>あと{days}日</b>
+              <small>次の診察まで</small> <b>あと{days}日</b>
             </>
           ) : days === 0 ? (
             <b>今日が診察日です</b>
@@ -3384,25 +3381,23 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
             <>登録した診察日を過ぎました。次の日付を登録してください</>
           )}
         </span>
+        <small className="d-visit-when">{visitDateLabel(visit.date)}</small>
       </span>
-      <button className="d-visit-change" data-visit-edit onClick={startEdit}>
-        変更
+      <button className="d-visit-change" data-visit-edit onClick={startEdit} aria-label="次回の診察日を変更">
+        <Icon name="calendar" size={22} />
+        <small>変更</small>
       </button>
     </section>
   )
 }
 
-/** ホームから「診察で聞きたいこと」を直接追加（既存の診察ノート API。保存に成功したときだけ表示に反映） */
+/** ホーム下部（固定）: 「次の診察で聞きたいこと」を直接追加（既存の診察ノート API。保存に成功したときだけ表示に反映） */
 function DHomeAsk({
   recentNotes,
   onAddNote,
-  onResolve,
-  setPage,
 }: {
   recentNotes: { id: string; body: string }[]
   onAddNote: (body: string) => Promise<boolean>
-  onResolve?: (id: string) => void
-  setPage: (page: DPage) => void
 }) {
   const [draft, setDraft] = useState("")
   const [busy, setBusy] = useState(false)
@@ -3413,12 +3408,11 @@ function DHomeAsk({
     setBusy(false)
     if (ok) setDraft("")
   }
-  const shown = recentNotes.slice(0, 3)
   return (
-    <section className="d-home-block d-home-ask" data-home-block="ask">
-      <div className="d-block-head">
-        <span className="d-block-no">2</span>
-        <h2>診察で聞きたいこと</h2>
+    <section className="d-home-ask d-home-bottom" data-home-block="ask">
+      <div className="d-home-ask-head">
+        <Icon name="note" size={18} />
+        <h2>次の診察で聞きたいこと</h2>
         <span className="d-block-meta" data-home-note-count>{recentNotes.length}件</span>
       </div>
       <form
@@ -3429,7 +3423,7 @@ function DHomeAsk({
         }}
       >
         <label htmlFor="d-home-note" className="sr-only">
-          診察で聞きたいこと
+          次の診察で聞きたいこと
         </label>
         <input
           id="d-home-note"
@@ -3437,32 +3431,13 @@ function DHomeAsk({
           value={draft}
           maxLength={500}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder="例：副作用が出たときの連絡先は？"
+          placeholder="例：腕のつっぱりはいつまで続きますか？"
         />
         <button type="submit" className="primary-button" data-home-note-add disabled={!draft.trim() || busy}>
           <Icon name="plus" size={18} />
           追加
         </button>
       </form>
-      {shown.length > 0 && (
-        <ul className="d-home-ask-list">
-          {shown.map((note) => (
-            <li key={note.id}>
-              <span>{note.body}</span>
-              {onResolve && (
-                <button className="d-ask-done" title="聞けた" aria-label="聞けた印を付ける" onClick={() => onResolve(note.id)}>
-                  <Icon name="check" size={14} />
-                  聞けた
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-      {recentNotes.length === 0 && <p className="d-home-ask-empty">気になることを短く残しておくと、診察のときに医療者と確認できます。</p>}
-      <button className="d-text-action" onClick={() => setPage("notes")}>
-        {recentNotes.length > 3 ? `すべての質問を見る（${recentNotes.length}件）` : "質問の一覧を開く"}
-      </button>
     </section>
   )
 }

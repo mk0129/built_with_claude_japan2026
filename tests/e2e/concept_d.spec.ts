@@ -61,10 +61,10 @@ test("患者: ログイン後に Figma 版ホーム。主要な画面遷移、�
   const css = await page.evaluate(() => ({ html: getComputedStyle(document.documentElement).fontSize, font: getComputedStyle(document.body).fontFamily }));
   expect(css.html).toBe("16px");
   expect(css.font).toContain("Noto Sans JP");
-  await expect(page.getByRole("heading", { name: "今日のしおり" })).toBeVisible();
+  await expect(page.locator("[data-home-journey]")).toBeVisible(); // 2026-11: ホームは「次の診察（固定）・歩み・聞きたいこと（固定）」の 3 ゾーン
 
   // 実データ（Step 2）: 今回の処方の教材 → 詳細 → 学習 → 再読み込みで同じページ → 閉じてホーム（理解確認の通しは prescribe_learn.spec.ts）
-  await page.locator(".d-next-card .primary-button").click();
+  await page.locator("[data-home-lesson] .primary-button").click(); // 2026-11: 歩みの「今」のカード
   await expect(page).toHaveURL(/view=detail/);
   await page.locator(".d-detail .d-bottom-action").click();
   await expect(page).toHaveURL(/view=learn/);

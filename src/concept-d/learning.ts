@@ -86,6 +86,8 @@ export type LiveLesson = {
   /** 最新の挑戦の誤答・「わからない」の数（復習の案内に使う） */
   nWrong: number
   nUnknown: number
+  /** 学習を終えた日（「11月1日」。未完了は null）。ホームの歩みに表示する */
+  completedAt: string | null
 };
 
 export function toLesson(i: LibraryApiItem): LiveLesson {
@@ -114,6 +116,7 @@ export function toLesson(i: LibraryApiItem): LiveLesson {
     thumbnail: thumbnailFor(i.title),
     nWrong: i.nWrong,
     nUnknown: i.nUnknown,
+    completedAt: i.completedAt ? shortDate(i.completedAt) : null,
   };
 }
 

@@ -107,8 +107,8 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
 
   // ---- 3. 患者が学習し、理解確認で「わからない」----
   await p.goto("/home");
-  await expect(p.locator(".d-next-card")).toContainText("【擬似生成】", { timeout: 10_000 });
-  await p.locator(".d-next-card .primary-button").click();
+  await expect(p.locator("[data-home-lesson]")).toContainText("【擬似生成】", { timeout: 10_000 }); // 2026-11: 歩みの「今」のカード
+  await p.locator("[data-home-lesson] .primary-button").click();
   await p.locator(".d-detail .d-bottom-action").click();
   await expect(p.locator(".d-learning h1")).toContainText("ホルモン療法を続けるために（デモ）");
   for (let i = 0; i < 8; i++) {
@@ -160,8 +160,8 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await expectShareEnded(s);
   for (const path of ["patient", "intervisit", "health"]) expect((await s.request.get(`/api/v1/consultations/${sid}/${path}`)).status()).toBe(403);
   await p.goto("/home");
-  await expect(p.locator(".d-next-card")).toContainText("今回の情報処方");
-  await p.getByRole("button", { name: /今回の教材をすべて見る（2件）/ }).click();
+  await expect(p.locator("[data-home-journey]")).toContainText("教材 2件が届きました"); // 2026-11: 歩みの起点（前回の診察）
+  await p.locator("[data-home-journey]").getByRole("button", { name: /届いた教材をすべて見る/ }).click();
   await expect(p.locator(".d-card-list")).toContainText("化学療法中の副作用とセルフケア");
 
   await staff.ctx.close();

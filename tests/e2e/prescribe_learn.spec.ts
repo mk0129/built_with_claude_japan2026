@@ -63,10 +63,12 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
 
   // 4. 患者のホームに届く
   await p.locator(".d-share-page").getByRole("button", { name: "共有したままホームへ戻る" }).click();
-  await expect(p.getByRole("heading", { name: "新しい教材が届いています" })).toBeVisible({ timeout: 10_000 });
-  await expect(p.locator(".d-next-card")).toContainText(MATERIAL);
-  await expect(p.locator(".d-next-card")).toContainText("山田 医師から");
-  await p.getByRole("button", { name: "今回の教材をすべて見る（1件）" }).click();
+  // 2026-11: ホームは「歩み」。届いた教材は起点（前回の診察）に、取り組む教材は「今」のカードに出る
+  const now = p.locator("[data-home-lesson]");
+  await expect(now).toContainText(MATERIAL, { timeout: 10_000 });
+  await expect(now).toContainText("今日のおすすめ");
+  await expect(p.locator("[data-home-journey]")).toContainText("山田 医師から教材 1件が届きました");
+  await p.locator("[data-home-journey]").getByRole("button", { name: /届いた教材をすべて見る/ }).click();
   await expect(p.locator(".d-prescription-info")).toContainText("さくら総合病院");
 
   // 5. 学習（詳細 → 学習を始める → ページ送り → 理解を確認する）
@@ -106,8 +108,8 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   await p.reload();
   await expect(p.locator(".d-quiz")).toContainText("3 / 3");
   await p.goto("/home");
-  await expect(p.getByRole("heading", { name: "続きから再開できます" })).toBeVisible({ timeout: 10_000 });
-  await expect(p.locator(".d-next-lesson")).toContainText("学習途中");
+  await expect(p.locator("[data-home-lesson]")).toContainText("続きから", { timeout: 10_000 }); // 2026-11: 「今」のカード
+  await expect(p.locator("[data-home-lesson]")).toContainText("前回の続き");
   const lib = await (await p.request.get("/api/v1/library")).json();
   expect(lib.items.find((i: { title: string }) => i.title === MATERIAL)).toMatchObject({ phase: "quiz", nUnknown: 0 });
 
