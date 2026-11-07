@@ -1876,6 +1876,10 @@ function DHealthTracker({
                 {inputSummary}
               </p>
             )}
+            {hasInput && (
+              // 下の注意書きを読む前に保存できるため、留めた保存ボタンの上にも同じ注意を出す
+              <p className="d-save-caution">記録しただけでは医療者へ通知されません。</p>
+            )}
             <button
               className="primary-button d-save-health"
               disabled={invalidFields.length > 0 || saving}

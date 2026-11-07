@@ -3901,6 +3901,7 @@
   text-overflow: ellipsis;
 }
 .d-save-summary span { flex: none; color: var(--muted); font-weight: 500; }
+.d-save-caution { margin: 0 4px 7px; color: var(--muted); font-size: 11px; line-height: 1.4; }
 .d-share-health { margin: 9px 0 0; background: transparent; }
 .d-symptom-manager > .d-support-copy { margin-top: -10px; }
 .d-terminology-note {
