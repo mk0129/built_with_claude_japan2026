@@ -3,6 +3,10 @@
  * 生成時と同じ記録（架空の患者A、基準日 2026-11-04、11 月 3 日の手足のしびれを 1/4 に変更した後）をインメモリ DB に再現し、
  * 各文の根拠を内容（ラベルと日時）で現在の ID に対応づけ、現在の検証を通ることを確かめてから書き出す。Claude は呼ばない。
  *   npx tsx scripts/build-intervisit-replay.ts
+ * 別の実行の出力から作るとき（既定のファイルは上書きしない）:
+ *   REPLAY_ORIGIN=<実行の出力 JSON> REPLAY_OUT=<書き出し先> REPLAY_GENERATED_ON=<生成日 YYYY-MM-DD> npx tsx scripts/build-intervisit-replay.ts
+ *   出力 JSON は { status: "ai", model, items: [{ section, text, sources: [{ id, label, at }] }] }（要約 API の応答から作れる）。
+ *   入力の記録は撮影用と同じ（基準日 2026-11-04、11 月 3 日の手足のしびれを 1/4 に変更した後）で、実行時の記録と一致すること。
  */
 import { readFileSync, writeFileSync } from "node:fs";
 process.env.DATABASE_URL = "";
@@ -17,8 +21,9 @@ process.env.BETTER_AUTH_SECRET ??= "replay-build-secret-0123456789abcdef0123";
 process.env.BETTER_AUTH_URL ??= "http://localhost:3000";
 process.env.ANTHROPIC_API_KEY = "";
 
-const ORIGIN = "docs/design/phase2/step4/real/02_after_edit.json";
-const OUT = "docs/design/phase2/step4/replay/intervisit_replay.json";
+const ORIGIN = process.env.REPLAY_ORIGIN ?? "docs/design/phase2/step4/real/02_after_edit.json";
+const OUT = process.env.REPLAY_OUT ?? "docs/design/phase2/step4/replay/intervisit_replay.json";
+const GENERATED_ON = process.env.REPLAY_GENERATED_ON ?? "2026-11-04";
 
 async function main() {
   const { ensureMigrated, getDb } = await import("@/server/db/client");
@@ -38,7 +43,7 @@ async function main() {
   };
   if (origin.status !== "ai") throw new Error("記録が検証済みの Claude 出力ではありません");
   const file = {
-    generatedOn: "2026-11-04",
+    generatedOn: GENERATED_ON,
     model: origin.model,
     origin: ORIGIN,
     period: { from: iv.period.from, to: iv.period.to },

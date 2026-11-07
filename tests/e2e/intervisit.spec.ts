@@ -96,6 +96,8 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   // 11. AI 要約（E2E は開発用の擬似生成。見出しで Claude ではないことを明示）
   await expect(s.locator('.cd-summary-narrative[data-summary-kind="fake"]')).toBeVisible({ timeout: 15_000 });
   expect(Math.abs((await firstQ.boundingBox())!.y - y1)).toBeLessThan(2);
+  // 部分的な除外はその場で件数を示す（擬似生成はルールベースの文を使うため、選択のみの回答を「」で引用した 1 項目は照合で除外される）
+  await expect(iv.locator("[data-ai-status='partial']")).toHaveText("照合できなかった1項目を除外");
   await expect(qRow).not.toContainText("しびれは治療終了後に戻りますか？");
   await expect(qRow.locator('[data-row-more="questions"]')).toHaveText("ほか2件");
   await qRow.locator('[data-row-more="questions"]').click();
