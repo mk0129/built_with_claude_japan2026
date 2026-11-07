@@ -132,8 +132,8 @@ test("佐藤 花子: 経過グラフ → 共有 → Claude外来間サマリー�
   await expect(key.locator('[data-key-row="questions"] [data-key-question]').first()).toContainText("手のしびれは、治療が終わったら戻りますか？");
   // 症状は記録された値（最大とその日付・直近の記録）。同じ日の 2 回の入力は別々の元の記録として開ける
   const numb = key.locator('[data-symptom="numbness"]');
-  await expect(numb).toContainText("10月28日 3/4");
-  await expect(numb).toContainText("直近の記録は11月3日 1/4");
+  await expect(numb.locator("[data-stat=max]")).toContainText("3/4（10月28日");
+  await expect(numb.locator("[data-stat=last]")).toContainText("1/4（11月3日）");
   await numb.locator("button.cd-key-sentence").click();
   const src = numb.locator("[data-summary-sources] [data-source-id^='hs:']");
   await expect(src).toHaveCount(8);
