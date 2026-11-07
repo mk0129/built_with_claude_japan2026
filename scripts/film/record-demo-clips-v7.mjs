@@ -146,14 +146,25 @@ await settle(staff, 600);
 await scrollTo(staff, C, "[data-intervisit]", 20);
 await settle(staff, 500);
 {
-  const row = staff.locator('[data-key-row="questions"] [data-summary-key-item]').filter({ hasText: "手のしびれは、治療が終わったら戻りますか？" }).first();
-  const quote = await row.locator("span").evaluate((s) => {
-    const tn = s.firstChild, i = tn.textContent.indexOf("「手のしびれ"), r = document.createRange();
-    r.setStart(tn, i); r.setEnd(tn, tn.textContent.length);
+  // 提出版の診察サマリー: 「患者が今日聞きたいこと」の先頭の質問行（data-key-question）。引用文は実際の文字（テキストノード）の範囲を測る
+  const line = staff.locator('[data-key-row="questions"] [data-key-question]').filter({ hasText: "手のしびれは、治療が終わったら戻りますか？" }).first();
+  const row = line.locator("button.cd-key-sentence").first();
+  const quote = await row.evaluate((btn) => {
+    // 引用文の要素（「 本文 」は React では別々のテキストノード）を探し、中身全体の範囲を測る
+    const el = [...btn.querySelectorAll("span")].find((x) => x.children.length === 0 && x.textContent.startsWith("「手のしびれ"));
+    if (!el) throw new Error("質問の引用文が見つかりません");
+    const r = document.createRange();
+    r.selectNodeContents(el);
     const b = r.getBoundingClientRect();
     return [b.left, b.top, b.right, b.bottom].map((v) => Math.round(v * 10) / 10);
   });
-  events.summary = { quote, evidence: await rectOf(row.locator("small")), row: await rectOf(row), label: await rectOf(staff.locator('[data-key-row="questions"] > b')) };
+  events.summary = {
+    quote,
+    evidence: await rectOf(row.locator("small")),
+    meta: await rectOf(row.locator("em")),
+    row: await rectOf(row),
+    label: await rectOf(staff.locator('[data-key-row="questions"] > b')),
+  };
   events.segments.summary = await record(staff, "summary", async () => { await hold(staff, 9200); });
 }
 events.replayAfterSummary = await replayCheck();
