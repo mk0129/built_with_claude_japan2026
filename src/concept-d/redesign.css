@@ -239,15 +239,18 @@
 .d-area-5 { --area: #3f7250; --area-bg: #eaf3ed; --area-line: #cfe1d4; }
 .d-area-6 { --area: #3f5f86; --area-bg: #eaeff6; --area-line: #d0dae8; }
 .d-category-cards > button[class*="d-area-"], .d-area-list > button[class*="d-area-"] { background: var(--area-bg); border-color: var(--area-line); }
-.d-category-cards > button[class*="d-area-"] .d-category-icon, .d-area-list > button[class*="d-area-"] .d-category-icon { background: #fff; color: var(--area); }
+.d-category-cards > button[class*="d-area-"] .d-category-icon, .d-area-list > button[class*="d-area-"] .d-category-icon { background: transparent; color: var(--area); }
+.d-category-cards > button[class*="d-area-"] .d-category-icon svg, .d-area-list > button[class*="d-area-"] .d-category-icon svg { width: 26px; height: 26px; }
 .d-category-cards > button[class*="d-area-"] small, .d-area-list > button[class*="d-area-"] small { color: var(--area); opacity: .85; }
 .d-area-list > button[class*="d-area-"] .d-area-progress i { background: var(--area); }
 .d-theme-card { --area: #8a672f; --area-bg: #f7f1e4; --area-line: #e6d6b4; background: var(--area-bg); border: 1px solid var(--area-line); border-left-width: 1px; }
-.d-theme-card .d-category-icon { background: #fff; color: var(--area); }
+.d-theme-card .d-category-icon { background: transparent; color: var(--area); }
+.d-theme-card .d-category-icon svg { width: 26px; height: 26px; }
 .d-theme-card small { color: var(--area); opacity: .85; }
 .d-lesson-card[class*="d-area-"] .d-card-meta .d-category { display: inline-flex; align-items: center; gap: 5px; color: var(--area); }
 .d-lesson-card[class*="d-area-"] .d-card-meta .d-category::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--area); }
-.d-lesson-card[class*="d-area-"] .d-image-fallback { background: var(--area-bg); border-color: var(--area-line); }
+.d-lesson-card[class*="d-area-"] { background: var(--area-bg); border-color: var(--area-line); }
+.d-lesson-card[class*="d-area-"] .d-image-fallback { background: #fff; border-color: var(--area-line); }
 .d-lesson-card[class*="d-area-"] .d-image-fallback .d-art-icon { color: var(--area); }
 .d-category-cards b { font-size: 14px; }
 .d-category-cards small { font-size: 11px; }
@@ -297,7 +300,7 @@
 .d-sim-treatment-sum span { color: #4c6467; font-size: 12px; }
 .d-sim-treatment-sum b { font-size: 20px; color: var(--blue-dark); }
 .d-sim-treatment-sum small { color: var(--muted); font-size: 11px; }
-.d-sim-month-change { margin-left: auto; padding: 2px 8px; border: 1px solid rgba(255,255,255,.6); border-radius: 999px; background: transparent; color: #fff; font-size: 11px; }
+.d-sim-month-change { margin-left: auto; min-height: 32px; padding: 2px 10px; border: 1px solid rgba(255,255,255,.6); border-radius: 999px; background: transparent; color: #fff; font-size: 11px; }
 .d-sim-months-inline { margin: 6px 0 4px; }
 .d-sim-months-inline button { min-height: 36px; font-size: 12px; }
 .d-sim-range { margin: 4px 0 0; font-size: 12.5px; line-height: 1.7; opacity: .95; }
@@ -561,14 +564,14 @@
 .d-home-ask-body { padding-top: 10px; }
 .d-home-ask-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; color: var(--blue-dark); }
 .d-main .d-home-ask-head h2 { font-size: 14px; line-height: 1.4; }
-.d-home-ask-count { min-height: 30px; display: inline-flex; align-items: center; gap: 2px; padding: 0 4px 0 8px; border: 0; border-radius: 9px; background: #eef3f3; color: var(--blue-dark); font-size: 12px; font-weight: 700; }
+.d-home-ask-count { min-height: 34px; display: inline-flex; align-items: center; gap: 2px; padding: 0 4px 0 8px; border: 0; border-radius: 9px; background: #eef3f3; color: var(--blue-dark); font-size: 12px; font-weight: 700; }
 .d-home-bottom .d-home-ask-form input { min-height: 46px; font-size: 16px; }
 .d-home-bottom .d-home-ask-form .primary-button { min-height: 46px; }
 
 /* 探す画面: テーマ（仕事とお金のこと） */
 .d-theme-card {
   width: 100%; min-height: 60px; display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 10px 12px;
-  border: 1px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink); text-align: left;
+  border-radius: 14px; color: var(--ink); text-align: left;
 }
 .d-theme-card > span:nth-child(2) { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .d-theme-card b { font-size: 14px; }
@@ -615,7 +618,7 @@
 .d-health-v2 .d-symptom-title { flex-wrap: nowrap; align-items: center; gap: 6px; margin-bottom: 6px; }
 .d-health-v2 .d-symptom-title > b { flex: 1; min-width: 0; font-size: 15px; }
 .d-health-v2 .d-symptom-title > .d-missing-label { margin: 0; color: #9fb3b5; font-size: 10.5px; white-space: nowrap; }
-.d-health-v2 .d-symptom-title > button { min-height: 30px; padding: 0 8px; border: 0; border-radius: 8px; background: #f0f4f4; color: var(--blue-dark); font-size: 11.5px; font-weight: 700; }
+.d-health-v2 .d-symptom-title > button { min-height: 34px; padding: 0 8px; border: 0; border-radius: 8px; background: #f0f4f4; color: var(--blue-dark); font-size: 11.5px; font-weight: 700; }
 .d-health-v2 .d-symptom-title > button[aria-expanded="true"] { background: var(--blue-dark); color: #fff; }
 .d-health-v2 .d-severity-scale button { min-height: 52px; font-size: 9.5px; }
 .d-health-v2 .d-anchor-line { margin-top: 6px; font-size: 11.5px; }
@@ -640,8 +643,14 @@
 .d-course-wrap { margin: 0; padding: 0 0 4px; overflow-x: auto; scrollbar-width: thin; }
 .d-course-table { border-collapse: separate; border-spacing: 0; font-size: 12px; }
 .d-course-table th, .d-course-table td { height: 36px; padding: 0 4px; border-bottom: 1px solid #e6eded; text-align: center; white-space: nowrap; }
-.d-course-table thead th { position: sticky; top: 0; background: #fff; color: var(--muted); font-size: 10.5px; font-weight: 600; min-width: 36px; }
-.d-course-table thead th.today span { display: inline-block; padding: 1px 5px; border-radius: 8px; background: var(--blue-dark); color: #fff; }
+.d-course-table thead th { position: sticky; top: 0; background: #fff; color: var(--muted); font-size: 10.5px; font-weight: 600; min-width: 38px; line-height: 1.15; vertical-align: bottom; padding-bottom: 4px; }
+.d-course-table thead th small { display: block; height: 12px; color: #9fb3b5; font-size: 9.5px; }
+.d-course-table thead th b { display: inline-block; min-width: 22px; padding: 1px 4px; border-radius: 8px; color: #4c6467; font-size: 12.5px; }
+.d-course-table thead th.today b { background: var(--blue-dark); color: #fff; }
+.d-course-table th + th, .d-course-table td { border-left: 1px solid #eef3f3; }
+.d-course-table td.today-col { background: #f3f7f7; }
+.d-course-table td.vflag1 { background: #f7f1e5; }
+.d-course-table td.vflag2 { background: #f8e9e6; }
 .d-course-table tbody th { position: sticky; left: 0; z-index: 1; min-width: 72px; max-width: 110px; padding-right: 8px; background: #fff; color: var(--ink); font-size: 12px; font-weight: 700; text-align: left; white-space: normal; line-height: 1.3; box-shadow: 4px 0 6px -4px rgba(38, 63, 67, .18); }
 .d-course-table tbody th small { display: block; color: var(--muted); font-size: 9.5px; font-weight: 400; }
 .d-course-table tr.vital td { font-variant-numeric: tabular-nums; color: #334a4d; }
@@ -654,13 +663,13 @@
 .d-course-table td.s3 { color: #a15349; background: #f8e9e6; }
 .d-course-table td.s4 { color: #fff; background: #a9574e; }
 .d-hc-missing { color: #c3cfd0; }
-.d-table-note { margin: 6px 0 0; color: var(--muted); font-size: 10.5px; }
+.d-table-note { margin: 0 0 8px; color: var(--muted); font-size: 10.5px; line-height: 1.6; }
 .d-health-history-v2 .d-health-chart { margin-top: 12px; padding: 12px 12px 10px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
 .d-chart-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
 .d-main .d-chart-head h2 { font-size: 14px; }
 .d-chart-head > span { color: var(--muted); font-size: 11px; }
 .d-series-legend { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.d-series-legend button { min-height: 30px; display: inline-flex; align-items: center; gap: 5px; padding: 0 9px; border: 1px solid var(--line); border-radius: 15px; background: #fff; color: #4c6467; font-size: 11.5px; }
+.d-series-legend button { min-height: 34px; display: inline-flex; align-items: center; gap: 5px; padding: 0 9px; border: 1px solid var(--line); border-radius: 15px; background: #fff; color: #4c6467; font-size: 11.5px; }
 .d-series-legend button i { width: 9px; height: 9px; border-radius: 50%; }
 .d-series-legend button.active { border-color: var(--blue-dark); color: var(--ink); font-weight: 700; background: #eef3f3; }
 .d-health-history-v2 .d-health-chart > p { margin: 8px 0 0; color: var(--muted); font-size: 10.5px; line-height: 1.6; }
@@ -700,3 +709,7 @@
 .d-lesson-card.horizontal .d-image-slot .d-image-placeholder { width: 48px; height: 48px; min-height: 0; aspect-ratio: auto; padding: 0; border-radius: 10px; overflow: hidden; }
 .d-lesson-card.horizontal .d-image-slot .d-image-placeholder img { width: 100%; height: 100%; object-fit: cover; }
 .d-lesson-card.horizontal .d-image-slot .d-art-icon { width: 24px; height: 24px; }
+
+/* 記録の一覧: 編集・削除は 1 行に並べ、次の記録に重ならないようにする */
+.d-health-list .d-record-actions { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0 0; }
+.d-health-list .d-record-actions .d-text-action { display: inline-flex; align-items: center; min-height: 36px; margin: 0; }

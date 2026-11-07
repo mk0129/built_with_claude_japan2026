@@ -6,7 +6,7 @@ import { ShioriLogo } from "./ShioriLogo"
 import { setCoverFor, themeImageFor, toneFor } from "./thumbnails"
 import { CostSimulator } from "./CostSimulator"
 import { MONEY_THEME, MONEY_TITLES, SIMULATOR_MATERIAL, SIMULATOR_NAME } from "./socialSupport"
-import { vitalFlag } from "@/lib/recommend"
+import { VITAL_FLAG_NOTE, vitalFlag } from "@/lib/recommend"
 import { daysUntil, visitDateLabel, type PatientVisit } from "./visit"
 import type { PatientLive } from "./live"
 import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes, type VisitNote } from "./health"
@@ -2581,6 +2581,9 @@ function DHealthHistory({
         直近{periodDays}日のうち{recordedDays}日に記録
       </p>
 
+      {mode === "table" && recordedDays > 0 && (
+        <p className="d-table-note" title={VITAL_FLAG_NOTE}>症状は 0（なし）〜4（非常に強い）。「·」は記録なし。色付きのバイタルは一般的な目安の範囲外（体温 37.5℃以上、血圧 140 以上、脈拍 100 以上、SpO₂ 95%以下など）</p>
+      )}
       {mode === "table" ? (
         recordedDays === 0 ? (
           <p className="d-chart-empty">この期間の記録はありません。</p>
@@ -2590,9 +2593,11 @@ function DHealthHistory({
               <thead>
                 <tr>
                   <th />
-                  {days.map((d) => (
+                  {days.map((d, i) => (
                     <th key={dayKey(d)} className={dayKey(d) === todayKey ? "today" : ""}>
-                      <span>{`${d.getMonth() + 1}/${d.getDate()}`}</span>
+                      {/* 月は最初の列と月が変わる列だけ。日は毎列 */}
+                      <small>{i === 0 || d.getMonth() !== days[i - 1].getMonth() ? `${d.getMonth() + 1}月` : ""}</small>
+                      <b>{d.getDate()}</b>
                     </th>
                   ))}
                 </tr>
@@ -2605,7 +2610,7 @@ function DHealthHistory({
                       <small>{row.metric.unit}</small>
                     </th>
                     {row.values.map((v, i) => (
-                      <td key={i} className={flag(row.metric.key, v)}>
+                      <td key={i} className={`${flag(row.metric.key, v)}${dayKey(days[i]) === todayKey ? " today-col" : ""}`}>
                         {row.metric.key === "systolic"
                           ? v === null
                             ? cell(null, String)
@@ -2619,7 +2624,7 @@ function DHealthHistory({
                   <tr key={row.id} className="symptom" data-table-symptom={row.id}>
                     <th>{nameOf(row.id)}</th>
                     {row.values.map((v, i) => (
-                      <td key={i} className={v === null ? "" : `s${v}`}>
+                      <td key={i} className={`${v === null ? "" : `s${v}`}${dayKey(days[i]) === todayKey ? " today-col" : ""}`}>
                         {cell(v, String)}
                       </td>
                     ))}
@@ -2627,7 +2632,6 @@ function DHealthHistory({
                 ))}
               </tbody>
             </table>
-            <p className="d-table-note">症状は 0（なし）〜4（非常に強い）の自己評価。「·」は記録なし。</p>
           </div>
         )
       ) : (
@@ -3514,7 +3518,6 @@ function DLibrary({
             </button>
           ))}
         </div>
-        <p className="d-filter-help">処方された教材 = 医療者が届けた教材 ／ 自分で選んだ教材 = 自分で開いて学んだ教材</p>
         <label className="d-select-filter">
           学習状態
           <select
