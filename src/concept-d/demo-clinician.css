@@ -296,3 +296,149 @@
 .cd-device-app .cd-ai-info > p { font-size: 12px; }
 .cd-device-app .cd-period-line b { font-size: 13px; }
 .cd-device-app .cd-period-line small { font-size: 12px; }
+
+/* ---- 診察サマリー（音声レビュー対応・担当B）: 1 最近の体調 → 2 質問 → 3 設問 → 4 教材候補。処方の選択は画面下に固定 ---- */
+.cd-step-no {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: #315e68;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  vertical-align: 1px;
+}
+.cd-sym-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.cd-sym-stat { white-space: nowrap; }
+.cd-sym-stat > i {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: #edf1f1;
+  color: #315e68;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.cd-sym-stat[data-stat="max"] > i { background: #f4e9d4; color: #7d5c2c; }
+.cd-sym-impact { color: #5c4a2a !important; }
+.cd-vitals-block { display: grid; gap: 2px; margin-top: 4px; }
+.cd-sub-label { margin: 2px 0 0 8px !important; color: #687a7d; font-size: 11px !important; font-weight: 700; }
+.cd-question-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: -2px 0 2px 8px; color: #687a7d; font-size: 11px; }
+.cd-key-summary .cd-row-detail { width: auto; min-height: 0; padding: 2px 0; font-size: 11.5px; text-decoration: underline; }
+.cd-key-summary [data-answer-result] .cd-row-detail { margin: -2px 0 2px 8px; justify-self: start; }
+.cd-answer-stats { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0 !important; padding: 2px 8px; color: #243a3d; font-size: 12px !important; }
+.cd-answer-stats strong { color: #243a3d; font-size: 13px; }
+.cd-answer-stats span { color: #687a7d; font-size: 11.5px; }
+.cd-answer-kind { display: inline-block; margin-right: 6px; padding: 0 6px; border-radius: 4px; font-size: 11px; font-weight: 700; line-height: 1.6; }
+.cd-answer-kind.wrong { background: #f7f0e2; color: #8a672f; }
+.cd-answer-kind.unknown { background: #f8e8e5; color: #a15349; }
+.cd-unanswered-line { margin: 0 !important; padding: 2px 8px; color: #4f6164; font-size: 11.5px !important; }
+.cd-unanswered-line > i { display: inline-block; margin-right: 6px; padding: 0 6px; border-radius: 4px; background: #edf0f0; color: #697779; font-size: 11px; font-style: normal; font-weight: 700; }
+.cd-answer-note { margin-left: 8px; color: #687a7d; font-size: 10.5px; }
+.cd-earlier-answers p, [data-earlier-answers] p { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+[data-earlier-answers] .cd-text-back { width: auto; min-height: 0; padding: 0; font-size: 12px; text-decoration: underline; }
+.cd-rx-candidates { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+.cd-rx-candidate {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid #dbe4e4;
+  border-radius: 10px;
+  background: #fff;
+}
+.cd-rx-candidate.selected { border-color: #527f89; background: #f4f9f9; }
+.cd-rx-candidate-head { display: grid; gap: 4px; }
+.cd-rx-candidate-head b { color: #243a3d; font-size: 13px; line-height: 1.5; }
+.cd-rx-status { display: flex; flex-wrap: wrap; gap: 4px; }
+.cd-rx-status .cd-badge { white-space: nowrap; font-size: 11px; }
+.cd-rx-candidate ul { margin: 0; padding-left: 16px; color: #4f6164; font-size: 11.5px; line-height: 1.6; }
+.cd-rx-candidate > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  border: 1px solid #315e68;
+  border-radius: 8px;
+  background: #fff;
+  color: #315e68;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.cd-rx-candidate > button.selected { background: #315e68; color: #fff; }
+.cd-rx-candidate > button:disabled { border-color: #c9d3d3; background: #edf1f1; color: #687a7d; cursor: default; }
+.cd-candidate-note { margin: 0 !important; padding: 0 8px; color: #687a7d; font-size: 11px !important; line-height: 1.6; }
+.cd-key-summary .cd-open-library { justify-self: start; width: auto; min-height: 40px; margin-left: 8px; padding: 0 14px; font-size: 12.5px; }
+.cd-ai-line .cd-structured-note { color: #687a7d; }
+.cd-summary-details { display: grid; gap: 12px; margin-top: 8px; }
+.cd-summary-details > .cd-panel { margin: 0; }
+/* 選択件数と「確認へ進む」は画面下に固定（処方に追加した直後も見える） */
+.cd-rx-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border: 1px solid #b9cdd0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .97);
+  box-shadow: 0 -4px 18px rgba(32, 60, 64, .12);
+}
+.cd-rx-bar > p { display: grid; flex: 1 1 200px; gap: 1px; min-width: 0; margin: 0; }
+.cd-rx-bar > p b { color: #243a3d; font-size: 14px; }
+.cd-rx-bar > p span { overflow: hidden; color: #687a7d; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.cd-rx-bar > button { min-height: 44px; padding: 0 16px; font-size: 13px; }
+/* 教材ライブラリ: 領域（ジャンル）を大きなボタンで */
+.cd-area-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.cd-area-chips button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid #c9d6d7;
+  border-radius: 22px;
+  background: #fff;
+  color: #34494d;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cd-area-chips button small { color: #687a7d; font-size: 11.5px; font-weight: 500; }
+.cd-area-chips button.active { border-color: #315e68; background: #315e68; color: #fff; }
+.cd-area-chips button.active small { color: #dcebed; }
+.cd-library-grid .cd-rx-status { margin: 0 0 6px; }
+/* 確認画面: 「再処方」「新規」のバッジを切らない */
+.cd-selected-materials > div { grid-template-columns: 26px minmax(0, 1fr) auto; }
+/* 番号の丸（> span）の指定がバッジにも当たり幅 24px で切れていたため、バッジは内容の幅に戻す */
+.cd-selected-materials > div > span.cd-badge { width: auto; height: auto; padding: 4px 9px; border-radius: 99px; white-space: nowrap; justify-self: end; font-size: 11px; }
+.cd-device-app .cd-selected-materials b { font-size: 13px; }
+.cd-device-app .cd-selected-materials small { font-size: 11.5px; }
+/* 在宅経過表: 区切り行の見出しは横スクロールしても左に残す。セルの詳細は表の下（隣のセルを覆わない） */
+.cd-course-table tr.section th > span { position: sticky; left: 9px; }
+.cd-course-detail[data-course-detail] {
+  width: auto;
+  position: relative;
+  right: auto;
+  bottom: auto;
+  margin-top: 10px;
+  box-shadow: none;
+}
+.cd-device-app .cd-course-detail h2 { font-size: 15px; }
+.cd-device-app .cd-course-detail dt { font-size: 11.5px; }
+.cd-device-app .cd-course-detail dd { font-size: 13px; }
+.cd-device-app .cd-course-detail > p { font-size: 11.5px; }
+.cd-device-app .cd-course-detail > button { font-size: 13px; }
+.cd-device .cd-library-tools { grid-template-columns: minmax(0, 1fr); }

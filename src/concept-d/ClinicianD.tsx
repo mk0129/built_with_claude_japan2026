@@ -4,6 +4,7 @@ import type { ClinicianRecord, LiveConcern, LiveLibraryItem } from "./record"
 import { SAFETY_KINDS, reviewDraft, type Draft, type DraftCheck, type StudioLive } from "./studio"
 import { DDraftPreview } from "./PatientD"
 import { areaOf } from "./learning"
+import { answerStats, ruleCandidates, rxStatus, symptomStat, type PeriodAnswer } from "./clinician-summary"
 import { ShioriLogo } from "./ShioriLogo"
 // 教材スタジオの追加分（サンプル資料・段階ごとの許諾・公開前チェック）
 import "./studio.css"
@@ -331,7 +332,7 @@ type ConcernItem = {
 /** 領域別の行 [領域, 学習, 確認問題, 要確認, 学習済みの割合, 本番の内訳] */
 type AreaRow = [string, string, string, string, number, { unknown: number; incomplete: boolean }?]
 /** 教材カード（Figma の架空データ、または本番の LiveLibraryItem） */
-type LibraryCard = Omit<(typeof libraryItems)[number], "id"> & { id: number | string } & Partial<Pick<LiveLibraryItem, "prescribedNow" | "prescribedBefore" | "thumbnail">>
+type LibraryCard = Omit<(typeof libraryItems)[number], "id"> & { id: number | string } & Partial<Pick<LiveLibraryItem, "prescribedNow" | "prescribedBefore" | "prescribedAt" | "thumbnail">>
 
 export default function ClinicianD({
   variant = "prototype",
@@ -366,6 +367,8 @@ export default function ClinicianD({
   const [selectedConcern, setSelectedConcern] = useState<number | string>(2)
   // 本番は選択なしから始める（Figma は架空の 2 件が選択済み）
   const [prescription, setPrescription] = useState<(number | string)[]>(record ? [] : [1, 2])
+  // 確認画面の患者へのメッセージ（別の画面へ移って戻っても残す。確定したら消す）
+  const [rxMessage, setRxMessage] = useState("")
   const [studioStep, setStudioStep] = useState(1)
   // URL で指定した既存の下書きを開いたときは、編集の手順（Step 5）から始める
   const openedDraft = studio?.openedFromUrl && studio.draft?.version.id === studio.openedFromUrl ? studio.openedFromUrl : null
@@ -464,7 +467,7 @@ export default function ClinicianD({
               </div>
               <nav>
                 <button
-                  className={workspace === "visit" ? "active" : ""}
+                  className={workspace === "visit" && visitPage !== "prescribe" && visitPage !== "review" ? "active" : ""}
                   onClick={() => {
                     setWorkspace("visit")
                     setVisitPage("summary")
@@ -496,7 +499,8 @@ export default function ClinicianD({
                   在宅経過
                 </button>
                 <button
-                  className={workspace === "library" ? "active" : ""}
+                  // 教材選択・確認画面（情報処方の途中）は「教材ライブラリ」を強調する
+                  className={workspace === "library" || (workspace === "visit" && (visitPage === "prescribe" || visitPage === "review")) ? "active" : ""}
                   onClick={() => setWorkspace("library")}
                 >
                   <CIcon name="book" />
@@ -599,6 +603,8 @@ export default function ClinicianD({
                   setSelectedConcern={setSelectedConcern}
                   prescription={prescription}
                   setPrescription={setPrescription}
+                  rxMessage={rxMessage}
+                  setRxMessage={setRxMessage}
                   notify={notify}
                   endSession={endSession}
                   scenario={clinicalScenario}
@@ -1065,6 +1071,8 @@ function VisitWorkspace({
   setSelectedConcern,
   prescription,
   setPrescription,
+  rxMessage,
+  setRxMessage,
   notify,
   endSession,
   scenario,
@@ -1078,6 +1086,8 @@ function VisitWorkspace({
   setSelectedConcern: (id: number | string) => void
   prescription: (number | string)[]
   setPrescription: (ids: (number | string)[]) => void
+  rxMessage: string
+  setRxMessage: (message: string) => void
   notify: (message: string) => void
   endSession: () => void
   scenario: ClinicalScenario
@@ -1098,6 +1108,9 @@ function VisitWorkspace({
         }}
         onPrescribe={() => setPage("prescribe")}
         onOpenCourse={onOpenCourse}
+        selected={prescription}
+        setSelected={setPrescription}
+        onReview={() => setPage("review")}
       />
     )
   if (page === "detail")
@@ -1144,6 +1157,8 @@ function VisitWorkspace({
       <PrescriptionReview
         record={record}
         selected={prescription}
+        message={rxMessage}
+        setMessage={setRxMessage}
         onBack={() => setPage("prescribe")}
         onConfirm={async (note) => {
           if (!record) return setPage("sent")
@@ -1151,6 +1166,7 @@ function VisitWorkspace({
           if (n === null) return
           setSentCount(n)
           setPrescription([])
+          setRxMessage("")
           setPage("sent")
         }}
       />
@@ -1184,7 +1200,27 @@ function dateRange(start: string, end: string) {
 /** 教材への反応で、患者が自由記述をせずに選んだ回答 */
 const SELECTION_LABEL = { have_question: "質問がある", explain_again: "もう一度説明してほしい" } as const
 
-function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onOpenCourse?: () => void }) {
+function LiveIntervisit({
+  record,
+  onOpenCourse,
+  selected = [],
+  setSelected,
+  onConcern,
+  onLibrary,
+  details,
+}: {
+  record: ClinicianRecord
+  onOpenCourse?: () => void
+  /** 今回の情報処方で選択中の教材（候補から「処方に追加」） */
+  selected?: (number | string)[]
+  setSelected?: (ids: (number | string)[]) => void
+  /** 質問・設問の詳しい確認（ConcernDetail）を開く */
+  onConcern?: (id: string) => void
+  /** 教材ライブラリ（全承認済み教材）から選ぶ */
+  onLibrary?: () => void
+  /** 「詳細」を開いたときに追加で出す内容（領域別の学習など） */
+  details?: ReactNode
+}) {
   const [expanded, setExpanded] = useState<"vitals" | "symptoms" | "learning" | "questions" | null>(null)
   const [timelineOpen, setTimelineOpen] = useState(false)
   const [periodEdit, setPeriodEdit] = useState(false)
@@ -1199,6 +1235,8 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
   const [fullQuestion, setFullQuestion] = useState<string | null>(null)
   const [infoOpen, setInfoOpen] = useState(false)
   const [showRule, setShowRule] = useState(false)
+  const [detailsOpen, setDetailsOpen] = useState(false)
+  const [earlierOpen, setEarlierOpen] = useState(false)
   // サーバーの既定期間の終了日（撮影用デモ環境ではデモの基準日、通常は今日）。期間の変更で未来日を選ばせない
   const maxDay = record.defaultTo
   useEffect(() => {
@@ -1295,7 +1333,6 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
   }
   // 根拠の記録の表示（日時と元の入力）。患者の質問・理解確認の回答は構造化データから、ほかは根拠 ID の元の記録から
   const questionById = new Map(iv.questions.map((q) => [q.sourceId, q]))
-  const unknownRecords = iv.learning.flatMap((l) => l.answersInPeriod.filter((a) => a.result === "わからない").map((a) => ({ ...a, title: l.title })))
   const answerById = new Map(iv.learning.flatMap((l) => l.answersInPeriod.map((a) => [a.sourceId, { ...a, title: l.title }] as const)))
   const sourceLine = (id: string) => {
     const q = questionById.get(id)
@@ -1351,6 +1388,9 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
     const selected = q.input === "selection"
     const long = !selected && q.body.length > 60
     const full = fullQuestion === q.sourceId
+    // 診察ノート（vn:）・学習後の質問（fb:）を、詳しく確認の画面の項目（note:… / feedbackId）に対応づける
+    const rawId = q.sourceId.slice(3)
+    const concernId = record.questions.find((x) => x.id === (q.sourceId.startsWith("vn:") ? `note:${rawId}` : rawId))?.id ?? null
     return (
       <div key={q.sourceId} className="cd-key-question" data-key-question={q.sourceId} data-question-input={selected ? "selection" : "free_text"}>
         {evidenceButton(
@@ -1372,56 +1412,201 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
             {full ? "全文を閉じる" : "全文を表示"}
           </button>
         )}
+        <span className="cd-question-meta">
+          {q.materialTitle ? `関連教材：${q.materialTitle}` : "教材に結びつかない質問"}
+          {concernId && onConcern && (
+            <button className="cd-text-back cd-row-detail" onClick={() => onConcern(concernId)}>
+              詳しく確認
+            </button>
+          )}
+        </span>
         {evidenceFor(`q:${q.sourceId}`, [q.sourceId])}
       </div>
     )
   }
-  // 症状: 記録された値（程度の最大とその日付・直近の記録）を日付つきでそのまま示す（言い換えない）。元の記録は 1 操作で開く
+  // ① 最近の体調: 記録された値（「最大」「直近」とその日付・生活への影響）をそのまま示す（言い換えない）。元の記録は 1 操作で開く
   const recordedSymptoms = [...iv.symptoms].filter((x) => x.count > 0).sort((a, b) => b.max - a.max || b.count - a.count)
   const symptomLine = (sym: (typeof iv.symptoms)[number]) => {
-    const entries = [...sym.entries].sort((a, b) => a.at.localeCompare(b.at))
-    const last = entries[entries.length - 1]
-    const peak = entries.filter((e) => e.severity === sym.max)
-    const peakDays = uniq(peak.map((e) => localDate(new Date(e.at))))
-    const text =
-      sym.max === 0
-        ? `記録${entries.length}件・すべて0/4（なし）`
-        : entries.length === 1
-          ? `${mdJa(last.at)} ${last.severity}/4（記録1件）`
-          : `${mdJa(peak[0].at)} ${sym.max}/4${peakDays.length > 1 ? `（同じ値 ほか${peakDays.length - 1}日）` : ""}、直近の記録は${mdJa(last.at)} ${last.severity}/4`
+    const st = symptomStat(sym.entries)
+    if (!st) return null
+    const ids = [...sym.entries].sort((a, b) => a.at.localeCompare(b.at)).map((e) => e.sourceId)
+    const impact = st.impacts[0]
     return (
       <div key={sym.key} data-symptom={sym.key}>
         {evidenceButton(
           `s:${sym.key}`,
-          entries.map((e) => e.sourceId),
+          ids,
           <span>
-            <span>
-              <strong>{sym.name}</strong>　{text}
+            <span className="cd-sym-line">
+              <strong>{sym.name}</strong>
+              {st.max === 0 ? (
+                <span className="cd-sym-stat">記録{st.count}件・すべて 0/4（なし）</span>
+              ) : st.count === 1 ? (
+                <span className="cd-sym-stat" data-stat="last">
+                  <i>記録</i>
+                  {st.last.severity}/4（{mdJa(st.last.at)}・1件）
+                </span>
+              ) : (
+                <>
+                  <span className="cd-sym-stat" data-stat="max">
+                    <i>最大</i>
+                    {st.max}/4（{mdJa(st.peakAt)}
+                    {st.peakOtherDays ? `・同じ値 ほか${st.peakOtherDays}日` : ""}）
+                  </span>
+                  <span className="cd-sym-stat" data-stat="last">
+                    <i>直近</i>
+                    {st.last.severity}/4（{mdJa(st.last.at)}）
+                  </span>
+                </>
+              )}
             </span>
+            {impact && (
+              <em className="cd-sym-impact" data-impact>
+                生活への影響（患者記載）：「{impact.text}」{mdJa(impact.at)}
+                {st.impacts.length > 1 ? ` ほか${st.impacts.length - 1}件` : ""}
+              </em>
+            )}
           </span>,
           {},
           "元の記録",
         )}
-        {evidenceFor(`s:${sym.key}`, entries.map((e) => e.sourceId))}
+        {evidenceFor(`s:${sym.key}`, ids)}
       </div>
     )
   }
-  const unknownLine = (a: (typeof unknownRecords)[number]) => (
-    <div key={a.sourceId} data-key-record={a.sourceId}>
+  // 実測バイタル（患者が自宅で測った値）。直近の値と日付、期間内の範囲と回数。正常・異常は判定しない
+  const vitalMetrics = Object.entries(iv.vitals.metrics)
+    .map(([key, m]) => ({ key, m, values: [...m.values].sort((a, b) => a.at.localeCompare(b.at)) }))
+    .filter((x) => x.values.length > 0)
+  // 1 行にまとめる（各項目の直近の値と日付）。範囲・回数・全件は「元の記録」で開く
+  const vitalIds = vitalMetrics.flatMap((x) => x.values.map((v) => v.sourceId))
+  const vitalLine = vitalMetrics.length > 0 && (
+    <div data-vital="all">
       {evidenceButton(
-        `u:${a.sourceId}`,
-        [a.sourceId],
+        "v:all",
+        vitalIds,
         <span>
-          <span>「{a.stem}」に「わからない」と回答</span>
-          <em>
-            {mdJa(a.at)}・{a.title}
-          </em>
+          <span className="cd-sym-line">
+            {vitalMetrics.map(({ key, m, values }) => {
+              const last = values[values.length - 1]
+              return (
+                <span key={key} className="cd-sym-stat" data-vital-key={key}>
+                  <i>{m.label}</i>
+                  {last.value} {m.unit}（{md(last.at)}）
+                </span>
+              )
+            })}
+          </span>
+          <em>各項目の直近の値（日付）。範囲と全件は元の記録で確認</em>
         </span>,
+        {},
+        "元の記録",
       )}
-      {evidenceFor(`u:${a.sourceId}`, [a.sourceId])}
+      {evidenceFor("v:all", vitalIds)}
     </div>
   )
-  // 生成元（画面内で 1 回だけ短く示す。詳細は「作成情報」）
+  // ③ 理解を確かめたい設問: 観察期間内の回答（分母・正答・誤答・「わからない」）と、処方済みで設問に未回答の教材を分けて示す
+  const periodAnswers: PeriodAnswer[] = iv.learning.flatMap((l) => l.answersInPeriod.map((a) => ({ ...a, title: l.title })))
+  const stats = answerStats(periodAnswers)
+  const missed = periodAnswers.filter((a) => a.result === "誤答" || a.result === "わからない").sort((a, b) => b.at.localeCompare(a.at))
+  const allAnswers = record.summary?.answers ?? []
+  const answerDetail = (a: PeriodAnswer) =>
+    allAnswers.find((x) => x.stem === a.stem && x.materialTitle === a.title && Math.abs(Date.parse(x.answeredAt) - Date.parse(a.at)) < 60_000) ??
+    allAnswers.find((x) => x.stem === a.stem && x.materialTitle === a.title && !x.isCorrect)
+  const earlier = allAnswers
+    .filter((x) => !x.isCorrect && localDate(new Date(x.answeredAt)) < iv.period.from)
+    .sort((a, b) => b.answeredAt.localeCompare(a.answeredAt))
+  // 処方済みの教材で、まだ回答していない設問の数（回答した設問の種類を数える。分母の「回答した設問」には含めない）
+  const unanswered = (record.summary?.learning ?? [])
+    .filter((l) => l.prescribed && l.questionCount > 0)
+    .map((l) => ({ l, rest: l.questionCount - new Set(allAnswers.filter((x) => x.materialId === l.materialId).map((x) => x.questionId)).size }))
+    .filter((x) => x.rest > 0)
+  const answerLine = (a: PeriodAnswer) => {
+    const d = answerDetail(a)
+    const isWrong = a.result === "誤答"
+    return (
+      <div key={a.sourceId} data-key-record={a.sourceId} data-answer-result={isWrong ? "wrong" : "unknown"}>
+        {evidenceButton(
+          `u:${a.sourceId}`,
+          [a.sourceId],
+          <span>
+            <span>
+              <span className={`cd-answer-kind ${isWrong ? "wrong" : "unknown"}`}>{isWrong ? "誤答" : "「わからない」"}</span>
+              「{a.stem}」{isWrong ? `に「${d?.selectedText ?? "（回答内容なし）"}」と回答` : "に「わからない」と回答"}
+            </span>
+            <em>
+              {mdJa(a.at)}・{a.title}
+              {d ? ` · 正答「${d.correctText}」` : ""}
+            </em>
+          </span>,
+        )}
+        {d && onConcern && (
+          <button className="cd-text-back cd-row-detail" onClick={() => onConcern(`${d.attemptId}:${d.questionId}`)}>
+            解説・詳しく確認
+          </button>
+        )}
+        {evidenceFor(`u:${a.sourceId}`, [a.sourceId])}
+      </div>
+    )
+  }
+  // ④ 対応する承認済み教材の候補（規則による。AI は使わない）。一覧はサーバーが返した承認済み・公開中の教材だけ
+  const approved = (record.library ?? []) as LiveLibraryItem[]
+  const candidates = ruleCandidates({
+    library: approved.map((m) => ({ id: m.id, title: m.title, searchText: m.searchText })),
+    questions: iv.questions.map((q) => ({
+      sourceId: q.sourceId,
+      body: q.body,
+      materialTitle: q.materialTitle,
+      input: q.input,
+      selectionLabel: q.input === "selection" ? SELECTION_LABEL[q.selection ?? "have_question"] : undefined,
+    })),
+    answers: periodAnswers,
+    symptoms: iv.symptoms.map((s) => ({ key: s.key, name: s.name, max: s.max })),
+  })
+  const freeQuestions = iv.questions.filter((q) => !q.materialTitle)
+  const toggleRx = (id: string) => {
+    if (!setSelected) return
+    setSelected(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id])
+  }
+  const statusTone = { now: "green", selected: "blue", before: "amber", none: "gray" } as const
+  const candidateCard = (c: (typeof candidates)[number]) => {
+    const item = approved.find((m) => m.id === c.id)
+    if (!item) return null
+    const isSelected = selected.includes(item.id)
+    return (
+      <article key={c.id} className={`cd-rx-candidate${isSelected ? " selected" : ""}`} data-rx-candidate={c.title}>
+        <div className="cd-rx-candidate-head">
+          <b>{c.title}</b>
+          <span className="cd-rx-status" data-rx-status>
+            {rxStatus(item, selected).map((l) => (
+              <Badge key={l.key} tone={statusTone[l.key]}>
+                {l.text}
+              </Badge>
+            ))}
+          </span>
+        </div>
+        <ul>
+          {c.reasons.map((r) => (
+            <li key={r.text} data-reason={r.kind}>
+              {r.text}
+            </li>
+          ))}
+        </ul>
+        {item.prescribedNow ? (
+          <button className="selected" disabled>
+            <CIcon name="check" size={16} />
+            この診察で処方済み
+          </button>
+        ) : (
+          <button className={isSelected ? "selected" : ""} aria-pressed={isSelected} onClick={() => toggleRx(item.id)}>
+            <CIcon name={isSelected ? "check" : "plus"} size={16} />
+            {isSelected ? "選択済み（外す）" : item.prescribedBefore ? "再処方に追加" : "処方に追加"}
+          </button>
+        )}
+      </article>
+    )
+  }
+  // 生成元（要約の全項目について 1 回だけ短く示す。詳細は「作成情報」）
   const kindShort =
     kind === "claude" ? "AI要約（Claude）" : kind === "replay" ? "AI要約（記録再生）" : kind === "fake" ? "開発用の擬似要約（AIではありません）" : "記録の自動整理（ルールベース）"
   const origin =
@@ -1454,9 +1639,42 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
       {periodEditor}
       <div className="cd-medical-summary">
         <div className="cd-summary-narrative" data-summary-kind={kind}>
-          <ul className="cd-key-summary" data-key-summary>
+          <ul className="cd-key-summary cd-key-summary-ordered" data-key-summary>
+            <li data-key-row="symptom">
+              <b>
+                <span className="cd-step-no">1</span>最近の体調<small data-severity-scale>患者評価 0〜4</small>
+              </b>
+              <div>
+                {recordedSymptoms.length ? (
+                  <>
+                    {recordedSymptoms.slice(0, 2).map(symptomLine)}
+                    {recordedSymptoms.length > 2 && moreButton("symptoms", recordedSymptoms.length - 2, "症状")}
+                    {moreOpen.includes("symptoms") && recordedSymptoms.slice(2).map(symptomLine)}
+                  </>
+                ) : (
+                  <p className="cd-key-none" data-symptom-state="none-recorded">
+                    この期間に症状の記録はありません（記録なし。「症状なし」とは扱いません）
+                  </p>
+                )}
+                <div className="cd-vitals-block" data-vitals-line>
+                  <p className="cd-sub-label">実測バイタル（患者が自宅で測定・{iv.vitals.recordDays}日 {iv.vitals.recordCount}件）</p>
+                  {vitalMetrics.length ? (
+                    vitalLine
+                  ) : (
+                    <p className="cd-key-none">この期間にバイタルの記録はありません（欠測）</p>
+                  )}
+                </div>
+                {onOpenCourse && (
+                  <button className="cd-text-back cd-open-course" onClick={onOpenCourse}>
+                    在宅経過表・症状のグラフで確認
+                  </button>
+                )}
+              </div>
+            </li>
             <li data-key-row="questions">
-              <b>患者の質問</b>
+              <b>
+                <span className="cd-step-no">2</span>今日聞きたい質問
+              </b>
               <div>
                 {questionsNewest.length ? (
                   <>
@@ -1471,45 +1689,96 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
                 )}
               </div>
             </li>
-            <li data-key-row="symptom">
+            <li data-key-row="unknown">
               <b>
-                症状<small data-severity-scale>患者評価 0〜4</small>
+                <span className="cd-step-no">3</span>理解を確かめたい設問
               </b>
               <div>
-                {recordedSymptoms.length ? (
+                <p className="cd-answer-stats" data-answer-stats>
+                  {stats.answered ? (
+                    <>
+                      観察期間に回答した<strong>{stats.answered}問中{stats.correct}問正解</strong>
+                      <span>誤答 {stats.wrong}問</span>
+                      <span>「わからない」 {stats.unknown}問</span>
+                    </>
+                  ) : (
+                    "観察期間に回答した設問はありません（理解度0%とは扱いません）"
+                  )}
+                </p>
+                {missed.length ? (
                   <>
-                    {recordedSymptoms.slice(0, 2).map(symptomLine)}
-                    {recordedSymptoms.length > 2 && moreButton("symptoms", recordedSymptoms.length - 2, "症状")}
-                    {moreOpen.includes("symptoms") && recordedSymptoms.slice(2).map(symptomLine)}
+                    {missed.slice(0, 2).map(answerLine)}
+                    {missed.length > 2 && moreButton("unknown", missed.length - 2, "問")}
+                    {moreOpen.includes("unknown") && missed.slice(2).map(answerLine)}
                   </>
                 ) : (
-                  <p className="cd-key-none" data-symptom-state="none-recorded">
-                    この期間に症状の記録はありません（記録なし。「症状なし」とは扱いません）
+                  <p className="cd-key-none">この期間に誤答・「わからない」と回答した設問はありません</p>
+                )}
+                {unanswered.length > 0 && (
+                  <p className="cd-unanswered-line" data-unanswered>
+                    <i>未回答</i>
+                    処方済みで設問に未回答：
+                    {unanswered
+                      .map(({ l, rest }) => `「${l.title}」${rest}問（全${l.questionCount}問・${l.phase === "not_started" ? "未学習" : l.phase === "completed" ? "学習済み" : "学習途中"}）`)
+                      .join("、")}
                   </p>
                 )}
-                {onOpenCourse && (
-                  <button className="cd-text-back cd-open-course" onClick={onOpenCourse}>
-                    在宅経過表・症状のグラフで確認
-                  </button>
+                {earlier.length > 0 && (
+                  <>
+                    <button className="cd-text-back cd-more-questions" data-earlier-toggle aria-expanded={earlierOpen} onClick={() => setEarlierOpen(!earlierOpen)}>
+                      {earlierOpen ? "閉じる" : `観察期間より前の誤答・「わからない」 ${earlier.length}問`}
+                    </button>
+                    {earlierOpen && (
+                      <div className="cd-summary-evidence" data-earlier-answers>
+                        {earlier.map((x) => (
+                          <p key={`${x.attemptId}:${x.questionId}`}>
+                            {dt(x.answeredAt)} · {x.isUnknown ? "「わからない」" : `誤答「${x.selectedText ?? ""}」`}：「{x.stem}」（{x.materialTitle}）· 正答「{x.correctText}」
+                            {onConcern && (
+                              <button className="cd-text-back" onClick={() => onConcern(`${x.attemptId}:${x.questionId}`)}>
+                                詳しく確認
+                              </button>
+                            )}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
+                <small className="cd-answer-note">少数の設問の結果です。患者の理解全般は判定しません。</small>
               </div>
             </li>
-            <li data-key-row="unknown">
-              <b>学習</b>
+            <li data-key-row="candidates">
+              <b>
+                <span className="cd-step-no">4</span>対応する教材の候補
+                <small data-candidate-kind>ルールによる候補（AI不使用）</small>
+              </b>
               <div>
-                {unknownRecords.length ? (
-                  <>
-                    {unknownLine(unknownRecords[0])}
-                    {unknownRecords.length > 1 && moreButton("unknown", unknownRecords.length - 1)}
-                    {moreOpen.includes("unknown") && unknownRecords.slice(1).map(unknownLine)}
-                  </>
+                {candidates.length ? (
+                  <div className="cd-rx-candidates">{candidates.map(candidateCard)}</div>
                 ) : (
-                  <p className="cd-key-none">この期間に「わからない」と回答した設問はありません</p>
+                  <p className="cd-key-none" data-no-candidates>
+                    質問・設問・症状に対応する承認済み教材は見つかりませんでした
+                  </p>
+                )}
+                {freeQuestions.length > 0 && (
+                  <p className="cd-candidate-note">教材に結びつかない質問（{freeQuestions.length}件）からは候補を作りません。必要なら教材ライブラリから選べます。</p>
+                )}
+                <p className="cd-candidate-note">
+                  質問・設問が残された教材と、症状名が説明に含まれる教材を、承認済み・公開中の教材から並べています。処方するかは医師が判断します。
+                </p>
+                {onLibrary && (
+                  <button className="cd-secondary cd-open-library" onClick={onLibrary}>
+                    ほかの承認済み教材から選ぶ（{approved.length}件）
+                    <CIcon name="arrow" />
+                  </button>
                 )}
               </div>
             </li>
           </ul>
           <div className="cd-ai-line" data-ai-line>
+            <small className="cd-structured-note" data-structured-note>
+              1〜3は記録の値・原文をそのまま表示（AI不使用）。下の「要約の全項目」は
+            </small>
             <span className="cd-ai-kind" data-ai-kind>
               {kindShort}
             </span>
@@ -1531,6 +1800,10 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
                 {kind === "rule"
                   ? "記録の値・日付・原文をそのまま整理しています。"
                   : `各項目の数値・日付・時刻・引用を、根拠の元の記録と照合し、通らない項目は表示しません${kind === "replay" ? "（現在の記録で再照合）" : ""}。`}
+              </p>
+              <p>
+                <b>1〜4</b>
+                最近の体調・質問・設問は保存された記録の値と原文をそのまま表示しています。教材の候補は規則（質問・設問の教材、症状名と教材の説明の一致）で並べたもので、AI は使っていません。
               </p>
               {/* 「1/4」などが分数・日付に見えないよう、程度の表記を説明する */}
               <p className="cd-severity-legend" data-severity-legend>
@@ -1599,8 +1872,14 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
               </p>
             </div>
           )}
+          <button className="cd-summary-all-toggle" data-details-toggle aria-expanded={detailsOpen} onClick={() => setDetailsOpen(!detailsOpen)}>
+            詳細（記録の内訳・領域別の学習・タイムライン）
+            <span>{detailsOpen ? "閉じる" : "開く"}</span>
+          </button>
         </div>
       </div>
+      {detailsOpen && (
+        <div className="cd-summary-details" data-summary-details>
       <div className="cd-intervisit-cards">
         <article className={expanded === "vitals" ? "active" : ""}>
           <button onClick={() => toggle("vitals")}>
@@ -1612,7 +1891,7 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
               <b>
                 {iv.vitals.recordDays}日記録 · {iv.vitals.recordCount}件
               </b>
-              <p>最新 {lastTemp ? `${md(lastTemp.at)} ${lastTemp.value}℃` : "体温の記録なし"}</p>
+              <p>直近 {lastTemp ? `${md(lastTemp.at)} ${lastTemp.value}℃` : "体温の記録なし"}</p>
             </div>
             <span>{expanded === "vitals" ? "閉じる" : "根拠"}</span>
           </button>
@@ -1640,7 +1919,7 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
               <b>{topSymptom ? `${topSymptom.name} 最大 ${topSymptom.max} / 4` : "記録なし"}</b>
               <p>
                 {topSymptom
-                  ? topSymptom.entries.map((e) => `${md(e.at)} ${e.severity}`).slice(-3).join(" → ")
+                  ? `直近3件 ${topSymptom.entries.map((e) => `${md(e.at)} ${e.severity}`).slice(-3).join(" → ")}`
                   : "期間内の回答はありません"}
               </p>
             </div>
@@ -1749,6 +2028,9 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
           </div>
         )}
       </div>
+      {details}
+        </div>
+      )}
       <p className="cd-summary-limit">
         記録がない日は欠測です。この要約は診療判断を補助する参考情報で、正式な診療記録ではありません。
       </p>
@@ -2126,6 +2408,9 @@ function HomeCourse({
     share("custom", customStart, v)
   }
   const [view, setView] = useState<"table" | "vitals" | "symptom">("table")
+  // 経過表は直近の日（右端）が最初に見える位置から表示する（期間・表示を切り替えたときも）
+  const tableWrapRef = useRef<HTMLDivElement>(null)
+  const detailRef = useRef<HTMLDivElement>(null)
   const [chartSymptomRaw, setChartSymptom] = useState("numbness")
   // 本番: 選んだ症状に記録がなければ、記録のある最初の症状
   const hasSymptom = (id: string) => records.some((record) => record.symptoms[id])
@@ -2153,6 +2438,15 @@ function HomeCourse({
             return live ? localDate(date) : date.toISOString().slice(0, 10)
           })()
   const dates = startDate <= end ? (live ? dateRangeLocal(startDate, end) : dateRange(startDate, end)) : []
+  const lastDate = dates[dates.length - 1] ?? ""
+  useEffect(() => {
+    const el = tableWrapRef.current
+    if (el) el.scrollLeft = el.scrollWidth
+  }, [view, lastDate, dates.length])
+  // セルの詳細は表の下（隣のセルを覆わない位置）に出し、画面外なら見える位置まで動かす
+  useEffect(() => {
+    if (selected) detailRef.current?.scrollIntoView?.({ block: "nearest" })
+  }, [selected])
   const recordByDate = Object.fromEntries(
     records.map((record) => [record.measuredAt.slice(0, 10), record]),
   )
@@ -2338,7 +2632,7 @@ function HomeCourse({
       )}
       {view === "table" ? (
         <>
-          <div className="cd-course-table-wrap">
+          <div className="cd-course-table-wrap" ref={tableWrapRef}>
             <table className="cd-course-table">
               <thead>
                 <tr>
@@ -2358,7 +2652,9 @@ function HomeCourse({
               </thead>
               <tbody>
                 <tr className="section">
-                  <th colSpan={dates.length + 1}>バイタルサイン</th>
+                  <th colSpan={dates.length + 1}>
+                    <span>バイタルサイン</span>
+                  </th>
                 </tr>
                 {vitalRows.map((row) => (
                   <tr key={row.key}>
@@ -2411,7 +2707,9 @@ function HomeCourse({
                   </tr>
                 ))}
                 <tr className="section">
-                  <th colSpan={dates.length + 1}>自覚症状（自己申告 0〜4）</th>
+                  <th colSpan={dates.length + 1}>
+                    <span>自覚症状（自己申告 0〜4）</span>
+                  </th>
                 </tr>
                 {symptomIds.map((id) => (
                   <tr key={id}>
@@ -2488,6 +2786,43 @@ function HomeCourse({
               </tbody>
             </table>
           </div>
+          {selected && (
+            <div className="cd-course-detail" ref={detailRef} data-course-detail>
+              <div>
+                <p className="cd-eyebrow">元の記録</p>
+                <h2>{formatShortDate(selected.record?.measuredAt || "")}の記録</h2>
+              </div>
+              <button onClick={() => setSelected(null)}>閉じる</button>
+              <dl>
+                <dt>項目</dt>
+                <dd>{selected.label}</dd>
+                <dt>記録値</dt>
+                <dd>{selected.value}</dd>
+                <dt>測定日時</dt>
+                <dd>
+                  {selected.record
+                    ? new Date(selected.record.measuredAt).toLocaleString("ja-JP")
+                    : "—"}
+                </dd>
+                {selected.entries && selected.entries.length > 0 && (
+                  <>
+                    <dt>この日の記録</dt>
+                    <dd data-day-entries>
+                      {selected.entries.map((entry, index) => (
+                        <span key={index} style={{ display: "block" }}>
+                          {entry.at} {entry.value}
+                          {entry.detail ? ` · ${entry.detail}` : ""}
+                        </span>
+                      ))}
+                    </dd>
+                  </>
+                )}
+              </dl>
+              <p>
+                患者本人が自宅で入力した値です。自動補正・自動判定はしていません。
+              </p>
+            </div>
+          )}
           <div className="cd-course-legend">
             {severityLabels.map((label, index) => (
               <span key={label} className={`s${index}`}>
@@ -2590,43 +2925,6 @@ function HomeCourse({
         0〜4は患者の自己申告で、CTCAE
         Gradeではありません。この画面は24時間監視や自動診断を行いません。
       </p>
-      {selected && (
-        <div className="cd-course-detail">
-          <div>
-            <p className="cd-eyebrow">元の記録</p>
-            <h2>{formatShortDate(selected.record?.measuredAt || "")}の記録</h2>
-          </div>
-          <button onClick={() => setSelected(null)}>閉じる</button>
-          <dl>
-            <dt>項目</dt>
-            <dd>{selected.label}</dd>
-            <dt>記録値</dt>
-            <dd>{selected.value}</dd>
-            <dt>測定日時</dt>
-            <dd>
-              {selected.record
-                ? new Date(selected.record.measuredAt).toLocaleString("ja-JP")
-                : "—"}
-            </dd>
-            {selected.entries && selected.entries.length > 0 && (
-              <>
-                <dt>この日の記録</dt>
-                <dd data-day-entries>
-                  {selected.entries.map((entry, index) => (
-                    <span key={index} style={{ display: "block" }}>
-                      {entry.at} {entry.value}
-                      {entry.detail ? ` · ${entry.detail}` : ""}
-                    </span>
-                  ))}
-                </dd>
-              </>
-            )}
-          </dl>
-          <p>
-            患者本人が自宅で入力した値です。自動補正・自動判定はしていません。
-          </p>
-        </div>
-      )}
     </div>
   )
 }
@@ -3009,6 +3307,9 @@ function Summary({
   onConcern,
   onPrescribe,
   onOpenCourse,
+  selected = [],
+  setSelected,
+  onReview,
 }: {
   scenario: ClinicalScenario
   healthRecords: HealthRecord[]
@@ -3016,6 +3317,10 @@ function Summary({
   onConcern: (id: number | string) => void
   onPrescribe: () => void
   onOpenCourse?: () => void
+  /** 本番: 今回の情報処方で選択中の教材（サマリーの候補から追加できる） */
+  selected?: (number | string)[]
+  setSelected?: (ids: (number | string)[]) => void
+  onReview?: () => void
 }) {
   const [areaDetail, setAreaDetail] = useState<string | null>(null)
   const [expandedQuestion, setExpandedQuestion] = useState<number | string | null>(null)
@@ -3058,6 +3363,62 @@ function Summary({
         <p>診察サマリーを読み込んでいます…</p>
       </div>
     )
+  const areaPanel = (
+  <section className="cd-panel">
+    <div className="cd-panel-head">
+      <div>
+        <p className="cd-eyebrow">{record ? "領域別・観察期間に限らない全記録" : "領域別"}</p>
+        <h2>領域別の学習・理解確認</h2>
+      </div>
+    </div>
+    <div className="cd-area-compact">
+      {displayedAreas.map((area) => (
+        <button
+          key={String(area[0])}
+          onClick={() =>
+            setAreaDetail(
+              areaDetail === area[0] ? null : String(area[0]),
+            )
+          }
+        >
+          <span>
+            <b>{area[0]}</b>
+            <small>学習 {area[1]}</small>
+          </span>
+          <span>
+            <small>確認問題</small>
+            <b>{area[2]}</b>
+          </span>
+          <Badge tone={area[3] === "なし" ? "gray" : "amber"}>
+            {area[3]}
+          </Badge>
+          {areaDetail === area[0] && (
+            <div>
+              <p>
+                途中・未学習：
+                {(area[5] ? area[5].incomplete : Number(area[4]) < 100) ? "あり" : "なし"}
+              </p>
+              <p>
+                「わからない」：
+                {area[5]
+                  ? area[5].unknown
+                    ? `${area[5].unknown}件`
+                    : "なし"
+                  : String(area[3]).includes("不明")
+                    ? "1件"
+                    : "なし"}
+              </p>
+            </div>
+          )}
+        </button>
+      ))}
+    </div>
+    <p className="cd-clinical-note">
+      <CIcon name="shield" />
+      学習進捗と確認問題は別の指標です。医学的理解を断定しません。
+    </p>
+  </section>
+  )
   return (
     <div className="cd-content cd-summary">
       <div className="cd-title-row">
@@ -3074,10 +3435,23 @@ function Summary({
         </p>
       </div>
       {record?.summary ? (
-        <LiveIntervisit record={record} onOpenCourse={onOpenCourse} />
+        // 本番: 上から 1 最近の体調 → 2 今日聞きたい質問 → 3 理解を確かめたい設問 → 4 対応する教材の候補。領域別などの詳細は必要時に開く
+        <LiveIntervisit
+          record={record}
+          onOpenCourse={onOpenCourse}
+          selected={selected}
+          setSelected={setSelected}
+          onConcern={onConcern}
+          onLibrary={onPrescribe}
+          details={areaPanel}
+        />
       ) : (
         <IntervisitSummary records={healthRecords} />
       )}
+      {record && selected.length > 0 && onReview && (
+        <RxSelectionBar items={(record.library ?? []).filter((m) => selected.includes(m.id))} count={selected.length} onReview={onReview} onMore={onPrescribe} />
+      )}
+      {!record && (
       <div className="cd-clinical-grid">
         <div className="cd-clinical-main">
           <section className="cd-panel cd-question-priority">
@@ -3241,60 +3615,7 @@ function Summary({
           </section>
         </div>
         <aside className="cd-clinical-side">
-          <section className="cd-panel">
-            <div className="cd-panel-head">
-              <div>
-                <p className="cd-eyebrow">領域別</p>
-                <h2>領域別の学習・理解確認</h2>
-              </div>
-            </div>
-            <div className="cd-area-compact">
-              {displayedAreas.map((area) => (
-                <button
-                  key={String(area[0])}
-                  onClick={() =>
-                    setAreaDetail(
-                      areaDetail === area[0] ? null : String(area[0]),
-                    )
-                  }
-                >
-                  <span>
-                    <b>{area[0]}</b>
-                    <small>学習 {area[1]}</small>
-                  </span>
-                  <span>
-                    <small>確認問題</small>
-                    <b>{area[2]}</b>
-                  </span>
-                  <Badge tone={area[3] === "なし" ? "gray" : "amber"}>
-                    {area[3]}
-                  </Badge>
-                  {areaDetail === area[0] && (
-                    <div>
-                      <p>
-                        途中・未学習：
-                        {(area[5] ? area[5].incomplete : Number(area[4]) < 100) ? "あり" : "なし"}
-                      </p>
-                      <p>
-                        「わからない」：
-                        {area[5]
-                          ? area[5].unknown
-                            ? `${area[5].unknown}件`
-                            : "なし"
-                          : String(area[3]).includes("不明")
-                            ? "1件"
-                            : "なし"}
-                      </p>
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
-            <p className="cd-clinical-note">
-              <CIcon name="shield" />
-              学習進捗と確認問題は別の指標です。医学的理解を断定しません。
-            </p>
-          </section>
+          {areaPanel}
           {(record ? questions.length + checks.length > 0 : scenario !== "clear") && (
             <section className="cd-panel cd-suggested-prescription">
               <div>
@@ -3317,6 +3638,40 @@ function Summary({
           )}
         </aside>
       </div>
+      )}
+    </div>
+  )
+}
+
+/** 今回の情報処方の選択（画面下に固定）。選択件数と確認への操作をいつも画面内に出す */
+function RxSelectionBar({
+  items,
+  count,
+  onReview,
+  onMore,
+}: {
+  items: { id: number | string; title: string }[]
+  count: number
+  onReview: () => void
+  onMore?: () => void
+}) {
+  return (
+    <div className="cd-rx-bar" data-rx-bar role="region" aria-label="今回の情報処方の選択">
+      <p>
+        <b data-rx-count>
+          選択中 {count}件
+        </b>
+        <span>{items.map((m) => m.title).slice(0, 2).join("、")}{items.length > 2 ? ` ほか${items.length - 2}件` : ""}</span>
+      </p>
+      {onMore && (
+        <button className="cd-secondary" onClick={onMore}>
+          ほかの教材も選ぶ
+        </button>
+      )}
+      <button className="cd-primary" onClick={onReview}>
+        確認へ進む
+        <CIcon name="arrow" />
+      </button>
     </div>
   )
 }
@@ -3599,7 +3954,7 @@ function PrescriptionLibrary({
         <div>
           <p className="cd-eyebrow">承認済みの教材のみ</p>
           <h1>{standalone ? "教材ライブラリ" : "情報処方を作成"}</h1>
-          <p>公開・医学的承認済みの教材だけが表示されています。</p>
+          <p>公開・医学的承認済みの教材だけが表示されています（全{items.length}件）。</p>
         </div>
         <button
           className="cd-primary"
@@ -3661,15 +4016,18 @@ function PrescriptionLibrary({
             placeholder={record ? "教材名・学習目標で検索" : "教材名・対象者・学習目標で検索"}
           />
         </label>
-        <select value={area} onChange={(event) => setArea(event.target.value)}>
-          <option>すべて</option>
-          <option>検査・診断</option>
-          <option>手術</option>
-          <option>薬物療法</option>
-          <option>放射線療法</option>
-          <option>副作用・支持療法</option>
-          <option>日常生活・相談支援</option>
-        </select>
+      </div>
+      {/* 領域（ジャンル）は押しやすい大きさのボタンで選ぶ。件数つき */}
+      <div className="cd-area-chips" role="group" aria-label="領域で絞り込む" data-area-chips>
+        {["すべて", "検査・診断", "手術", "薬物療法", "放射線療法", "副作用・支持療法", "日常生活・相談支援"].map((name) => {
+          const n = name === "すべて" ? items.length : items.filter((item) => item.area === name).length
+          return (
+            <button key={name} className={area === name ? "active" : ""} aria-pressed={area === name} onClick={() => setArea(name)}>
+              {name}
+              <small>{n}</small>
+            </button>
+          )
+        })}
       </div>
       <div className="cd-library-grid">
         {results.map((item) => (
@@ -3717,8 +4075,15 @@ function PrescriptionLibrary({
               <p>
                 <CIcon name="check" />
                 {record ? "医学的承認済み（デモ・架空の承認者）· 公開中" : "医学的承認済み · 公開中"}
-                {item.prescribedBefore ? " · 以前に処方" : ""}
               </p>
+              {/* 処方状況: この診察で処方済み／今回選択中／前回処方済み（日付）／未処方 を別々に表示 */}
+              <span className="cd-rx-status" data-rx-status>
+                {rxStatus(item, selected).map((l) => (
+                  <Badge key={l.key} tone={l.key === "now" ? "green" : l.key === "selected" ? "blue" : l.key === "before" ? "amber" : "gray"}>
+                    {l.text}
+                  </Badge>
+                ))}
+              </span>
               {item.prescribedNow ? (
                 // 同じ診察では同じ教材を重複して処方しない
                 <button className="selected" disabled>
@@ -3749,22 +4114,29 @@ function PrescriptionLibrary({
           <p>検索語やカテゴリーを変更してください。</p>
         </div>
       )}
+      {selected.length > 0 && (
+        <RxSelectionBar items={items.filter((item) => selected.includes(item.id))} count={selected.length} onReview={onReview} />
+      )}
     </div>
   )
 }
 
 function PrescriptionReview({
   selected,
+  message,
+  setMessage,
   onBack,
   onConfirm,
   record,
 }: {
   selected: (number | string)[]
+  /** 患者へのメッセージ（画面を離れても残すため、親が保持する） */
+  message: string
+  setMessage: (message: string) => void
   onBack: () => void
   onConfirm: (message: string) => void
   record?: ClinicianRecord
 }) {
-  const [message, setMessage] = useState("")
   const [sending, setSending] = useState(false)
   const items: LibraryCard[] = record ? (record.library ?? []) : libraryItems
   return (
@@ -3794,9 +4166,10 @@ function PrescriptionReview({
                     <b>{item.title}</b>
                     <small>
                       {item.area} · {item.time}分 · {item.scope}
+                      {item.prescribedBefore ? ` · ${rxStatus(item, []).find((x) => x.key === "before")?.text}` : ""}
                     </small>
                   </div>
-                  <Badge tone="green">{item.prescribedBefore ? "再処方" : "承認済み"}</Badge>
+                  <Badge tone={item.prescribedBefore ? "amber" : "green"}>{item.prescribedBefore ? "再処方" : "新規"}</Badge>
                 </div>
               ))}
           </div>

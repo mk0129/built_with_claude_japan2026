@@ -211,6 +211,10 @@ export type LiveLibraryItem = {
   prescribedNow: boolean;
   /** 以前の診察で処方済み（再処方できる） */
   prescribedBefore: boolean;
+  /** 以前の処方日（最新。学習記録の処方日。なければ null） */
+  prescribedAt: string | null;
+  /** 規則による教材候補の照合に使う文（題名以外の概要・学習目標。表示はしない） */
+  searchText: string;
   thumbnail: { src: string; alt: string } | null;
 };
 
@@ -230,7 +234,7 @@ export type IntervisitApi = {
       missingDays: string[];
       metrics: Record<string, { label: string; unit: string; count: number; min: { at: string; value: number } | null; max: { at: string; value: number } | null; values: { at: string; value: number; sourceId: string }[] }>;
     };
-    symptoms: { key: string; name: string; count: number; min: number; max: number; changed: boolean; newInPeriod: boolean; stoppedRecording: boolean; entries: { at: string; severity: number; sourceId: string }[] }[];
+    symptoms: { key: string; name: string; count: number; min: number; max: number; changed: boolean; newInPeriod: boolean; stoppedRecording: boolean; entries: { at: string; severity: number; sourceId: string; location?: string | null; count?: number | null; interference?: string | null }[] }[];
     learning: { versionId: string; title: string; versionNo: number; status: string; answersInPeriod: { sourceId: string; result: string; stem: string; at: string }[] }[];
     questions: {
       sourceId: string;
@@ -409,6 +413,7 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
   const concerns = view ? toConcerns(view) : null;
   const nowIds = new Set(view?.currentSet?.items.map((i) => i.materialId) ?? []);
   const beforeIds = new Set(view?.learning.filter((l) => l.prescribed).map((l) => l.materialId) ?? []);
+  const beforeAt = new Map(view?.learning.filter((l) => l.prescribed && l.prescribedAt).map((l) => [l.materialId, l.prescribedAt]) ?? []);
   const library: LiveLibraryItem[] | null =
     sid && materials
       ? materials.map((m) => ({
@@ -422,6 +427,8 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
           scope: m.scope === "org" ? "施設内教材" : "共通教材",
           prescribedNow: nowIds.has(m.materialId),
           prescribedBefore: !nowIds.has(m.materialId) && beforeIds.has(m.materialId),
+          prescribedAt: beforeAt.get(m.materialId) ?? null,
+          searchText: [m.summary ?? "", ...m.objectives].join(" "),
           thumbnail: thumbnailFor(m.title),
         }))
       : null;

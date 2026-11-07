@@ -129,11 +129,18 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   const sid = new URL(s.url()).searchParams.get("s")!;
 
   // 11. 医療者が診察サマリーで質問を確認（教材に紐づかない質問。閲覧だけで操作は求めない）
-  const q = s.locator(".cd-question-priority article").filter({ hasText: "来月、2泊の旅行に行ってもよいですか？" });
+  // 2 今日聞きたい質問: 原文・患者原文の表示・教材に結びつかない質問であること。根拠は 1 操作で開く
+  const q = s.locator('[data-key-row="questions"] [data-key-question]').filter({ hasText: "来月、2泊の旅行に行ってもよいですか？" });
   await expect(q).toBeVisible();
-  await expect(q).toContainText("診察ノート · 患者原文");
-  await q.getByRole("button").first().click();
-  await expect(q).toContainText("関連教材：なし（自由な質問）");
+  await expect(q).toContainText("患者原文");
+  await expect(q).toContainText("教材に結びつかない質問");
+  await q.locator("button.cd-key-sentence").click();
+  await expect(q.locator("[data-source-id^='vn:']")).toContainText("「来月、2泊の旅行に行ってもよいですか？」（患者原文）");
+  // 4 教材の候補: 教材に結びつかない質問だけなら候補を作らない（候補なし。ライブラリから選べることを示す）
+  const cand = s.locator('[data-key-row="candidates"]');
+  await expect(cand.locator("[data-no-candidates]")).toHaveText("質問・設問・症状に対応する承認済み教材は見つかりませんでした");
+  await expect(cand).toContainText("教材に結びつかない質問（1件）からは候補を作りません");
+  await expect(cand.getByRole("button", { name: /ほかの承認済み教材から選ぶ/ })).toBeVisible();
   await expect(s.locator("[data-intervisit]")).toContainText("来月、2泊の旅行に行ってもよいですか？");
   // 体調記録の取得 API（Step 4 の経過表で使う）は共有中だけ読める
   const h = await (await s.request.get(`/api/v1/consultations/${sid}/health`)).json();

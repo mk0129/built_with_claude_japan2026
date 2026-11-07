@@ -135,14 +135,18 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await expect(iv.locator("[data-severity-legend]")).toHaveCount(0);
   // 症状は記録された値を日付つきで（言い換えない）。元の記録を 1 操作で開ける
   const numb = iv.locator('[data-key-row="symptom"] [data-symptom="numbness"]');
-  await expect(numb).toContainText(`${md(3)} 3/4`);
-  await expect(numb).toContainText(`直近の記録は${md(1)} 2/4`);
+  // 「最大」「直近」をラベルで示し、値と日付を並べる
+  await expect(numb.locator("[data-stat='max']")).toHaveText(`最大3/4（${md(3)}）`);
+  await expect(numb.locator("[data-stat='last']")).toHaveText(`直近2/4（${md(1)}）`);
   await numb.locator("button.cd-key-sentence").click();
   await expect(numb.locator("[data-summary-sources] [data-source-id^='hs:']")).toHaveCount(4);
   await numb.locator("button.cd-key-sentence").click();
   // 生成元は 1 回だけ短く示し、作成情報を開くと生成元・照合方法・尺度の説明
   await expect(iv.locator("[data-ai-kind]")).toHaveCount(1);
   await expect(iv.locator("[data-ai-kind]")).toHaveText("開発用の擬似要約（AIではありません）");
+  // 1〜3 は記録の値をそのまま（AI 不使用）、教材の候補は規則による（AI 不使用）と区別して表示
+  await expect(iv.locator("[data-structured-note]")).toContainText("1〜3は記録の値・原文をそのまま表示（AI不使用）");
+  await expect(iv.locator("[data-candidate-kind]")).toHaveText("ルールによる候補（AI不使用）");
   await iv.locator("[data-ai-info-toggle]").click();
   await expect(iv.locator("[data-ai-info]")).toContainText("開発用の擬似生成です。Claude ではありません。");
   await expect(iv.locator("[data-severity-legend]")).toContainText("患者本人が記録した");
@@ -168,7 +172,14 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await expect(s.locator(".cd-course-controls")).toContainText("記録日 3日 / 14日 · 4件");
   const numbRow = s.locator(".cd-course-table tr").filter({ hasText: "手足のしびれ" });
   await expect(numbRow).toContainText("2×2");
+  // 経過表は直近の日（右端）が最初に見える位置で開く
+  const wrap = s.locator(".cd-course-table-wrap");
+  expect(await wrap.evaluate((el) => el.scrollWidth - el.clientWidth - el.scrollLeft)).toBeLessThan(2);
   await numbRow.getByRole("button", { name: /2×2/ }).click();
+  // セルの詳細は表の下に出し、隣のセルを覆わない
+  const detailBox = (await s.locator("[data-course-detail]").boundingBox())!;
+  const tableBox = (await wrap.boundingBox())!;
+  expect(detailBox.y).toBeGreaterThanOrEqual(tableBox.y + tableBox.height - 1);
   await expect(s.locator("[data-day-entries]")).toContainText("08:00 3 / 4（強い）");
   await expect(s.locator("[data-day-entries]")).toContainText("20:30 2 / 4（中くらい）");
   await s.locator(".cd-course-detail").getByRole("button", { name: "閉じる" }).click();

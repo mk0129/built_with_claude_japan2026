@@ -147,9 +147,9 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await expect(s.locator("[data-summary-sources] [data-source-id^='hs:']").first()).toContainText("手足のしびれ 2/4（中くらい）");
 
   // ---- 8. 必要な教材を追加処方（「わからない」の詳細 → 再処方候補 → 別の教材も追加）----
-  const unknown = s.locator(".cd-understanding article").filter({ hasText: "「わからない」" }).first();
-  await unknown.getByRole("button").first().click();
-  await unknown.getByRole("button", { name: "詳しく確認" }).click();
+  // 理解を確かめたい設問（3）の「わからない」の行から、解説・詳しく確認へ
+  const unknown = iv.locator('[data-key-row="unknown"] [data-answer-result="unknown"]').first();
+  await unknown.getByRole("button", { name: "解説・詳しく確認" }).click();
   await s.getByRole("button", { name: "再処方候補へ" }).click();
   await s.getByRole("button", { name: "関連教材の候補を見る" }).click();
   await s.locator(".cd-library-grid article").filter({ hasText: "化学療法中の副作用とセルフケア" }).getByRole("button", { name: "処方に追加" }).click();
