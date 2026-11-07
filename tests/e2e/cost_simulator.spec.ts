@@ -26,7 +26,7 @@ test("患者ホーム → 仕事とお金のこと → 医療費シミュレー�
   await expect(result).toBeVisible();
   await expect(p.locator("[data-sim-amount]")).toHaveText("92,940円");
   await expect(p.locator("[data-sim-summary]")).toContainText("2026年11月の診療分");
-  await expect(p.locator("[data-sim-summary]")).toContainText("確定した請求額ではありません");
+  await expect(p.locator("[data-sim-summary]")).toContainText("確定した請求額ではなく目安です");
   await expect(p.locator("[data-sim-demo-badge]")).toHaveText("架空の例");
   await expect(p.locator("[data-sim-key-conditions]")).toContainText("区分ウ");
   const breakdown = result.locator("[data-sim-detail='breakdown']");

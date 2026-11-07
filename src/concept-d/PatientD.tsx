@@ -2185,15 +2185,11 @@ function DSymptomManager({
           )}
           {filtered.map((item) => {
             const active = activeIds.includes(item.id)
-            const aliases = (SYMPTOM_ALIASES[item.id] ?? []).slice(0, 3)
             return (
               <div key={item.id} data-symptom-option={item.id}>
                 <span>
                   <b>{item.name}</b>
-                  <small>
-                    {item.category}
-                    {aliases.length ? ` · ${aliases.join("・")}` : ""}
-                  </small>
+                  <small>{item.category}</small>
                 </span>
                 <button
                   disabled={active}

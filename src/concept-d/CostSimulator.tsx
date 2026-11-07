@@ -517,15 +517,8 @@ function SimResultView({
           {main.ifManyTimes ? "・多数回該当は加入している健康保険に確認してください" : input.manyTimes === "yes" ? "・多数回該当あり" : ""}
           {demo ? "（架空の条件）" : ""}
         </p>
-        <p className="d-sim-disclaimer">確定した請求額ではありません。{range ? "治療費は公開情報からの概算で、体格・薬の量・医療機関で変わります。" : "特定の治療の費用の予測でもありません。"}</p>
+        <p className="d-sim-disclaimer">確定した請求額ではなく目安です{range ? "（治療費は公開情報からの概算）" : ""}。</p>
       </div>
-      {notes.length > 0 && (
-        <ul className="d-sim-notes" data-sim-notes>
-          {notes.map((n) => (
-            <li key={n}>{n}</li>
-          ))}
-        </ul>
-      )}
       {assumed && (
         <section className="d-sim-scenarios" data-sim-scenarios>
           <h3>区分ごとの目安</h3>
@@ -577,6 +570,13 @@ function SimResultView({
       )}
       <details className="d-sim-fold" data-sim-detail="breakdown">
         <summary>計算条件・内訳</summary>
+        {notes.length > 0 && (
+          <ul className="d-sim-notes" data-sim-notes>
+            {notes.map((n) => (
+              <li key={n}>{n}</li>
+            ))}
+          </ul>
+        )}
         <dl className="d-sim-conditions">
           <div>
             <dt>計算の条件</dt>
