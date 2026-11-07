@@ -3824,10 +3824,10 @@ function DLearning({
             <>
             <div className="d-learning-tabs">
               <button className={panel === "figure" ? "active" : ""} onClick={() => setPanel("figure")}>
-                医学図解
+                図解
               </button>
               <button className={panel === "points" ? "active" : ""} onClick={() => setPanel("points")}>
-                要点だけ読む
+                要点
               </button>
             </div>
             {panel === "figure" ? (
@@ -3851,11 +3851,8 @@ function DLearning({
             )}
             {slide.detailMd && (
               <>
-                <button className="d-disclosure" onClick={() => setDetailOpen(!detailOpen)}>
-                  <span>
-                    <b>もう少し詳しく</b>
-                    <small>{slide.title}</small>
-                  </span>
+                <button className="d-disclosure" onClick={() => setDetailOpen(!detailOpen)} aria-expanded={detailOpen}>
+                  <b>もう少し詳しく</b>
                   <span>{detailOpen ? "−" : "＋"}</span>
                 </button>
                 {detailOpen && <div className="d-detail-copy">{slide.detailMd}</div>}

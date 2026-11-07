@@ -228,7 +228,7 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
         {step === "insurance" && (
           <>
             <h2>加入している健康保険は？</h2>
-            <p className="d-sim-help">わからなくても進めます。保険の種類は、所得区分の正式な判定の仕方に関わります。</p>
+            <p className="d-sim-help">わからなくても進めます。</p>
             <Choice testId="employee" title="会社などの健康保険" sub="協会けんぽ・健康保険組合・共済組合など" selected={draft.insurance === "employee"} onClick={() => next({ insurance: "employee" })} />
             <Choice testId="national" title="国民健康保険" sub="市区町村・国民健康保険組合" selected={draft.insurance === "national"} onClick={() => next({ insurance: "national" })} />
             <Choice testId="insurance-unknown" title="わからない" sub="年収の目安だけで計算します" selected={draft.insurance === "unknown"} onClick={() => next({ insurance: "unknown" })} />
@@ -246,13 +246,7 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
         {step === "bracket" && (
           <>
             <h2>{draft.age === "preschool" ? "世帯の年収の目安は？" : "年収の目安は？"}</h2>
-            <p className="d-sim-help">
-              {draft.insurance === "employee"
-                ? "正式には標準報酬月額で決まりますが、まずは年収の目安で選んでください。"
-                : draft.insurance === "national"
-                  ? "正式には世帯の所得（旧ただし書き所得）で決まりますが、まずは年収の目安で選んでください。"
-                  : "年収の目安で選んでください。正式な区分は加入している健康保険が判定します。"}
-            </p>
+            <p className="d-sim-help">年収の目安で選んでください（正式な区分は加入している健康保険が判定します）。</p>
             {(["a", "b", "c", "d", "e"] as Bracket[]).map((b) => (
               <Choice
                 key={b}
@@ -301,7 +295,7 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
             </div>
             {costMode === "treatment" ? (
               <div className="d-sim-treatments" data-sim-treatments>
-                <p className="d-sim-help">1か月の間に受ける予定の治療を選んでください（複数可）。公開されている薬価・診療報酬からの概算です。</p>
+                <p className="d-sim-help">1か月に受ける予定の治療を選んでください（複数可）。</p>
                 {TREATMENT_GROUPS.map((group) => (
                   <div key={group} className="d-sim-treatment-group">
                     <small>{group}</small>
@@ -359,7 +353,7 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
                   ))}
                 </div>
                 <p className="d-sim-help" id="d-sim-cost-help">
-                  1つの医療機関の外来か入院のどちらか一方の、保険診療の医療費の総額です。領収書の「保険」の点数×10円が目安です。院外処方の薬局の分は外来に含めます。
+                  1つの医療機関の外来か入院の、保険診療の総額（領収書の保険点数×10円）。薬局の分は外来に含めます。
                 </p>
               </>
             )}
@@ -371,7 +365,7 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
         {step === "many" && (
           <>
             <h2>この1年で、高額療養費の払い戻しを3回以上受けましたか？</h2>
-            <p className="d-sim-help">直近12か月に3回以上受けていると、4回目から上限額が下がります（多数回該当）。わからなければ両方の金額を表示します。</p>
+            <p className="d-sim-help">直近12か月に3回以上あると、4回目から上限額が下がります（多数回該当）。</p>
             <Choice testId="many-no" title="ない・初めて" sub="通常の上限額で計算" selected={draft.manyTimes === "no"} onClick={() => calculate("no")} />
             <Choice testId="many-yes" title="3回以上ある" sub="4回目からの上限額で計算" selected={draft.manyTimes === "yes"} onClick={() => calculate("yes")} />
             <Choice testId="many-unknown" title="わからない" sub="両方の金額を表示" selected={draft.manyTimes === "unknown"} onClick={() => calculate("unknown")} />
@@ -383,7 +377,7 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
           <SimScope month={draft.serviceMonth ?? null} />
           <button className="d-sim-demo" data-sim-demo onClick={fillDemo}>
             <b>架空の例で試す</b>
-            <small>2026年11月・70歳未満・会社の健康保険・区分ウ・総医療費100万円（架空の条件）</small>
+            <small>70歳未満・会社の健康保険・区分ウ・総医療費100万円（架空）</small>
           </button>
         </>
       )}
