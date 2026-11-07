@@ -84,10 +84,14 @@ test("伊藤 涼子: 診断時セットの処方 → 患者ホーム → セッ�
   await patient.getByRole("button", { name: "この回答で確定する" }).click();
   await expect(patient.getByRole("heading", { name: "「わからない」を記録しました" })).toBeVisible();
 
-  // ホームから診察で聞きたいことを追加 → 再読み込みでも残る
+  // ホームから診察で聞きたいことを追加 → 「聞きたいこと」に残り、再読み込みでも残る（2026-11: ホームは件数だけ）
   await patient.goto("/home");
+  const count = patient.locator("[data-home-note-count]");
+  const before = Number(((await count.textContent()) ?? "0").replace(/\D/g, ""));
   await patient.locator("[data-home-note-input]").fill("病期の説明で、リンパ節のところをもう一度聞きたい");
   await patient.locator("[data-home-note-add]").click();
+  await expect(count).toContainText(`${before + 1}件`);
+  await patient.locator(".d-nav").getByRole("button", { name: "聞きたいこと" }).click();
   await expect(patient.getByText("病期の説明で、リンパ節のところをもう一度聞きたい")).toBeVisible();
   await patient.reload();
   await expect(patient.getByText("病期の説明で、リンパ節のところをもう一度聞きたい")).toBeVisible();

@@ -20,6 +20,7 @@ test("仕事とお金のこと（教材の承認前）: 教材は準備中・公
   const titles = (lib.data ?? lib).items.map((i: { title: string }) => i.title);
   for (const t of MONEY_TITLES) expect(titles).not.toContain(t);
 
+  await p.locator(".d-nav").getByRole("button", { name: "教材を探す" }).click(); // 2026-11: テーマは探す画面から
   await p.locator("[data-money-card]").click();
   const theme = p.locator("[data-money-theme]");
   await expect(theme).toBeVisible();
@@ -69,6 +70,7 @@ test("仕事とお金のこと（教材の承認後）: 4 教材・セット・�
   // 患者: テーマの画面に 4 教材 → 「高額療養費制度を知る」→ シミュレーター → 戻る
   const pg = p.page;
   await pg.goto("/home");
+  await pg.locator(".d-nav").getByRole("button", { name: "教材を探す" }).click();
   await pg.locator("[data-money-card]").click();
   await expect(pg.locator("[data-money-pending]")).toHaveCount(0);
   await expect(pg.locator("[data-money-lesson]")).toHaveCount(4);

@@ -9,6 +9,8 @@ test("患者ホーム → 仕事とお金のこと → 医療費シミュレー�
   const { ctx, page: p } = await newPage(browser, { width: 390, height: 844 });
   await demoLogin(p, "patient", "伊藤 涼子");
 
+  // 2026-11: 「仕事とお金のこと」はホームに常設せず、探す画面のテーマから開く
+  await p.locator(".d-nav").getByRole("button", { name: "教材を探す" }).click();
   await p.locator("[data-money-card]").click();
   const theme = p.locator("[data-money-theme]");
   await expect(theme).toBeVisible();

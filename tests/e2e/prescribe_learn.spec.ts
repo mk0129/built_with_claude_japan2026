@@ -67,8 +67,9 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   const now = p.locator("[data-home-lesson]");
   await expect(now).toContainText(MATERIAL, { timeout: 10_000 });
   await expect(now).toContainText("今日のおすすめ");
-  await expect(p.locator("[data-home-journey]")).toContainText("山田 医師から教材 1件が届きました");
-  await p.locator("[data-home-journey]").getByRole("button", { name: /届いた教材をすべて見る/ }).click();
+  await expect(p.locator("[data-home-journey]")).toContainText("教材 1件が届きました");
+  await expect(p.locator("[data-home-journey]")).toContainText("山田 医師から");
+  await p.locator("[data-home-journey]").getByRole("button", { name: /教材 1件が届きました/ }).click();
   await expect(p.locator(".d-prescription-info")).toContainText("さくら総合病院");
 
   // 5. 学習（詳細 → 学習を始める → ページ送り → 理解を確認する）

@@ -197,7 +197,7 @@ test("P0-4: 診断時セットのあとに別の教材を処方しても、ホ�
   const card = p.locator("[data-set-card]");
   await expect(card).toContainText("診断時セット");
   await expect(card).toHaveAttribute("data-set-in-latest", "true");
-  await expect(card).toContainText("今回の情報処方セット");
+  await expect(card).toContainText("3件");
   const firstSender = (await card.locator(".d-set-sender").textContent()) ?? "";
 
   // 2 回目: 別の教材を 1 件だけ処方
@@ -210,10 +210,10 @@ test("P0-4: 診断時セットのあとに別の教材を処方しても、ホ�
     await p.goto("/home");
     await expect(card).toContainText("診断時セット");
     await expect(card).toHaveAttribute("data-set-in-latest", "false");
-    // 今回の処方ではないので「今回の」と書かない。送り元・日付はセットを含む処方の記録
-    await expect(card.locator(".pill, [class*='pill']").first()).toHaveText("情報処方セット");
+    // 今回の処方ではないので「今回の」と書かない。送り元はセットを含む処方の記録
+    await expect(card).not.toContainText("今回");
     await expect(card.locator(".d-set-sender")).toHaveText(firstSender);
-    await expect(card).toContainText(/学習済み\s*\d+ \/ 3/);
+    await expect(card).toContainText("3件");
     const fresh = p.locator("[data-new-rx]");
     await expect(fresh).toContainText("新しく届いた教材 1件");
     await shot(p, `P01_home_set_kept_${vp.name}`);

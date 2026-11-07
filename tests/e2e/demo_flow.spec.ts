@@ -161,7 +161,7 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   for (const path of ["patient", "intervisit", "health"]) expect((await s.request.get(`/api/v1/consultations/${sid}/${path}`)).status()).toBe(403);
   await p.goto("/home");
   await expect(p.locator("[data-home-journey]")).toContainText("教材 2件が届きました"); // 2026-11: 歩みの起点（前回の診察）
-  await p.locator("[data-home-journey]").getByRole("button", { name: /届いた教材をすべて見る/ }).click();
+  await p.locator("[data-home-journey]").getByRole("button", { name: /教材 2件が届きました/ }).click();
   await expect(p.locator(".d-card-list")).toContainText("化学療法中の副作用とセルフケア");
 
   await staff.ctx.close();

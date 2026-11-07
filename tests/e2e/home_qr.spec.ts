@@ -36,19 +36,22 @@ test("ホーム: 次回診察日の登録（再読み込みで残る・当日・
   await expect(p.locator("[data-visit-days]")).toContainText("過ぎました");
 
   // ホームから質問を追加: 空欄では追加できない。保存に成功したものだけが表示され、再読み込みでも残る
+  // 2026-11: ホームは件数だけ（質問の本文は「聞きたいこと」で見る）
   const add = p.locator("[data-home-note-add]");
   await expect(add).toBeDisabled();
+  const count = p.locator("[data-home-note-count]");
+  const before = Number(((await count.textContent()) ?? "0").replace(/\D/g, ""));
   const text = "治療中の予防接種について聞きたい（E2E）";
   await p.locator("[data-home-note-input]").fill(text);
   await add.click();
-  await expect(p.locator(".d-home-ask-list")).toContainText(text);
+  await expect(count).toContainText(`${before + 1}件`);
   await expect(p.locator("[data-home-note-input]")).toHaveValue("");
   await p.reload();
-  await expect(p.locator(".d-home-ask-list")).toContainText(text);
+  await expect(count).toContainText(`${before + 1}件`);
   // 他の画面へ移って戻っても残る
   await p.locator(".d-nav").getByRole("button", { name: "教材を探す" }).click();
   await p.locator(".d-nav").getByRole("button", { name: "ホーム" }).click();
-  await expect(p.locator(".d-home-ask-list")).toContainText(text);
+  await expect(count).toContainText(`${before + 1}件`);
   await p.locator(".d-nav").getByRole("button", { name: "聞きたいこと" }).click();
   await expect(p.locator(".d-saved-notes")).toContainText(text);
 
