@@ -25,11 +25,14 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   // ---- 1. 医療者が教材を作成・承認する（教材スタジオ）----
   await connect(s, p);
   await s.locator(".cd-sidebar").getByRole("button", { name: "教材スタジオ" }).click();
+  // 手順 1: 「次へ」の近くに不足項目（登録に必要なもの）が出る
+  await expect(s.locator("[data-step-missing]")).toContainText("原資料");
   await s.locator("[data-source-file]").setInputFiles("tests/fixtures/sources/hormone_therapy_demo.docx");
   await s.locator(".cd-form-grid input").nth(1).fill("さくら総合病院 薬剤部（架空）");
   await s.locator(".cd-form-grid textarea").fill("院内作成の架空資料。患者向け教材化と AI 処理を許可（デモ）");
   await s.locator(".cd-license-check input").nth(0).check();
   await s.locator(".cd-license-check input").nth(1).check();
+  await expect(s.locator("[data-step-missing]")).toHaveCount(0);
   await s.getByRole("button", { name: "次へ進む" }).click();
   await expect(s.getByRole("heading", { name: "教材の作成方針" })).toBeVisible({ timeout: 30_000 });
   await s.getByRole("button", { name: "Claudeに構成案を依頼" }).click();
@@ -41,6 +44,8 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   for (const c of await s.locator("[data-must-item] input[type=checkbox]").all()) await c.check();
   await s.getByRole("button", { name: "確認した内容で下書きを作成" }).click();
   await expect(s.locator("[data-studio-editor]")).toBeVisible({ timeout: 60_000 });
+  // 公開前の自動チェック（本文と設問を原資料の引用と照合。出力は書き換えない）
+  await expect(s.locator("[data-draft-checks]")).toBeVisible();
   // 本文の編集（自動保存）
   const heading = s.locator("[data-studio-editor] input").first();
   await heading.fill("ホルモン療法を続けるために（デモ）");
@@ -82,6 +87,11 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await expect(s.locator(".cd-demo-approval-note")).toContainText("本番の医学的監修を意味しません");
   const approve = s.getByRole("button", { name: "医学的に承認して公開" });
   await expect(approve).toBeDisabled();
+  // 公開の許可は手順 1 では求めず、公開の段階で確認して原資料の利用条件に登録する
+  await expect(s.locator("[data-publish-permission]")).toBeVisible();
+  await s.locator("[data-publish-permission] input").check();
+  await s.getByRole("button", { name: "公開の許可を登録する" }).click();
+  await expect(s.locator("[data-publish-permission]")).toHaveCount(0, { timeout: 10_000 });
   for (const c of await s.locator(".cd-approval-check input").all()) await c.check();
   await approve.click();
   await expect(s.getByRole("heading", { name: "教材を公開しました" })).toBeVisible({ timeout: 15_000 });

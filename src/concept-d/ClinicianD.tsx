@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import type { ClinicianLive } from "./live"
 import type { ClinicianRecord, LiveConcern, LiveLibraryItem } from "./record"
-import { SAFETY_KINDS, type Draft, type StudioLive } from "./studio"
+import { SAFETY_KINDS, reviewDraft, type Draft, type DraftCheck, type StudioLive } from "./studio"
 import { DDraftPreview } from "./PatientD"
 import { areaOf } from "./learning"
 import { ShioriLogo } from "./ShioriLogo"
+// 教材スタジオの追加分（サンプル資料・段階ごとの許諾・公開前チェック）
+import "./studio.css"
 import {
   currentVisitDate,
   formatShortDate,
@@ -3926,7 +3928,8 @@ function Studio({
   // ---- 本番（Step 5）の入力 ----
   const [file, setFile] = useState<File | null>(null)
   const [srcMeta, setSrcMeta] = useState({ title: "", rightsHolder: "", evidenceNote: "" })
-  const [perm, setPerm] = useState({ allowDerive: true, allowPublish: true, allowShare: false })
+  // 公開の許可は承認・公開の段階（手順 7）で確認する。登録・下書き作成には AI 処理と改変の許可だけを求める
+  const [perm, setPerm] = useState({ allowDerive: true, allowPublish: false, allowShare: false })
   const [piiChecked, setPiiChecked] = useState(false)
   const [brief, setBrief] = useState({ theme: "", audience: "", objective: "" })
   const [mustChecked, setMustChecked] = useState<Record<string, boolean>>({})
@@ -3949,7 +3952,7 @@ function Studio({
 
   const canNext = live
     ? step === 1
-      ? !!(live.sourceId || file) && aiAllowed && licenseChecked && piiChecked && !!srcMeta.rightsHolder.trim() && !!srcMeta.evidenceNote.trim()
+      ? !!(live.sourceId || file) && aiAllowed && perm.allowDerive && licenseChecked && piiChecked && !!srcMeta.rightsHolder.trim() && !!srcMeta.evidenceNote.trim()
       : step === 2
         ? approach === "claude" || (!!brief.theme.trim() && !!brief.objective.trim())
         : step === 3
@@ -3964,11 +3967,46 @@ function Studio({
       : step === 4
         ? mustCover.every(Boolean)
         : true
+  /** 手順 1 の不足項目（「次へ」の近くに示す）。登録に必要な項目と、Claude で作るときに必要な許可を分ける */
+  const registerMissing = live
+    ? [
+        !(live.sourceId || file) && "原資料",
+        !srcMeta.rightsHolder.trim() && "作成元（許諾元）",
+        !srcMeta.evidenceNote.trim() && "利用許諾の根拠",
+        !licenseChecked && "利用許諾の確認",
+        !piiChecked && "患者個人情報を含まないことの確認",
+      ].filter((x): x is string => !!x)
+    : []
+  const aiMissing = live ? [!aiAllowed && "AI処理の許可", !perm.allowDerive && "改変の許可"].filter((x): x is string => !!x) : []
+  /** 登録だけ行う（AI 処理の許可がまだない資料も、許諾情報とともに保存できる） */
+  const registerOnly = async () => {
+    if (!live || !file || live.sourceId) return
+    const id = await live.upload(file, { title: srcMeta.title, rightsHolder: srcMeta.rightsHolder, evidenceNote: srcMeta.evidenceNote, perm: { allowAi: aiAllowed, ...perm }, piiAttestedNone: piiChecked })
+    if (id) notify(aiMissing.length ? `原資料を登録しました。${aiMissing.join("・")}が得られたら、教材の作成へ進めます` : "原資料を登録しました")
+  }
+  const checks: DraftCheck[] = live && d ? reviewDraft(d, { sourceText: live.sourceText }) : []
+  const publishMissing = !!d && d.sources.some((x) => !x.perm?.allowPublish)
+  /** 公開の段階で、原資料の公開許可を確認して登録する（手順 1 で登録した許諾情報を引き継ぐ） */
+  const allowPublishNow =
+    live && live.sourceId && srcMeta.rightsHolder.trim() && srcMeta.evidenceNote.trim()
+      ? async () => {
+          const next = { ...perm, allowPublish: true }
+          if (await live.updatePermissions({ rightsHolder: srcMeta.rightsHolder, evidenceNote: srcMeta.evidenceNote, perm: { allowAi: aiAllowed, ...next }, piiAttestedNone: piiChecked })) {
+            setPerm(next)
+            await live.reloadDraft()
+            notify("原資料の公開許可を登録しました")
+          }
+        }
+      : null
   /** 本番の「次へ」: 各手順で実際の処理を行い、終わったら次の手順へ */
   const nextLive = async () => {
     if (!live) return
     if (step === 1) {
-      if (!live.sourceId && file) {
+      if (live.sourceId) {
+        // 「登録だけする」の後に許可を変えた場合は、登録済みの許諾情報を更新してから進む
+        const ok = await live.updatePermissions({ rightsHolder: srcMeta.rightsHolder, evidenceNote: srcMeta.evidenceNote, perm: { allowAi: aiAllowed, ...perm }, piiAttestedNone: piiChecked })
+        if (!ok) return
+      } else if (file) {
         const id = await live.upload(file, { title: srcMeta.title, rightsHolder: srcMeta.rightsHolder, evidenceNote: srcMeta.evidenceNote, perm: { allowAi: aiAllowed, ...perm }, piiAttestedNone: piiChecked })
         if (!id) return
       }
@@ -4006,6 +4044,11 @@ function Studio({
           <p>原資料から、患者向け教材を作成・確認・承認します。</p>
         </div>
         <div className="cd-draft-status">
+          {live?.replay && (
+            <span className="cd-replay-badge" data-studio-replay title="構成案と下書きは、記録済みのClaude出力を表示しています。今回は生成していません">
+              記録の再生
+            </span>
+          )}
           <Badge
             tone={
               publishState === "published"
@@ -4065,19 +4108,14 @@ function Studio({
         </div>
       ) : (
       <div className="cd-studio-body">
-        {live && (live.outlineJob?.generator === "replay" || live.draftJob?.generator === "replay") && (
-          <p className="cd-studio-busy" data-studio-replay>
-            撮影用デモ環境: 記録済みのClaude出力（{live.draftJob?.model ?? live.outlineJob?.model}）を再生しています。今回はClaudeを呼び出していません。
-          </p>
-        )}
         {live && live.busy && (
           <p className="cd-studio-busy" data-studio-busy>
             {live.busy === "upload"
               ? "原資料を登録しています…"
               : live.busy === "outline"
-                ? `Claudeが構成案を作成しています…（${live.outlineJob?.progress ?? "待機中"}）`
+                ? live.replay ? "記録済みの構成案を開いています…" : `Claudeが構成案を作成しています…（${live.outlineJob?.progress ?? "待機中"}）`
                 : live.busy === "draft"
-                  ? `Claudeが下書きを作成しています…（${live.draftJob?.progress ?? "待機中"}）`
+                  ? live.replay ? "記録済みの下書きを開いています…" : `Claudeが下書きを作成しています…（${live.draftJob?.progress ?? "待機中"}）`
                   : "処理しています…"}
           </p>
         )}
@@ -4105,6 +4143,8 @@ function Studio({
                     setPerm,
                     pii: piiChecked,
                     setPii: setPiiChecked,
+                    sample: live.sample,
+                    ownFileBlockedReason: live.ownFileBlockedReason,
                   }
                 : undefined
             }
@@ -4118,6 +4158,7 @@ function Studio({
             selected={replayOnly ? 1 : proposal}
             setSelected={setProposal}
             replayOnly={replayOnly}
+            replay={!!live?.replay}
             expanded={expandedProposal}
             setExpanded={setExpandedProposal}
             live={live ? { outlines: live.outlines, sourceTitle: live.sourceInfo?.title ?? "原資料" } : undefined}
@@ -4148,6 +4189,7 @@ function Studio({
             }
           />
         )}
+        {live && d && step >= 5 && <DraftChecks checks={checks} replay={!!live.replay} onOpen={step === 5 ? (page) => setEditingPage(page) : undefined} />}
         {step === 5 && (
           <EditStep
             editingPage={editingPage}
@@ -4184,6 +4226,8 @@ function Studio({
                 ? {
                     draft: d,
                     busy: !!live.busy,
+                    publishMissing,
+                    allowPublishNow,
                     approve: async (ack: boolean) => {
                       if (await live.approve(ack, ack ? "最終確認で安全上の重要事項と相談の目安を確認した" : null)) {
                         notify("医学的承認が完了し、教材を公開しました")
@@ -4219,11 +4263,20 @@ function Studio({
             前へ
           </button>
           <div>
-            {step === 1 && !aiAllowed && (
+            {!live && step === 1 && !aiAllowed && (
               <span>AI処理が許可されていないため進めません</span>
             )}
-            {live && step === 1 && aiAllowed && (!licenseChecked || !piiChecked) && (
-              <span>利用許諾と個人情報の確認が必要です</span>
+            {live && step === 1 && (registerMissing.length > 0 || aiMissing.length > 0) && (
+              <span className="cd-step-missing" data-step-missing>
+                {registerMissing.length > 0 && <>次へ進むには: {registerMissing.join("・")}</>}
+                {registerMissing.length > 0 && aiMissing.length > 0 && <br />}
+                {aiMissing.length > 0 && <>Claudeで作るには: {aiMissing.join("・")}（登録だけはできます）</>}
+              </span>
+            )}
+            {live && step === 1 && !live.sourceId && registerMissing.length === 0 && (
+              <button className="cd-secondary" data-register-only disabled={!!live.busy} onClick={() => void registerOnly()}>
+                登録だけする
+              </button>
             )}
             {step === 4 && (live ? !live.candidates.every((c) => mustChecked[c.id]) : !mustCover.every(Boolean)) && (
               <span>「必ず含める内容」に未確認の項目があります</span>
@@ -4234,11 +4287,11 @@ function Studio({
               onClick={() => (live ? void nextLive() : setStep(step + 1))}
             >
               {step === 2 && approach === "claude"
-                ? "Claudeに構成案を依頼"
+                ? live?.replay ? "記録済みの構成案を開く" : "Claudeに構成案を依頼"
                 : live && step === 2
                   ? "Claudeに下書きを依頼"
                   : live && step === 4
-                    ? "確認した内容で下書きを作成"
+                    ? live.replay ? "確認した内容で記録済みの下書きを開く" : "確認した内容で下書きを作成"
                     : "次へ進む"}
               <CIcon name="arrow" />
             </button>
@@ -4276,15 +4329,26 @@ function SourceStep({
     setPerm: (perm: { allowDerive: boolean; allowPublish: boolean; allowShare: boolean }) => void
     pii: boolean
     setPii: (value: boolean) => void
+    /** サンプル資料（架空）。選ぶと資料名・作成元・許諾の根拠を表示し、入力欄にも入れる */
+    sample?: import("./studio").StudioSample | null
+    /** 自分のファイルを選べない理由（公開デモなど） */
+    ownFileBlockedReason?: string | null
   }
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
+  const sample = live?.sample ?? null
+  const usingSample = !!sample && !!live && (live.file?.name === sample.filename || live.uploaded?.filename === sample.filename)
+  const useSample = () => {
+    if (!live || !sample) return
+    live.setFile(sample.file())
+    live.setMeta({ title: sample.title, rightsHolder: sample.rightsHolder, evidenceNote: sample.evidenceNote })
+  }
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
         <Badge>手順 1</Badge>
         <h2>原資料を登録</h2>
-        <p>利用許諾を確認し、AI処理できる資料だけを登録します。</p>
+        <p>{live ? "資料の作成元と利用許諾を確認して登録します。AI処理・改変・公開・施設外共有の許可は、必要になる段階で確認します。" : "利用許諾を確認し、AI処理できる資料だけを登録します。"}</p>
       </div>
       <div className="cd-source-layout">
         <section className="cd-panel">
@@ -4302,6 +4366,29 @@ function SourceStep({
               }}
             />
           )}
+          {live && sample && (
+            <div className={`cd-sample-source${usingSample ? " selected" : ""}`} data-sample-source>
+              <div className="cd-sample-head">
+                <Badge tone="blue">サンプル資料（架空）</Badge>
+                {!usingSample && !live.uploaded && (
+                  <button className="cd-primary" data-use-sample onClick={useSample}>
+                    このサンプル資料を使う
+                  </button>
+                )}
+                {usingSample && <span className="cd-sample-chosen"><CIcon name="check" size={16} />選択中</span>}
+              </div>
+              <dl>
+                <dt>資料名</dt>
+                <dd>{sample.title}</dd>
+                <dt>作成元</dt>
+                <dd>{sample.rightsHolder}</dd>
+                <dt>利用許諾の根拠</dt>
+                <dd>{sample.evidenceNote}</dd>
+                <dt>資料の説明</dt>
+                <dd>{sample.description}</dd>
+              </dl>
+            </div>
+          )}
           {live && sourceReady ? (
             <div className="cd-file-ready">
               <span>
@@ -4310,7 +4397,7 @@ function SourceStep({
               <div>
                 <b>{live.uploaded?.filename ?? live.file?.name}</b>
                 <small>
-                  {(((live.uploaded?.size ?? live.file?.size ?? 0) / 1024 / 1024) || 0).toFixed(1)}MB ·{" "}
+                  {fileSize(live.uploaded?.size ?? live.file?.size ?? 0)} ·{" "}
                   {live.uploaded ? `${live.uploaded.charCount}文字を読み取り済み` : "登録前（「次へ進む」で登録）"}
                 </small>
                 {live.uploaded?.warnings.map((w) => (
@@ -4322,12 +4409,15 @@ function SourceStep({
               <button onClick={live.remove}>削除</button>
             </div>
           ) : live ? (
-            <button className="cd-upload" onClick={() => fileRef.current?.click()}>
-              <CIcon name="upload" size={32} />
-              <b>PDF・テキスト資料を登録</b>
-              <span>クリックしてファイルを選択</span>
-              <small>PDF / Word / PowerPoint / TXT · 最大15MB</small>
-            </button>
+            <>
+              <button className="cd-upload" disabled={!!live.ownFileBlockedReason} onClick={() => fileRef.current?.click()}>
+                <CIcon name="upload" size={32} />
+                <b>{sample ? "自分の資料を登録" : "PDF・テキスト資料を登録"}</b>
+                <span>{live.ownFileBlockedReason ? "この環境では使えません" : "クリックしてファイルを選択"}</span>
+                <small>PDF / Word / PowerPoint / TXT · 最大15MB</small>
+              </button>
+              {live.ownFileBlockedReason && <p className="cd-own-file-note" data-own-file-blocked>{live.ownFileBlockedReason}</p>}
+            </>
           ) : !sourceReady ? (
             <button className="cd-upload" onClick={() => setSourceReady(true)}>
               <CIcon name="upload" size={32} />
@@ -4379,6 +4469,45 @@ function SourceStep({
           </div>
           )}
         </section>
+        {live ? (
+        <aside className="cd-panel cd-permissions" data-permission-stages>
+          <h3>利用条件（段階ごとに確認）</h3>
+          <p className="cd-perm-stage">
+            <b>登録に必要</b>
+            <small>資料を保存する前に確認します</small>
+          </p>
+          <label className="cd-license-check">
+            <input type="checkbox" checked={licenseChecked} onChange={(event) => setLicenseChecked(event.target.checked)} />
+            <span>
+              <b>利用許諾を確認しました</b>
+              <small>作成元と許諾の根拠を、登録者が確認します</small>
+            </span>
+          </label>
+          {/* 本番: 患者個人情報を含まないことの確認（含む資料は AI 処理しない） */}
+          <label className="cd-license-check">
+            <input type="checkbox" checked={live.pii} onChange={(event) => live.setPii(event.target.checked)} />
+            <span>
+              <b>患者個人情報を含みません</b>
+              <small>含む資料はClaudeに送信しません</small>
+            </span>
+          </label>
+          <p className="cd-perm-stage">
+            <b>Claudeで下書きを作るときに必要</b>
+            <small>手順2〜5。許可がなくても登録だけはできます</small>
+          </p>
+          <ToggleRow label="AI処理" description="Claudeへ送信し、構成案・下書きを作る" value={aiAllowed} setValue={setAiAllowed} />
+          <ToggleRow label="内容の改変" description="患者向けに要約・書き直す" value={live.perm.allowDerive} setValue={(v) => live.setPerm({ ...live.perm, allowDerive: v })} />
+          <p className="cd-perm-stage">
+            <b>公開するときに必要</b>
+            <small>手順7の承認・公開の前に確認します。今は未確認で構いません</small>
+          </p>
+          <ToggleRow label="患者への公開" description="承認後、shioriで当院の患者へ公開する" value={live.perm.allowPublish} setValue={(v) => live.setPerm({ ...live.perm, allowPublish: v })} />
+          <p className="cd-perm-stage">
+            <b>他施設と共有する場合のみ</b>
+          </p>
+          <ToggleRow label="施設外共有" description="共通教材として他施設で利用する" value={live.perm.allowShare} setValue={(v) => live.setPerm({ ...live.perm, allowShare: v })} />
+        </aside>
+        ) : (
         <aside className="cd-panel cd-permissions">
           <h3>利用条件</h3>
           <ToggleRow
@@ -4388,14 +4517,6 @@ function SourceStep({
             setValue={setAiAllowed}
             critical
           />
-          {live ? (
-            <>
-              <ToggleRow label="内容の改変" description="患者向けへの要約・編集" value={live.perm.allowDerive} setValue={(v) => live.setPerm({ ...live.perm, allowDerive: v })} />
-              <ToggleRow label="Web公開" description="shioriで患者へ公開" value={live.perm.allowPublish} setValue={(v) => live.setPerm({ ...live.perm, allowPublish: v })} />
-              <ToggleRow label="施設外共有" description="共通教材として他施設で利用" value={live.perm.allowShare} setValue={(v) => live.setPerm({ ...live.perm, allowShare: v })} />
-            </>
-          ) : (
-            <>
           <ToggleRow label="内容の改変" description="患者向けへの要約・編集" />
           <ToggleRow label="Web公開" description="shioriで患者へ公開" />
           <ToggleRow
@@ -4403,8 +4524,6 @@ function SourceStep({
             description="共通教材として他施設で利用"
             defaultValue={false}
           />
-            </>
-          )}
           {!aiAllowed && (
             <p className="cd-permission-warning">
               <CIcon name="alert" />
@@ -4422,19 +4541,49 @@ function SourceStep({
               <small>登録者が資料の利用条件を確認します</small>
             </span>
           </label>
-          {live && (
-            // 本番: 患者個人情報を含まないことの確認（含む資料は AI 処理しない）
-            <label className="cd-license-check">
-              <input type="checkbox" checked={live.pii} onChange={(event) => live.setPii(event.target.checked)} />
-              <span>
-                <b>患者個人情報を含みません</b>
-                <small>含む資料はClaudeに送信しません</small>
-              </span>
-            </label>
-          )}
         </aside>
+        )}
       </div>
     </div>
+  )
+}
+
+const fileSize = (bytes: number) => (bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))}KB` : `${(bytes / 1024 / 1024).toFixed(1)}MB`)
+
+/** 公開前の機械チェック（Claude の出力・記録済みの出力は書き換えない。採否は医療者が決める） */
+function DraftChecks({ checks, replay, onOpen }: { checks: DraftCheck[]; replay: boolean; onOpen?: (page: number) => void }) {
+  const [open, setOpen] = useState(true)
+  return (
+    <section className={`cd-draft-checks${checks.length ? "" : " clear"}`} data-draft-checks aria-label="公開前の自動チェック">
+      <button className="cd-draft-checks-head" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <CIcon name={checks.length ? "alert" : "check"} size={18} />
+        <b>{checks.length ? `公開前に確認してください（${checks.length}件）` : "公開前の自動チェック: 指摘はありません"}</b>
+        <small>{open ? "閉じる" : "開く"}</small>
+      </button>
+      {open && (
+        <>
+          <p>
+            本文と設問を原資料と機械的に照合しました。{replay ? "記録済みの出力は書き換えていません。" : ""}修正するかどうかは医療者が判断します。
+          </p>
+          {checks.length > 0 && (
+            <ul>
+              {checks.map((c) => (
+                <li key={c.id} data-check-kind={c.kind}>
+                  <b>{c.title}</b>
+                  <small>{c.where}</small>
+                  <q>{c.excerpt}</q>
+                  {onOpen && c.where !== "対応する画面・設問なし" && (
+                    <button className="cd-text-button" onClick={() => onOpen(c.page)}>
+                      この箇所を開く
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+    </section>
   )
 }
 
@@ -4584,9 +4733,12 @@ function ProposalStep({
   setExpanded,
   live,
   replayOnly = false,
+  replay = false,
 }: {
   /** 撮影用デモ環境: 案 1 だけを選べる（記録済みの出力は案 1 のみ） */
   replayOnly?: boolean
+  /** 構成案が記録済みの Claude 出力の再生（今回は生成していない） */
+  replay?: boolean
   selected: number
   setSelected: (value: number) => void
   expanded: number | null
@@ -4612,9 +4764,9 @@ function ProposalStep({
         <Badge>手順 3</Badge>
         <h2>Claudeの構成案を比較</h2>
         <p>提案は下書きです。採用と医学的な判断は医療者が行います。</p>
-        {replayOnly && (
+        {replay && (
           <p className="cd-replay-note" data-replay-only>
-            撮影用デモ環境のため、記録済みの案 1 で下書きを作成します。
+            記録済みのClaude出力を表示しています（今回は生成していません）。{replayOnly && "記録があるのは案 1 の下書きだけのため、案 1 で進みます。"}
           </p>
         )}
       </div>
@@ -5217,7 +5369,9 @@ function PreviewStep({
     const d = live.draft
     const published = d.version.status === "published"
     const publishBlocked = !!d.approvalBlock || d.sources.some((x) => !x.perm?.allowPublish)
-    const stateLabel = [published ? null : "未監修", publishBlocked ? "公開不可" : published ? "公開中" : "未公開"].filter(Boolean).join("・")
+    // 公開の許可は手順 7 で確認するため、未確認のあいだは「公開不可」ではなく「未確認」と示す
+    const onlyPermissionPending = !published && d.sources.some((x) => !x.perm?.allowPublish)
+    const stateLabel = [published ? null : "未監修", onlyPermissionPending ? "公開の許可は未確認" : publishBlocked ? "公開不可" : published ? "公開中" : "未公開"].filter(Boolean).join("・")
     const extraTags = (d.material.tags ?? []).filter((t) => t !== d.material.primaryDomain)
     return (
       <div className="cd-studio-step">
@@ -5364,8 +5518,19 @@ function ApprovalStep({
   setState: (state: "editing" | "review" | "published" | "returned") => void
   notify: (message: string) => void
   /** 本番: 実際の承認・公開・差し戻し・公開停止（承認権限はサーバーで検証） */
-  live?: { draft: Draft; busy: boolean; approve: (acknowledgeSafety: boolean) => Promise<void>; returnToDraft: () => Promise<void>; retire: () => Promise<void> }
+  live?: {
+    draft: Draft
+    busy: boolean
+    /** 原資料に患者向け公開の許可がない（公開の段階で確認する） */
+    publishMissing?: boolean
+    /** 原資料の公開許可を確認して登録する（この画面で登録した原資料のときだけ） */
+    allowPublishNow?: (() => Promise<void>) | null
+    approve: (acknowledgeSafety: boolean) => Promise<void>
+    returnToDraft: () => Promise<void>
+    retire: () => Promise<void>
+  }
 }) {
+  const [publishConfirmed, setPublishConfirmed] = useState(false)
   const allChecked = checks.every(Boolean)
   const safetyOpen = live ? live.draft.preCheck.mustCover.safetyUnconfirmed : []
   return (
@@ -5416,6 +5581,28 @@ function ApprovalStep({
               <b>{live ? (live.draft.material.scope === "org" ? "当院の患者のみ" : "共通教材") : "当院の患者のみ"}</b>
             </div>
           </div>
+          {live?.publishMissing && live.draft.version.status !== "published" && (
+            <div className="cd-publish-permission" data-publish-permission>
+              <b>原資料の「患者への公開」の許可が未確認です</b>
+              <small>登録と下書き作成には不要でしたが、公開には作成元の許可が必要です。</small>
+              {live.allowPublishNow ? (
+                <>
+                  <label className="cd-license-check">
+                    <input type="checkbox" checked={publishConfirmed} onChange={(e) => setPublishConfirmed(e.target.checked)} />
+                    <span>
+                      <b>作成元が患者向けの公開を許可していることを確認しました</b>
+                      <small>原資料の利用条件に記録されます</small>
+                    </span>
+                  </label>
+                  <button className="cd-secondary" disabled={!publishConfirmed || live.busy} onClick={() => void live.allowPublishNow?.()}>
+                    公開の許可を登録する
+                  </button>
+                </>
+              ) : (
+                <small>原資料の利用条件で「患者への公開」の許可を登録してください。</small>
+              )}
+            </div>
+          )}
           {live && (
             // デモの承認者は架空。本番の医学的監修ではないことを明示
             <p className="cd-demo-approval-note">

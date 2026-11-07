@@ -1,11 +1,11 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import ClinicianD from "@/concept-d/ClinicianD";
 import { useClinicianLive, type ClinicianOrg } from "@/concept-d/live";
 import { useClinicianRecord } from "@/concept-d/record";
 import { useJudgeStudio } from "./judge-studio";
 import fixture from "./fixtures/consultation.json";
 import { getJudgeSession, isJudgeActive, subscribeJudgeSession } from "./judge-store";
-import { getNativePatientGrant } from "./judge-patient-share";
+import { getGrantSnapshot, getNativePatientGrant, subscribeGrant } from "./judge-patient-share";
 
 const orgs: ClinicianOrg[] = [fixture.org];
 function onWidthChange(listener:()=>void) {
@@ -34,9 +34,19 @@ export function JudgeClinician({onEnd}: {onEnd:()=>void}) {
       setNotice({text:"コードを発行したデモのタブで「医師側」に切り替え、6桁コードを入力してください。",tone:"error"});
     }
   },[live.claimCode]);
+  // 患者がコードを表示した後に医師側へ来たときは、QRの説明ではなく6桁コードの入力欄を開く（コードごとに1回だけ）
+  const grantRaw=useSyncExternalStore(subscribeGrant,getGrantSnapshot);
+  const openedFor=useRef<string|null>(null);
+  const {state:liveState,setState:setLiveState}=live;
+  useEffect(()=>{
+    const grant=getNativePatientGrant();
+    if(!grant || grant.claimed || liveState!=="none" || openedFor.current===grant.grantId)return;
+    openedFor.current=grant.grantId;
+    setLiveState("request");
+  },[grantRaw,liveState,setLiveState]);
   const active=isJudgeActive(session) && live.state==="active" && !live.ending;
   const record=useClinicianRecord(live.sessionId,active,text=>notify(text,"error"));
-  const studio=useJudgeStudio(live.org?.orgId??null,active,text=>notify(text,"error"));
+  const studio=useJudgeStudio(live.org?.orgId??null,active,text=>notify(text,"error"),text=>notify(text));
   useEffect(()=>{
     if (!notice) return;
     const t=window.setTimeout(()=>setNotice(null),notice.tone==="error"?5800:3000);

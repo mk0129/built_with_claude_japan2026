@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState } from "react";
-import { useStudio, type Draft, type Outline, type MustCandidate, type StudioLive } from "@/concept-d/studio";
+import { useState } from "react";
+import { useStudio, type Draft, type Outline, type MustCandidate, type Permissions, type StudioLive, type StudioSample } from "@/concept-d/studio";
 import type { MaterialApi } from "@/concept-d/record";
 import replay from "./fixtures/studio-replay.json";
-import { SOURCE_DOCX } from "./fixtures/studio-source";
+import { SOURCE_DOCX, SOURCE_TEXT } from "./fixtures/studio-source";
+import { getJudgeSession } from "./judge-store";
 
 export const JUDGE_STUDIO_DRAFT = "bb64ff87-e91b-4ec5-813d-0f95a6f0cb7c";
 const materialId = "e9db6eb4-f3cb-4a26-8873-4d1083489987";
 const sourceId = replay.material.slides[0].sourceRefs[0].sourceId;
-const sourceTitle = "乳がんのホルモン療法";
+const sourceTitle = "乳がんのホルモン療法を受ける方へ（患者さん向け説明資料・デモ）";
+const rightsHolder = "あおば記念病院（架空） 乳腺センター・薬剤部";
 const replayModel = replay.model + "（" + replay.generatedOn + " の記録を再生）";
 const memory = new Map<string, Draft>();
 
@@ -26,7 +28,7 @@ function makeDraft(): Draft {
       seq:i+1,stem:q.stem,options:[...q.options] as [string,string,string],correctIndex:q.correctIndex,
       explanation:q.explanation,relatedSlideSeq:q.relatedSlide,sourceRefs:q.sourceRefs,
     })),
-    sources:[{id:sourceId,title:sourceTitle,perm:{rightsHolder:"架空の院内資料",allowPublish:true,allowShare:false,allowDerive:true}}],
+    sources:[{id:sourceId,title:sourceTitle,perm:{rightsHolder,allowPublish:true,allowShare:false,allowDerive:true}}],
     creatorName:"佐藤 一郎（架空）",role:{canEdit:true,canApprove:true},
     approvalBlock:"承認待ちに提出されていません",preCheck:{mustCover:{safetyUnconfirmed:[],unconfirmed:0}},
   };
@@ -51,6 +53,14 @@ function read(visitId:string): Draft {
 function save(visitId:string,draft:Draft) {
   memory.set(visitId,structuredClone(draft));
   try { sessionStorage.setItem("shiori:judge:studio:"+visitId,JSON.stringify(draft)); } catch {}
+}
+
+/** 原資料の利用条件を、この体験の下書きに反映する（登録時・公開前の確認） */
+function setSourcePermission(visitId:string, perm:Permissions) {
+  if(!visitId)return;
+  const d=read(visitId);
+  d.sources=d.sources.map(x=>({...x,perm:{rightsHolder,allowPublish:perm.allowPublish,allowShare:perm.allowShare,allowDerive:perm.allowDerive}}));
+  save(visitId,d);
 }
 
 export function studioPublishedForVisit(visitId:string): MaterialApi[] {
@@ -89,7 +99,11 @@ export async function studioApi(path:string, init:ApiInit = {}, visitId:string):
   if(suffix==="materials" && method==="GET") return output({materials:[d.material]});
   const [collection,id,action] = suffix.split("/");
   if(collection!=="materials" || id!==JUDGE_STUDIO_DRAFT) throw Error("審査体験では、用意されたホルモン療法の教材を使用します");
-  if(!action && method==="GET")return output(d);
+  if(!action && method==="GET"){
+    // 公開の許可は承認の段階で確認する（本番の承認条件と同じ）
+    if(d.version.status==="in_review")d.approvalBlock=d.sources.some(x=>!x.perm?.allowPublish)?"原資料に患者向け公開の許可がありません":null;
+    return output(d);
+  }
   const b=init.json??{};
   if(!action && method==="PUT") {
     if(d.version.status!=="draft")throw Error("承認待ち・公開後の教材は編集できません");
@@ -107,6 +121,7 @@ export async function studioApi(path:string, init:ApiInit = {}, visitId:string):
   if(method==="POST"&&action==="submit"&&d.version.status==="draft"){
     d.version.status="in_review";d.version.reviewComment=null;d.approvalBlock=null;
   }else if(method==="POST"&&action==="approve"&&d.version.status==="in_review"){
+    if(d.sources.some(x=>!x.perm?.allowPublish))throw Error("原資料に患者向け公開の許可がありません");
     d.version.status="published";d.approvalBlock=null;
   }else if(method==="POST"&&action==="return"&&d.version.status==="in_review"){
     d.version.status="draft";d.version.reviewComment=String(b.comment??"要修正");d.approvalBlock="承認待ちに提出されていません";
@@ -126,65 +141,65 @@ const outlineJob = {
 };
 const draftJob={...outlineJob,id:"judge-studio-draft",mode:"generate",outputPayload:replay.material,outputVersionId:JUDGE_STUDIO_DRAFT};
 const fixedSource = {title:sourceTitle,filename:"乳がんのホルモン療法.docx",size:7875,charCount:1630,warnings:[] as string[]};
+const sourceFile = () => new File([Uint8Array.from(atob(SOURCE_DOCX),c=>c.charCodeAt(0))],fixedSource.filename,
+  {type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+/** 審査用のサンプル資料（架空）。資料名・作成元・許諾の根拠は、資料内の作成元表示と審査デモの前提に合わせる */
+export const JUDGE_SAMPLE: StudioSample = {
+  title: sourceTitle,
+  filename: fixedSource.filename,
+  rightsHolder,
+  evidenceNote: "資料内の作成元表示を確認した。審査デモ用に作成した架空のオリジナル資料で、AI処理と患者向けへの書き直しを許可（架空の許諾）。",
+  description: "ハッカソンの動作検証用に作った架空の説明資料（Word・約1,600字・9項目）。実在の病院・患者とは関係ありません。",
+  file: sourceFile,
+};
 
-/** Start the genuine Studio editor when the judge opens it. All draft updates use the per-visit adapter. */
-export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:string)=>void): StudioLive {
-  const [requested,setRequested]=useState(()=>new URLSearchParams(window.location.search).get("draft")===JUDGE_STUDIO_DRAFT);
-  const [sourcePresent,setSourcePresent]=useState(false);
-  const setForSidebar=useRef(false);
-  const live=useStudio(orgId,enabled&&requested,notify);
-  useEffect(()=>{
-    if(!enabled)return;
-    const open=(event:Event)=>{
-      const el=event.target instanceof Element ? event.target.closest("button") : null;
-      // The judge case has one fictional, pre-authorized file. Never open the computer's
-      // file chooser or send a selected file to a server.
-      if(el?.matches(".cd-studio .cd-upload")){
-        const input=el.closest(".cd-studio")?.querySelector<HTMLInputElement>("[data-source-file]");
-        if(input){
-          event.preventDefault();event.stopPropagation();
-          const transfer=new DataTransfer();
-          transfer.items.add(new File([Uint8Array.from(atob(SOURCE_DOCX),c=>c.charCodeAt(0))],fixedSource.filename,
-            {type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}));
-          input.files=transfer.files;input.dispatchEvent(new Event("change",{bubbles:true}));
-          notify("審査用の架空資料を選びました。作成元には「さくら総合病院」、根拠には「架空の院内資料」と入力できます。");
-        }
-        return;
-      }
-      if(!el?.closest(".cd-sidebar") || el.textContent?.trim()!=="教材スタジオ" || requested)return;
-      const url=new URL(window.location.href);
-      url.searchParams.set("draft",JUDGE_STUDIO_DRAFT);
-      history.replaceState(history.state,"",url);
-      setForSidebar.current=true;
-      setRequested(true);
-    };
-    document.addEventListener("click",open,true);
-    return ()=>document.removeEventListener("click",open,true);
-  },[enabled,requested,notify]);
-  useEffect(()=>{
-    if(!setForSidebar.current || !live.openedFromUrl)return;
-    const url=new URL(window.location.href);url.searchParams.delete("draft");
-    history.replaceState(history.state,"",url);
-    setForSidebar.current=false;
-  },[live.openedFromUrl]);
-  const recordedOnly=()=>{notify("審査用に用意した院内資料と、記録済みのClaude出力を使用します。");};
+/**
+ * 審査デモの教材スタジオ。サンプル資料（架空）を手順 1 から使い、構成案・下書きは記録済みの Claude 出力を再生する。
+ * 任意のファイルの読み込みと Claude の呼び出しは行わない。下書きの編集・承認はこの体験（タブ）の中だけで保存する。
+ */
+export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:string)=>void,info:(s:string)=>void=notify): StudioLive {
+  const [sourcePerm,setSourcePerm]=useState<Permissions|null>(null);
+  const [outlined,setOutlined]=useState(false);
+  const [drafted,setDrafted]=useState(()=>new URLSearchParams(window.location.search).get("draft")===JUDGE_STUDIO_DRAFT);
+  const live=useStudio(orgId,enabled,notify);
+  const visitId=()=>getJudgeSession()?.id ?? "";
+  const recordedOnly=()=>{info("公開デモでは、サンプル資料と記録済みのClaude出力だけを使います。");};
+  const { openDraft, reloadDraft } = live;
   return {
-    ...live, sourceId:sourcePresent?sourceId:null,sourceInfo:sourcePresent?fixedSource:null,
-    outlineJob:requested?outlineJob:null,draftJob:requested?draftJob:null,
-    outlines:requested?replay.outline.outlines as Outline[]:[],
-    candidates:requested?replay.outline.mustCoverCandidates.map((c,i)=>({...c,id:"mc"+(i+1)})) as MustCandidate[]:[],
+    ...live, sourceId:sourcePerm?sourceId:null,sourceInfo:sourcePerm?fixedSource:null,
+    outlineJob:outlined?outlineJob:null,draftJob:drafted?draftJob:null,
+    outlines:outlined?replay.outline.outlines as Outline[]:[],
+    candidates:outlined?replay.outline.mustCoverCandidates.map((c,i)=>({...c,id:"mc"+(i+1)})) as MustCandidate[]:[],
+    replay:true,
+    sample:JUDGE_SAMPLE,
+    ownFileBlockedReason:"公開デモでは自分のファイルは選べません（Claudeを呼び出さないため）。上のサンプル資料で手順を試せます。",
+    sourceText:SOURCE_TEXT,
     // Arbitrary uploads and live AI are not enabled for a publicly accessible fictional exercise.
     upload:async(file,meta)=>{
-      if(file.size!==fixedSource.size || !meta.piiAttestedNone || !meta.perm.allowAi){recordedOnly();return null;}
+      if(file.size!==fixedSource.size || !meta.piiAttestedNone){recordedOnly();return null;}
       const bytes=new Uint8Array(await crypto.subtle.digest("SHA-256",await file.arrayBuffer()));
       const hash=Array.from(bytes,b=>b.toString(16).padStart(2,"0")).join("");
       if(hash!==replay.sourceSha256){recordedOnly();return null;}
-      setSourcePresent(true);return sourceId;
+      setSourcePerm(meta.perm);setOutlined(false);
+      return sourceId;
     },
-    updatePermissions:async()=>{recordedOnly();return null;},
-    removeSource:()=>{setSourcePresent(false);},
-    requestOutlines:async()=>sourcePresent?outlineJob:null,
+    updatePermissions:async(meta)=>{
+      setSourcePerm(meta.perm);setSourcePermission(visitId(),meta.perm);
+      await reloadDraft();
+      return {updated:true};
+    },
+    removeSource:()=>{setSourcePerm(null);setOutlined(false);},
+    requestOutlines:async()=>{
+      if(!sourcePerm)return null;
+      if(!sourcePerm.allowAi || !sourcePerm.allowDerive){info("AI処理と改変の許可がない資料は、Claudeの構成案に使えません。");return null;}
+      setOutlined(true);return outlineJob;
+    },
     requestFreeform:async()=>{recordedOnly();return null;},
-    requestDraft:async()=>{const d=await live.reloadDraft();return d?draftJob:null;},
+    requestDraft:async()=>{
+      if(sourcePerm)setSourcePermission(visitId(),sourcePerm);
+      const d=await openDraft(JUDGE_STUDIO_DRAFT);
+      if(!d)return null;
+      setDrafted(true);return draftJob;
+    },
   };
 }

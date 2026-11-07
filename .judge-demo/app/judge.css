@@ -106,3 +106,17 @@ button,a{touch-action:manipulation}button{cursor:pointer}
  .j-screen .cd-library-tools input{min-width:0}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+/* 医療者の入口・状態の案内（デモの外枠） */
+.j-screen{--j-guide:0px}
+.j-screen .cd-app-stage{min-height:calc(100dvh - var(--j-toolbar) - var(--j-guide))}.j-screen .cd-device.cd-device-app{height:calc(100dvh - var(--j-toolbar) - var(--j-guide))}
+@media(min-width:1228px),(min-width:868px) and (max-width:1179px){.j-screen .cd-device.cd-device-app{height:calc(100dvh - var(--j-toolbar) - var(--j-guide) - 48px)}}
+.j-guide{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;padding:8px clamp(10px,3vw,35px);background:#fbf4e3;border-bottom:1px solid #e6d3a6;color:#4d3d17;font-size:13px;line-height:1.55;position:relative;z-index:19}
+.j-guide b{font-weight:750;white-space:nowrap}.j-guide span{flex:1 1 300px;min-width:0}
+.j-guide button{background:#fff;border:1px solid #c9ad6c;border-radius:6px;color:#4d3d17;font:inherit;font-size:12px;font-weight:700;padding:6px 10px;cursor:pointer}
+.j-guide-code{font:700 16px ui-monospace,monospace;letter-spacing:.08em;color:#203737;background:#fff;border:1px solid #d8c18a;border-radius:5px;padding:1px 6px}
+.j-home-share{display:block;margin:18px auto 0;padding:8px 6px;background:none;border:0;color:#315e68;font:inherit;font-size:13px;font-weight:650;text-decoration:underline;text-underline-offset:3px}
+.j-home-share:focus-visible{outline:3px solid #7da3a5;outline-offset:3px}
+.j-entry-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:22px 0 6px}
+.j-entry-options .j-consent-card{margin:0;display:flex;flex-direction:column}.j-entry-options .j-consent-card p{flex:1}
+.j-entry-options .j-primary,.j-entry-options .j-secondary{align-self:flex-start;gap:12px}
+.j-entry .j-end-buttons{margin-top:18px}
