@@ -73,13 +73,30 @@ const AUDIT = `(() => {
     const cs = getComputedStyle(e);
     if (cs.whiteSpace === 'nowrap' && cs.overflow !== 'hidden' && e.scrollWidth > e.clientWidth + 2 && e.children.length === 0 && !inHScroll(e)) out.clipped.push({ el: label(e), sw: e.scrollWidth, cw: e.clientWidth });
   }
+  // 認知負荷の目安: 囲い（枠線か背景色のある箱。ボタン・入力欄・画像は除く）の入れ子の最大の深さと、説明文（p/small/li で 24 文字以上）の文字数
+  const isBox = (e) => {
+    if (/^(BUTTON|INPUT|SELECT|TEXTAREA|SVG|IMG|A|SUMMARY|TABLE|TR|TD|TH)$/.test(e.tagName)) return false;
+    const cs = getComputedStyle(e);
+    const bw = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderLeftWidth);
+    const bg = cs.backgroundColor; const pbg = e.parentElement ? getComputedStyle(e.parentElement).backgroundColor : '';
+    const hasBg = bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent' && bg !== pbg;
+    return bw > 0 || hasBg;
+  };
+  let maxDepth = 0; let deepest = '';
+  for (const e of [...main.querySelectorAll('*')].filter(vis)) {
+    let d = 0; let path = [];
+    for (let p = e; p && p !== main; p = p.parentElement) if (isBox(p)) { d++; path.push(p.className.toString().split(' ')[0] || p.tagName); }
+    if (d > maxDepth) { maxDepth = d; deepest = path.reverse().join(' > '); }
+  }
+  out.boxDepth = maxDepth; out.deepest = deepest;
+  out.helpChars = [...main.querySelectorAll('p, small, li')].filter(vis).filter((e) => !e.closest('button, summary, table')).map((e) => e.textContent.trim()).filter((t) => t.length >= 24).reduce((n, t) => n + t.length, 0);
   out.overflow = out.overflow.slice(0, 8); out.overlaps = out.overlaps.slice(0, 8); out.small = out.small.slice(0, 8); out.clipped = out.clipped.slice(0, 8);
   return out;
 })()`;
 
 const browser = await chromium.launch();
 const lines = [];
-const md = [`# 患者画面のレイアウト監査（${new Date().toISOString().slice(0, 10)}）`, "", `対象: ${BASE}（架空患者 佐藤 花子）。各画面を ${SIZES.map((s) => s.name).join("・")} で開き、はみ出し（横スクロール領域の中を除く）・実際にタップできる操作要素どうしの重なり・高さ 32px 未満のボタン・1 行表示の見切れを機械的に数えた。下部ナビや固定バーの下に隠れた要素は対象外。`, ""];
+const md = [`# 患者画面のレイアウト監査（${new Date().toISOString().slice(0, 10)}）`, "", `対象: ${BASE}（架空患者 佐藤 花子）。各画面を ${SIZES.map((s) => s.name).join("・")} で開き、はみ出し（横スクロール領域の中を除く）・実際にタップできる操作要素どうしの重なり・高さ 32px 未満のボタン・1 行表示の見切れを機械的に数えた。下部ナビや固定バーの下に隠れた要素は対象外。あわせて、囲い（枠線か背景色のある箱）の入れ子の最大の深さと、説明文（24 文字以上の p/small/li）の文字数を認知負荷の目安として記録する。`, ""];
 let total = 0;
 for (const size of SIZES) {
   const ctx = await browser.newContext({ viewport: { width: size.width, height: size.height }, locale: "ja-JP", timezoneId: "Asia/Tokyo" });
@@ -87,7 +104,7 @@ for (const size of SIZES) {
   await page.goto(`${BASE}/login`);
   await page.getByRole("button", { name: /佐藤 花子/ }).first().click();
   await page.waitForURL(/\/home/);
-  md.push(`## ${size.name}`, "", "| 画面 | 横スクロール | はみ出し | 重なり | 小さいボタン | 見切れ |", "| --- | --- | --- | --- | --- | --- |");
+  md.push(`## ${size.name}`, "", "| 画面 | 横スクロール | はみ出し | 重なり | 小さいボタン | 見切れ | 囲いの入れ子（最大） | 説明文の文字数 |", "| --- | --- | --- | --- | --- | --- | --- | --- |");
   for (const [name, path] of VIEWS) {
     await page.goto(`${BASE}${path}`);
     await page.waitForLoadState("networkidle");
@@ -107,7 +124,7 @@ for (const size of SIZES) {
       const n = (r.hscroll ? 1 : 0) + r.overflow.length + r.overlaps.length + r.small.length + r.clipped.length;
       total += n;
       lines.push(JSON.stringify({ size: size.name, view: name, state, ...r }));
-      md.push(`| ${name}（${state}） | ${r.hscroll ? "あり" : "なし"} | ${r.overflow.length} | ${r.overlaps.length} | ${r.small.length} | ${r.clipped.length} |`);
+      md.push(`| ${name}（${state}） | ${r.hscroll ? "あり" : "なし"} | ${r.overflow.length} | ${r.overlaps.length} | ${r.small.length} | ${r.clipped.length} | ${r.boxDepth}（${r.deepest}） | ${r.helpChars} |`);
     }
   }
   md.push("");

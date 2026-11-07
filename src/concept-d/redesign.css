@@ -727,3 +727,10 @@
 .d-lesson-card[class*="d-area-"] .d-image-placeholder:has(> img) { background: transparent; }
 .d-lesson-card[class*="d-area-"] .d-slot-image { background: transparent; mix-blend-mode: multiply; }
 .d-lesson-card[class*="d-area-"] .d-image-fallback { background: transparent; border-color: transparent; }
+
+/* 入れ子を浅く: 「今」のカードのラベルは塗りなし、記録の一覧は週の枠と内側の灰色の箱をなくす（囲いの深さを 2 以下に） */
+.d-jn-now-card .pill, .d-jn-now-card .pill.soft { padding: 0; border: 0; background: none; color: var(--blue-dark); font-size: 11.5px; font-weight: 700; letter-spacing: .04em; }
+.d-health-history-v2 .d-record-week { margin-bottom: 2px; border: 0; border-radius: 0; overflow: visible; }
+.d-health-history-v2 .d-record-week-toggle { padding: 0 2px; border-bottom: 1px solid var(--line); background: none; }
+.d-health-history-v2 .d-record-week details { padding: 0 2px; }
+.d-health-history-v2 .d-health-list details > div { padding: 2px 0 10px; border-radius: 0; background: transparent; }

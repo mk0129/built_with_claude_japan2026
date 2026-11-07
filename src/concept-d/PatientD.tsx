@@ -10,7 +10,7 @@ import { VITAL_FLAG_NOTE, vitalFlag } from "@/lib/recommend"
 import { daysUntil, visitDateLabel, type PatientVisit } from "./visit"
 import type { PatientLive } from "./live"
 import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes, type VisitNote } from "./health"
-import { DEFAULT_ANCHORS, GRADE_NOTE, SEVERITY_ANCHORS, SYMPTOM_ALIASES, TREATMENTS } from "./symptomGuide"
+import { DEFAULT_ANCHORS, SEVERITY_ANCHORS, SYMPTOM_ALIASES, TREATMENTS } from "./symptomGuide"
 import { SlideArt, slideArtKey } from "./SlideArt"
 import { speakText, stopSpeaking, speechSupported } from "./speech"
 import {
@@ -459,10 +459,21 @@ function DImageSlot({
         </div>
       </div>
     )
+  // 小さな枠（教材カード）では、1600px の原寸をブラウザで 48px まで縮めると線画がぎざぎざになるため、あらかじめ 192px に縮めた画像を使う
+  // （public/thumbnails/small/*.png。なければ原寸に戻す）
+  const smallSrc = compact ? image.src.replace(/^\/thumbnails\/([^/]+)\.webp$/, "/thumbnails/small/$1.png") : image.src
   const placeholderContent = (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={image.src} alt={image.alt} className="d-slot-image" style={{ width: "100%", height: "100%", objectFit: fit }} />
+      <img
+        src={smallSrc}
+        alt={image.alt}
+        className="d-slot-image"
+        style={{ width: "100%", height: "100%", objectFit: fit }}
+        onError={(event) => {
+          if (event.currentTarget.src.endsWith(smallSrc) && smallSrc !== image.src) event.currentTarget.src = image.src
+        }}
+      />
       {onExpand && (
         <span className="d-expand">
           <Icon name="search" size={16} />
@@ -1869,7 +1880,6 @@ function DHealthTracker({
                             <span>{text}</span>
                           </li>
                         ))}
-                        <li className="d-anchor-note">{GRADE_NOTE}</li>
                       </ol>
                     )}
                     {detailOpen === id && (
@@ -2225,7 +2235,6 @@ function DSymptomManager({
             </button>
           </div>
         </div>
-        <p className="d-health-footnote">候補名と程度の目安は CTCAE v5.0 を参考にした患者向けの言い換えで、正式な Grade 判定ではありません。</p>
       </section>
     </div>
   )
