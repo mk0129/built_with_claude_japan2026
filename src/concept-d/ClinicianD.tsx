@@ -1179,11 +1179,15 @@ function dateRange(start: string, end: string) {
  * （体調・学習・理解確認・質問）と要約を表示する。前回外来日は DB にないため「前回外来から」とは書かず、
  * 期間（既定は直近 14 日、医療者が変更可）と「前回共有日」を明記する。要約の各文から根拠の元データを開ける。
  */
+/** 教材への反応で、患者が自由記述をせずに選んだ回答 */
+const SELECTION_LABEL = { have_question: "質問がある", explain_again: "もう一度説明してほしい" } as const
+
 function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onOpenCourse?: () => void }) {
   const [expanded, setExpanded] = useState<"vitals" | "symptoms" | "learning" | "questions" | null>(null)
   const [timelineOpen, setTimelineOpen] = useState(false)
   const [periodEdit, setPeriodEdit] = useState(false)
-  const [period, setPeriod] = useState<{ from: string; to: string } | null>(null)
+  // 選んだ期間は在宅経過表と共有する（共有が変わったら消える）
+  const { period, setPeriod } = record
   const [draft, setDraft] = useState<{ from: string; to: string } | null>(null)
   // 開いている根拠（要点の行・患者の質問・全項目の文）。開いた行のすぐ下に根拠を表示する
   const [openKey, setOpenKey] = useState<string | null>(null)
@@ -1192,28 +1196,75 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
   const [fullQuestion, setFullQuestion] = useState<string | null>(null)
   const [showRule, setShowRule] = useState(false)
   // サーバーの既定期間の終了日（撮影用デモ環境ではデモの基準日、通常は今日）。期間の変更で未来日を選ばせない
-  const [maxDay, setMaxDay] = useState<string | null>(null)
+  const maxDay = record.defaultTo
   useEffect(() => {
     void record.loadIntervisit(period)
     // 要約は構造化データと同じ期間で 1 回生成（同じデータならサーバーが再利用。元データが変わっていれば再生成）
     void record.loadAiSummary(period)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period?.from, period?.to, record.sessionId])
-  const data = record.intervisit
+  const periodKey = period ? `?from=${period.from}&to=${period.to}` : ""
+  // 選んだ期間の構造化データだけを表示する（別の期間の応答は、読み込み中として扱う）
+  const data = record.intervisitKey === periodKey ? record.intervisit : null
+  // 期間の確認・変更（読み込み中も使える。続けて別の期間を選び直せる）
+  const shownPeriod = record.intervisit && record.intervisitKey === "" ? record.intervisit.intervisit.period : null
+  const openPeriodEditor = () => {
+    const to = record.defaultTo ?? localDate(new Date())
+    const from = new Date(`${to}T00:00:00`)
+    from.setDate(from.getDate() - 13)
+    setDraft(period ?? (shownPeriod ? { from: shownPeriod.from, to: shownPeriod.to } : { from: localDate(from), to }))
+    setPeriodEdit(!periodEdit)
+  }
+  const periodButton = (
+    <button onClick={openPeriodEditor}>
+      <CIcon name="visit" />
+      期間を確認・変更
+    </button>
+  )
+  const periodEditor = periodEdit && draft && (
+    <div className="cd-period-editor">
+      <label>
+        開始日
+        <input type="date" value={draft.from} max={draft.to} onChange={(event) => setDraft({ ...draft, from: event.target.value })} />
+      </label>
+      <label>
+        終了日
+        <input type="date" value={draft.to} min={draft.from} max={maxDay ?? undefined} onChange={(event) => setDraft({ ...draft, to: event.target.value })} />
+      </label>
+      <p>
+        前回外来日が確認できないため、期間は医療者が選択します。日付を推測しません。{" "}
+        <button
+          className="cd-text-back"
+          onClick={() => {
+            setOpenKey(null)
+            setPeriod(draft)
+            setPeriodEdit(false)
+          }}
+        >
+          この期間で表示
+        </button>
+      </p>
+    </div>
+  )
   if (!data)
     return (
-      <section className="cd-intervisit">
+      <section className="cd-intervisit" data-intervisit data-intervisit-loading>
         <div className="cd-intervisit-head">
           <div>
-            <p className="cd-eyebrow">外来間の経過</p>
+            <p className="cd-eyebrow">{period ? "指定期間の経過" : "外来間の経過"}</p>
             <h2>経過を読み込んでいます…</h2>
+            {period && (
+              <span>
+                {period.from.replaceAll("-", "/")}〜{period.to.replaceAll("-", "/")}
+              </span>
+            )}
           </div>
+          {periodButton}
         </div>
+        {periodEditor}
       </section>
     )
   const iv = data.intervisit
-  if (iv.period.isDefault && iv.period.to !== maxDay) setMaxDay(iv.period.to)
-  const periodKey = period ? `?from=${period.from}&to=${period.to}` : ""
   const ai = record.aiSummary && record.aiSummary.key === periodKey ? record.aiSummary.data : null
   // 表示する要約: AI（検証済み）→ なければルールベース。医療者はルールベースに切り替えて見比べられる
   const useAi = !!ai && ai.status === "ai" && !showRule
@@ -1249,11 +1300,14 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
   // 根拠の記録の表示（日付と内容）。要約の根拠 ID は sources に、患者の質問は原文の記録にある
   const questionById = new Map(iv.questions.map((q) => [q.sourceId, q]))
   const sourceLine = (id: string) => {
-    const src = sources[id] ?? data.sources[id]
     const q = questionById.get(id)
-    const at = src?.at ?? q?.createdAt
-    const label = src?.label ?? (q ? `${q.kind}：「${q.body}」` : id)
-    return `${at ? `${dt(at)} · ` : ""}${label}`
+    // 患者の質問・教材への反応は、元の記録の種類（自由記述 / 選んだ回答）で表示する
+    if (q)
+      return `${dt(q.createdAt)} · ${q.kind}${q.materialTitle ? `・${q.materialTitle}` : ""}：${
+        q.input === "selection" ? `患者が選んだ回答「${SELECTION_LABEL[q.selection ?? "have_question"]}」（自由記述なし）` : `「${q.body}」（患者原文）`
+      }`
+    const src = sources[id] ?? data.sources[id]
+    return `${src?.at ? `${dt(src.at)} · ` : ""}${src?.label ?? id}`
   }
   // 同じ記録が要約の根拠に重ねて挙がっても、1 件として数えて表示する
   const uniq = (ids: string[]) => [...new Set(ids)]
@@ -1289,18 +1343,23 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
   // 患者の質問（原文）。新しい順に 1 件を先頭に、ほかは「ほか N 件」で開く。根拠は質問の元の記録（日付・原文）
   const questionsNewest = [...iv.questions].sort((x, y) => y.createdAt.localeCompare(x.createdAt))
   const questionLine = (q: (typeof iv.questions)[number]) => {
-    const long = q.body.length > 60
+    const selected = q.input === "selection"
+    const long = !selected && q.body.length > 60
     const full = fullQuestion === q.sourceId
     return (
-      <div key={q.sourceId} className="cd-key-question" data-key-question={q.sourceId}>
+      <div key={q.sourceId} className="cd-key-question" data-key-question={q.sourceId} data-question-input={selected ? "selection" : "free_text"}>
         {evidenceButton(
           `q:${q.sourceId}`,
           [q.sourceId],
           <span>
-            <span className={long && !full ? "cd-clamp" : ""}>「{q.body}」</span>
+            {selected ? (
+              <span>患者が選んだ回答：{SELECTION_LABEL[q.selection ?? "have_question"]}</span>
+            ) : (
+              <span className={long && !full ? "cd-clamp" : ""}>「{q.body}」</span>
+            )}
             <em>
               {md(q.createdAt)} · {q.kind}
-              {q.materialTitle ? `・${q.materialTitle}` : ""} · 患者原文
+              {q.materialTitle ? `・${q.materialTitle}` : ""} · {selected ? "選択のみ（自由記述なし）" : "患者原文"}
             </em>
           </span>,
         )}
@@ -1345,40 +1404,9 @@ function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onO
                 : "前回の共有記録なし"}
           </span>
         </div>
-        <button
-          onClick={() => {
-            setDraft(period ?? { from: iv.period.from, to: iv.period.to })
-            setPeriodEdit(!periodEdit)
-          }}
-        >
-          <CIcon name="visit" />
-          期間を確認・変更
-        </button>
+        {periodButton}
       </div>
-      {periodEdit && draft && (
-        <div className="cd-period-editor">
-          <label>
-            開始日
-            <input type="date" value={draft.from} max={draft.to} onChange={(event) => setDraft({ ...draft, from: event.target.value })} />
-          </label>
-          <label>
-            終了日
-            <input type="date" value={draft.to} min={draft.from} max={maxDay ?? undefined} onChange={(event) => setDraft({ ...draft, to: event.target.value })} />
-          </label>
-          <p>
-            前回外来日が確認できないため、期間は医療者が選択します。日付を推測しません。{" "}
-            <button
-              className="cd-text-back"
-              onClick={() => {
-                setPeriod(draft)
-                setPeriodEdit(false)
-              }}
-            >
-              この期間で表示
-            </button>
-          </p>
-        </div>
-      )}
+      {periodEditor}
       <div className="cd-medical-summary">
         <div className="cd-summary-narrative" data-summary-kind={kind}>
           <div className="cd-summary-title">
@@ -1965,8 +1993,7 @@ const localDate = (d: Date) =>
  * 外来間サマリーと同じ観察期間を表示する。既定期間がまだ読み込まれていなければ読み込む（読み込めなければ端末の今日）。
  */
 function LiveHomeCourse({ record }: { record: ClinicianRecord }) {
-  const ivPeriod = record.intervisit?.intervisit.period
-  const serverToday = ivPeriod?.isDefault ? ivPeriod.to : null
+  const serverToday = record.defaultTo
   const [requested, setRequested] = useState(false)
   useEffect(() => {
     if (serverToday || requested) return
@@ -1985,6 +2012,8 @@ function LiveHomeCourse({ record }: { record: ClinicianRecord }) {
       key={serverToday ?? "device"}
       live
       today={serverToday ?? undefined}
+      sharedPeriod={record.period}
+      onSharedPeriod={record.setPeriod}
       records={record.healthRecords}
       activeSymptomIds={record.symptomSettings.active}
       customSymptomNames={record.symptomSettings.customNames}
@@ -1998,7 +2027,12 @@ function HomeCourse({
   customSymptomNames,
   live = false,
   today: todayProp,
+  sharedPeriod = null,
+  onSharedPeriod,
 }: {
+  /** 本番: 診察サマリーで選んだ期間（null は既定の直近 14 日）。ここで変えた期間もサマリーに戻す */
+  sharedPeriod?: { from: string; to: string } | null
+  onSharedPeriod?: (p: { from: string; to: string } | null) => void
   /** 本番: 期間の終わりにする日（YYYY-MM-DD）。サーバーの既定期間の終了日 */
   today?: string
   records: HealthRecord[]
@@ -2010,14 +2044,38 @@ function HomeCourse({
    */
   live?: boolean
 }) {
-  const [period, setPeriod] = useState<"7" | "14" | "28" | "visit" | "custom">(live ? "14" : "visit")
+  const [period, setPeriodRaw] = useState<"7" | "14" | "28" | "visit" | "custom">(live ? (sharedPeriod ? "custom" : "14") : "visit")
   const today = todayProp ?? localDate(new Date())
-  const [customStart, setCustomStart] = useState(() => {
+  const [customStart, setCustomStartRaw] = useState(() => {
+    if (sharedPeriod) return sharedPeriod.from
     const d = new Date(`${today}T00:00:00`)
     d.setDate(d.getDate() - 13)
     return localDate(d)
   })
-  const [customEnd, setCustomEnd] = useState(today)
+  const [customEnd, setCustomEndRaw] = useState(sharedPeriod?.to ?? today)
+  // 本番: 期間の変更をサマリーと共有する（既定の 14 日は null。7・28 日と指定期間は開始日・終了日）
+  const share = (p: typeof period, from: string, to: string) => {
+    if (!live || !onSharedPeriod) return
+    if (p === "14") return onSharedPeriod(null)
+    if (p === "custom") return onSharedPeriod(from <= to ? { from, to } : null)
+    if (p === "7" || p === "28") {
+      const d = new Date(`${today}T00:00:00`)
+      d.setDate(d.getDate() - Number(p) + 1)
+      onSharedPeriod({ from: localDate(d), to: today })
+    }
+  }
+  const setPeriod = (p: typeof period) => {
+    setPeriodRaw(p)
+    share(p, customStart, customEnd)
+  }
+  const setCustomStart = (v: string) => {
+    setCustomStartRaw(v)
+    share("custom", v, customEnd)
+  }
+  const setCustomEnd = (v: string) => {
+    setCustomEndRaw(v)
+    share("custom", customStart, v)
+  }
   const [view, setView] = useState<"table" | "vitals" | "symptom">("table")
   const [chartSymptomRaw, setChartSymptom] = useState("numbness")
   // 本番: 選んだ症状に記録がなければ、記録のある最初の症状

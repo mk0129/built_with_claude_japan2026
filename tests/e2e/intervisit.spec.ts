@@ -61,6 +61,11 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await p.getByRole("button", { name: "この回答で確定する" }).click();
   await expect(p.getByRole("heading", { name: "「わからない」を記録しました" })).toBeVisible();
 
+  // 4-2. 教材への反応で、自由記述をせずに「もう一度説明してほしい」を選ぶ（いちばん古い質問になる）
+  const lib = await (await p.request.get("/api/v1/library")).json();
+  const versionId = (lib.data ?? lib).items[0].versionId;
+  expect((await p.request.post("/api/v1/feedback", { data: { versionId, selection: "explain_again", freeText: null } })).ok()).toBeTruthy();
+
   // 5. 診察ノートに質問を保存
   await p.goto("/home?view=notes");
   await p.locator(".d-add-question textarea").fill("しびれは治療終了後に戻りますか？");
@@ -92,14 +97,30 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await expect(s.locator('.cd-summary-narrative[data-summary-kind="fake"]')).toBeVisible({ timeout: 15_000 });
   expect(Math.abs((await firstQ.boundingBox())!.y - y1)).toBeLessThan(2);
   await expect(qRow).not.toContainText("しびれは治療終了後に戻りますか？");
+  await expect(qRow.locator("[data-question-more]")).toHaveText("ほか2件");
   await qRow.locator("[data-question-more]").click();
   await expect(qRow.locator("[data-key-question]").nth(1)).toContainText("「しびれは治療終了後に戻りますか？」");
+  // 選択のみの反応は「患者が選んだ回答」と表示し、原文の引用に見せない（入力の種類で区別）
+  const sel = qRow.locator("[data-key-question][data-question-input='selection']");
+  await expect(sel).toHaveCount(1);
+  await expect(sel).toContainText("患者が選んだ回答：もう一度説明してほしい");
+  await expect(sel).toContainText("選択のみ（自由記述なし）");
+  await expect(sel).not.toContainText("患者原文");
+  await expect(sel).not.toContainText("「");
+  await sel.locator("button.cd-key-sentence").click();
+  const selSrc = sel.locator("[data-summary-sources] [data-source-id^='fb:']");
+  await expect(selSrc).toHaveCount(1);
+  await expect(selSrc).toContainText("患者が選んだ回答「もう一度説明してほしい」（自由記述なし）");
+  const d1 = new Date();
+  await expect(selSrc).toContainText(`${d1.getMonth() + 1}/${d1.getDate()}`);
+  await sel.locator("button.cd-key-sentence").click();
+  await expect(qRow.locator("[data-key-question][data-question-input='free_text']")).toHaveCount(2);
   // 質問から 1 操作で、根拠の元の記録（日付・原文）
   await qRow.locator("[data-key-question]").nth(1).locator("button.cd-key-sentence").click();
   const qSrc = qRow.locator("[data-summary-sources]");
   await expect(qSrc).toBeVisible();
   await expect(qSrc.locator("[data-source-id^='vn:']")).toHaveCount(1);
-  await expect(qSrc.locator("[data-source-id^='vn:']")).toContainText("しびれは治療終了後に戻りますか？");
+  await expect(qSrc.locator("[data-source-id^='vn:']")).toContainText("「しびれは治療終了後に戻りますか？」（患者原文）");
   const d0 = new Date();
   await expect(qSrc.locator("[data-source-id^='vn:']")).toContainText(`${d0.getMonth() + 1}/${d0.getDate()}`);
   await expect(qSrc).not.toContainText("仕事に戻る時期");

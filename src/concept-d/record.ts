@@ -232,7 +232,16 @@ export type IntervisitApi = {
     };
     symptoms: { key: string; name: string; count: number; min: number; max: number; changed: boolean; newInPeriod: boolean; stoppedRecording: boolean; entries: { at: string; severity: number; sourceId: string }[] }[];
     learning: { versionId: string; title: string; versionNo: number; status: string; answersInPeriod: { sourceId: string; result: string; stem: string; at: string }[] }[];
-    questions: { sourceId: string; kind: string; body: string; createdAt: string; materialTitle: string | null }[];
+    questions: {
+      sourceId: string;
+      kind: string;
+      body: string;
+      createdAt: string;
+      materialTitle: string | null;
+      /** 自由記述 / 患者が選んだ回答（選択のみ）。表示はこの値で区別する（body の文字列では判断しない） */
+      input?: "free_text" | "selection";
+      selection?: "have_question" | "explain_again" | null;
+    }[];
     events: { id: string; kind: string; at: string; day: string; label: string }[];
   };
   ruleSummary: SummaryItem[];
@@ -310,21 +319,35 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
 
   const current = sid && data?.sid === sid ? data : null;
 
+  /*
+   * 医療者が選んだ観察期間（null は既定の直近 14 日）。診察サマリーと在宅経過表で共有し、共有が変わったら（終了・別の患者）消す。
+   * 期間を素早く変えたときは、最後に選んだ共有・期間の要求だけが表示・読み込み中・エラーを更新する（遅れて返った古い応答は捨てる）。
+   */
+  const [periodState, setPeriodState] = useState<{ sid: string; period: { from: string; to: string } } | null>(null);
+  const period = sid && periodState?.sid === sid ? periodState.period : null;
+  const setPeriod = useCallback((p: { from: string; to: string } | null) => setPeriodState(p && sid ? { sid, period: p } : null), [sid]);
+  // サーバーの既定期間の終了日（撮影用デモ環境ではデモの基準日、通常は今日）
+  const [defaultTo, setDefaultTo] = useState<{ sid: string; to: string } | null>(null);
+
   // 外来間の構造化データ（期間ごと）
   const [iv, setIv] = useState<{ sid: string; key: string; data: IntervisitApi } | null>(null);
   const [ivLoading, setIvLoading] = useState(false);
+  const ivLatest = useRef<string | null>(null);
   const loadIntervisit = useCallback(
     async (period?: { from: string; to: string } | null) => {
       if (!sid) return;
       const q = period ? `?from=${period.from}&to=${period.to}` : "";
+      const req = `${sid}${q}`;
+      ivLatest.current = req;
       setIvLoading(true);
       try {
         const d = await api<IntervisitApi>(`/api/v1/consultations/${sid}/intervisit${q}`);
-        setIv({ sid, key: q, data: d });
+        if (d.intervisit.period.isDefault) setDefaultTo({ sid, to: d.intervisit.period.to });
+        if (ivLatest.current === req) setIv({ sid, key: q, data: d });
       } catch (e) {
-        fail(sid, e);
+        if (ivLatest.current === req) fail(sid, e);
       } finally {
-        setIvLoading(false);
+        if (ivLatest.current === req) setIvLoading(false);
       }
     },
     [sid, fail],
@@ -334,11 +357,14 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
   const [aiLoading, setAiLoading] = useState(false);
   // 同じ期間の要求が進行中なら新しく送らない（開発時の二重マウントなどで Claude を二重に呼ばない）
   const aiInflight = useRef<string | null>(null);
+  // 最後に要求した共有・期間（遅れて返った古い期間の要約は表示しない）
+  const aiLatest = useRef<string | null>(null);
   const loadAiSummary = useCallback(
     async (period: { from: string; to: string } | null, opts: { regenerate?: boolean } = {}) => {
       if (!sid) return;
       const key = period ? `?from=${period.from}&to=${period.to}` : "";
       const flightKey = `${sid}${key}${opts.regenerate ? "|re" : ""}`;
+      aiLatest.current = `${sid}${key}`;
       if (aiInflight.current === flightKey) return;
       aiInflight.current = flightKey;
       // 開発用: URL の aisim=invalid|error で AI の失敗を再現（擬似生成のときだけサーバーが受け付ける）
@@ -348,12 +374,12 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
         const d = await api<AiSummaryApi>(`/api/v1/consultations/${sid}/intervisit/summary`, {
           json: { ...(period ?? {}), regenerate: !!opts.regenerate, ...(sim === "invalid" || sim === "error" ? { simulate: sim } : {}) },
         });
-        setAi({ sid, key, data: d });
+        if (aiLatest.current === `${sid}${key}`) setAi({ sid, key, data: d });
       } catch (e) {
-        fail(sid, e);
+        if (aiLatest.current === `${sid}${key}`) fail(sid, e);
       } finally {
         if (aiInflight.current === flightKey) aiInflight.current = null;
-        setAiLoading(false);
+        if (aiLatest.current === `${sid}${key}`) setAiLoading(false);
       }
     },
     [sid, fail],
@@ -443,7 +469,14 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     sessionId: current?.sid ?? null,
     /** 外来間の構造化データとルールベースの要約（Step 4-B） */
     intervisit: sid && iv?.sid === sid ? iv.data : null,
+    /** 表示中の構造化データの期間（クエリ。既定は ""）。選んだ期間と違えば読み込み中として扱う */
+    intervisitKey: sid && iv?.sid === sid ? iv.key : null,
     intervisitLoading: ivLoading,
+    /** 医療者が選んだ観察期間（サマリーと在宅経過表で共有。null は既定の直近 14 日） */
+    period,
+    setPeriod,
+    /** サーバーの既定期間の終了日 */
+    defaultTo: sid && defaultTo?.sid === sid ? defaultTo.to : null,
     loadIntervisit,
     /** Claude の外来間要約（Step 4-C） */
     aiSummary: sid && ai?.sid === sid ? ai : null,

@@ -320,6 +320,9 @@ export async function buildIntervisit(
       sourceId: `vn:${n.id}`,
       kind: "診察ノート" as const,
       body: n.body,
+      /** 患者の入力の種類（自由記述 / 選んだ回答）。body は要約・検証で使うため変えない */
+      input: "free_text" as "free_text" | "selection",
+      selection: null as "have_question" | "explain_again" | null,
       createdAt: n.createdAt.toISOString(),
       updatedAt: n.updatedAt.toISOString(),
       materialTitle: n.materialTitle,
@@ -328,6 +331,8 @@ export async function buildIntervisit(
       sourceId: `fb:${f.feedbackId}`,
       kind: "学習後の質問" as const,
       body: f.freeText ?? (f.selection === "explain_again" ? "（自由記述なし）もう一度説明してほしい" : "（自由記述なし）質問がある"),
+      input: (f.freeText ? "free_text" : "selection") as "free_text" | "selection",
+      selection: f.freeText ? null : ((f.selection === "explain_again" ? "explain_again" : "have_question") as "have_question" | "explain_again"),
       createdAt: f.createdAt.toISOString(),
       updatedAt: f.createdAt.toISOString(),
       materialTitle: f.materialTitle,
