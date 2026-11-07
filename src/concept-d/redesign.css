@@ -713,3 +713,17 @@
 /* 記録の一覧: 編集・削除は 1 行に並べ、次の記録に重ならないようにする */
 .d-health-list .d-record-actions { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0 0; }
 .d-health-list .d-record-actions .d-text-action { display: inline-flex; align-items: center; min-height: 36px; margin: 0; }
+
+/* 学習画面: 文字を大きく（Aa）と、読み上げの並び。左右スワイプでページ送り（JS） */
+.d-learning-tools { display: flex; align-items: center; gap: 4px; justify-self: end; }
+.d-learning-tools button { white-space: nowrap; padding: 0 8px; }
+.d-learning-head .d-text-size { min-width: 40px; padding: 0 8px; font-weight: 700; letter-spacing: .02em; }
+.d-main .d-learning.large h1 { font-size: 27px; line-height: 1.5; }
+.d-learning.large .d-learning-lead, .d-learning.large .d-learning-body, .d-learning.large .d-detail-copy, .d-learning.large .d-key-list p { font-size: 18px; line-height: 1.9; }
+.d-learning.large .d-image-slot p, .d-learning.large .d-disclosure b { font-size: 15px; }
+
+/* サムネイル: 画像の下の白は CSS で敷く。淡色のカードでは白を敷かず、白地の線画は乗算で地色に溶け込ませる（透過画像に差し替えればそのまま表示） */
+.d-slot-image { background: #fff; }
+.d-lesson-card[class*="d-area-"] .d-image-placeholder:has(> img) { background: transparent; }
+.d-lesson-card[class*="d-area-"] .d-slot-image { background: transparent; mix-blend-mode: multiply; }
+.d-lesson-card[class*="d-area-"] .d-image-fallback { background: transparent; border-color: transparent; }

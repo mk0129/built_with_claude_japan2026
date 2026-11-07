@@ -462,7 +462,7 @@ function DImageSlot({
   const placeholderContent = (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={image.src} alt={image.alt} style={{ width: "100%", height: "100%", objectFit: fit, background: "#fff" }} />
+      <img src={image.src} alt={image.alt} className="d-slot-image" style={{ width: "100%", height: "100%", objectFit: fit }} />
       {onExpand && (
         <span className="d-expand">
           <Icon name="search" size={16} />
@@ -3765,6 +3765,25 @@ function DLearning({
   const [detailOpen, setDetailOpen] = useState(false)
   const [audioPlaying, setAudioPlaying] = useState(false)
   const [audioNotice, setAudioNotice] = useState<string | null>(null)
+  // 文字を大きく（端末に記憶。高齢の方や見えにくいときに）
+  const [largeText, setLargeText] = useState(() => {
+    try {
+      return typeof window !== "undefined" && window.localStorage.getItem("shiori.largeText") === "1"
+    } catch {
+      return false
+    }
+  })
+  const toggleLargeText = () => {
+    const next = !largeText
+    setLargeText(next)
+    try {
+      window.localStorage.setItem("shiori.largeText", next ? "1" : "0")
+    } catch {
+      /* 保存できなくても表示は切り替える */
+    }
+  }
+  // 左右のスワイプでページを送る（縦スクロールと区別するため、横 60px 以上・縦 40px 未満のときだけ）
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
   // 本番の音声: 端末の読み上げ機能でスライドの読み上げ用テキストを読む（ページを移ったら止める）
   useEffect(() => {
     if (!live) return
@@ -3796,6 +3815,21 @@ function DLearning({
       continueReading.current = audioPlaying
       go()
     }
+    const onTouchStart = (event: React.TouchEvent) => {
+      const t = event.touches[0]
+      touchStart.current = t ? { x: t.clientX, y: t.clientY } : null
+    }
+    const onTouchEnd = (event: React.TouchEvent) => {
+      const start = touchStart.current
+      touchStart.current = null
+      const t = event.changedTouches[0]
+      if (!start || !t || !slide) return
+      const dx = t.clientX - start.x
+      const dy = t.clientY - start.y
+      if (Math.abs(dx) < 60 || Math.abs(dy) > 40) return
+      if (dx < 0) turnPage(live.onNext)
+      else if (live.seq > 1) turnPage(live.onPrev)
+    }
     const toggleAudio = () => {
       if (!slide) return
       if (audioPlaying) {
@@ -3820,16 +3854,21 @@ function DLearning({
     const isLast = live.seq >= live.total
     const art = slide ? slideArtKey(slide.title, slide.bodyMd) : "book"
     return (
-      <div className="d-learning">
+      <div className={`d-learning${largeText ? " large" : ""}`} data-large-text={largeText} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div className="d-learning-head">
           <button onClick={onClose}>閉じる</button>
           <span>
             {live.seq} / {live.total || "—"}
           </span>
-          <button className={audioPlaying ? "active" : ""} onClick={toggleAudio} aria-pressed={audioPlaying} data-audio-toggle>
-            <Icon name="audio" />
-            {audioPlaying ? "停止" : "読み上げ"}
-          </button>
+          <span className="d-learning-tools">
+            <button className={`d-text-size${largeText ? " active" : ""}`} onClick={toggleLargeText} aria-pressed={largeText} aria-label="文字の大きさを切り替える" data-text-size>
+              Aa
+            </button>
+            <button className={audioPlaying ? "active" : ""} onClick={toggleAudio} aria-pressed={audioPlaying} data-audio-toggle>
+              <Icon name="audio" />
+              {audioPlaying ? "停止" : "読み上げ"}
+            </button>
+          </span>
         </div>
         <div className="d-learning-progress">
           <i style={{ width: `${live.total ? Math.round((live.seq / live.total) * 100) : 0}%` }} />
