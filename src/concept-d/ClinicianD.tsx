@@ -12,7 +12,6 @@ import {
   intervisitEvents,
   previousVisitDate,
   severityLabels,
-  symptomLibrary,
   symptomName,
   type HealthRecord,
 } from "./healthData"
@@ -359,6 +358,11 @@ export default function ClinicianD({
   const session = live ? live.state : sessionLocal
   const setSession = live ? live.setState : setSessionLocal
   const [workspace, setWorkspace] = useState<Workspace>("visit")
+  // 画面を切り替えたら先頭から表示する（前の画面のスクロール位置を引き継がない）
+  const mainRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 })
+  }, [workspace])
   const [visitPage, setVisitPage] = useState<VisitPage>("summary")
   const [clinicalScenario, setClinicalScenario] =
     useState<ClinicalScenario>("standard")
@@ -520,7 +524,7 @@ export default function ClinicianD({
                 </button>
               </div>
             </aside>
-            <main className="cd-main">
+            <main className="cd-main" ref={mainRef}>
               {(workspace === "library" || workspace === "studio") ? (
                 // 教材ライブラリ・スタジオでは患者ヘッダーを小さな共有中チップにまとめる（権限は変えない。共有中であることと残り時間は常に表示）
                 <header className="cd-app-header cd-app-header-compact" data-header-compact>
@@ -2187,16 +2191,13 @@ function HomeCourse({
       value: (record?: HealthRecord) => record?.vitals.temperature,
     },
     {
+      // 血圧は「上/下」を 1 行に（色の目安は上下の強い方）
       key: "systolic",
-      label: "収縮期血圧",
+      label: "血圧",
       unit: "mmHg",
       value: (record?: HealthRecord) => record?.vitals.systolic,
-    },
-    {
-      key: "diastolic",
-      label: "拡張期血圧",
-      unit: "mmHg",
-      value: (record?: HealthRecord) => record?.vitals.diastolic,
+      display: (record?: HealthRecord) => (record?.vitals.systolic === undefined ? undefined : `${record.vitals.systolic}/${record.vitals.diastolic ?? "–"}`),
+      flagOf: (record: HealthRecord) => Math.max(vitalFlag("systolic", Number(record.vitals.systolic)), record.vitals.diastolic === undefined ? 0 : vitalFlag("diastolic", Number(record.vitals.diastolic))),
     },
     {
       key: "pulse",
@@ -2216,7 +2217,15 @@ function HomeCourse({
       unit: "L/分",
       value: (record?: HealthRecord) => record?.vitals.oxygenFlow,
     },
-  ].filter((row) => row.key !== "oxygenFlow" || records.some((record) => record.vitals.oxygenFlow !== undefined))
+  ].filter((row) => row.key !== "oxygenFlow" || records.some((record) => record.vitals.oxygenFlow !== undefined)) as {
+    key: string
+    label: string
+    unit: string
+    value: (record?: HealthRecord) => number | undefined
+    display?: (record?: HealthRecord) => string | undefined
+    flagOf?: (record: HealthRecord) => number
+  }[]
+  const cellText = (row: (typeof vitalRows)[number], record?: HealthRecord) => (row.display ? row.display(record) : row.value(record))
   const chartRecords = records
     .filter(
       (record) =>
@@ -2381,7 +2390,7 @@ function HomeCourse({
                       if (live) {
                         const measured = (recordsByDate[date] ?? []).filter((record) => row.value(record) !== undefined)
                         const last = measured[measured.length - 1]
-                        const flag = last ? vitalFlag(row.key, Number(row.value(last))) : 0
+                        const flag = last ? (row.flagOf ? row.flagOf(last) : vitalFlag(row.key, Number(row.value(last)))) : 0
                         return (
                           <td key={date}>
                             <button
@@ -2392,19 +2401,19 @@ function HomeCourse({
                                 setSelected({
                                   record: last,
                                   label: row.label,
-                                  value: `${row.value(last)} ${row.unit}`,
-                                  entries: measured.map((record) => ({ at: timeOf(record), value: `${row.value(record)} ${row.unit}` })),
+                                  value: `${cellText(row, last)} ${row.unit}`,
+                                  entries: measured.map((record) => ({ at: timeOf(record), value: `${cellText(row, record)} ${row.unit}` })),
                                 })
                               }
                             >
-                              {last ? row.value(last) : "—"}
+                              {last ? cellText(row, last) : "—"}
                               {measured.length > 1 && <sup>×{measured.length}</sup>}
                             </button>
                           </td>
                         )
                       }
                       const record = recordByDate[date]
-                      const value = row.value(record)
+                      const value = cellText(row, record)
                       return (
                         <td key={date}>
                           <button
@@ -2431,7 +2440,6 @@ function HomeCourse({
                   <tr key={id}>
                     <th>
                       <b>{symptomLabel(id)}</b>
-                      <small>患者自己申告</small>
                     </th>
                     {dates.map((date) => {
                       if (live) {
@@ -2523,7 +2531,7 @@ function HomeCourse({
               </>
             )}
           </div>
-          {live && <p className="cd-course-flag-note">{VITAL_FLAG_NOTE}</p>}
+          {live && <p className="cd-course-flag-note" title={VITAL_FLAG_NOTE}>色付きは一般的な目安の範囲外（体温 37.5℃以上、血圧 140 以上、脈拍 100 以上、SpO₂ 95%以下など）</p>}
         </>
       ) : view === "vitals" ? (
         <VitalCombinedGraph
@@ -2633,8 +2641,7 @@ function HomeCourse({
       )}
       <p className="cd-course-safety">
         <CIcon name="shield" />
-        0〜4は患者の自己申告で、CTCAE
-        Gradeではありません。この画面は24時間監視や自動診断を行いません。
+        0〜4 は患者の自己申告（CTCAE Grade ではありません）。24 時間監視や自動診断は行いません。
       </p>
       {selected && (
         <div className="cd-course-detail">
@@ -3441,11 +3448,23 @@ function LiveSummary({
     return { first, last, peak: e.reduce((m, x) => (x.severity > m.severity ? x : m), e[0]) }
   }
   // O: バイタル（期間内の最新値と範囲、目安の色）
+  // バイタルの枠: 体温・血圧（上/下を 1 枠に）・脈拍・SpO₂
   const vitalRows = iv
-    ? (["temperature", "systolic", "diastolic", "pulse", "spo2"] as const).map((k) => {
+    ? (["temperature", "systolic", "pulse", "spo2"] as const).map((k) => {
         const m = iv.vitals.metrics[k]
         const last = m?.values[m.values.length - 1] ?? null
-        return { key: k, label: m?.label ?? k, unit: m?.unit ?? "", last, min: m?.min ?? null, max: m?.max ?? null, count: m?.count ?? 0, flag: last ? vitalFlag(k, last.value) : 0 }
+        const row = { key: k, label: m?.label ?? k, unit: m?.unit ?? "", last, min: m?.min ?? null, max: m?.max ?? null, count: m?.count ?? 0, flag: last ? vitalFlag(k, last.value) : 0, display: last ? `${last.value}` : "—" }
+        if (k !== "systolic") return row
+        const d = iv.vitals.metrics.diastolic
+        const dLast = d?.values[d.values.length - 1] ?? null
+        return {
+          ...row,
+          label: "血圧",
+          display: last ? `${last.value}/${dLast ? dLast.value : "–"}` : "—",
+          flag: Math.max(row.flag, dLast ? vitalFlag("diastolic", dLast.value) : 0),
+          min: null,
+          max: null,
+        }
       })
     : []
   // 質問: 未解決を先に（新しい順）。「聞けた」は折りたたみ
@@ -3464,7 +3483,6 @@ function LiveSummary({
     <div className="cd-content cd-summary cd-summary-v2" data-summary-v2>
       <div className="cd-title-row">
         <div>
-          <p className="cd-eyebrow">診察</p>
           <h1>診察サマリー</h1>
           <p className="cd-period-line" data-period-line>
             <b>観察期間</b>
@@ -3517,8 +3535,7 @@ function LiveSummary({
       <section className="cd-panel cd-so" data-so>
         <div className="cd-panel-head">
           <div>
-            <p className="cd-eyebrow">S・O　患者の今の状況</p>
-            <h2>在宅での体調（患者本人の記録）</h2>
+            <h2>在宅での体調 <small>患者本人の記録</small></h2>
           </div>
           {onOpenCourse && (
             <button className="cd-so-course" onClick={onOpenCourse}>
@@ -3533,10 +3550,10 @@ function LiveSummary({
           <div className="cd-so-grid">
             <div className="cd-so-col" data-so-symptoms>
               <h3>
-                S　自覚症状 <small>患者評価 0〜4（CTCAE Grade ではありません）</small>
+                S　自覚症状 <small>0〜4・本人の評価</small>
               </h3>
               {symptoms.length === 0 ? (
-                <p className="cd-so-none">この期間に症状の記録はありません（記録なし。「症状なし」とは扱いません）</p>
+                <p className="cd-so-none">この期間に症状の記録はありません</p>
               ) : (
                 <ul className="cd-so-symptoms">
                   {symptoms.slice(0, 6).map((sym) => {
@@ -3578,14 +3595,14 @@ function LiveSummary({
                   {vitalRows.map((v) => (
                     <li key={v.key} className={`flag${v.flag}`} data-so-vital={v.key}>
                       <small>{v.label}</small>
-                      <b>{v.last ? `${v.last.value}` : "—"}</b>
+                      <b>{v.display}</b>
                       <em>{v.unit}</em>
                       <span>{v.last ? `${mdOf(v.last.at)}${v.count > 1 && v.min && v.max ? ` · ${v.min.value}〜${v.max.value}` : ""}` : "記録なし"}</span>
                     </li>
                   ))}
                 </ul>
               )}
-              <small className="cd-so-note">{VITAL_FLAG_NOTE}</small>
+              <small className="cd-so-note" title={VITAL_FLAG_NOTE}>色付きは一般的な目安の範囲外（体温 37.5℃以上、血圧 140 以上、脈拍 100 以上、SpO₂ 95%以下など）</small>
             </div>
           </div>
         )}
@@ -3821,11 +3838,7 @@ function LiveSummary({
                 })}
               </ol>
             )}
-            <p className="cd-reco-note">
-              {reco?.generator === "claude"
-                ? "患者の質問・症状・理解確認の記録から Claude が候補を絞り、理由を医療者向けに言い換えています。候補はルールベースで作った教材だけで、採用は医療者が判断します。"
-                : "患者の質問・症状・理解確認の記録から、関係しうる承認済み教材をルールで並べています。採用は医療者が判断します。"}
-            </p>
+            <p className="cd-reco-note">{reco?.generator === "claude" ? "質問・症状・理解確認から Claude が候補を絞っています。採用は医療者が判断します。" : "質問・症状・理解確認から承認済み教材を並べています。採用は医療者が判断します。"}</p>
             <div className="cd-reco-actions">
               <button className="cd-primary" onClick={onPrescribe}>
                 {prescription.length ? `選択中 ${prescription.length}件を確認` : "教材ライブラリで選ぶ"}

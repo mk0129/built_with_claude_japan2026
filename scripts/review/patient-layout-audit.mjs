@@ -76,6 +76,7 @@ const AUDIT = `(() => {
   // 認知負荷の目安: 囲い（枠線か背景色のある箱。ボタン・入力欄・画像は除く）の入れ子の最大の深さと、説明文（p/small/li で 24 文字以上）の文字数
   const isBox = (e) => {
     if (/^(BUTTON|INPUT|SELECT|TEXTAREA|SVG|IMG|A|SUMMARY|TABLE|TR|TD|TH)$/.test(e.tagName)) return false;
+    const rr = e.getBoundingClientRect(); if (rr.width < 14 && rr.height < 14) return false; // 小さな点・印は囲いとして数えない
     const cs = getComputedStyle(e);
     const bw = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderLeftWidth);
     const bg = cs.backgroundColor; const pbg = e.parentElement ? getComputedStyle(e.parentElement).backgroundColor : '';
