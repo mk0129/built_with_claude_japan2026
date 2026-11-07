@@ -5,6 +5,11 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  // 審査用デモは Next を使わない静的バンドル（esbuild）。next/link は使えないため <a> で入口へ戻す
+  {
+    files: [".judge-demo/app/**"],
+    rules: { "@next/next/no-html-link-for-pages": "off" },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

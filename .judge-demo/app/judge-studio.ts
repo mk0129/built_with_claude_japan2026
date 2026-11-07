@@ -74,6 +74,8 @@ export function studioLessonForVisit(visitId:string, id:string) {
 }
 
 const output = (data:unknown)=>({handled:true,data});
+// 本番 API と同じ任意の JSON 本文・応答を扱う（記録済み出力の再生専用）
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type ApiInit = RequestInit & {json?: any};
 export async function studioApi(path:string, init:ApiInit = {}, visitId:string):Promise<{handled:boolean,data?:any}> {
   const {pathname}=new URL(path,"https://shiori.invalid");
@@ -116,6 +118,7 @@ export async function studioApi(path:string, init:ApiInit = {}, visitId:string):
   save(visitId,d);
   return output({done:true});
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 const outlineJob = {
   id:"judge-studio-outline",mode:"outline",status:"succeeded",progress:null,errorCode:null,errorMessage:null,

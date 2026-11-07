@@ -7,6 +7,8 @@ import { nativePeriodPayload } from "./judge-native-period";
 import { studioApi, studioPublishedForVisit } from "./judge-studio";
 export { ApiError, errorText } from "./judge-errors";
 
+// 本番 API と同じ任意の JSON 本文を受ける（各経路で値を検証する）
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Options = RequestInit & { json?: any };
 const copy = <T,>(value:T):T => structuredClone(value);
 const forbidden=()=>new ApiError(403,"NO_ACTIVE_CONSULTATION","この診察の共有は終了しています");

@@ -89,6 +89,8 @@ function dateOfVisit(value:unknown) {
   if(typeof value!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(value)||!Number.isFinite(t)||new Date(t).toISOString().slice(0,10)!==value||t<today-366*864e5||t>today+731*864e5) throw invalid("INVALID_VISIT_DATE","日付を確認してください（今日の1年前から2年後まで）");
   return {date:value,updatedAt:new Date().toISOString()};
 }
+// 本番 API と同じ任意の JSON 本文を受ける（settingsFor などで値を検証する）
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function nativeRecordApi(url:URL,method:string,input?:any):{handled:boolean;data?:unknown} {
   const path=url.pathname;
   const ok=(data:unknown)=>({handled:true,data});

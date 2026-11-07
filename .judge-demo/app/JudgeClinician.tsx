@@ -29,6 +29,8 @@ export function JudgeClinician({onEnd}: {onEnd:()=>void}) {
     if(grant?.grantId===claim && !grant.claimed){
       void live.claimCode(grant.code);
     }else if(!grant || grant.grantId!==claim){
+      // 起動時に一度だけ URL の claim を読む。外部（URL）からの入力なので effect 内で通知する
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNotice({text:"コードを発行したデモのタブで「医師側」に切り替え、6桁コードを入力してください。",tone:"error"});
     }
   },[live.claimCode]);
