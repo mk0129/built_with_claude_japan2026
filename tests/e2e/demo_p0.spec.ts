@@ -130,15 +130,18 @@ for (const vp of [
     await resultTop();
     await shot(p, `P12_sim_result_demo_${vp.name}`);
 
-    // 手入力: 手順どおりに選び、総医療費の画面を下までスクロールして計算
+    // 手入力: 「総医療費がわかる」から手順どおりに選び、総医療費の画面を下までスクロールして計算
     await p.getByRole("button", { name: "最初から選び直す" }).click();
+    await p.locator("[data-sim-choice='entry-known']").click();
     await p.locator("[data-sim-step='1']").getByRole("button", { name: "2026年11月" }).click();
     await p.locator("[data-sim-choice='under70']").click();
     await p.locator("[data-sim-choice='employee']").click();
     await p.locator("[data-sim-choice='bracket-c']").click();
+    await p.locator("[data-sim-choice='many-no']").click();
     await p.locator("[data-sim-cost-input]").fill("1000000");
     await main.evaluate((el) => (el.scrollTop = el.scrollHeight));
-    expect(await main.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+    // 多数回該当を別の質問にしたため、430px では総医療費の画面がスクロールしないことがある（スクロールできるときだけ確認）
+    if (await main.evaluate((el) => el.scrollHeight > el.clientHeight + 1)) expect(await main.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
     await p.locator("[data-sim-calc]").click();
     await expect(p.locator("[data-sim-amount]")).toHaveText("92,940円");
     await resultTop();
