@@ -162,8 +162,8 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await expectShareEnded(s);
   for (const path of ["patient", "intervisit", "health"]) expect((await s.request.get(`/api/v1/consultations/${sid}/${path}`)).status()).toBe(403);
   await p.goto("/home");
-  await expect(p.locator(".d-next-card")).toContainText("今回の情報処方");
-  await p.getByRole("button", { name: /今回の教材をすべて見る（2件）/ }).click();
+  await expect(p.locator(".d-next-card")).toContainText("今回届いた教材");
+  await p.getByRole("button", { name: /今回届いた教材をすべて見る（2件）/ }).click();
   await expect(p.locator(".d-card-list")).toContainText("化学療法中の副作用とセルフケア");
 
   await staff.ctx.close();

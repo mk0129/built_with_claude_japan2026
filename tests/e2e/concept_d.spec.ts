@@ -74,12 +74,12 @@ test("患者: ログイン後に Figma 版ホーム。主要な画面遷移、�
   await page.getByRole("button", { name: "閉じる" }).click();
   await expect(page).toHaveURL(/\/home(\?lesson=[^&]+)?$/);
   await expect(page.locator(".toast")).toContainText("学習位置を保存しました");
-  for (const tab of ["教材を探す", "学習記録", "体調記録", "診察ノート"]) {
+  for (const tab of ["教材を探す", "学習記録", "体調記録", "聞きたいこと"]) {
     await page.locator(".d-nav").getByRole("button", { name: tab }).click();
     await expect(page.locator(".d-nav button.active")).toContainText(tab);
   }
   await page.reload();
-  await expect(page.locator(".d-nav button.active")).toContainText("診察ノート");
+  await expect(page.locator(".d-nav button.active")).toContainText("聞きたいこと");
   await page.goBack();
   await expect(page.locator(".d-nav button.active")).toContainText("体調記録");
   expect(await noHScroll(page)).toBe(0);

@@ -17,11 +17,13 @@ test("ホーム: 次回診察日の登録（再読み込みで残る・当日・
   await p.locator("[data-visit-edit]").click();
   await p.locator("[data-visit-input]").fill(tokyo(14));
   await p.locator("[data-visit-save]").click();
-  await expect(p.locator("[data-visit-days]")).toContainText("次の診察まで あと14日");
+  await expect(p.locator("[data-visit-days]")).toContainText("あと14日");
+  // 「次の診察 ○月○日（曜）あと N 日」
+  await expect(p.locator(".d-visit-date-main")).toHaveText(/^\d+月\d+日（.）$/);
   await p.reload();
   await expect(p.locator("[data-visit-days]")).toContainText("あと14日");
-  // 診察ノートにも同じ日付
-  await p.locator(".d-nav").getByRole("button", { name: "診察ノート" }).click();
+  // 次の診察で聞きたいことの画面にも同じ日付
+  await p.locator(".d-nav").getByRole("button", { name: "聞きたいこと" }).click();
   await expect(p.locator(".d-visit-date")).toContainText("次回診察日：");
   await expect(p.locator(".d-visit-date")).not.toContainText("未登録");
   await p.locator(".d-nav").getByRole("button", { name: "ホーム" }).click();
@@ -49,7 +51,7 @@ test("ホーム: 次回診察日の登録（再読み込みで残る・当日・
   await p.locator(".d-nav").getByRole("button", { name: "教材を探す" }).click();
   await p.locator(".d-nav").getByRole("button", { name: "ホーム" }).click();
   await expect(p.locator(".d-home-ask-list")).toContainText(text);
-  await p.locator(".d-nav").getByRole("button", { name: "診察ノート" }).click();
+  await p.locator(".d-nav").getByRole("button", { name: "聞きたいこと" }).click();
   await expect(p.locator(".d-saved-notes")).toContainText(text);
 
   // 後片付け（この患者を使う他のテストに影響させない）

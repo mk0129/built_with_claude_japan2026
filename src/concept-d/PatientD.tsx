@@ -13,7 +13,12 @@ import type { PatientLive } from "./live"
 import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes } from "./health"
 import { answeredSymptoms, clearHealthDraft, hasDraftInput, readHealthDraft, writeHealthDraft } from "./healthDraft"
 import {
+  isNewRx,
+  isRecentRx,
+  readSeenRx,
   saveProgress,
+  shortDate,
+  writeSeenRx,
   useAttempt,
   useLearnView,
   type LiveLesson,
@@ -51,6 +56,12 @@ export function Icon({ name, size = 20 }: { name: string; size?: number }) {
     ),
     check: <path d="m5 12 4 4L19 6" />,
     arrow: <path d="m9 18 6-6-6-6" />,
+    bell: (
+      <>
+        <path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4Z" />
+        <path d="M10 20a2 2 0 0 0 4 0" />
+      </>
+    ),
     clock: (
       <>
         <circle cx="12" cy="12" r="9" />
@@ -352,7 +363,7 @@ const dScenarios = [
   "今回処方3件",
   "学習途中あり",
   "処方をすべて完了",
-  "自主学習を利用",
+  "自分で読める教材を利用",
   "公開教材が多数",
   "一時共有中",
 ]
@@ -423,9 +434,9 @@ function DImageSlot({
   )
 }
 
+/** 学習状態（未学習・学習途中・学習済み）。入手経路は DSource で別に示す（short は以前の呼び出しとの互換のため残す） */
 function DStatus({
   lesson,
-  short = false,
 }: {
   lesson: DLesson
   short?: boolean
@@ -448,9 +459,17 @@ function DStatus({
         }
         size={15}
       />
-      {short
-        ? statusText
-        : `${lesson.prescribed ? "処方" : "自主"}・${statusText}`}
+      {statusText}
+    </span>
+  )
+}
+
+/** 入手経路（医療者から届いた／自分で読める）。学習状態（DStatus）とは別の言葉・アイコンで示す */
+function DSource({ lesson }: { lesson: DLesson }) {
+  return (
+    <span className={`d-source ${lesson.prescribed ? "rx" : "self"}`} data-source>
+      <Icon name={lesson.prescribed ? "user" : "search"} size={13} />
+      {lesson.prescribed ? "医療者から届いた" : "自分で読める"}
     </span>
   )
 }
@@ -479,7 +498,10 @@ function DLessonCard({
       />
       <span className="d-lesson-card-body">
         <span className="d-card-top">
-          <DStatus lesson={lesson} />
+          <span className="d-status-pair">
+            <DSource lesson={lesson} />
+            <DStatus lesson={lesson} />
+          </span>
           <span className="d-time">
             <Icon name="clock" size={14} />
             {lesson.time}分
@@ -535,7 +557,7 @@ function DNav({
     { page: "library", label: "教材を探す", icon: "book" },
     { page: "history", label: "学習記録", icon: "grid" },
     { page: "health", label: "体調記録", icon: "pulse" },
-    { page: "notes", label: "診察ノート", icon: "note" },
+    { page: "notes", label: "聞きたいこと", icon: "note" },
   ]
   return (
     <nav className="d-nav">
@@ -635,6 +657,15 @@ export function DPrototype({
   const [selectedId, setSelectedId] = useUrlState<string>("lesson", "1")
   // 本番: 理解確認から作った質問候補（診察ノートの入力欄に入れ、患者が確認して保存したときだけ DB に記録）
   const [noteDraft, setNoteDraft] = useState<{ text: string; versionId: string; questionId: string; title: string } | null>(null)
+  // 理解確認の解説から「次の診察で聞く」に移ったとき、同じ設問・解説・スクロール位置へ戻るための記録（この画面の中だけ）
+  const [quizReturn, setQuizReturn] = useState<{ lessonId: string; questionId: string; title: string; scrollTop: number } | null>(null)
+  const [restoreScroll, setRestoreScroll] = useState<number | null>(null)
+  const mainRef = useRef<HTMLElement | null>(null)
+  useEffect(() => {
+    // 聞きたいことの画面から別の画面へ移ったら、戻り先の記録は使わない
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (page !== "notes") setQuizReturn(null)
+  }, [page])
   // 本番: 回答の解説を表示している設問（再読み込みで同じ解説に戻る）
   const [quizQuestionId, setQuizQuestionId] = useUrlState<string>("q", "")
   const [selectedCategory, setSelectedCategory] = useUrlState<string>("area", "手術")
@@ -715,10 +746,50 @@ export function DPrototype({
   const activePrescription =
     prescriptions.find((lesson) => lesson.status === "doing") ||
     prescriptions.find((lesson) => lesson.status === "new")
+  // ---- ホームの「新着」: まだ開いていない今回の処方（既読はこの端末に処方の鍵だけを保存。サーバーは変えない） ----
+  const rxOwner = patientId || "local"
+  const latestRxKey = learning?.loaded ? (learning.latest?.key ?? "") : ""
+  const [seenRx, setSeenRx] = useState<string | null | undefined>(() => (typeof window === "undefined" ? undefined : readSeenRx(rxOwner)))
+  const allLatestStarted = prescriptions.length > 0 && prescriptions.every((lesson) => lesson.status !== "new")
+  const markRxSeen = () => {
+    if (!latestRxKey || seenRx === latestRxKey) return
+    writeSeenRx(rxOwner, latestRxKey)
+    setSeenRx(latestRxKey)
+  }
+  const rxRecent = isRecentRx(learning?.latest?.createdAt ?? "")
+  const rxIsNew = !!learning && isNewRx(latestRxKey, seenRx, allLatestStarted, rxRecent)
+  useEffect(() => {
+    if (!learning || !latestRxKey) return
+    // この端末で初めて開いた患者: すでに読み始めている処方は「開いた」として記録（以後の再処方から新着を出す）
+    if (seenRx === null && allLatestStarted && !rxRecent) {
+      writeSeenRx(rxOwner, latestRxKey)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSeenRx(latestRxKey)
+      return
+    }
+    // 今回届いた教材の一覧・今回届いた教材の詳細を開いたら既読にする（学習の進捗・処方の履歴は変えない）
+    if (rxIsNew && (page === "prescriptions" || (page === "detail" && selected?.latest))) {
+      writeSeenRx(rxOwner, latestRxKey)
+      setSeenRx(latestRxKey)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestRxKey, seenRx, allLatestStarted, rxRecent, page, selected?.id])
+  const newRxSingle = prescriptions.length === 1 ? prescriptions[0] : null
+  const newRx: DNewRx | null =
+    rxIsNew && learning?.latest
+      ? {
+          count: prescriptions.length,
+          sender: learning.latest.sender,
+          date: learning.latest.date,
+          hasNote: learning.latest.hasNote,
+          reread: prescriptions.filter((lesson) => lesson.status !== "new").length,
+          singleTitle: newRxSingle?.title ?? null,
+        }
+      : null
   const filteredLessons = visibleLessons.filter((lesson) => {
     const sourceMatch =
       sourceFilter === "すべて" ||
-      (sourceFilter === "処方" ? lesson.prescribed : !lesson.prescribed)
+      (sourceFilter === "届いた" ? lesson.prescribed : !lesson.prescribed)
     const statusMatch =
       statusFilter === "すべて" ||
       (statusFilter === "未学習" && lesson.status === "new") ||
@@ -789,6 +860,17 @@ export function DPrototype({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
   const attempt = quiz.attempt
+  useEffect(() => {
+    if (restoreScroll === null || page !== "explanation" || !attempt) return
+    const top = restoreScroll
+    const id = window.requestAnimationFrame(() => {
+      if (mainRef.current) mainRef.current.scrollTop = top
+      window.scrollTo(0, top)
+    })
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRestoreScroll(null)
+    return () => window.cancelAnimationFrame(id)
+  }, [restoreScroll, page, attempt])
   // 結果の画面: 理解確認の完了はサーバーで記録済み（最後の回答で学習を完了にする）。一覧を読み直して件数を DB と合わせる。
   // 読み直しの間は「確認中」、失敗したら成功の表示を出さない
   // 確認の単位（教材・再試行の回数）。保存済みの確認結果がこの単位のものでなければ「確認中」
@@ -863,11 +945,23 @@ export function DPrototype({
           onOpenMoney={() => setPage("money")}
           setPage={setPage}
           visit={visit}
-          recentNotes={notesLive ? notesLive.notes.map((note) => note.body) : notes}
+          recentNotes={
+            notesLive
+              ? [...notesLive.notes]
+                  .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+                  .map((note) => ({ body: note.body, date: shortDate(note.createdAt) }))
+              : [...notes].reverse().map((body) => ({ body, date: null }))
+          }
+          newRx={newRx}
+          onOpenNewRx={() => {
+            markRxSeen()
+            if (newRxSingle) openLesson(newRxSingle, "home")
+            else setPage("prescriptions")
+          }}
           onAddNote={async (body) => {
             if (notesLive) {
               const ok = await notesLive.create(body)
-              if (ok) notify("診察ノートに保存しました")
+              if (ok) notify("質問を保存しました")
               return ok
             }
             setNotes([...notes, body])
@@ -1099,13 +1193,19 @@ export function DPrototype({
           onAddQuestion={() => {
             // 本番: 候補を診察ノートの入力欄に入れるだけ（患者が確認して「質問を保存」を押したときに記録）
             if (notesLive && shownQuestion && selected?.versionId) {
+              setQuizReturn({
+                lessonId: String(selected.id),
+                questionId: shownQuestion.questionId,
+                title: selected.title,
+                scrollTop: mainRef.current?.scrollTop || window.scrollY || 0,
+              })
               setNoteDraft({
                 text: `「${shownQuestion.stem}」について、私の場合を教えてください`,
                 versionId: selected.versionId,
                 questionId: shownQuestion.questionId,
                 title: selected.title,
               })
-              notify("質問候補を診察ノートの入力欄に入れました。確認して保存してください")
+              notify("質問の候補を入力欄に入れました。確認して保存してください")
               setPage("notes")
               return
             }
@@ -1113,7 +1213,7 @@ export function DPrototype({
               ? `「${shownQuestion.stem}」について、私の場合を教えてください`
               : "腕を動かす範囲について、私の場合の目安を教えてください"
             if (!notes.includes(candidate)) setNotes([...notes, candidate])
-            notify("質問候補を診察ノートに追加しました")
+            notify("質問を保存しました")
           }}
         />
       )
@@ -1191,6 +1291,21 @@ export function DPrototype({
           live={notesLive}
           draftFrom={noteDraft}
           clearDraft={() => setNoteDraft(null)}
+          returnTo={
+            quizReturn
+              ? {
+                  title: quizReturn.title,
+                  onReturn: () => {
+                    setSelectedId(quizReturn.lessonId)
+                    setQuizQuestionId(quizReturn.questionId)
+                    setRestoreScroll(quizReturn.scrollTop)
+                    setNoteDraft(null)
+                    setQuizReturn(null)
+                    setPage("explanation")
+                  },
+                }
+              : null
+          }
           notify={notify}
           onShare={() => setPage("share")}
           visitDate={visit?.date ?? null}
@@ -1263,7 +1378,7 @@ export function DPrototype({
         {!fullScreen && (
           <DHeader sharing={sharing} onShare={() => setPage("share")} />
         )}
-        <main className={`d-main ${fullScreen ? "full" : ""}`}>
+        <main ref={mainRef} className={`d-main ${fullScreen ? "full" : ""}`}>
           {renderPage()}
         </main>
         {!fullScreen && (
@@ -2388,6 +2503,21 @@ function DHealthHistory({
 /** ホームの「次に学ぶ教材」: 学習途中 → 未学習の順で最初の 1 件（残りは「今回の教材をすべて見る」） */
 const homeLessonOrder = { doing: 0, new: 1, done: 2 } as const
 
+/** ホーム上部の「新着」: まだ開いていない今回の処方（新規・同じ教材の再処方・既存セット内の教材の再処方を含む） */
+type DNewRx = {
+  count: number
+  sender: string
+  date: string
+  hasNote: boolean
+  /** 以前から読み始めている教材の数（再処方。進捗はそのまま） */
+  reread: number
+  /** 1 件だけのときの教材名（タップでその教材を直接開く） */
+  singleTitle: string | null
+}
+
+/** ホームの「次の診察で聞きたいこと」に出す質問（新しい順） */
+type DHomeNote = { body: string; date: string | null }
+
 function DHome({
   scenario,
   prescriptions,
@@ -2400,6 +2530,8 @@ function DHome({
   visit,
   recentNotes,
   onAddNote,
+  newRx,
+  onOpenNewRx,
 }: {
   scenario: number
   prescriptions: DLesson[]
@@ -2413,12 +2545,14 @@ function DHome({
   setPage: (page: DPage) => void
   /** 本番: 次回の診察日（患者が登録した日付のみ）。Figma の架空データ表示では undefined */
   visit?: PatientVisit
-  /** 保存済みの質問（新しい順に最大 2 件を表示） */
-  recentNotes: string[]
+  /** 保存済みの質問（新しい順） */
+  recentNotes: DHomeNote[]
   /** ホームから質問を保存。保存できたときだけ true（入力欄を空にする） */
   onAddNote: (body: string) => Promise<boolean>
+  /** 本番: まだ開いていない今回の処方（なければ null） */
+  newRx?: DNewRx | null
+  onOpenNewRx?: () => void
 }) {
-  const categories = useContext(CategoriesContext)
   const completed = prescriptions.filter((lesson) => lesson.status === "done")
   const live = useContext(LiveInfoContext)
   // 本番: 今回の処方をすべて学習済み（Figma の検証シナリオ 4 と同じ表示）
@@ -2431,8 +2565,8 @@ function DHome({
     .slice(0, 1)
   const remainingMin = (lesson: DLesson) =>
     live ? Math.max(1, Math.round((lesson.time * (100 - lesson.progress)) / 100)) : 4
-  // 本番: これまでの処方に情報処方セット（例: 診断時セット）が含まれるときは、セットのカードを出す（なければ従来の「今回の情報処方」）。
-  // 後日ほかの教材が処方されても、セットはホームに残し、新しく届いた教材は別に案内する
+  // 本番: これまでの処方に情報処方セット（例: 診断時セット）が含まれるときは、セットのカードを出す（なければ従来の「今回届いた教材」）。
+  // 後日ほかの教材が処方されても、セットはホームに残し、新しく届いた教材は上部の「新着」から開く
   const homeSet = live?.homeSets.find((item) => item.lessons.length > 0)
   const setIds = new Set(homeSet?.lessons.map((lesson) => lesson.id) ?? [])
   // セットに含まれない、今回（最新）届いた教材
@@ -2457,21 +2591,60 @@ function DHome({
         </button>
       )}
       <DVisitCard visit={visit} />
-      {/* 次に学ぶ教材: 390px で「次の診察」「次に学ぶ教材」「診察で聞きたいこと」が 1 画面に収まるよう、最初の 1 件だけをコンパクトに表示 */}
-      {live && !live.loaded ? null : homeSet ? (
-        <>
-          {!homeSet.inLatest && newOutsideSet.length > 0 && (
-            <button className="d-new-rx" data-new-rx onClick={() => setPage("prescriptions")}>
-              <span className="d-next-icon">
-                <Icon name="book" size={20} />
-              </span>
-              <span>
-                <b>新しく届いた教材 {newOutsideSet.length}件</b>
-                <small>{live?.latest ? `${live.latest.date} · ${live.latest.clinician}から` : ""}</small>
-              </span>
-              <Icon name="arrow" />
-            </button>
-          )}
+      {/* 新着: まだ開いていない今回の処方。色だけでなく「新着」の文字とアイコンで示す */}
+      {newRx && (
+        <button className="d-new-rx" data-new-rx onClick={onOpenNewRx}>
+          <span className="d-new-rx-badge">
+            <Icon name="bell" size={16} />
+            新着
+          </span>
+          <span className="d-new-rx-text">
+            <b>
+              医療者から届いた教材 {newRx.count}件
+            </b>
+            {newRx.singleTitle && <span className="d-new-rx-title">{newRx.singleTitle}</span>}
+            <small>
+              {newRx.sender}から · {newRx.date}
+            </small>
+            <span className="d-new-rx-tags">
+              {newRx.hasNote && (
+                <span className="d-new-rx-tag" data-new-rx-note>
+                  <Icon name="note" size={14} />
+                  メッセージあり
+                </span>
+              )}
+              {newRx.reread > 0 && (
+                <span className="d-new-rx-tag" data-new-rx-reread>
+                  <Icon name="play" size={14} />
+                  {newRx.count === 1 ? "再び届いた教材・進捗はそのまま" : `うち${newRx.reread}件は再び届いた教材・進捗はそのまま`}
+                </span>
+              )}
+            </span>
+          </span>
+          <Icon name="arrow" />
+        </button>
+      )}
+      {/* 今日できること: 体調の記録と、次の診察で聞きたいこと（どちらか一つだけでもよい） */}
+      <button className="d-note-summary d-home-health" data-home-health onClick={() => setPage("health")}>
+        <span className="stat-icon blue">
+          <Icon name="pulse" />
+        </span>
+        <span>
+          <b>体調を記録</b>
+          <small>
+            任意 · 気になることだけでも ·{" "}
+            {live ? (live.lastHealthDate ? `前回 ${live.lastHealthDate}` : "まだ記録はありません") : "前回 6月19日"}
+          </small>
+        </span>
+        <Icon name="arrow" />
+      </button>
+      <DHomeAsk recentNotes={recentNotes} onAddNote={onAddNote} setPage={setPage} />
+      {/* 医療者から届いた教材（セット・今回届いた教材）。次に学ぶ 1 件をコンパクトに表示 */}
+      <section className="d-home-section d-home-rx" aria-labelledby="d-home-rx-title">
+        <div className="d-section-head">
+          <h2 id="d-home-rx-title">医療者から届いた教材</h2>
+        </div>
+        {live && !live.loaded ? null : homeSet ? (
           <DHomeSetCard
             set={homeSet}
             extraCount={homeSet.inLatest ? newOutsideSet.length : 0}
@@ -2480,75 +2653,70 @@ function DHome({
             onOpen={onOpen}
             onAll={() => setPage("prescriptions")}
           />
-        </>
-      ) : prescriptions.length === 0 ? (
-        <div className="d-home-empty">
-          <h3>今届いている教材はありません</h3>
-          <p>公開教材はいつでも探せます。気になることから、無理のないペースでご覧ください。</p>
-          <button className="secondary-button" onClick={() => setPage("library")}>
-            教材を探す
-            <Icon name="arrow" size={16} />
-          </button>
-        </div>
-      ) : allDone ? (
-        <section className="d-complete-hero d-home-compact">
-          <span className="d-complete-icon">
-            <Icon name="check" size={22} />
-          </span>
-          <div>
-            <Pill tone="soft">今回の情報処方</Pill>
-            <h2>{live ? prescriptions.length : 3}件すべて確認しました</h2>
-            <p>必要なときは、いつでも読み直せます。</p>
+        ) : prescriptions.length === 0 ? (
+          <div className="d-home-empty">
+            <h3>今届いている教材はありません</h3>
+            <p>医療者から教材が届くと、ここに表示されます。公開教材は下の「教材を探す」からいつでも読めます。</p>
           </div>
-          <button onClick={() => setPage("prescriptions")}>
-            学習済みを見る
-          </button>
-        </section>
-      ) : (
-        <section className="d-next-card d-home-compact" aria-label="次に学ぶ教材">
-          <div className="d-next-meta">
-            <Pill>今回の情報処方</Pill>
-            <span>{live?.latest ? `${live.latest.date} · ${live.latest.clinician}から` : "6月12日 · 山田医師から"}</span>
-          </div>
-          <h2>
-            {active?.status === "doing"
-              ? "続きから再開できます"
-              : "新しい教材が届いています"}
-          </h2>
-          {homeLessons.map((lesson) => (
-            <div key={lesson.id} className="d-home-lesson" data-home-lesson>
-              <div className="d-next-lesson">
-                <span className="d-next-icon">
-                  <Icon
-                    name={lesson.status === "doing" ? "play" : "book"}
-                    size={20}
-                  />
-                </span>
-                <span>
-                  <b>{lesson.title}</b>
-                  <small>
-                    <DStatus lesson={lesson} short />
-                    {lesson.status === "doing"
-                      ? `${lesson.progress}%まで · あと約${remainingMin(lesson)}分`
-                      : `約${lesson.time}分`}
-                  </small>
-                </span>
-              </div>
-              <button className="primary-button" onClick={() => onOpen(lesson)}>
-                {lesson.status === "doing" ? "続きから学ぶ" : "教材を確認する"}
-                <Icon name="arrow" size={18} />
-              </button>
+        ) : allDone ? (
+          <section className="d-complete-hero d-home-compact">
+            <span className="d-complete-icon">
+              <Icon name="check" size={22} />
+            </span>
+            <div>
+              <Pill tone="soft">今回届いた教材</Pill>
+              <h2>{live ? prescriptions.length : 3}件すべて確認しました</h2>
+              <p>必要なときは、いつでも読み直せます。</p>
             </div>
-          ))}
-          <button
-            className="d-text-action"
-            onClick={() => setPage("prescriptions")}
-          >
-            今回の教材をすべて見る（{prescriptions.length}件）
-          </button>
-        </section>
-      )}
-      <DHomeAsk recentNotes={recentNotes} onAddNote={onAddNote} setPage={setPage} />
+            <button onClick={() => setPage("prescriptions")}>
+              学習済みを見る
+            </button>
+          </section>
+        ) : (
+          <section className="d-next-card d-home-compact" aria-label="次に学ぶ教材">
+            <div className="d-next-meta">
+              <Pill>今回届いた教材</Pill>
+              <span>{live?.latest ? `${live.latest.date} · ${live.latest.clinician}から` : "6月12日 · 山田医師から"}</span>
+            </div>
+            <h2>
+              {active?.status === "doing"
+                ? "続きから再開できます"
+                : "新しい教材が届いています"}
+            </h2>
+            {homeLessons.map((lesson) => (
+              <div key={lesson.id} className="d-home-lesson" data-home-lesson>
+                <div className="d-next-lesson">
+                  <span className="d-next-icon">
+                    <Icon
+                      name={lesson.status === "doing" ? "play" : "book"}
+                      size={20}
+                    />
+                  </span>
+                  <span>
+                    <b>{lesson.title}</b>
+                    <small>
+                      <DStatus lesson={lesson} short />
+                      {lesson.status === "doing"
+                        ? `${lesson.progress}%まで · あと約${remainingMin(lesson)}分`
+                        : `約${lesson.time}分`}
+                    </small>
+                  </span>
+                </div>
+                <button className="primary-button" onClick={() => onOpen(lesson)}>
+                  {lesson.status === "doing" ? "続きから学ぶ" : "教材を確認する"}
+                  <Icon name="arrow" size={18} />
+                </button>
+              </div>
+            ))}
+            <button
+              className="d-text-action"
+              onClick={() => setPage("prescriptions")}
+            >
+              今回届いた教材をすべて見る（{prescriptions.length}件）
+            </button>
+          </section>
+        )}
+      </section>
       {onOpenMoney && (
         <section className="d-home-section">
           <button className="d-money-card" data-money-card onClick={onOpenMoney}>
@@ -2561,37 +2729,7 @@ function DHome({
           </button>
         </section>
       )}
-      <section className="d-home-section">
-        <button className="d-note-summary d-home-health" onClick={() => setPage("health")}>
-          <span className="stat-icon blue">
-            <Icon name="pulse" />
-          </span>
-          <span>
-            <b>今日の体調を記録</b>
-            <small>
-              任意 · 気になることだけでも ·{" "}
-              {live ? (live.lastHealthDate ? `前回 ${live.lastHealthDate}` : "まだ記録はありません") : "前回 6月19日"}
-            </small>
-          </span>
-          <Icon name="arrow" />
-        </button>
-      </section>
-      <section className="d-home-section">
-        <div className="d-section-head">
-          <div>
-            <h2>自分で教材を探す</h2>
-          </div>
-          <button onClick={() => setPage("library")}>すべて見る</button>
-        </div>
-        <div className="d-quick-categories">
-          {categories.slice(0, 3).map((category) => (
-            <button key={category.name} onClick={() => setPage("library")}>
-              <Icon name={category.icon} />
-              <span>{category.name}</span>
-            </button>
-          ))}
-        </div>
-      </section>
+      {/* 「自分で教材を探す」は画面下の「教材を探す」から（ホームでは重ねて出さない） */}
       {completed.length > 0 && (
         <p className="d-home-footnote">
           <Icon name="check" size={16} />
@@ -2652,11 +2790,11 @@ function DHomeSetCard({
   const done = set.lessons.filter((lesson) => lesson.status === "done").length
   const next = nextInSet(set.lessons)
   return (
-    <section className="d-next-card d-set-card" data-set-card data-set-in-latest={set.inLatest} aria-label={set.inLatest ? "今回届いた情報処方セット" : "情報処方セット"}>
+    <section className="d-next-card d-set-card" data-set-card data-set-in-latest={set.inLatest} aria-label={set.inLatest ? "今回届いたセット" : "以前に届いたセット"}>
       <div className="d-set-card-main">
         <DSetCover name={set.name} />
         <div className="d-set-card-text">
-          <Pill tone="soft">{set.inLatest ? "今回の情報処方セット" : "情報処方セット"}</Pill>
+          <Pill tone="soft">{set.inLatest ? "今回届いたセット" : "以前に届いたセット"}</Pill>
           <small className="d-set-sender">
             {set.sender && set.date ? (
               <>
@@ -2710,7 +2848,7 @@ function DHomeSetCard({
       )}
       {extraCount > 0 && (
         <button className="d-text-action" onClick={onAll}>
-          今回の教材をすべて見る（{total + extraCount}件）
+          今回届いた教材をすべて見る（{total + extraCount}件）
         </button>
       )}
     </section>
@@ -2737,7 +2875,7 @@ function DSetDetail({
       <section className="d-set-hero">
         <DSetCover name={set.name} size="large" />
         <div>
-          <Pill tone="soft">情報処方セット</Pill>
+          <Pill tone="soft">医療者から届いたセット</Pill>
           {set.sender && set.date ? (
             <p className="d-set-sender">
               {set.sender}から届きました
@@ -2849,7 +2987,7 @@ function DMoneyTheme({
       <section className="d-set-hero">
         <DThemeImage name={MONEY_THEME} size="large" />
         <div>
-          <Pill tone="soft">{prescribedAs ? "情報処方セット" : "社会制度の情報"}</Pill>
+          <Pill tone="soft">{prescribedAs ? "医療者から届いたセット" : "社会制度の情報"}</Pill>
           {prescribedAs && (
             <p className="d-set-sender" data-money-prescribed>
               {prescribedAs.sender}から届きました
@@ -2982,16 +3120,16 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
         <Icon name="calendar" size={18} />
       </span>
       <span className="d-visit-text">
-        <small>次の診察 · {visitDateLabel(visit.date)}</small>
+        <small>次の診察</small>
         <span className="d-visit-days" data-visit-days>
           {days > 0 ? (
             <>
-              次の診察まで <b>あと{days}日</b>
+              <span className="d-visit-date-main">{visitDateLabel(visit.date)}</span> <b>あと{days}日</b>
             </>
           ) : days === 0 ? (
             <b>今日が診察日です</b>
           ) : (
-            <>登録した診察日を過ぎました。次の日付を登録してください</>
+            <>登録した診察日（{visitDateLabel(visit.date)}）を過ぎました。次の日付を登録してください</>
           )}
         </span>
       </span>
@@ -3002,13 +3140,14 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
   )
 }
 
-/** ホームから「診察で聞きたいこと」を直接追加（既存の診察ノート API。保存に成功したときだけ表示に反映） */
+/** ホームから「次の診察で聞きたいこと」を直接追加（既存の質問 API。保存に成功したときだけ表示に反映）。直近 2 件と作成日、ほかの件数 */
 function DHomeAsk({
   recentNotes,
   onAddNote,
   setPage,
 }: {
-  recentNotes: string[]
+  /** 新しい順 */
+  recentNotes: DHomeNote[]
   onAddNote: (body: string) => Promise<boolean>
   setPage: (page: DPage) => void
 }) {
@@ -3021,10 +3160,12 @@ function DHomeAsk({
     setBusy(false)
     if (ok) setDraft("")
   }
+  const shown = recentNotes.slice(0, 2)
+  const more = recentNotes.length - shown.length
   return (
-    <section className="d-home-section d-home-ask">
+    <section className="d-home-section d-home-ask" aria-labelledby="d-home-ask-title">
       <div className="d-section-head">
-        <h2>診察で聞きたいこと</h2>
+        <h2 id="d-home-ask-title">次の診察で聞きたいこと</h2>
         <span data-home-note-count>{recentNotes.length}件 保存済み</span>
       </div>
       <form
@@ -3035,7 +3176,7 @@ function DHomeAsk({
         }}
       >
         <label htmlFor="d-home-note" className="sr-only">
-          診察で聞きたいこと
+          次の診察で聞きたいこと
         </label>
         <input
           id="d-home-note"
@@ -3050,19 +3191,22 @@ function DHomeAsk({
           追加
         </button>
       </form>
-      {recentNotes.length > 0 && (
+      {shown.length > 0 && (
         <ul className="d-home-ask-list">
-          {recentNotes
-            .slice(-2)
-            .reverse()
-            .map((note, index) => (
-              <li key={`${index}-${note}`}>{note}</li>
-            ))}
+          {shown.map((note, index) => (
+            <li key={`${index}-${note.body}`}>
+              <span>{note.body}</span>
+              {note.date && <small className="d-home-ask-date">{note.date}に保存</small>}
+            </li>
+          ))}
         </ul>
       )}
-      <button className="d-text-action" onClick={() => setPage("notes")}>
-        診察ノートを開く
-      </button>
+      <div className="d-home-ask-foot">
+        {more > 0 && <span data-home-note-more>ほか{more}件</span>}
+        <button className="d-text-action" data-home-note-all onClick={() => setPage("notes")}>
+          {recentNotes.length > 0 ? "すべて見る・編集する" : "聞きたいことの一覧を開く"}
+        </button>
+      </div>
     </section>
   )
 }
@@ -3080,8 +3224,8 @@ function DPrescriptions({
   return (
     <div>
       <DPageHeader
-        title="今回の情報処方"
-        eyebrow="医療者から届いた教材"
+        title="医療者から届いた教材"
+        eyebrow="今回届いた分"
         onBack={onBack}
       />
       <div className="d-prescription-info">
@@ -3091,8 +3235,23 @@ function DPrescriptions({
           <small>{live?.latest ? `${live.latest.date}に届きました · ${lessons.length}件` : "6月12日に届きました · 3件"}</small>
         </span>
       </div>
+      {(() => {
+        // 医療者のメッセージ（同じ文は 1 回だけ）。届いた教材の詳細にも表示される
+        const messages = [...new Set(lessons.map((lesson) => lesson.note).filter((note): note is string => !!note))]
+        return messages.length > 0 ? (
+          <div className="d-rx-message" data-rx-message>
+            <b>
+              <Icon name="note" size={16} />
+              医療者からのメッセージ
+            </b>
+            {messages.map((message) => (
+              <p key={message}>「{message}」</p>
+            ))}
+          </div>
+        ) : null
+      })()}
       <p className="d-gentle-copy">
-        次の診察までの目安です。体調や時間に合わせて進めてください。
+        次の診察までの目安です。順番は決まっていません。体調や時間に合わせて進めてください。
       </p>
       <div className="d-card-list">
         {lessons.map((lesson) => (
@@ -3181,17 +3340,25 @@ function DLibrary({
           <h2>すべての公開教材</h2>
           <span>{lessons.length}件</span>
         </div>
-        <div className="d-filter-group" aria-label="教材の種類">
-          {["すべて", "処方", "自主"].map((filter) => (
+        <div className="d-filter-group" role="group" aria-label="入手経路で絞り込む">
+          {[
+            { value: "すべて", label: "すべて" },
+            { value: "届いた", label: "医療者から届いた教材" },
+            { value: "自分で", label: "自分で読める教材" },
+          ].map((filter) => (
             <button
-              key={filter}
-              className={sourceFilter === filter ? "active" : ""}
-              onClick={() => setSourceFilter(filter)}
+              key={filter.value}
+              className={sourceFilter === filter.value ? "active" : ""}
+              aria-pressed={sourceFilter === filter.value}
+              onClick={() => setSourceFilter(filter.value)}
             >
-              {filter === "自主" ? "自主学習" : filter}
+              {filter.label}
             </button>
           ))}
         </div>
+        <p className="d-filter-help" data-filter-help>
+          「自分で読める教材」は、医療者から届いていない公開教材です。読んだかどうかは「学習状態」で絞り込めます。
+        </p>
         <label className="d-select-filter">
           学習状態
           <select
@@ -3387,7 +3554,10 @@ function DDetail({
         seed={lesson.title}
       />
       <div className="d-detail-meta">
-        <DStatus lesson={lesson} />
+        <span className="d-status-pair">
+          <DSource lesson={lesson} />
+          <DStatus lesson={lesson} />
+        </span>
         <span>
           <Icon name="clock" size={16} />約{lesson.time}分
         </span>
@@ -3400,7 +3570,7 @@ function DDetail({
           <span>
             <b>{lesson.sender}から届きました</b>
             <small>
-              {lesson.date} · {lesson.latest === false ? "以前の情報処方" : "今回の情報処方"}
+              {lesson.date} · {lesson.latest === false ? "以前に届いた教材" : "今回届いた教材"}
               {lesson.note ? ` · 「${lesson.note}」` : ""}
             </small>
           </span>
@@ -3462,6 +3632,115 @@ type DLearningLive = {
 const keyPoints = (slide: Slide) =>
   (slide.bodyMd.match(/[^。！？]+[。！？]?/g) ?? [slide.bodyMd]).map((t) => t.trim()).filter(Boolean).slice(0, 3)
 
+type SpeechState = "idle" | "starting" | "playing" | "error"
+
+/**
+ * 端末の読み上げ（Web Speech API の speechSynthesis）。表示は実際のイベントに合わせる:
+ * 押した直後は「準備中」→ start で「読み上げ中」→ end で消える。error・開始しない・日本語の音声がないときは理由を表示する。
+ * ページを移ったとき・画面を閉じたときに止める（親の再描画では止めない）。
+ * 注: 音が実際に聞こえたかはブラウザーからは分からない（音量・消音・出力先は端末側）。
+ */
+function useSpeech(pageKey: number | null) {
+  const [state, setState] = useState<SpeechState>("idle")
+  const [message, setMessage] = useState("")
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
+  const timerRef = useRef<number | null>(null)
+  const clearTimer = () => {
+    if (timerRef.current !== null) window.clearTimeout(timerRef.current)
+    timerRef.current = null
+  }
+  const fail = (text: string) => {
+    clearTimer()
+    utteranceRef.current = null
+    setMessage(text)
+    setState("error")
+  }
+  const stop = () => {
+    clearTimer()
+    utteranceRef.current = null
+    if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel()
+    setState("idle")
+  }
+  // ページを移ったら止める（教材を閉じたときも）
+  useEffect(() => {
+    return () => {
+      clearTimer()
+      utteranceRef.current = null
+      if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel()
+    }
+  }, [pageKey])
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setState("idle")
+  }, [pageKey])
+  const speak = (text: string) => {
+    const synth = typeof window !== "undefined" ? window.speechSynthesis : undefined
+    if (!synth || typeof SpeechSynthesisUtterance === "undefined") {
+      fail("この端末・ブラウザーは音声の読み上げに対応していません。本文をお読みください。")
+      return
+    }
+    if (!text.trim()) {
+      fail("このページには読み上げる文章がありません。")
+      return
+    }
+    const voices = synth.getVoices()
+    const ja = voices.find((voice) => voice.lang.replace("_", "-").toLowerCase().startsWith("ja"))
+    // 音声の一覧が読み込み済みで、日本語の音声がない端末
+    if (voices.length > 0 && !ja) {
+      fail("この端末に日本語の読み上げ音声が見つかりません。端末の設定で日本語の音声を追加すると使えます。")
+      return
+    }
+    const u = new SpeechSynthesisUtterance(text)
+    u.lang = "ja-JP"
+    if (ja) u.voice = ja
+    u.onstart = () => {
+      if (utteranceRef.current !== u) return
+      clearTimer()
+      setState("playing")
+    }
+    u.onend = () => {
+      if (utteranceRef.current !== u) return
+      clearTimer()
+      utteranceRef.current = null
+      setState("idle")
+    }
+    u.onerror = (event) => {
+      if (utteranceRef.current !== u) return
+      // 停止・ページ移動による中断はエラーとして出さない
+      if (event.error === "interrupted" || event.error === "canceled") {
+        clearTimer()
+        utteranceRef.current = null
+        setState("idle")
+        return
+      }
+      fail(
+        event.error === "not-allowed"
+          ? "ブラウザーが読み上げを許可しませんでした。もう一度「音声」を押してください。"
+          : event.error === "language-unavailable" || event.error === "voice-unavailable"
+            ? "この端末に日本語の読み上げ音声が見つかりません。端末の設定で日本語の音声を追加すると使えます。"
+            : "読み上げを開始できませんでした。本文をお読みください。",
+      )
+    }
+    synth.cancel()
+    utteranceRef.current = u
+    setMessage("")
+    setState("starting")
+    synth.speak(u)
+    // 一部の端末では、音声がないと start も error も届かない。一定時間で理由を表示する
+    clearTimer()
+    timerRef.current = window.setTimeout(() => {
+      if (utteranceRef.current !== u) return
+      synth.cancel()
+      fail(
+        voices.length === 0
+          ? "読み上げが始まりませんでした。この端末に日本語の読み上げ音声がない可能性があります。本文をお読みください。"
+          : "読み上げが始まりませんでした。端末の音量や設定をご確認のうえ、もう一度お試しください。",
+      )
+    }, 4000)
+  }
+  return { state, message, speak, stop }
+}
+
 function DLearning({
   lesson,
   panel,
@@ -3482,30 +3761,16 @@ function DLearning({
 }) {
   const [detailOpen, setDetailOpen] = useState(false)
   const [audioPlaying, setAudioPlaying] = useState(false)
-  // 本番の音声: 端末の読み上げ機能でスライドの読み上げ用テキストを読む（ページを移ったら止める）
-  useEffect(() => {
-    if (!live) return
-    return () => {
-      if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel()
-    }
-  }, [live?.seq, live])
+  // 本番の音声: 端末の読み上げ機能（speechSynthesis）の実際の開始・終了・エラーに合わせて表示する
+  const speech = useSpeech(live?.seq ?? null)
   if (live) {
     const slide = live.slide
     const figure = slide?.figures[0]
+    const speaking = speech.state === "starting" || speech.state === "playing"
     const toggleAudio = () => {
-      const synth = typeof window !== "undefined" ? window.speechSynthesis : undefined
-      if (!synth || !slide) return
-      if (audioPlaying) {
-        synth.cancel()
-        setAudioPlaying(false)
-        return
-      }
-      const u = new SpeechSynthesisUtterance(slide.voiceText)
-      u.lang = "ja-JP"
-      u.onend = () => setAudioPlaying(false)
-      synth.cancel()
-      synth.speak(u)
-      setAudioPlaying(true)
+      if (!slide) return
+      if (speaking) speech.stop()
+      else speech.speak(slide.voiceText)
     }
     const isLast = live.seq >= live.total
     return (
@@ -3515,9 +3780,9 @@ function DLearning({
           <span>
             {live.seq} / {live.total || "—"}
           </span>
-          <button className={audioPlaying ? "active" : ""} onClick={toggleAudio}>
+          <button className={speaking ? "active" : ""} onClick={toggleAudio} aria-pressed={speaking} data-audio-toggle>
             <Icon name="audio" />
-            {audioPlaying ? "停止" : "音声"}
+            {speaking ? "停止" : "音声"}
           </button>
         </div>
         <div className="d-learning-progress">
@@ -3528,11 +3793,11 @@ function DLearning({
           <>
             <h1>{slide.title}</h1>
             <p className="d-learning-lead">{slide.proposition ?? slide.bodyMd}</p>
-            {audioPlaying && (
-              <div className="d-audio-state">
-                <span className="live-dot" />
-                読み上げ中
-                <span className="d-audio-wave">〰 〰 〰</span>
+            {speech.state !== "idle" && (
+              <div className={`d-audio-state ${speech.state}`} data-audio-state={speech.state} role="status">
+                {speech.state === "playing" && <span className="live-dot" />}
+                {speech.state === "playing" ? "読み上げ中" : speech.state === "starting" ? "読み上げを準備しています…" : speech.message}
+                {speech.state === "playing" && <span className="d-audio-wave" aria-hidden="true">〰 〰 〰</span>}
               </div>
             )}
             {/* 図解がないページ: 枠を出さず、本文をそのまま読めるようにする（図解は医療者の承認後にだけ届く） */}
@@ -3804,7 +4069,7 @@ function DExplanation({
                 ? preview
                   ? "「わからない」を選びました"
                   : <span className="d-keep">「わからない」を<wbr />記録しました</span>
-                : "いっしょに確認しましょう"}
+                : <span className="d-keep">この答えは<wbr />正しくありません</span>}
           </h1>
         </div>
       </div>
@@ -3812,19 +4077,21 @@ function DExplanation({
         <span>あなたの回答</span>
         <b>{yourAnswer}</b>
       </div>
+      {/* 誤答・「わからない」: 正しい答えを先に短く示す（理由は既存の解説をそのまま使う。新しい説明は作らない） */}
+      {!correct && (live ? a : true) && (
+        <div className={`d-correct-answer ${unsure ? "unsure" : "wrong"}`} data-correct-answer>
+          <Icon name="check" />
+          <p>
+            {unsure ? "答えは" : "正しくは"}
+            <b>「{live ? live.question!.options[a!.correctIndex] : "無理のない範囲でゆっくり動かす"}」</b>
+            です。
+          </p>
+        </div>
+      )}
       {live ? (
         <section className="d-explanation-copy">
-          <h2>解説</h2>
+          <h2>{correct ? "解説" : "理由（解説）"}</h2>
           <p>{a?.explanation ?? ""}</p>
-          {a && !a.isCorrect && (
-            <div className="d-key-answer">
-              <Icon name="check" />
-              <span>
-                <b>確認したいポイント</b>
-                <p>正解は「{live.question!.options[a.correctIndex]}」です。</p>
-              </span>
-            </div>
-          )}
         </section>
       ) : (
       <section className="d-explanation-copy">
@@ -3860,7 +4127,7 @@ function DExplanation({
           onClick={onAddQuestion}
         >
           <Icon name="note" />
-          この内容から質問候補を作る
+          次の診察で聞く（質問に残す）
         </button>
       )}
       <p className="d-understanding-note">
@@ -4149,7 +4416,7 @@ function DResult({
             <Icon name="note" />
           </span>
           <span>
-            <b>診察ノートを確認する</b>
+            <b>次の診察で聞きたいことを確認する</b>
             <small>質問候補を編集できます</small>
           </span>
           <Icon name="arrow" />
@@ -4264,6 +4531,7 @@ function DNotes({
   draftFrom,
   clearDraft,
   visitDate = null,
+  returnTo = null,
 }: {
   notes: string[]
   setNotes: (notes: string[]) => void
@@ -4276,8 +4544,16 @@ function DNotes({
   clearDraft?: () => void
   /** 本番: 患者が登録した次回の診察日（未登録は null） */
   visitDate?: string | null
+  /** 理解確認の解説から来たとき: 同じ設問・解説へ戻る */
+  returnTo?: { title: string; onReturn: () => void } | null
 }) {
   const [draft, setDraft] = useState(draftFrom?.text ?? "")
+  const [savedFromQuiz, setSavedFromQuiz] = useState(false)
+  const returnRef = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    // 保存したら「質問を保存しました」と戻るボタンを画面内に出す
+    if (savedFromQuiz) returnRef.current?.scrollIntoView({ block: "nearest" })
+  }, [savedFromQuiz])
   const [editing, setEditing] = useState<number | null>(null)
   const [editValue, setEditValue] = useState("")
   const [busy, setBusy] = useState(false)
@@ -4290,6 +4566,7 @@ function DNotes({
       setBusy(false)
       if (!ok) return
       setDraft("")
+      if (draftFrom) setSavedFromQuiz(true)
       clearDraft?.()
       notify("質問を保存しました")
       return
@@ -4302,7 +4579,7 @@ function DNotes({
   return (
     <div className="d-notes">
       <p className="eyebrow">次の診察に向けて</p>
-      <h1>診察ノート</h1>
+      <h1>次の診察で聞きたいこと</h1>
       <div className="d-visit-date">
         <Icon name="calendar" />
         {live ? (
@@ -4325,6 +4602,25 @@ function DNotes({
           急な症状や強い痛みなどは、医療機関から案内された連絡先へご相談ください。
         </p>
       </div>
+      {returnTo && (
+        <div ref={returnRef} className={`d-quiz-return ${savedFromQuiz ? "saved" : ""}`} data-quiz-return role={savedFromQuiz ? "status" : undefined}>
+          {savedFromQuiz ? (
+            <b>
+              <Icon name="check" size={18} />
+              質問を保存しました
+            </b>
+          ) : (
+            <b>
+              <Icon name="help" size={18} />
+              「{returnTo.title}」の理解確認から来ました
+            </b>
+          )}
+          <button className="secondary-button" data-back-to-question onClick={returnTo.onReturn}>
+            {savedFromQuiz ? "問題と解説に戻る" : "保存せずに問題と解説に戻る"}
+            <Icon name="arrow" size={16} />
+          </button>
+        </div>
+      )}
       <section className="d-add-question">
         <h2>聞きたいことを追加</h2>
         {live && draftFrom && (
@@ -4581,7 +4877,7 @@ function DShare({
             </span>
             <span>
               <Icon name="check" />
-              診察ノートの質問
+              次の診察で聞きたいこと（質問）
             </span>
             <span>
               <Icon name="check" />

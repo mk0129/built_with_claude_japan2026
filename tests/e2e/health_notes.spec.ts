@@ -91,7 +91,7 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   expect(records[1].symptoms.map((s: { key: string }) => s.key)).not.toContain("numbness");
 
   // 8. 教材に紐づかない質問を作成
-  await p.locator(".d-nav").getByRole("button", { name: "診察ノート" }).click();
+  await p.locator(".d-nav").getByRole("button", { name: "聞きたいこと" }).click();
   await expect(p.locator(".d-visit-date")).toContainText("次回診察日：未登録");
   await p.locator(".d-add-question textarea").fill("治療中に旅行に行ってもよいですか？");
   await p.getByRole("button", { name: "質問を保存" }).click();
@@ -177,7 +177,7 @@ test("理解確認から作った質問候補は、患者が確認して保存�
   await p.getByRole("button", { name: "理解を確認する" }).click();
   await p.locator(".d-answer-list button").filter({ hasText: "わからない" }).click();
   await p.getByRole("button", { name: "この回答で確定する" }).click();
-  await p.getByRole("button", { name: "この内容から質問候補を作る" }).click();
+  await p.getByRole("button", { name: "次の診察で聞く（質問に残す）" }).click();
   // 入力欄に候補が入るだけ（まだ記録されない）
   await expect(p.locator(".d-add-question textarea")).toHaveValue(/について、私の場合を教えてください/);
   expect((await (await p.request.get("/api/v1/notes")).json()).notes.length).toBe(before);

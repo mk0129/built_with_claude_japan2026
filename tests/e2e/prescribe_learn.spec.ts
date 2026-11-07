@@ -65,7 +65,7 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   await expect(p.getByRole("heading", { name: "新しい教材が届いています" })).toBeVisible({ timeout: 10_000 });
   await expect(p.locator(".d-next-card")).toContainText(MATERIAL);
   await expect(p.locator(".d-next-card")).toContainText("山田 医師から");
-  await p.getByRole("button", { name: "今回の教材をすべて見る（1件）" }).click();
+  await p.getByRole("button", { name: "今回届いた教材をすべて見る（1件）" }).click();
   await expect(p.locator(".d-prescription-info")).toContainText("さくら総合病院");
 
   // 5. 学習（詳細 → 学習を始める → ページ送り → 理解を確認する）
@@ -86,7 +86,9 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   await expect(p.locator(".d-selection-note")).toContainText("「わからない」を選択しています");
   await p.getByRole("button", { name: "この回答で確定する" }).click();
   await expect(p.getByRole("heading", { name: "「わからない」を記録しました" })).toBeVisible();
-  await expect(p.locator(".d-key-answer")).toContainText("正解は「患者さんの年齢」");
+  await expect(p.locator("[data-correct-answer]")).toContainText("答えは「患者さんの年齢」");
+  // 「わからない」は「正しくありません」と区別する
+  await expect(p.locator("[data-correct-answer]")).not.toContainText("正しくは");
 
   // 7. 再読み込みしても回答と進捗が保持される
   await p.reload();
@@ -97,7 +99,8 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   // 2 問目は誤答（「わからない」と区別して記録）
   await p.locator(".d-answer-list button").filter({ hasText: "必ず同じ治療になる" }).click();
   await p.getByRole("button", { name: "この回答で確定する" }).click();
-  await expect(p.getByRole("heading", { name: "いっしょに確認しましょう" })).toBeVisible();
+  await expect(p.getByRole("heading", { name: "この答えは正しくありません" })).toBeVisible();
+  await expect(p.locator("[data-correct-answer]")).toContainText("正しくは「");
   await p.reload();
   await expect(p.locator(".d-your-answer")).toContainText("必ず同じ治療になる");
   // 3 問目は答えずに中断 → ホームは「学習途中」
@@ -207,13 +210,14 @@ test("患者: 処方のない教材を自分で探して学べる（自主学習
   await p.locator(".d-category-cards button").filter({ hasText: "手術" }).click();
   await expect(p.locator(".d-area-overview")).toContainText("公開教材");
   await p.locator(".d-lesson-card").first().click();
-  await expect(p.locator(".d-detail .d-status")).toContainText("自主・未学習");
+  await expect(p.locator(".d-detail .d-status")).toContainText("未学習");
+  await expect(p.locator(".d-detail [data-source]")).toHaveText("自分で読める");
   await p.getByRole("button", { name: "学習を始める" }).click();
   await p.getByRole("button", { name: "次へ" }).click();
   await p.getByRole("button", { name: "閉じる" }).click();
   await expect(p.locator(".toast")).toContainText("学習位置を保存しました");
   await p.locator(".d-nav").getByRole("button", { name: "学習記録" }).click();
-  await expect(p.locator(".d-recent .d-lesson-card").filter({ hasText: "自主・学習途中" })).toHaveCount(1);
+  await expect(p.locator(".d-recent .d-lesson-card").filter({ hasText: "自分で読める" }).filter({ hasText: "学習途中" })).toHaveCount(1);
   await expect(p.locator(".d-recent")).toContainText("乳房の手術の種類と選び方");
   await patient.ctx.close();
 });

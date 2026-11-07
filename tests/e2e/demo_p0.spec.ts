@@ -31,7 +31,7 @@ async function learnedFromDb(p: Page) {
 }
 
 /** API で共有 → 教材を処方 → 終了（画面の操作は別のテストで確認済み。ここは処方の履歴を作るだけ） */
-async function prescribeViaApi(patient: Page, staff: Page, titles: string[]) {
+async function prescribeViaApi(patient: Page, staff: Page, titles: string[], note?: string) {
   const grant = await call(patient, "POST", "/api/v1/qr");
   const me = await call(staff, "GET", "/api/v1/me");
   const org = me.memberships.find((m: { orgName?: string; name?: string }) => /さくら/.test(m.orgName ?? m.name ?? "")) ?? me.memberships[0];
@@ -43,7 +43,7 @@ async function prescribeViaApi(patient: Page, staff: Page, titles: string[]) {
     return m?.materialId ?? m?.id;
   });
   expect(ids.every(Boolean)).toBeTruthy();
-  await call(staff, "POST", `/api/v1/consultations/${sid}/prescriptions`, { materialIds: ids });
+  await call(staff, "POST", `/api/v1/consultations/${sid}/prescriptions`, note ? { materialIds: ids, note } : { materialIds: ids });
   await call(staff, "POST", `/api/v1/consultations/${sid}/end`);
 }
 
@@ -65,7 +65,7 @@ test("P0-1: 理解確認の結果の「学んだ教材」が DB と一致（正�
   await p.getByRole("button", { name: "次の問題へ" }).click();
   await p.locator(".d-answer-list button").filter({ hasText: "必ず同じ治療になる" }).click();
   await p.getByRole("button", { name: "この回答で確定する" }).click();
-  await expect(p.getByRole("heading", { name: "いっしょに確認しましょう" })).toBeVisible();
+  await expect(p.getByRole("heading", { name: "この答えは正しくありません" })).toBeVisible();
   await p.getByRole("button", { name: "次の問題へ" }).click();
   await p.locator(".d-answer-list button").filter({ hasText: "わからない" }).click();
   await p.getByRole("button", { name: "この回答で確定する" }).click();
@@ -199,7 +199,7 @@ test("P0-4: 診断時セットのあとに別の教材を処方しても、ホ�
   const card = p.locator("[data-set-card]");
   await expect(card).toContainText("診断時セット");
   await expect(card).toHaveAttribute("data-set-in-latest", "true");
-  await expect(card).toContainText("今回の情報処方セット");
+  await expect(card).toContainText("今回届いたセット");
   const firstSender = (await card.locator(".d-set-sender").textContent()) ?? "";
 
   // 2 回目: 別の教材を 1 件だけ処方
@@ -213,11 +213,13 @@ test("P0-4: 診断時セットのあとに別の教材を処方しても、ホ�
     await expect(card).toContainText("診断時セット");
     await expect(card).toHaveAttribute("data-set-in-latest", "false");
     // 今回の処方ではないので「今回の」と書かない。送り元・日付はセットを含む処方の記録
-    await expect(card.locator(".pill, [class*='pill']").first()).toHaveText("情報処方セット");
+    await expect(card.locator(".pill, [class*='pill']").first()).toHaveText("以前に届いたセット");
     await expect(card.locator(".d-set-sender")).toHaveText(firstSender);
     await expect(card).toContainText(/学習済み\s*\d+ \/ 3/);
     const fresh = p.locator("[data-new-rx]");
-    await expect(fresh).toContainText("新しく届いた教材 1件");
+    await expect(fresh).toContainText("新着");
+    await expect(fresh).toContainText("医療者から届いた教材 1件");
+    await expect(fresh).toContainText(OTHER_MATERIAL);
     await shot(p, `P01_home_set_kept_${vp.name}`);
   }
 
@@ -227,9 +229,39 @@ test("P0-4: 診断時セットのあとに別の教材を処方しても、ホ�
   for (const t of SET_TITLES) await expect(p.locator("[data-set-detail]")).toContainText(t);
   await shot(p, "P02_set_detail_after_new_rx_430");
   await p.goto("/home");
-  // 新しく届いた教材は「今回の情報処方」から
+  // 新着（1 件）をタップすると、その教材の詳細へ直接着く。開いたらホームの新着は消える
   await p.locator("[data-new-rx]").click();
-  await expect(p.locator(".d-lesson-card").filter({ hasText: OTHER_MATERIAL })).toBeVisible();
+  await expect(p.locator(".d-detail > h1")).toHaveText(OTHER_MATERIAL);
+  await p.locator(".d-nav").getByRole("button", { name: "ホーム" }).click();
+  await expect(card).toBeVisible();
+  await expect(p.locator("[data-new-rx]")).toHaveCount(0);
+  // 再読み込みしても新着は戻らない（この端末で開いた処方として記録）
+  await p.reload();
+  await expect(card).toBeVisible();
+  await expect(p.locator("[data-new-rx]")).toHaveCount(0);
+
+  // 3 回目: 既存セット内の教材（学習を始めた教材）をメッセージ付きで再処方 → ホーム上部に新着。進捗は残る
+  const lib = await call(p, "GET", "/api/v1/library");
+  const target = lib.items.find((i: { title: string }) => i.title === MATERIAL);
+  const phaseBefore = target.phase;
+  expect(phaseBefore).not.toBe("not_started");
+  await prescribeViaApi(p, staff.page, [MATERIAL], "次の診察までにもう一度読んでください（架空）");
+  await p.reload();
+  const again = p.locator("[data-new-rx]");
+  await expect(again).toContainText("医療者から届いた教材 1件");
+  await expect(again).toContainText(MATERIAL);
+  await expect(again).toContainText("再び届いた教材");
+  await expect(again.locator("[data-new-rx-note]")).toContainText("メッセージあり");
+  await shot(p, "P03_home_represcribed_390");
+  await again.click();
+  await expect(p.locator(".d-detail > h1")).toHaveText(MATERIAL);
+  await expect(p.locator(".d-from-doctor")).toContainText("今回届いた教材");
+  await expect(p.locator(".d-from-doctor")).toContainText("次の診察までにもう一度読んでください（架空）");
+  await p.locator(".d-nav").getByRole("button", { name: "ホーム" }).click();
+  await expect(card).toBeVisible();
+  await expect(p.locator("[data-new-rx]")).toHaveCount(0);
+  const after = (await call(p, "GET", "/api/v1/library")).items.find((i: { title: string }) => i.title === MATERIAL);
+  expect(after.phase).toBe(phaseBefore);
   await staff.ctx.close();
   await patient.ctx.close();
 });
