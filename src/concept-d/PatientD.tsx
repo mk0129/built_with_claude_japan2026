@@ -546,15 +546,12 @@ function DLessonCard({
         seed={lesson.title}
       />
       <span className="d-lesson-card-body">
-        <span className="d-card-top">
-          <DStatus lesson={lesson} />
-          <span className="d-time">
-            <Icon name="clock" size={14} />
-            {lesson.time}分
-          </span>
-        </span>
         <b>{lesson.title}</b>
-        <span className="d-category">{lesson.category}</span>
+        <span className="d-card-meta">
+          <DStatus lesson={lesson} />
+          <span className="d-time">{lesson.time}分</span>
+          <span className="d-category">{lesson.category}</span>
+        </span>
         {lesson.status === "doing" && (
           <span className="d-progress-line">
             <i style={{ width: `${lesson.progress}%` }} />
@@ -1483,10 +1480,18 @@ function DHealthTracker({
    * 入力フォーム。毎回すべて入れ直さなくて済むよう、前回（最新）の記録の値を入れておき、変わったところだけ直して保存する。
    * 最新の記録が変わったら（保存した・読み込んだ）、その値を入れ直す（base で判定。効果（useEffect）での setState は使わない）
    */
+  const sortedRecords = [...records].sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))
+  // 症状は、その症状を最後に回答した記録の値を使う（前回の記録で答えていない症状も、前々回の値が入る）
   const prefill = (record?: HealthRecord): HealthForm => ({
     base: record?.id ?? null,
     vitals: record ? vitalsToForm(record.vitals) : emptyVitals,
-    symptoms: record ? Object.fromEntries(activeSymptomIds.filter((id) => record.symptoms[id]).map((id) => [id, record.symptoms[id].severity])) : {},
+    symptoms: record
+      ? Object.fromEntries(
+          activeSymptomIds
+            .map((id) => [id, sortedRecords.find((r) => r.symptoms[id])?.symptoms[id]?.severity] as const)
+            .filter(([, severity]) => severity !== undefined),
+        )
+      : {},
     details: {},
   })
   const [form, setFormState] = useState<HealthForm>(() => prefill(health ? undefined : latest))
@@ -1691,12 +1696,18 @@ function DHealthTracker({
             />
           </label>
           {prefilled && (
-            <p className="d-prefill-note" data-prefill-note>
-              前回（{prefilledAt}）の値です。変わったところだけ直してください。
-              <button className="d-text-action" data-prefill-clear onClick={clearForm}>
-                空欄から記録
+            <div className="d-prefill-note" data-prefill-note>
+              <p>
+                前回（{prefilledAt}）の値です。変わったところだけ直してください。
+                <button className="d-text-action" data-prefill-clear onClick={clearForm}>
+                  空欄から記録
+                </button>
+              </p>
+              <button className="d-prefill-save" data-prefill-save disabled={!canSave} onClick={saveRecord}>
+                <Icon name="check" size={16} />
+                前回と同じ内容で保存
               </button>
-            </p>
+            </div>
           )}
           {editingId && (
             <p className="d-prefill-note editing" data-editing-note>
@@ -2436,7 +2447,12 @@ function DHealthHistory({
       return measured ? Number(measured.vitals[key]) : null
     })
   const allSymptomIds = live ? live.symptomIds : initialActiveSymptomIds
-  const symptomRows = allSymptomIds.map((id) => ({ id, values: symptomValuesOf(id) })).filter((row) => row.values.some((v) => v !== null))
+  // 症状の行: 期間内の最大の程度が高い順 → 記録の多い順（気になる症状が上に来る）
+  const symptomRows = allSymptomIds
+    .map((id) => ({ id, values: symptomValuesOf(id) }))
+    .filter((row) => row.values.some((v) => v !== null))
+    .map((row) => ({ ...row, max: Math.max(...row.values.map((v) => v ?? -1)), count: row.values.filter((v) => v !== null).length }))
+    .sort((a, b) => b.max - a.max || b.count - a.count)
   const vitalRows = patientVitalMetrics
     .filter((m) => m.key !== "diastolic")
     .map((m) => ({ metric: m, values: vitalValuesOf(m.key), diastolic: m.key === "systolic" ? vitalValuesOf("diastolic") : null }))
