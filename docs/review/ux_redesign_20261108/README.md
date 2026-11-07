@@ -115,3 +115,15 @@
 - 社会制度の教材 4 件は第 4 版の原稿から変換した。原稿の【要確認】項目（`docs/design/social_support/review_items_v4.md`）は未解決のまま登録しているため、公開前に医療者・制度の確認が必要。
 - 治療費の参考値（`treatment-costs.ts`）は薬価・診療報酬からの概算で、施設・体格で大きく変わる。画面にその旨を表示しているが、数値の妥当性は医療者の確認を推奨。
 - 70 歳以上の上限は厚生労働省の表のとおりだが、75 歳以上の 2 割（一定以上所得）の配慮措置、世帯合算、年間上限は計算しない（従来どおり明示）。
+
+## 6. ブランチの扱い（2026-11-08 決定）
+
+- 提出用ブランチは **`feat/submission-ux-redesign-20261108`**（本書の変更をすべて含む）。`feat/submission-ux` は 11/7 に別の作業 13 コミットが push されて分岐したため、そのままにしてある（マージも削除もしていない）。
+- `feat/submission-ux` にだけあり、提出用ブランチに **まだ取り込んでいない** 機能（必要なら個別に取り込む）:
+  - 患者の言葉で教材の本文・スライドまで探す検索と、該当ページへ直接開く導線（`materialSearch.ts`・`materialSearchSlides.ts`、`tests/unit/material-search.test.ts`、`tests/e2e/material_search.spec.ts`）
+  - 体調記録の保存前の入力を下書きとして残す（`healthDraft.ts`、`tests/e2e/health_draft.spec.ts`、`tests/unit/health-draft.test.ts`）。提出用では前回値の引き継ぎと 1 タップ保存で代替
+  - 医療費シミュレーターの「金額がわからない人の入口・仮定で比べる・計算しない理由の区別」（`cost-simulator-flow.ts`）。提出用では「これから受ける治療から概算」で代替
+  - 教材スタジオの権限（`studio.ts`、`tests/e2e/studio_permissions.spec.ts`）と、審査用デモの医療者の入口を状態別に分ける変更
+  - 医療者サマリーを体調→質問→設問→教材候補の順にする変更（`clinician-summary.ts`）。提出用では S/O → 質問 → 理解確認 → AI 推薦の構成
+  - 音声レビューに基づく患者ホーム・表記・理解確認・読み上げの改修と、そのテスト（`voice_review_patient.spec.ts`、`new-rx.test.ts`）。提出用の設計と重なるため取り込まない
+  - 非公開画像に依存するテストの仮画像への切り分け（`tests/fixtures/private_assets`）、judge-demo の lint 修正、撮影スクリプトの入口変更
