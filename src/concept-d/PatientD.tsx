@@ -5,6 +5,8 @@ import { useUrlState } from "./urlState"
 import { ShioriLogo } from "./ShioriLogo"
 import { setCoverFor, themeImageFor, toneFor } from "./thumbnails"
 import { CostSimulator } from "./CostSimulator"
+import { searchMaterials, type MaterialSearchOptions, type SearchSnippet } from "./materialSearch"
+import { useMaterialSearchSlides } from "./materialSearchSlides"
 import { MONEY_THEME, MONEY_TITLES, SIMULATOR_MATERIAL, SIMULATOR_NAME } from "./socialSupport"
 import { daysUntil, visitDateLabel, type PatientVisit } from "./visit"
 import type { PatientLive } from "./live"
@@ -720,6 +722,24 @@ export function DPrototype({
     setSelectedId(String(lesson.id))
     setPage("detail")
   }
+  // 検索で本文・スライドも探す（教材一覧にはスライドがないため、検索画面を開いたときだけ取得する）
+  const searchSlides = useMaterialSearchSlides(
+    learning ? visibleLessons.map((lesson) => lesson.versionId).filter((id): id is string => !!id) : [],
+    page === "search",
+  )
+  // 検索結果のスライドから、その説明のページを直接開く（戻ると教材の詳細）
+  const openLessonAt = (lesson: DLesson, seq: number) => {
+    setDetailBack("search")
+    setSelectedId(String(lesson.id))
+    if (!learning || !lesson.versionId) {
+      setPage("detail")
+      return
+    }
+    // 学習位置の保存は従来どおり（未学習なら開始として 1 ページ目を記録し、以降はページ移動で保存される）
+    if (lesson.status === "new") void saveProgress(lesson.versionId, 1, "reading").catch(() => {})
+    setSlideAt({ versionId: lesson.versionId, seq })
+    setPage("learn")
+  }
 
   // ---- 本番（Step 2）: 学習・理解確認の実データ ----
   const versionId = learning ? (selected?.versionId ?? null) : null
@@ -934,7 +954,10 @@ export function DPrototype({
           query={query}
           setQuery={setQuery}
           lessons={visibleLessons}
+          slidesByVersion={searchSlides.slidesByVersion}
+          loadingSlides={searchSlides.loading}
           onOpen={openLesson}
+          onOpenSlide={openLessonAt}
           onBack={() => setPage("library")}
         />
       )
@@ -3171,25 +3194,39 @@ function DCategory({
   )
 }
 
+function DSnippet({ snippet }: { snippet: SearchSnippet }) {
+  const { text, start, end } = snippet
+  return (
+    <span className="d-search-snippet">
+      {text.slice(0, start)}
+      <mark>{text.slice(start, end)}</mark>
+      {text.slice(end)}
+    </span>
+  )
+}
+
 function DSearch({
   query,
   setQuery,
   lessons,
+  slidesByVersion,
+  loadingSlides,
   onOpen,
+  onOpenSlide,
   onBack,
 }: {
   query: string
   setQuery: (value: string) => void
   lessons: DLesson[]
+  slidesByVersion: MaterialSearchOptions["slidesByVersion"]
+  loadingSlides: boolean
   onOpen: (lesson: DLesson) => void
+  onOpenSlide: (lesson: DLesson, seq: number) => void
   onBack: () => void
 }) {
   const normalized = query.trim()
-  const results = lessons.filter(
-    (lesson) =>
-      !normalized ||
-      `${lesson.title}${lesson.category}${lesson.summary}`.includes(normalized),
-  )
+  const hits = searchMaterials(lessons, query, { slidesByVersion })
+  const results = hits.map((hit) => hit.material)
   return (
     <div>
       <DPageHeader title="検索結果" onBack={onBack} />
@@ -3209,14 +3246,30 @@ function DSearch({
       </div>
       {results.length ? (
         <div className="d-card-list">
-          {results.map((lesson) => (
-            <DLessonCard
-              key={lesson.id}
-              lesson={lesson}
-              onOpen={() => onOpen(lesson)}
-              horizontal
-            />
+          {hits.map(({ material: lesson, slides }) => (
+            <div className="d-search-hit" key={lesson.id}>
+              <DLessonCard lesson={lesson} onOpen={() => onOpen(lesson)} horizontal />
+              {normalized && slides.length > 0 && (
+                <ul className="d-search-slides" aria-label={`${lesson.title}の該当ページ`}>
+                  {slides.slice(0, 3).map((slide) => (
+                    <li key={slide.seq}>
+                      <button onClick={() => onOpenSlide(lesson, slide.seq)}>
+                        <b>
+                          {slide.seq}ページ目　{slide.title}
+                        </b>
+                        <DSnippet snippet={slide.snippet} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           ))}
+        </div>
+      ) : loadingSlides ? (
+        <div className="d-empty-search" role="status">
+          <Icon name="search" size={32} />
+          <h2>教材の本文を探しています</h2>
         </div>
       ) : (
         <div className="d-empty-search">

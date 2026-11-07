@@ -4650,3 +4650,22 @@
   .d-gentle-feedback,
   .d-result-page .d-result-mark { animation: none !important; transition: none !important; }
 }
+/* 検索: 本文・スライドに該当したページへの近道 */
+.d-search-hit { display: grid; gap: 6px; }
+.d-search-slides { display: grid; gap: 6px; margin: 0 0 4px; padding: 0; list-style: none; }
+.d-search-slides button {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  text-align: left;
+  font: inherit;
+}
+.d-search-slides b { font-size: 13px; color: var(--blue-dark); }
+.d-search-snippet { font-size: 12px; line-height: 1.5; color: var(--muted); }
+.d-search-snippet mark { background: #fff1b8; color: var(--ink); border-radius: 2px; padding: 0 1px; }
