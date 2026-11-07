@@ -115,6 +115,8 @@ test("佐藤 花子: 経過グラフ → 共有 → Claude外来間サマリー�
   // Claude外来間サマリー: 記録済みの Claude 出力の再生（18 項目・再検証済み）と冒頭の要点 3 項目
   const iv = staff.locator("[data-intervisit]");
   await expect(iv).toContainText("記録済みのClaude出力を再生", { timeout: 30_000 });
+  await expect(iv.locator("[data-summary-item]")).toHaveCount(0); // 全項目は開いたときだけ
+  await iv.locator("[data-summary-all-toggle]").click();
   await expect(iv.locator("[data-summary-item]")).toHaveCount(18);
   // 「1/4」などの表記は自覚症状の程度（0〜4）であることを示す（要約の文は変えない）
   await expect(staff.locator("[data-severity-legend]")).toContainText("自覚症状の程度");
@@ -122,7 +124,7 @@ test("佐藤 花子: 経過グラフ → 共有 → Claude外来間サマリー�
   const key = staff.locator("[data-key-summary]");
   await expect(key.locator('[data-key-row="symptom"]')).toContainText("手足のしびれ");
   await expect(key.locator('[data-key-row="unknown"]')).toContainText("わからない");
-  await expect(key.locator('[data-key-row="questions"]')).not.toContainText("該当なし");
+  await expect(key.locator('[data-key-row="questions"] [data-key-question]').first()).toContainText("手のしびれは、治療が終わったら戻りますか？");
   // 要点の文は検証済みの項目の本文そのもの（新しい文を作らない）
   const keyTexts = await key.locator("[data-summary-key-item]").allTextContents();
   const itemTexts = (await iv.locator("[data-summary-item]").allTextContents()).join("\n");

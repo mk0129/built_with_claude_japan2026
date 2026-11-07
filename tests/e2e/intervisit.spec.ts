@@ -66,6 +66,10 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await p.locator(".d-add-question textarea").fill("しびれは治療終了後に戻りますか？");
   await p.getByRole("button", { name: "質問を保存" }).click();
   await expect(p.locator(".d-saved-notes")).toContainText("しびれは治療終了後に戻りますか？");
+  // 2 件目（新しいほうが先頭に出る）
+  await p.locator(".d-add-question textarea").fill("仕事に戻る時期の目安を相談したいです。");
+  await p.getByRole("button", { name: "質問を保存" }).click();
+  await expect(p.locator(".d-saved-notes")).toContainText("仕事に戻る時期の目安を相談したいです。");
 
   // 6・7. 医療者が QR 接続を申請 → 患者が承認
   const staff = await newPage(browser, { width: 1440, height: 900 });
@@ -78,8 +82,36 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   const iv = s.locator("[data-intervisit]");
   await expect(iv).toContainText("直近14日間の経過");
   await expect(iv).toContainText("前回の共有記録なし");
+  // 10-2. 患者が今日聞きたいこと: 先頭に新しい質問の原文 1 件、ほかは「ほか1件」で開く。要約の読み込みで位置が動かない
+  const qRow = iv.locator('[data-key-row="questions"]');
+  const firstQ = qRow.locator("[data-key-question]").first();
+  await expect(firstQ).toContainText("「仕事に戻る時期の目安を相談したいです。」");
+  await expect(firstQ).toContainText("患者原文");
+  const y1 = (await firstQ.boundingBox())!.y;
   // 11. AI 要約（E2E は開発用の擬似生成。見出しで Claude ではないことを明示）
   await expect(s.locator('.cd-summary-narrative[data-summary-kind="fake"]')).toBeVisible({ timeout: 15_000 });
+  expect(Math.abs((await firstQ.boundingBox())!.y - y1)).toBeLessThan(2);
+  await expect(qRow).not.toContainText("しびれは治療終了後に戻りますか？");
+  await qRow.locator("[data-question-more]").click();
+  await expect(qRow.locator("[data-key-question]").nth(1)).toContainText("「しびれは治療終了後に戻りますか？」");
+  // 質問から 1 操作で、根拠の元の記録（日付・原文）
+  await qRow.locator("[data-key-question]").nth(1).locator("button.cd-key-sentence").click();
+  const qSrc = qRow.locator("[data-summary-sources]");
+  await expect(qSrc).toBeVisible();
+  await expect(qSrc.locator("[data-source-id^='vn:']")).toHaveCount(1);
+  await expect(qSrc.locator("[data-source-id^='vn:']")).toContainText("しびれは治療終了後に戻りますか？");
+  const d0 = new Date();
+  await expect(qSrc.locator("[data-source-id^='vn:']")).toContainText(`${d0.getMonth() + 1}/${d0.getDate()}`);
+  await expect(qSrc).not.toContainText("仕事に戻る時期");
+  // 閉じると根拠は消え、押した行はそのまま見える
+  await qRow.locator("[data-key-question]").nth(1).locator("button.cd-key-sentence").click();
+  await expect(qRow.locator("[data-summary-sources]")).toHaveCount(0);
+  await expect(qRow.locator("[data-key-question]").nth(1)).toBeInViewport();
+  // 症状の数値は患者本人の評価であることを添える
+  await expect(iv.locator('[data-key-row="symptom"] [data-severity-legend]')).toContainText("患者本人が記録した");
+  // 全項目は必要なときに開く（開く前は表示しない → 開いて内容を確認）
+  await expect(iv.locator("[data-summary-item]")).toHaveCount(0);
+  await iv.locator("[data-summary-all-toggle]").click();
   await expect(iv).toContainText("体調記録は14日中3日、4件です。");
   await expect(iv).toContainText(`手足のしびれは${md(6)}に1/4、${md(1)}に2/4と記録されました（期間内の最大は${md(3)}の3/4、4回記録）。`);
   await expect(iv).toContainText("「しびれは治療終了後に戻りますか？」");
@@ -127,6 +159,7 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await p.getByRole("button", { name: "この記録を更新" }).click();
   await expect(p.locator(".toast")).toContainText("記録を更新しました");
   await s.locator(".cd-sidebar").getByRole("button", { name: "診察" }).click();
+  await s.locator("[data-intervisit] [data-summary-all-toggle]").click();
   await s.getByRole("button", { name: "外来間サマリーを再生成" }).click();
   await expect(s.locator("[data-intervisit]")).toContainText(`手足のしびれは${md(6)}に1/4、${md(1)}に2/4と記録されました（期間内の最大は${md(3)}の2/4、4回記録）。`, { timeout: 15_000 });
 
@@ -138,9 +171,26 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await expect(s.locator(".cd-summary-narrative")).not.toContainText("改善しています");
   await expect(s.locator(".cd-summary-narrative")).not.toContainText("39.9");
   await expect(s.locator(".cd-summary-narrative")).not.toContainText("理解力");
+  await s.locator("[data-intervisit] [data-summary-all-toggle]").click();
   await expect(s.locator("[data-intervisit]")).toContainText("体調記録は14日中3日、4件です。");
   await s.goto(`/staff?s=${sid}&aisim=error`);
   await expect(s.locator("[data-ai-status='fallback']")).toContainText("AI 要約を生成できませんでした", { timeout: 15_000 });
+  // 代替表示でも、患者の質問は原文のまま先頭に出る（AI の文に置き換えない）
+  await expect(s.locator('[data-key-row="questions"] [data-key-question]').first()).toContainText("「仕事に戻る時期の目安を相談したいです。」");
+
+  // 14-2. 期間を変える（質問を保存する前の 6〜5 日前だけ）: 質問がない状態を区別し、前の期間の質問を出さない
+  await s.goto(`/staff?s=${sid}`);
+  const iv2 = s.locator("[data-intervisit]");
+  await expect(iv2.locator('[data-key-row="questions"] [data-key-question]').first()).toBeVisible({ timeout: 15_000 });
+  await iv2.getByRole("button", { name: "期間を確認・変更" }).click();
+  const dIn = (n: number) => localInput(n, 0).slice(0, 10);
+  await s.locator(".cd-period-editor input").first().fill(dIn(6));
+  await s.locator(".cd-period-editor input").nth(1).fill(dIn(5));
+  await s.locator(".cd-period-editor").getByRole("button", { name: "この期間で表示" }).click();
+  await expect(iv2.locator("[data-no-questions]")).toHaveText("この期間に患者さんが残した質問はありません", { timeout: 15_000 });
+  await expect(iv2.locator('[data-key-row="questions"]')).not.toContainText("仕事に戻る時期");
+  await expect(iv2.locator('[data-key-row="questions"]')).not.toContainText("しびれは治療終了後");
+  await expect(iv2.locator('[data-key-row="unknown"]')).toContainText("「わからない」と回答した設問はありません");
 
   // 15. 共有を終了すると、医療者の患者データアクセスは拒否され、画面から患者情報が消える
   await s.locator(".cd-app-header").getByRole("button", { name: "共有終了" }).click();

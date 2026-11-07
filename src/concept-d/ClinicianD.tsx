@@ -602,6 +602,7 @@ export default function ClinicianD({
                   scenario={clinicalScenario}
                   healthRecords={healthRecords}
                   record={record}
+                  onOpenCourse={() => setWorkspace("course")}
                 />
               )}
               {workspace === "course" && record && (
@@ -1067,6 +1068,7 @@ function VisitWorkspace({
   scenario,
   healthRecords,
   record,
+  onOpenCourse,
 }: {
   page: VisitPage
   setPage: (page: VisitPage) => void
@@ -1079,6 +1081,7 @@ function VisitWorkspace({
   scenario: ClinicalScenario
   healthRecords: HealthRecord[]
   record?: ClinicianRecord
+  onOpenCourse?: () => void
 }) {
   const [sentCount, setSentCount] = useState(0)
   if (page === "summary")
@@ -1092,6 +1095,7 @@ function VisitWorkspace({
           setPage("detail")
         }}
         onPrescribe={() => setPage("prescribe")}
+        onOpenCourse={onOpenCourse}
       />
     )
   if (page === "detail")
@@ -1175,15 +1179,17 @@ function dateRange(start: string, end: string) {
  * （体調・学習・理解確認・質問）と要約を表示する。前回外来日は DB にないため「前回外来から」とは書かず、
  * 期間（既定は直近 14 日、医療者が変更可）と「前回共有日」を明記する。要約の各文から根拠の元データを開ける。
  */
-function LiveIntervisit({ record }: { record: ClinicianRecord }) {
+function LiveIntervisit({ record, onOpenCourse }: { record: ClinicianRecord; onOpenCourse?: () => void }) {
   const [expanded, setExpanded] = useState<"vitals" | "symptoms" | "learning" | "questions" | null>(null)
   const [timelineOpen, setTimelineOpen] = useState(false)
   const [periodEdit, setPeriodEdit] = useState(false)
   const [period, setPeriod] = useState<{ from: string; to: string } | null>(null)
   const [draft, setDraft] = useState<{ from: string; to: string } | null>(null)
-  const [openItem, setOpenItem] = useState<number | null>(null)
-  // 根拠をどこで開いたか（冒頭の要点 3 項目 / 全項目）。開いた場所のすぐ下に根拠を表示する
-  const [openFrom, setOpenFrom] = useState<"key" | "list">("list")
+  // 開いている根拠（要点の行・患者の質問・全項目の文）。開いた行のすぐ下に根拠を表示する
+  const [openKey, setOpenKey] = useState<string | null>(null)
+  const [allOpen, setAllOpen] = useState(false)
+  const [moreQuestions, setMoreQuestions] = useState(false)
+  const [fullQuestion, setFullQuestion] = useState<string | null>(null)
   const [showRule, setShowRule] = useState(false)
   // サーバーの既定期間の終了日（撮影用デモ環境ではデモの基準日、通常は今日）。期間の変更で未来日を選ばせない
   const [maxDay, setMaxDay] = useState<string | null>(null)
@@ -1240,33 +1246,90 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
       .find(Boolean) ?? null
   const keyUnknown = indexed.filter((x) => x.item.section === "学習の状況" && x.item.text.includes("わからない"))
   const unknownRecords = iv.learning.flatMap((l) => l.answersInPeriod.filter((a) => a.result === "わからない").map((a) => ({ ...a, title: l.title })))
-  const keyQuestions = indexed.filter((x) => x.item.section === "患者からの質問")
-  const keyRows: { key: string; label: string; items: { item: SummaryItem; index: number }[]; records: { id: string; text: string }[] }[] = [
-    { key: "symptom", label: "症状の経過", items: keySymptom ? [keySymptom] : [], records: [] },
-    {
-      key: "unknown",
-      label: "理解確認で「わからない」と回答した内容",
-      items: keyUnknown,
-      records: keyUnknown.length ? [] : unknownRecords.map((a) => ({ id: a.sourceId, text: `「${a.stem}」（${a.title}）` })),
-    },
-    {
-      key: "questions",
-      label: "患者さんが残した質問",
-      items: keyQuestions,
-      records: keyQuestions.length ? [] : iv.questions.map((q) => ({ id: q.sourceId, text: `「${q.body}」` })),
-    },
-  ]
-  const evidence = openItem !== null && items[openItem] && (
-    <div className="cd-summary-evidence" data-summary-sources>
-      <small>根拠の記録（{items[openItem].sourceIds.length}件）</small>
-      {items[openItem].sourceIds.map((id) => (
-        <p key={id} data-source-id={id}>
-          {sources[id]?.at ? `${dt(sources[id].at!)} · ` : ""}
-          {sources[id]?.label ?? id}
-        </p>
-      ))}
+  // 根拠の記録の表示（日付と内容）。要約の根拠 ID は sources に、患者の質問は原文の記録にある
+  const questionById = new Map(iv.questions.map((q) => [q.sourceId, q]))
+  const sourceLine = (id: string) => {
+    const src = sources[id] ?? data.sources[id]
+    const q = questionById.get(id)
+    const at = src?.at ?? q?.createdAt
+    const label = src?.label ?? (q ? `${q.kind}：「${q.body}」` : id)
+    return `${at ? `${dt(at)} · ` : ""}${label}`
+  }
+  // 同じ記録が要約の根拠に重ねて挙がっても、1 件として数えて表示する
+  const uniq = (ids: string[]) => [...new Set(ids)]
+  const evidenceFor = (key: string, rawIds: string[], ids = uniq(rawIds)) =>
+    openKey === key && (
+      <div className="cd-summary-evidence" data-summary-sources data-evidence-for={key}>
+        <small>根拠の記録（{ids.length}件）</small>
+        {ids.map((id) => (
+          <p key={id} data-source-id={id}>
+            {sourceLine(id)}
+          </p>
+        ))}
+      </div>
+    )
+  /** 根拠を開く・閉じる。閉じたら、押した行が画面から外れていれば元の位置（行）に戻す */
+  const toggleEvidence = (key: string, target: HTMLElement) => {
+    if (openKey !== key) return setOpenKey(key)
+    setOpenKey(null)
+    requestAnimationFrame(() => {
+      const r = target.getBoundingClientRect()
+      if (r.top < 0 || r.bottom > window.innerHeight) target.scrollIntoView({ block: "center" })
+    })
+  }
+  const evidenceButton = (key: string, rawIds: string[], children: ReactNode, attrs: Record<string, string | number> = {}, ids = uniq(rawIds)) => (
+    <button className={`cd-key-sentence${openKey === key ? " active" : ""}`} aria-expanded={openKey === key} onClick={(e) => toggleEvidence(key, e.currentTarget)} {...attrs}>
+      {children}
+      <small>
+        根拠 {ids.length}件
+        <CIcon name="arrow" size={12} />
+      </small>
+    </button>
+  )
+  // 患者の質問（原文）。新しい順に 1 件を先頭に、ほかは「ほか N 件」で開く。根拠は質問の元の記録（日付・原文）
+  const questionsNewest = [...iv.questions].sort((x, y) => y.createdAt.localeCompare(x.createdAt))
+  const questionLine = (q: (typeof iv.questions)[number]) => {
+    const long = q.body.length > 60
+    const full = fullQuestion === q.sourceId
+    return (
+      <div key={q.sourceId} className="cd-key-question" data-key-question={q.sourceId}>
+        {evidenceButton(
+          `q:${q.sourceId}`,
+          [q.sourceId],
+          <span>
+            <span className={long && !full ? "cd-clamp" : ""}>「{q.body}」</span>
+            <em>
+              {md(q.createdAt)} · {q.kind}
+              {q.materialTitle ? `・${q.materialTitle}` : ""} · 患者原文
+            </em>
+          </span>,
+        )}
+        {long && (
+          <button className="cd-text-back cd-full-question" onClick={() => setFullQuestion(full ? null : q.sourceId)}>
+            {full ? "全文を閉じる" : "全文を表示"}
+          </button>
+        )}
+        {evidenceFor(`q:${q.sourceId}`, [q.sourceId])}
+      </div>
+    )
+  }
+  const symptomRecorded = iv.symptoms.some((x) => x.count > 0)
+  const symptomAllZero = symptomRecorded && iv.symptoms.every((x) => x.max === 0)
+  const symptomIds = iv.symptoms.flatMap((x) => x.entries.map((e) => e.sourceId))
+  const itemButton = (prefix: string, { item, index }: { item: SummaryItem; index: number }) => (
+    <div key={index}>
+      {evidenceButton(`${prefix}:${index}`, item.sourceIds, <span>{item.text}</span>, { "data-summary-key-item": index })}
+      {evidenceFor(`${prefix}:${index}`, item.sourceIds)}
     </div>
   )
+  const kindLabel =
+    kind === "claude"
+      ? "Claude外来間サマリー（架空データ・記録で検証済み）"
+      : kind === "replay"
+        ? `Claude外来間サマリー（記録済みのClaude出力を再生・${ai?.replayOf ?? ""}生成・現在の記録で再検証済み）`
+        : kind === "fake"
+          ? "外来間サマリー（開発用の擬似生成・Claudeではありません）"
+          : "構造化サマリー（記録から自動整理・ルールベース）"
   return (
     <section className="cd-intervisit" data-intervisit>
       <div className="cd-intervisit-head">
@@ -1324,18 +1387,73 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
             </span>
             <div>
               <p className="cd-eyebrow">{kind === "rule" ? "構造化サマリー" : kind === "fake" ? "外来間サマリー（開発用）" : "Claude外来間サマリー"}</p>
-              <b>
-                {kind === "claude"
-                  ? "Claude外来間サマリー（架空データ・記録で検証済み）"
-                  : kind === "replay"
-                    ? `Claude外来間サマリー（記録済みのClaude出力を再生・${ai?.replayOf ?? ""}生成・現在の記録で再検証済み）`
-                    : kind === "fake"
-                    ? "外来間サマリー（開発用の擬似生成・Claudeではありません）"
-                    : "構造化サマリー（記録から自動整理・ルールベース）"}
-              </b>
+              <b title={kindLabel}>{kindLabel}</b>
             </div>
-            <span className="cd-summary-status">各項目から根拠を確認できます</span>
           </div>
+          <ul className="cd-key-summary" data-key-summary>
+            <li data-key-row="questions">
+              <b>患者が今日聞きたいこと</b>
+              <div>
+                {questionsNewest.length ? (
+                  <>
+                    {questionLine(questionsNewest[0])}
+                    {questionsNewest.length > 1 && (
+                      <button className="cd-text-back cd-more-questions" data-question-more aria-expanded={moreQuestions} onClick={() => setMoreQuestions(!moreQuestions)}>
+                        {moreQuestions ? "ほかの質問を閉じる" : `ほか${questionsNewest.length - 1}件`}
+                      </button>
+                    )}
+                    {moreQuestions && questionsNewest.slice(1).map(questionLine)}
+                  </>
+                ) : (
+                  <p className="cd-key-none" data-no-questions>
+                    この期間に患者さんが残した質問はありません
+                  </p>
+                )}
+              </div>
+            </li>
+            <li data-key-row="symptom">
+              <b>この期間の症状経過</b>
+              <div>
+                {keySymptom ? (
+                  itemButton("key", keySymptom)
+                ) : !symptomRecorded ? (
+                  <p className="cd-key-none" data-symptom-state="none-recorded">
+                    この期間に症状の記録はありません（記録なし。「症状なし」とは扱いません）
+                  </p>
+                ) : symptomAllZero ? (
+                  <div>
+                    {evidenceButton("symptom-zero", symptomIds, <span>記録した症状の程度は、すべて0（なし・患者本人の評価）でした</span>, { "data-symptom-state": "all-zero" })}
+                    {evidenceFor("symptom-zero", symptomIds)}
+                  </div>
+                ) : (
+                  <p className="cd-key-none">症状の記録はあります。要約の全項目と在宅経過表で確認できます</p>
+                )}
+                {/* 「1/4」などが分数・日付に見えないよう、程度の表記を説明する（要約の文は変えない） */}
+                <p className="cd-severity-legend" data-severity-legend>
+                  <b>「1/4」などの数値</b>は、患者本人が記録した自覚症状の程度（0 なし・1 軽い・2 中くらい・3 強い・4 非常に強い）です。CTCAE Grade ではありません。
+                </p>
+                {onOpenCourse && (
+                  <button className="cd-text-back cd-open-course" onClick={onOpenCourse}>
+                    在宅経過表・症状のグラフで確認
+                  </button>
+                )}
+              </div>
+            </li>
+            <li data-key-row="unknown">
+              <b>理解につまずいたこと</b>
+              <div>
+                {keyUnknown.map((x) => itemButton("key", x))}
+                {!keyUnknown.length &&
+                  unknownRecords.map((a) => (
+                    <div key={a.sourceId} data-key-record={a.sourceId}>
+                      {evidenceButton(`u:${a.sourceId}`, [a.sourceId], <span>「{a.stem}」（{a.title}）に「わからない」と回答</span>)}
+                      {evidenceFor(`u:${a.sourceId}`, [a.sourceId])}
+                    </div>
+                  ))}
+                {!keyUnknown.length && !unknownRecords.length && <p className="cd-key-none">この期間に「わからない」と回答した設問はありません</p>}
+              </div>
+            </li>
+          </ul>
           {record.aiLoading && !ai && <small data-ai-status="loading">Claude外来間サマリーを生成しています。その間は構造化サマリーを表示しています。</small>}
           {ai && ai.status === "fallback" && (
             <small data-ai-status="fallback">AI要約は表示していません：{ai.fallbackReason}</small>
@@ -1343,93 +1461,63 @@ function LiveIntervisit({ record }: { record: ClinicianRecord }) {
           {ai && ai.status === "ai" && ai.rejected.length > 0 && !showRule && (
             <small data-ai-status="partial">元データで検証できなかった{ai.rejected.length}項目は表示していません。</small>
           )}
-          {/* 「1/4」などが分数・日付に見えないよう、程度の表記を説明する（要約の文は変えない） */}
-          <p className="cd-severity-legend" data-severity-legend>
-            <b>「1/4」などの数値</b>は、患者本人が記録した自覚症状の程度（0 なし・1 軽い・2 中くらい・3 強い・4 非常に強い）です。CTCAE Grade ではありません。
-          </p>
-          <ul className="cd-key-summary" data-key-summary>
-            {keyRows.map((row) => (
-              <li key={row.key} data-key-row={row.key}>
-                <b>{row.label}</b>
-                <div>
-                  {row.items.map(({ item, index }) => (
-                    <button
-                      key={index}
-                      className={`cd-key-sentence${openItem === index && openFrom === "key" ? " active" : ""}`}
-                      onClick={() => {
-                        setOpenFrom("key")
-                        setOpenItem(openItem === index && openFrom === "key" ? null : index)
-                      }}
-                      data-summary-key-item={index}
-                    >
-                      <span>{item.text}</span>
-                      <small>
-                        根拠 {item.sourceIds.length}件
-                        <CIcon name="arrow" size={12} />
-                      </small>
-                    </button>
-                  ))}
-                  {row.records.map((r) => (
-                    <p key={r.id} className="cd-key-record" data-key-record={r.id}>
-                      {r.text}
-                      <small>元の記録</small>
+          <button className="cd-summary-all-toggle" data-summary-all-toggle aria-expanded={allOpen} onClick={() => setAllOpen(!allOpen)}>
+            要約の全項目（{items.length}項目・各文を押すと根拠の記録）
+            <span>{allOpen ? "閉じる" : "開く"}</span>
+          </button>
+          {allOpen && (
+            <div data-summary-all>
+              {(["体調の変化", "学習の状況", "患者からの質問", "時系列の経過"] as const).map((section) => {
+                const list = items.map((item, index) => ({ item, index })).filter((x) => x.item.section === section)
+                const opened = list.find((x) => openKey === `list:${x.index}`)
+                return (
+                  <div key={section} className="cd-summary-all-section">
+                    <p>
+                      <strong>{section}：</strong>
+                      {list.map(({ item, index }) => (
+                        <button
+                          key={index}
+                          className={`cd-summary-sentence${openKey === `list:${index}` ? " active" : ""}`}
+                          aria-expanded={openKey === `list:${index}`}
+                          onClick={(e) => toggleEvidence(`list:${index}`, e.currentTarget)}
+                          data-summary-item={index}
+                        >
+                          {item.text}
+                        </button>
+                      ))}
                     </p>
-                  ))}
-                  {row.items.length === 0 && row.records.length === 0 && <p className="cd-key-none">該当なし</p>}
-                </div>
-              </li>
-            ))}
-          </ul>
-          {openFrom === "key" && evidence}
-          <p className="cd-summary-all-label">要約の全項目（{items.length}項目・各文を押すと根拠の記録）</p>
-          {(["体調の変化", "学習の状況", "患者からの質問", "時系列の経過"] as const).map((section) => {
-            const list = items.map((item, index) => ({ item, index })).filter((x) => x.item.section === section)
-            return (
-              <p key={section}>
-                <strong>{section}：</strong>
-                {list.map(({ item, index }) => (
+                    {opened && evidenceFor(`list:${opened.index}`, opened.item.sourceIds)}
+                  </div>
+                )
+              })}
+              <p className="cd-summary-actions">
+                {ai && ai.status === "ai" && (
                   <button
-                    key={index}
-                    className={`cd-summary-sentence${openItem === index && openFrom === "list" ? " active" : ""}`}
+                    className="cd-text-back"
                     onClick={() => {
-                      setOpenFrom("list")
-                      setOpenItem(openItem === index && openFrom === "list" ? null : index)
+                      setOpenKey(null)
+                      setShowRule(!showRule)
                     }}
-                    data-summary-item={index}
                   >
-                    {item.text}
+                    {showRule ? "Claude外来間サマリーを表示" : "ルールベースの構造化サマリーを表示"}
                   </button>
-                ))}
+                )}
+                {/* 記録済みの出力を再生する撮影用デモ環境では、再生成しても同じ出力のため出さない */}
+                {kind !== "replay" && (
+                  <button
+                    className="cd-text-back"
+                    disabled={record.aiLoading}
+                    onClick={() => {
+                      setOpenKey(null)
+                      void record.loadAiSummary(period, { regenerate: true })
+                    }}
+                  >
+                    {record.aiLoading ? "生成中…" : "外来間サマリーを再生成"}
+                  </button>
+                )}
               </p>
-            )
-          })}
-          {openFrom === "list" && evidence}
-          <p className="cd-summary-actions">
-            {ai && ai.status === "ai" && (
-              <button
-                className="cd-text-back"
-                onClick={() => {
-                  setOpenItem(null)
-                  setShowRule(!showRule)
-                }}
-              >
-                {showRule ? "Claude外来間サマリーを表示" : "ルールベースの構造化サマリーを表示"}
-              </button>
-            )}
-            {/* 記録済みの出力を再生する撮影用デモ環境では、再生成しても同じ出力のため出さない */}
-            {kind !== "replay" && (
-            <button
-              className="cd-text-back"
-              disabled={record.aiLoading}
-              onClick={() => {
-                setOpenItem(null)
-                void record.loadAiSummary(period, { regenerate: true })
-              }}
-            >
-              {record.aiLoading ? "生成中…" : "外来間サマリーを再生成"}
-            </button>
-            )}
-          </p>
+            </div>
+          )}
         </div>
         <p className="cd-summary-safety">
           <CIcon name="shield" />
@@ -2813,12 +2901,14 @@ function Summary({
   record,
   onConcern,
   onPrescribe,
+  onOpenCourse,
 }: {
   scenario: ClinicalScenario
   healthRecords: HealthRecord[]
   record?: ClinicianRecord
   onConcern: (id: number | string) => void
   onPrescribe: () => void
+  onOpenCourse?: () => void
 }) {
   const [areaDetail, setAreaDetail] = useState<string | null>(null)
   const [expandedQuestion, setExpandedQuestion] = useState<number | string | null>(null)
@@ -2877,7 +2967,7 @@ function Summary({
         </p>
       </div>
       {record?.summary ? (
-        <LiveIntervisit record={record} />
+        <LiveIntervisit record={record} onOpenCourse={onOpenCourse} />
       ) : (
         <IntervisitSummary records={healthRecords} />
       )}

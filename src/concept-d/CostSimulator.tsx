@@ -41,7 +41,6 @@ function Svg({ d, size = 18 }: { d: string; size?: number }) {
   )
 }
 const ARROW = "m9 18 6-6-6-6"
-const CALC = "M6 3h12v18H6zM9 7h6M9 11h1M12 11h1M15 11h0M9 14h1M12 14h1M15 14v3M9 17h4"
 
 function Choice({ selected, onClick, title, sub, testId }: { selected?: boolean; onClick: () => void; title: ReactNode; sub?: ReactNode; testId?: string }) {
   return (
@@ -60,6 +59,8 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
   const [draft, setDraft] = useState<Draft>({ manyTimes: "no" })
   const [costText, setCostText] = useState("")
   const [shown, setShown] = useState<SimInput | null>(null)
+  // 「架空の例で試す」から始めた条件か（結果に架空例と明示する。最初から選び直すと解除）
+  const [fromDemo, setFromDemo] = useState(false)
 
   const result = useMemo(() => (shown ? simulate(shown) : null), [shown])
 
@@ -91,14 +92,17 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
     setDraft(DEMO_INPUT)
     setCostText(String(DEMO_INPUT.totalCost))
     setStep(STEPS.length - 1)
+    setFromDemo(true)
     setShown(DEMO_INPUT)
   }
   const restart = () => {
     setShown(null)
     setDraft({ manyTimes: "no" })
     setCostText("")
+    setFromDemo(false)
     setStep(0)
   }
+  /** 直前の条件（診療月・年齢・保険・所得区分・総医療費・多数回該当）を引き継いで、医療費の入力に戻る */
   const editConditions = () => {
     setShown(null)
     setStep(STEPS.length - 1)
@@ -109,7 +113,7 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
       <div className="d-sim" data-sim ref={rootRef} data-sim-view={view}>
         <SimHeader onBack={() => setShown(null)} title="医療費の目安" />
         {result.kind === "result" ? (
-          <SimResultView result={result} onEdit={editConditions} onRestart={restart} onOpenMaterial={onOpenMaterial} />
+          <SimResultView result={result} demo={fromDemo} onEdit={editConditions} onRestart={restart} onOpenMaterial={onOpenMaterial} />
         ) : (
           <section className="d-sim-unsupported" data-sim-unsupported>
             <p className="d-sim-eyebrow">この条件では計算できません</p>
@@ -135,28 +139,23 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
   return (
     <div className="d-sim" data-sim ref={rootRef} data-sim-view={view}>
       <SimHeader onBack={step === 0 ? onBack : () => setStep(step - 1)} title="医療費シミュレーター" />
-      <section className="d-sim-intro">
-        <span className="d-sim-intro-icon">
-          <Svg d={CALC} size={22} />
-        </span>
-        <p>
+      {step === 0 && (
+        <p className="d-sim-lead" data-sim-lead>
           高額療養費制度を考えた、<b>保険診療1か月分</b>の自己負担の目安を計算します。
-          <small>
-            対象: 2026年8月〜2027年7月の診療分・70歳未満・1つの医療機関の外来か入院のどちらか一方（院外処方の薬局の分は、処方せんを出した医療機関の外来に含めます）。入力した内容は保存しません。
-          </small>
         </p>
-      </section>
-      <button className="d-sim-demo" data-sim-demo onClick={fillDemo}>
-        架空の例で試す（2026年11月・70歳未満・会社の健康保険・区分ウ・総医療費100万円）
-      </button>
-      <ol className="d-sim-progress" aria-label={`${step + 1} / ${STEPS.length}`}>
-        {STEPS.map((name, i) => (
-          <li key={name} className={i === step ? "current" : i < step ? "done" : ""}>
-            <i>{i + 1}</i>
-            <span>{name}</span>
-          </li>
-        ))}
-      </ol>
+      )}
+      <SimScope />
+      <div className="d-sim-progress" data-sim-progress role="progressbar" aria-valuemin={1} aria-valuemax={STEPS.length} aria-valuenow={step + 1} aria-label="入力の進み具合">
+        <p>
+          <b>
+            {step + 1}/{STEPS.length}
+          </b>
+          　{STEPS[step]}
+        </p>
+        <span>
+          <i style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+        </span>
+      </div>
       <section className="d-sim-step" data-sim-step={step + 1}>
         {step === 0 && (
           <>
@@ -218,21 +217,23 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
         )}
         {step === 4 && (
           <>
-            <h2>1か月の総医療費（10割）</h2>
-            <p className="d-sim-help">
-              1つの医療機関の外来か入院のどちらか一方の、保険診療の医療費の総額です（窓口で払う3割の額ではありません）。院外処方の薬局の分は外来に含めます。領収書の保険診療の点数×10円が目安です。
-            </p>
-            <label className="d-sim-cost">
+            <h2>1か月の医療費の総額は</h2>
+            <label className="d-sim-cost-label" htmlFor="d-sim-cost">
+              <b>保険診療の総医療費（10割）</b>
+              <small>窓口で支払った額（3割）ではありません</small>
+            </label>
+            <div className="d-sim-cost">
               <input
+                id="d-sim-cost"
                 data-sim-cost-input
                 inputMode="numeric"
-                placeholder="例：1000000"
+                placeholder="例：1,000,000"
                 value={costText ? Number(costText.replace(/[^\d]/g, "") || 0).toLocaleString("ja-JP") : ""}
                 onChange={(e) => setCostText(e.target.value.replace(/[^\d]/g, "").slice(0, 9))}
-                aria-label="1か月の総医療費（円）"
+                aria-describedby="d-sim-cost-help"
               />
               <span>円</span>
-            </label>
+            </div>
             {costText && !costOk && <p className="d-sim-error">1円〜1億円の範囲で入力してください</p>}
             <div className="d-sim-presets">
               {COST_PRESETS.map((v) => (
@@ -241,8 +242,16 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
                 </button>
               ))}
             </div>
+            <p className="d-sim-help" id="d-sim-cost-help">
+              1つの医療機関の外来か入院のどちらか一方の、保険診療の医療費の総額です。院外処方の薬局の分は外来に含めます。領収書の保険診療の点数×10円が目安です。
+            </p>
+            <details className="d-sim-fold d-sim-fold-inline" data-sim-cost-unknown>
+              <summary>総医療費がわからないとき</summary>
+              <p>領収書の「保険診療」の点数（合計）×10円が総医療費の目安です。領収書で確かめられないときは、下の確認・相談先で確認できます。</p>
+              <SimContacts />
+            </details>
             <h3>多数回該当</h3>
-            <p className="d-sim-help">直近12か月に、高額療養費の支給をすでに3回以上受けていると、4回目から上限額が下がります。</p>
+            <p className="d-sim-help">直近12か月に、高額療養費の支給をすでに3回以上受けていると、4回目から上限額が下がります。「わからない」を選ぶと、該当しない場合と該当する場合の両方を表示します。</p>
             <div className="d-sim-segment" role="radiogroup" aria-label="多数回該当">
               {(["no", "yes", "unknown"] as const).map((v) => (
                 <button key={v} type="button" role="radio" aria-checked={draft.manyTimes === v} className={draft.manyTimes === v ? "selected" : ""} onClick={() => setDraft({ ...draft, manyTimes: v })}>
@@ -256,7 +265,32 @@ export function CostSimulator({ onBack, onOpenMaterial }: { onBack: () => void; 
           </>
         )}
       </section>
+      {/* 初回の副操作（手順の外に置き、手順の選択肢と混ざらないようにする） */}
+      {step === 0 && (
+        <button className="d-sim-demo" data-sim-demo onClick={fillDemo}>
+          <b>架空の例で試す</b>
+          <small>2026年11月・70歳未満・会社の健康保険・区分ウ・総医療費100万円（架空の条件）</small>
+        </button>
+      )}
     </div>
+  )
+}
+
+/** 適用範囲（短い要約）と、長い説明（開いたときだけ）。全手順の上部に同じ長文を繰り返さない */
+function SimScope() {
+  return (
+    <details className="d-sim-fold d-sim-scope" data-sim-scope>
+      <summary>
+        <span>2026年8月〜2027年7月の診療分・70歳未満・1つの医療機関</span>
+        <b>対象条件を見る</b>
+      </summary>
+      <ul>
+        <li>診療月が2026年8月〜2027年7月（令和8年8月施行の見直し後）の、保険診療1か月分（1日〜月末）。</li>
+        <li>70歳未満（小学校入学後）・窓口負担3割の方。</li>
+        <li>1つの医療機関の外来か入院のどちらか一方（院外処方の薬局の分は、処方せんを出した医療機関の外来に含めます）。</li>
+        <li>入力した内容は保存しません。</li>
+      </ul>
+    </details>
   )
 }
 
@@ -291,11 +325,13 @@ function SimContacts() {
 
 function SimResultView({
   result,
+  demo,
   onEdit,
   onRestart,
   onOpenMaterial,
 }: {
   result: Extract<ReturnType<typeof simulate>, { kind: "result" }>
+  demo: boolean
   onEdit: () => void
   onRestart: () => void
   onOpenMaterial?: () => void
@@ -303,73 +339,115 @@ function SimResultView({
   const { input, main, ifManyTimes, rule } = result
   const formulaLine = (e: Estimate) =>
     e.reachedLimit ? `${e.formula} ＝ ${yen(e.outOfPocket)}` : `上限額（${e.formula}）に届かないため、3割の額のまま`
+  const insuranceShort = input.insurance === "employee" ? "会社などの健康保険" : "国民健康保険"
   return (
     <section className="d-sim-result" data-sim-result>
-      <p className="d-sim-eyebrow">試算結果（概算）・{monthLabel(input.serviceMonth)}の診療分</p>
-      <div className="d-sim-amount-card">
-        <span>この月の自己負担の目安</span>
-        <b data-sim-amount>{yen(main.outOfPocket)}</b>
-        <small>
-          窓口負担（3割）{yen(main.copay)}
-          {main.reduction > 0 ? <> → 高額療養費で <strong>{yen(main.reduction)}</strong> 軽くなる目安</> : " ・ 上限額に届いていません"}
-        </small>
+      <div className="d-sim-amount-card" data-sim-summary>
+        <p className="d-sim-month">
+          {monthLabel(input.serviceMonth)}の診療分
+          {demo && (
+            <em className="d-sim-demo-badge" data-sim-demo-badge>
+              架空の例
+            </em>
+          )}
+        </p>
+        <span>保険診療1か月分の自己負担の目安</span>
+        {ifManyTimes ? (
+          <div className="d-sim-amount-pair">
+            <div>
+              <small>多数回該当しない場合</small>
+              <b data-sim-amount>{yen(main.outOfPocket)}</b>
+            </div>
+            <div data-sim-alt>
+              <small>多数回該当する場合</small>
+              <b>{yen(ifManyTimes.outOfPocket)}</b>
+            </div>
+          </div>
+        ) : (
+          <b data-sim-amount>{yen(main.outOfPocket)}</b>
+        )}
+        <p className="d-sim-key-conditions" data-sim-key-conditions>
+          {BRACKET_NAME[input.bracket]}・{insuranceShort}・総医療費{yen(input.totalCost)}（10割）・1つの医療機関の外来か入院の一方
+          {ifManyTimes ? "・多数回該当は加入している健康保険に確認してください" : input.manyTimes === "yes" ? "・多数回該当あり" : ""}
+          {demo ? "（架空の条件）" : ""}
+        </p>
+        <p className="d-sim-disclaimer">確定した請求額ではありません。特定の治療の費用の予測でもありません。</p>
       </div>
-      {ifManyTimes && (
-        <div className="d-sim-alt" data-sim-alt>
-          多数回該当の場合は <b>{yen(ifManyTimes.outOfPocket)}</b>
-          <small>多数回該当かどうかは、加入している健康保険に確認してください。</small>
-        </div>
-      )}
-      <p className="d-sim-disclaimer">確定した請求額ではありません。特定の治療の費用の予測でもありません。</p>
-      <dl className="d-sim-conditions">
-        <div>
-          <dt>計算の条件</dt>
-          <dd>
-            {AGE_NAME.under70} ・ {INSURANCE_NAME[input.insurance]}
-            <br />
-            {BRACKET_NAME[input.bracket]}（{BRACKET_CRITERIA[input.insurance][input.bracket]}）
-            <br />
-            総医療費 {yen(input.totalCost)} ・ 多数回該当 {MANY_NAME[input.manyTimes]}
-          </dd>
-        </div>
-        <div>
-          <dt>上限額の計算</dt>
-          <dd>{formulaLine(main)}</dd>
-        </div>
-        <div>
-          <dt>適用した制度</dt>
-          <dd>
-            {rule.label}
-            <br />
-            <small>{rule.legal}。1%の部分は1円未満を四捨五入、3割の額は1円未満を四捨五入した概算です。</small>
-          </dd>
-        </div>
-      </dl>
-      <section className="d-sim-excluded">
-        <h3>この目安に含まれないもの</h3>
-        <ul>
-          {NOT_INCLUDED.map((x) => (
-            <li key={x}>{x}</li>
-          ))}
-        </ul>
-      </section>
-      <SimContacts />
-      <section className="d-sim-sources">
-        <h3>出典（確認日 {SOURCES[0].checkedAt}）</h3>
-        <ul>
-          {SOURCES.map((s) => (
-            <li key={s.url}>
-              <a href={s.url} target="_blank" rel="noreferrer">
-                {s.publisher}「{s.title}」
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <button className="primary-button d-sim-recalc" onClick={onEdit}>
+        医療費を変えて計算する
+      </button>
+      <details className="d-sim-fold" data-sim-detail="breakdown">
+        <summary>計算条件・内訳</summary>
+        <dl className="d-sim-conditions">
+          <div>
+            <dt>計算の条件</dt>
+            <dd>
+              {AGE_NAME.under70} ・ {INSURANCE_NAME[input.insurance]}
+              <br />
+              {BRACKET_NAME[input.bracket]}（{BRACKET_CRITERIA[input.insurance][input.bracket]}）
+              <br />
+              総医療費 {yen(input.totalCost)} ・ 多数回該当 {MANY_NAME[input.manyTimes]}
+            </dd>
+          </div>
+          <div>
+            <dt>窓口負担と軽くなる額</dt>
+            <dd>
+              窓口負担（3割）{yen(main.copay)}
+              {main.reduction > 0 ? <> → 高額療養費で {yen(main.reduction)} 軽くなる目安</> : " ・ 上限額に届いていません"}
+            </dd>
+          </div>
+          <div>
+            <dt>上限額の計算</dt>
+            <dd>
+              {formulaLine(main)}
+              {ifManyTimes && (
+                <>
+                  <br />
+                  多数回該当する場合：{formulaLine(ifManyTimes)}
+                </>
+              )}
+            </dd>
+          </div>
+        </dl>
+      </details>
+      <details className="d-sim-fold" data-sim-detail="excluded">
+        <summary>対象外の費用・相談先</summary>
+        <section className="d-sim-excluded">
+          <h3>この目安に含まれないもの</h3>
+          <ul>
+            {NOT_INCLUDED.map((x) => (
+              <li key={x}>{x}</li>
+            ))}
+          </ul>
+        </section>
+        <SimContacts />
+      </details>
+      <details className="d-sim-fold" data-sim-detail="sources">
+        <summary>制度と出典</summary>
+        <dl className="d-sim-conditions">
+          <div>
+            <dt>適用した制度</dt>
+            <dd>
+              {rule.label}
+              <br />
+              <small>{rule.legal}。1%の部分は1円未満を四捨五入、3割の額は1円未満を四捨五入した概算です。</small>
+            </dd>
+          </div>
+        </dl>
+        <section className="d-sim-sources">
+          <h3>出典（確認日 {SOURCES[0].checkedAt}）</h3>
+          <ul>
+            {SOURCES.map((s) => (
+              <li key={s.url}>
+                <a href={s.url} target="_blank" rel="noreferrer">
+                  {s.publisher}「{s.title}」
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </details>
       <div className="d-sim-actions">
-        <button className="primary-button" onClick={onEdit}>
-          医療費を変えて計算する
-        </button>
         <button className="secondary-button" onClick={onRestart}>
           最初から選び直す
         </button>

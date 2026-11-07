@@ -99,3 +99,47 @@
 .d-sim-unsupported > ul { margin: 0; padding: 14px 16px 14px 32px; border-radius: 16px; background: var(--cream); display: grid; gap: 6px; font-size: 14px; line-height: 1.75; }
 .d-sim-actions { display: grid; gap: 10px; margin-top: 18px; }
 .d-sim-actions .secondary-button { min-height: 44px; font-size: 13px; }
+
+/* ---- 医療費シミュレーター（提出版: 1 問ずつ・結果の要点を先頭に・詳細は見出しから開く） ---- */
+.d-sim-lead { margin: 2px 0 10px; font-size: 14px; line-height: 1.75; }
+.d-sim-fold { margin-top: 12px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.d-sim-fold > summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 10px 14px; font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer; }
+.d-sim-fold > summary::-webkit-details-marker { display: none; }
+.d-sim-fold > summary::after { content: "＋"; flex: 0 0 auto; color: var(--blue-dark); font-weight: 700; }
+.d-sim-fold[open] > summary::after { content: "－"; }
+.d-sim-fold > :not(summary) { margin-left: 14px; margin-right: 14px; }
+.d-sim-fold > :last-child { margin-bottom: 14px; }
+.d-sim-fold .d-sim-conditions,
+.d-sim-fold .d-sim-excluded,
+.d-sim-fold .d-sim-contacts,
+.d-sim-fold .d-sim-sources { margin-top: 0; margin-bottom: 10px; padding: 0; border: 0; border-radius: 0; }
+.d-sim-scope { margin: 0 0 4px; background: var(--blue-pale); border-color: transparent; }
+.d-sim-scope > summary { display: grid; gap: 2px; font-weight: 400; }
+.d-sim-scope > summary span { color: var(--muted); font-size: 12.5px; line-height: 1.6; }
+.d-sim-scope > summary b { color: var(--blue-dark); font-size: 13px; text-decoration: underline; }
+.d-sim-scope > summary::after { display: none; }
+.d-sim-scope ul { margin: 0 14px 12px; padding-left: 18px; display: grid; gap: 4px; font-size: 12.5px; line-height: 1.7; }
+.d-sim-progress { display: grid; grid-template-columns: none; gap: 6px; margin: 16px 0 10px; }
+.d-sim-progress p { margin: 0; color: var(--blue-dark); font-size: 13px; font-weight: 700; }
+.d-sim-progress p b { font-variant-numeric: tabular-nums; }
+.d-sim-progress span { display: block; height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.d-sim-progress span i { display: block; height: 100%; border: 0; border-radius: 0; background: var(--blue-dark); }
+.d-sim > .d-sim-demo { display: grid; gap: 2px; margin-top: 22px; border-style: dashed; font-weight: 400; }
+.d-sim > .d-sim-demo b { font-size: 13px; }
+.d-sim > .d-sim-demo small { color: var(--muted); font-size: 12px; }
+.d-sim-cost-label { display: grid; gap: 2px; margin: 4px 0 8px; }
+.d-sim-cost-label b { font-size: 15px; }
+.d-sim-cost-label small { color: var(--coral); font-size: 12.5px; font-weight: 700; }
+.d-sim-step .d-sim-cost + .d-sim-error + .d-sim-presets,
+.d-sim-step .d-sim-cost + .d-sim-presets { margin-bottom: 10px; }
+.d-sim-fold-inline { margin: 0 0 6px; }
+.d-sim-fold-inline > p { margin-top: 0; font-size: 12.5px; line-height: 1.7; }
+.d-sim-month { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; font-weight: 700; opacity: .95; }
+.d-sim-demo-badge { padding: 1px 8px; border-radius: 99px; background: #fff; color: var(--blue-dark); font-style: normal; font-size: 11.5px; }
+.d-sim-amount-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.d-sim-amount-pair > div { display: grid; gap: 2px; padding: 10px 12px; border-radius: 14px; background: rgba(255, 255, 255, .12); }
+.d-sim-amount-pair small { font-size: 12px; opacity: .95; }
+.d-sim-amount-pair b { font-size: 28px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.d-sim-key-conditions { margin: 2px 0 0; font-size: 12.5px; line-height: 1.7; opacity: .95; }
+.d-sim-amount-card .d-sim-disclaimer { margin: 4px 0 0; padding: 8px 12px; }
+.d-sim-recalc { width: 100%; margin-top: 12px; }

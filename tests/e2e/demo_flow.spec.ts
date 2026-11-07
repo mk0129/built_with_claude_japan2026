@@ -129,8 +129,10 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   const sid = await connect(s, p);
   await expect(s.locator('.cd-summary-narrative[data-summary-kind="fake"]')).toBeVisible({ timeout: 15_000 });
   const iv = s.locator("[data-intervisit]");
-  await expect(iv).toContainText("「薬を飲み忘れたときは、どうすればよいですか？」");
-  await expect(iv).toContainText("「わからない」");
+  // 患者の質問（原文）が先頭の行に出る
+  await expect(iv.locator('[data-key-row="questions"]')).toContainText("「薬を飲み忘れたときは、どうすればよいですか？」");
+  await expect(iv.locator('[data-key-row="unknown"]')).toContainText("わからない");
+  await iv.locator("[data-summary-all-toggle]").click();
   await iv.locator("[data-summary-item]").filter({ hasText: "手足のしびれ" }).first().click();
   await expect(s.locator("[data-summary-sources] [data-source-id^='hs:']").first()).toContainText("手足のしびれ 2/4（中くらい）");
 

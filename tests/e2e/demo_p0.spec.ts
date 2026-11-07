@@ -119,8 +119,8 @@ for (const vp of [
       await expect.poll(() => main.evaluate((el) => el.scrollTop)).toBe(0);
       expect(await p.evaluate(() => window.scrollY)).toBe(0);
       // 金額・意味・適用条件が初期表示で読める
-      for (const sel of ["[data-sim-amount]", ".d-sim-amount-card > span", ".d-sim-disclaimer"]) await expect(p.locator(sel)).toBeInViewport();
-      await expect(p.locator(".d-sim-conditions dt").first()).toBeInViewport();
+      for (const sel of ["[data-sim-amount]", ".d-sim-amount-card > span", ".d-sim-month", ".d-sim-disclaimer", "[data-sim-key-conditions]"]) await expect(p.locator(sel)).toBeInViewport();
+      await expect(p.getByRole("button", { name: "医療費を変えて計算する" })).toBeInViewport();
     };
 
     // 架空の例: 入力画面を下までスクロールしてから押しても、結果は先頭から

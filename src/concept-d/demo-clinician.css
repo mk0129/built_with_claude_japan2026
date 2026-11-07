@@ -247,10 +247,29 @@
 .cd-summary-narrative p.cd-severity-legend { font-size: 13px; }
 .cd-device-app .cd-key-summary li > b { font-size: 13px; }
 .cd-device-app .cd-key-sentence small { font-size: 12px; }
-/* 録画（1180px）: 患者さんが残した質問は、根拠の件数を文のすぐ後ろに置き、寄りの画面で文と根拠を同時に読めるように（文言・操作は変えない） */
-.cd-device-app [data-key-row="questions"] .cd-key-sentence { grid-template-columns: minmax(0, max-content) auto; justify-content: start; }
+
 .cd-device-app .cd-summary-title b { font-size: 13px; }
 /* 項目名 2 行（名前・単位）の行の高さを抑え、14 日分の表が 1 画面に収まるように */
 .cd-device-app .cd-course-table tbody th b,
 .cd-device-app .cd-course-table tbody th small { line-height: 1.25; }
 .cd-device-app .cd-course-table tbody th small { margin-top: 1px; }
+
+/* ---- 診察サマリー（提出版）: 患者の質問を先頭に・根拠は各行のすぐ後ろ・詳細は必要なときに開く ---- */
+.cd-key-sentence { grid-template-columns: minmax(0, max-content) auto; justify-content: start; }
+.cd-key-sentence > span { display: grid; gap: 2px; }
+.cd-key-sentence > span em { color: #687a7d; font-style: normal; font-size: 11px; line-height: 1.5; }
+.cd-key-sentence > span .cd-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cd-key-question + .cd-key-question { margin-top: 2px; }
+.cd-key-summary .cd-summary-evidence { margin: 4px 0 6px 8px; }
+.cd-key-summary .cd-full-question,
+.cd-key-summary .cd-more-questions,
+.cd-key-summary .cd-open-course { justify-self: start; width: auto; min-height: 0; margin: 0 0 2px 8px; padding: 2px 0; text-align: left; font-size: 11.5px; }
+.cd-device-app .cd-key-summary .cd-more-questions,
+.cd-device-app .cd-key-summary .cd-open-course { font-size: 12px; }
+.cd-key-summary > li > div > .cd-severity-legend { margin: 2px 0 0 8px; padding: 6px 10px; font-size: 11px; line-height: 1.6; }
+.cd-device-app .cd-key-summary > li > div > .cd-severity-legend { font-size: 12px; }
+.cd-summary-title > div { min-width: 0; }
+.cd-summary-title b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cd-summary-all-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; margin: 10px 0 4px; padding: 8px 10px; border: 1px solid #dbe4e4; border-radius: 8px; background: #fff; color: #315e68; font: inherit; font-size: 11px; font-weight: 700; text-align: left; cursor: pointer; }
+.cd-summary-all-toggle span { font-size: 11px; }
+.cd-summary-all-section p { margin: 6px 0 0; }
