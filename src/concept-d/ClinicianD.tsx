@@ -4216,6 +4216,13 @@ function PrescriptionLibrary({
     )
   // 選択トレイ（画面下に固定）: 何を選んでいるかが常に見え、外すのも確認へ進むのもここから
   const selectedCards = selected.map((id) => items.find((item) => item.id === id)).filter((x): x is LibraryCard => !!x)
+  // この患者への候補（診察サマリーの推薦と同じ。開いてすぐ選べるように先頭に置く。処方済みは除く）
+  const candidates = (record?.recommendations?.items ?? [])
+    .map((r) => ({ reason: (r.aiReason ?? r.reasons[0]?.text ?? null) as string | null, item: items.find((item) => item.id === r.materialId) }))
+    .filter((x): x is { reason: string | null; item: LibraryCard } => !!x.item && !x.item.prescribedNow)
+  // 候補を先頭に出しているときは、下の領域別一覧には同じ教材を重ねて出さない
+  const showCandidates = candidates.length > 0 && !query && area === "すべて"
+  const candidateIds = new Set(showCandidates ? candidates.map((c) => c.item.id) : [])
   // 選択中の教材を自分の施設のセットとして保存（本番のみ。名前を付けて 1 回で）
   const [setForm, setSetForm] = useState<"closed" | "open" | "saving">("closed")
   const [setName, setSetName] = useState("")
@@ -4263,6 +4270,33 @@ function PrescriptionLibrary({
           <CIcon name="arrow" />
         </button>
       </div>
+
+      {showCandidates && (
+        <section className="cd-library-group cd-library-candidates" data-library-candidates>
+          <h2 className="cd-library-group-title">
+            この患者への候補<small>{candidates.length}件 · 症状・質問・つまずきから</small>
+          </h2>
+          <div className="cd-library-grid cd-library-rows">
+            {candidates.map(({ item, reason }) => (
+              <article key={`cand-${item.id}`} className={`cd-material-row ${cdAreaTone(item.area)}${selected.includes(item.id) ? " selected" : ""}`} data-candidate-row>
+                <div className="cd-material-text">
+                  <b>{item.title}</b>
+                  <small>
+                    {rowStatus(item)}
+                    <span>{item.area}</span>
+                    <span>{item.time}分</span>
+                    {reason && <span className="cd-material-goal">{reason}</span>}
+                  </small>
+                </div>
+                <button className={selected.includes(item.id) ? "selected" : ""} onClick={() => toggle(item.id)} aria-pressed={selected.includes(item.id)}>
+                  <CIcon name={selected.includes(item.id) ? "check" : "plus"} />
+                  {selected.includes(item.id) ? "選択済み" : item.prescribedBefore ? "再処方に追加" : "処方に追加"}
+                </button>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       {record && templateSets.length > 0 && (
         <section className="cd-template-sets" data-template-sets>
@@ -4320,7 +4354,7 @@ function PrescriptionLibrary({
       )}
 
       {(area === "すべて" ? ["検査・診断", "手術", "薬物療法", "放射線療法", "副作用・支持療法", "日常生活・相談支援"] : [area]).map((group) => {
-        const list = results.filter((item) => item.area === group)
+        const list = results.filter((item) => item.area === group && !candidateIds.has(item.id))
         if (list.length === 0) return null
         return (
           <section key={group} className={`cd-library-group ${cdAreaTone(group)}`} data-library-group={group}>
