@@ -10,6 +10,8 @@ import { timingSafeEqual } from "node:crypto";
 import { callClaudeStructured, claudeConfigured, ClaudeError } from "../../src/server/services/claude";
 import { MaterialSchema, OutlineSchema, SYSTEM, materialPrompt, outlinePrompt, type MustCoverInputItem } from "../../src/server/services/ai-prompts";
 import { detectKind, detectPii, extractText } from "../../src/server/services/extract";
+import { balanceAnswerPositions } from "../../src/server/services/quiz-balance";
+import { checkMaterialQuality, formatIssue } from "../../src/lib/material-quality";
 
 type Req = { method?: string; body?: unknown; headers: Record<string, string | string[] | undefined> };
 type Res = { status: (code: number) => Res; json: (body: unknown) => void; setHeader: (k: string, v: string) => void };
@@ -108,7 +110,7 @@ export default async function handler(req: Req, res: Res) {
   try {
     if (mode === "outline") {
       counter.count += 1;
-      const r = await callClaudeStructured({ system: SYSTEM, user: outlinePrompt(sources), schema: OutlineSchema, schemaName: "outline", maxTokens: 8000 });
+      const r = await callClaudeStructured({ system: SYSTEM, user: outlinePrompt(sources), schema: OutlineSchema, schemaName: "outline", maxTokens: 32000 });
       return res.status(200).json({ outline: r.data, model: r.model, generator: r.generator, usage: { input: r.inputTokens, output: r.outputTokens, ms: r.durationMs } });
     }
     if (mode === "generate") {
@@ -131,8 +133,16 @@ export default async function handler(req: Req, res: Res) {
         : { theme: cleanText(brief?.theme, 120), audience: cleanText(brief?.audience, 120), objectives: (brief?.objectives ?? []).map((o) => cleanText(o, 200)).filter(Boolean).slice(0, 3), mustCover };
       if (!outline && !spec.theme) return fail(res, 400, "SPEC_REQUIRED", "構成案かテーマを指定してください");
       counter.count += 1;
-      const r = await callClaudeStructured({ system: SYSTEM, user: materialPrompt(sources, spec), schema: MaterialSchema, schemaName: "material", maxTokens: 16000 });
-      return res.status(200).json({ material: r.data, model: r.model, generator: r.generator, usage: { input: r.inputTokens, output: r.outputTokens, ms: r.durationMs } });
+      const r = await callClaudeStructured({ system: SYSTEM, user: materialPrompt(sources, spec), schema: MaterialSchema, schemaName: "material", maxTokens: 32000 });
+      // 本番と同じ後処理: 正答の位置の偏りを均し、規約の機械チェックを警告として添える（医療者の監修の参考）
+      const balanced = balanceAnswerPositions(r.data.questions);
+      const material = { ...r.data, questions: balanced.questions };
+      const warnings = [
+        ...(balanced.moved.length ? [`正答の位置の偏りを防ぐため、${balanced.moved.length}問の選択肢の順番を入れ替えました（正答・解説は変わりません）`] : []),
+        ...(balanced.warning ? [balanced.warning] : []),
+        ...checkMaterialQuality({ title: material.title, slides: material.slides, questions: material.questions }).map((i) => `品質: ${formatIssue(i)}`),
+      ];
+      return res.status(200).json({ material, warnings, model: r.model, generator: r.generator, usage: { input: r.inputTokens, output: r.outputTokens, ms: r.durationMs } });
     }
     return fail(res, 400, "BAD_MODE", "mode は outline / generate / ping のいずれかです");
   } catch (e) {
