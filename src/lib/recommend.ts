@@ -28,9 +28,9 @@ export type Recommendation = {
 
 /** 患者の言葉 → 教材の題名・要約に含まれる語（簡易な対応表。該当しない語は無視する） */
 const QUESTION_KEYWORDS: [RegExp, string[]][] = [
-  [/しびれ|ピリピリ|感覚/, ["副作用", "セルフケア", "リンパ"]],
-  [/吐き気|食欲|食べ|味/, ["副作用", "セルフケア"]],
-  [/熱|感染|白血球/, ["副作用", "セルフケア", "化学療法室"]],
+  [/しびれ|ピリピリ|感覚/, ["しびれ", "副作用", "セルフケア", "リンパ"]],
+  [/吐き気|食欲|食べ|味|口内炎|口の中/, ["口内炎", "味覚", "食事", "副作用", "セルフケア"]],
+  [/熱|感染|白血球/, ["発熱", "副作用", "セルフケア", "化学療法室"]],
   [/だるさ|疲れ|倦怠/, ["副作用", "セルフケア", "両立"]],
   [/仕事|職場|勤務|復職|働/, ["両立", "相談先"]],
   [/お金|費用|医療費|高額|給付|手当|保険/, ["高額療養費", "傷病手当金", "相談先"]],
@@ -38,11 +38,16 @@ const QUESTION_KEYWORDS: [RegExp, string[]][] = [
   [/手術|傷|切除|温存/, ["手術"]],
   [/腕|むくみ|リンパ|浮腫/, ["リンパ浮腫", "手術後の生活"]],
   [/放射線|皮膚|日焼け/, ["放射線"]],
+  [/髪|脱毛|ウィッグ|眉|見た目|外見/, ["脱毛", "アピアランス"]],
+  [/免疫|チェックポイント|オプジーボ|キイトルーダ/, ["免疫チェックポイント"]],
+  [/痛み|痛い|骨|緩和/, ["緩和照射", "緩和ケア"]],
+  [/セカンドオピニオン|別の病院|ほかの先生|他の医師/, ["セカンドオピニオン"]],
+  [/飲み忘れ|飲み方|服薬|錠剤|カプセル/, ["飲み薬"]],
   [/ホルモン|飲み薬|タモキシフェン|内分泌/, ["薬物療法", "サブタイプ"]],
   [/HER2|サブタイプ|受容体|タイプ/, ["サブタイプ"]],
   [/病期|ステージ|進行|広が/, ["病期"]],
   [/抗がん剤|化学療法|点滴/, ["化学療法", "薬物療法"]],
-  [/家族|子ども|伝え/, ["子ども", "こころ"]],
+  [/家族|子ども|伝え/, ["子ども", "家族", "こころ"]],
   [/相談|窓口|誰に/, ["相談先"]],
 ];
 /** 症状 → 関係しうる教材の語 */
@@ -50,11 +55,11 @@ const SYMPTOM_KEYWORDS: Record<string, string[]> = {
   nausea: ["副作用", "セルフケア"],
   vomiting: ["副作用", "セルフケア"],
   appetite: ["副作用", "セルフケア"],
-  taste: ["副作用", "セルフケア"],
-  mucositis: ["副作用", "セルフケア"],
+  taste: ["味覚", "口内炎", "副作用", "セルフケア"],
+  mucositis: ["口内炎", "副作用", "セルフケア"],
   fatigue: ["副作用", "セルフケア", "両立"],
-  numbness: ["副作用", "セルフケア"],
-  fever: ["副作用", "セルフケア"],
+  numbness: ["しびれ", "副作用", "セルフケア"],
+  fever: ["発熱", "副作用", "セルフケア"],
   diarrhea: ["副作用", "セルフケア"],
   constipation: ["副作用", "セルフケア"],
   rash: ["放射線", "副作用"],
@@ -69,10 +74,30 @@ const SYMPTOM_KEYWORDS: Record<string, string[]> = {
   dyspnea: ["副作用", "セルフケア"],
 };
 
-const matchesAny = (m: RecommendMaterial, words: string[]) => words.some((w) => m.title.includes(w) || (m.summary ?? "").includes(w));
+/** 多くの教材に含まれる一般的な語。これだけで一致した教材は弱い候補（教材が増えても、話題に近い教材が上に来るように） */
+const GENERIC_WORDS = new Set(["副作用", "セルフケア"]);
+/** 一致の強さ: 具体的な語が題名にあれば 3、具体的な語が要約にあれば 2、一般的な語が題名にあれば 1、要約だけなら 0.5、なければ 0 */
+const matchStrength = (m: RecommendMaterial, words: string[]) => {
+  const specific = words.filter((w) => !GENERIC_WORDS.has(w));
+  if (specific.some((w) => m.title.includes(w))) return 3;
+  if (specific.some((w) => (m.summary ?? "").includes(w))) return 2;
+  if (words.some((w) => m.title.includes(w))) return 1;
+  return words.some((w) => (m.summary ?? "").includes(w)) ? 0.5 : 0;
+};
 
 export function recommendMaterials(ctx: RecommendContext, limit = 3): Recommendation[] {
   const byId = new Map<string, Recommendation>();
+  // 一般的な語だけの一致は、教材ごとに 1 回しか加点しない（「副作用」を含む教材が質問と症状の数だけ積み上がらないように）
+  const genericCounted = new Set<string>();
+  const addMatched = (m: RecommendMaterial, st: number, base: number, reason: Recommendation["reasons"][number]) => {
+    if (st === 3) return add(m, base, reason);
+    if (st === 2) return add(m, Math.max(1, base - 1), reason);
+    // 2 回目以降は加点しないが、理由（どの質問・症状に関係するか）は残す
+    if (genericCounted.has(m.materialId)) return add(m, 0, reason);
+    genericCounted.add(m.materialId);
+    // 一般的な語でも題名にあれば（「化学療法中の副作用とセルフケア」など）その話題の教材なので 2、要約だけなら 1
+    add(m, st === 1 ? 2 : 1, reason);
+  };
   const add = (m: RecommendMaterial, score: number, reason: Recommendation["reasons"][number]) => {
     if (m.prescribedNow) return;
     const r = byId.get(m.materialId) ?? { materialId: m.materialId, title: m.title, rePrescribe: m.prescribedBefore, score: 0, reasons: [] };
@@ -93,14 +118,20 @@ export function recommendMaterials(ctx: RecommendContext, limit = 3): Recommenda
     }
     for (const [re, words] of QUESTION_KEYWORDS) {
       if (!re.test(q.body)) continue;
-      for (const m of ctx.materials.filter((x) => matchesAny(x, words))) add(m, 3, { kind: "question", text: `質問「${short(q.body)}」に関係しうる内容`, sourceId: q.id });
+      for (const m of ctx.materials) {
+        const st = matchStrength(m, words);
+        if (st) addMatched(m, st, 3, { kind: "question", text: `質問「${short(q.body)}」に関係しうる内容`, sourceId: q.id });
+      }
     }
   }
   // 3. 期間内の症状（程度 2 以上）
   for (const s of ctx.symptoms.filter((x) => x.max >= 2)) {
     const words = SYMPTOM_KEYWORDS[s.key];
     if (!words) continue;
-    for (const m of ctx.materials.filter((x) => matchesAny(x, words))) add(m, s.max >= 3 ? 3 : 2, { kind: "symptom", text: `症状「${s.name}」を最大 ${s.max}/4 で記録` });
+    for (const m of ctx.materials) {
+      const st = matchStrength(m, words);
+      if (st) addMatched(m, st, s.max >= 3 ? 3 : 2, { kind: "symptom", text: `症状「${s.name}」を最大 ${s.max}/4 で記録` });
+    }
   }
   // 4. 処方済みで未学習（再処方ではなく、学習の声かけの候補として下位に）
   for (const u of ctx.unlearned) {

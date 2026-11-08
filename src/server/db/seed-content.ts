@@ -10,6 +10,7 @@ export type SeedMaterialContent = { title: string; objectives: string[]; slides:
 const CLOSING = "この内容は一般的な説明です。あなたの治療については、担当医の説明が優先されます。気になることは次の診察で聞いてください。";
 
 import { SEED_CONTENT_SOCIAL } from "./seed-content-social";
+import { SEED_CONTENT_MORE } from "./seed-content-more";
 
 const SEED_CONTENT_BASE: SeedMaterialContent[] = [
   {
@@ -206,7 +207,7 @@ const SEED_CONTENT_BASE: SeedMaterialContent[] = [
 ];
 
 /** 既存の教材＋社会制度の教材 4 件（仕事とお金のこと）。架空の承認者による承認で、本番の監修ではない */
-export const SEED_CONTENT: SeedMaterialContent[] = [...SEED_CONTENT_BASE, ...SEED_CONTENT_SOCIAL];
+export const SEED_CONTENT: SeedMaterialContent[] = [...SEED_CONTENT_BASE, ...SEED_CONTENT_SOCIAL, ...SEED_CONTENT_MORE];
 
 export const SEED_TEMPLATES: { name: string; description: string; scope: "common" | "org"; ownerOrgSlug?: string; titles: string[] }[] = [
   { name: "初回診断時セット", description: "診断直後に知っておきたい基本", scope: "common", titles: ["乳がんの診断と病期の考え方", "サブタイプと治療方針のつながり", "こころのケアと相談先"] },
@@ -215,4 +216,8 @@ export const SEED_TEMPLATES: { name: string; description: string; scope: "common
   { name: "さくら総合病院 化学療法オリエンテーション", description: "当院の外来化学療法室の案内を含む", scope: "org", ownerOrgSlug: "sakura-general", titles: ["化学療法中の副作用とセルフケア", "さくら総合病院 外来化学療法室のご案内"] },
   // 社会制度の情報処方（教材は seed-content-social.ts。架空の承認者による承認で、本番の医学的・制度的監修ではない）
   { name: "仕事とお金のこと", description: "治療と仕事の両立、休業中の給付、医療費の制度、相談先", scope: "common", titles: ["治療と仕事を両立するために", "傷病手当金を知る", "高額療養費制度を知る", "困ったときの相談先"] },
+  // 2026-11-08 追加のセット（教材は seed-content-more.ts）
+  { name: "術前準備セット", description: "手術が決まった人に。準備と術後の食事", scope: "common", titles: ["手術前の準備（禁煙・口腔ケア・体力づくり）", "胃・大腸の手術のあとの食事", "緩和ケアは早い時期から"] },
+  { name: "免疫療法開始時セット", description: "免疫チェックポイント阻害薬を始める前に", scope: "common", titles: ["免疫チェックポイント阻害薬の治療と注意する症状", "発熱したときの対応（白血球が減っている時期）", "困ったときの相談先"] },
+  { name: "化学療法の副作用対策セット", description: "しびれ・口内炎・脱毛・発熱のセルフケア", scope: "common", titles: ["発熱したときの対応（白血球が減っている時期）", "手足のしびれ（末梢神経障害）とのつきあい方", "口内炎・味覚の変化と食事の工夫", "脱毛と外見のケア（アピアランスケア）"] },
 ];

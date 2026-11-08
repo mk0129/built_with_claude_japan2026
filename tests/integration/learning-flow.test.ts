@@ -74,7 +74,9 @@ describe("教材一覧・テンプレート（T05, D15）", () => {
     const q = await listVisibleMaterials({ orgId: org("sakura-general"), q: "手術" });
     expect(q.map((m) => m.title)).toContain(M_SURGERY);
     const d = await listVisibleMaterials({ orgId: org("sakura-general"), domain: "radiation" });
-    expect(d).toHaveLength(1);
+    // 2026-11-08 に教材を増やしたので件数は固定しない（領域の一致だけ確かめる）
+    expect(d.length).toBeGreaterThanOrEqual(1);
+    expect(d.every((m) => m.primaryDomain === "radiation")).toBe(true);
     const t = await listTemplates(org("hidamari-medical"));
     expect(t.some((x) => x.scope === "org")).toBe(false);
     expect(t.find((x) => x.name === "初回診断時セット")?.materials).toHaveLength(3);
