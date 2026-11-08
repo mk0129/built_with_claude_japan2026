@@ -3503,9 +3503,9 @@ function LiveSummary({
             {iv ? (
               <>
                 <span>
-                  {iv.fmt.from}〜{iv.fmt.to}（{iv.period.days}日間）
+                  {iv.fmt.from}〜{iv.fmt.to}
                 </span>
-                <small>{iv.period.isDefault ? iv.period.label : "指定期間"}</small>
+                <small>{iv.period.isDefault ? iv.period.label : `指定期間（${iv.period.days}日間）`}</small>
               </>
             ) : (
               <span>{period ? `${period.from.replaceAll("-", "/")}〜${period.to.replaceAll("-", "/")}（読み込んでいます…）` : "読み込んでいます…"}</span>
