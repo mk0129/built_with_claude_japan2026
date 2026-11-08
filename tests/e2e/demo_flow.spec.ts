@@ -37,13 +37,12 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await s.locator(".cd-form-grid textarea").fill("院内作成の架空資料。患者向け教材化と AI 処理を許可（デモ）");
   await s.locator(".cd-license-check input").nth(0).check();
   await s.locator(".cd-license-check input").nth(1).check();
-  await s.getByRole("button", { name: "次へ進む" }).click();
-  await expect(s.getByRole("heading", { name: "教材の作成方針" })).toBeVisible({ timeout: 30_000 });
+  // 作成方針は原資料と同じ画面（既定: Claudeが3つの構成案を提案）。4 手順
+  await expect(s.locator(".cd-stepper button")).toHaveCount(4);
   await s.getByRole("button", { name: "Claudeに構成案を依頼" }).click();
   await expect(s.getByRole("heading", { name: "Claudeの構成案を比較" })).toBeVisible({ timeout: 60_000 });
   await expect(s.locator(".cd-proposal-grid article")).not.toHaveCount(0);
-  await s.getByRole("button", { name: "次へ進む" }).click();
-  // 必須事項: 未確認があれば進めない → すべて確認
+  // 必須事項（構成案と同じ画面）: 未確認があれば進めない → すべて確認
   await expect(s.getByRole("button", { name: "確認した内容で下書きを作成" })).toBeDisabled();
   for (const c of await s.locator("[data-must-item] input[type=checkbox]").all()) await c.check();
   await s.getByRole("button", { name: "確認した内容で下書きを作成" }).click();
@@ -57,7 +56,7 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await s.locator("[data-studio-detail]").fill("詳しい説明（デモの編集）");
   await heading.click();
   await expect(s.locator(".cd-draft-status")).toContainText("自動保存", { timeout: 10_000 });
-  await s.getByRole("button", { name: "次へ進む" }).click();
+  await s.getByRole("button", { name: "患者の見え方を確認" }).click();
   // 患者向けプレビュー（患者の学習画面と同じ部品。学習・回答 API は呼ばない）→ 承認依頼
   const writes: string[] = [];
   s.on("request", (r) => {

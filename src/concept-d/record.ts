@@ -429,6 +429,21 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
       fail(sid, e);
     }
   }, [sid, fail]);
+  // 施設のセットを作る（選択中の教材から）。成功したら一覧を差し替える
+  const createTemplate = useCallback(
+    async (name: string, materialIds: string[]) => {
+      if (!sid) return false;
+      try {
+        const d = await api<{ id: string; templates: TemplateApi[] }>(`/api/v1/consultations/${sid}/templates`, { json: { name, materialIds } });
+        setTpl({ sid, items: d.templates });
+        return true;
+      } catch (e) {
+        fail(sid, e);
+        return false;
+      }
+    },
+    [sid, fail],
+  );
   useEffect(() => {
     // 共有が終わったら外来間のデータ・要約も消す
     if (!sid) {
@@ -536,6 +551,7 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     loadRecommendations,
     /** 処方テンプレート（セット）。未読み込みは null */
     templates: sid && tpl?.sid === sid ? tpl.items : null,
+    createTemplate,
     loadTemplates,
     reload,
     prescribe,

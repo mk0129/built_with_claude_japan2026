@@ -7,7 +7,8 @@ import { nativePatientMaterial, patientAnsweredQuestion, patientLearningChanges 
 
 type Note = { id: string; body: string; source: "free" | "quiz"; materialId: string | null; materialTitle: string | null; primaryDomain: string | null; resolvedAt?: string | null; createdAt: string; updatedAt: string };
 type Settings = { active: string[]; hidden: string[]; customNames: Record<string,string> };
-type Records = { records: ApiRecord[]; notes: Note[]; settings: Settings; visit: {date:string; updatedAt:string}|null; changed: boolean };
+type TemplateLite = { id:string; name:string; description:string|null; scope:"common"|"org"; materials:{id:string;title:string;primaryDomain:string}[] };
+type Records = { records: ApiRecord[]; notes: Note[]; settings: Settings; visit: {date:string; updatedAt:string}|null; changed: boolean; templates?: TemplateLite[] };
 const key = "shiori:judge:patient-records:v1";
 const clone = <T,>(x:T):T => structuredClone(x);
 const invalid = (code:string, message:string) => new ApiError(400,code,message);
@@ -31,6 +32,18 @@ export function nativeResolveNote(id:string,resolved:boolean) {
   const state=data();const i=state.notes.findIndex(n=>n.id===id);
   if(i<0) return false;
   state.notes[i]={...state.notes[i],resolvedAt:resolved?now():null};save();return true;
+}
+/** 医療者が作った施設のセット（審査用デモ。この端末のセッションの間だけ） */
+export function nativeTemplates():TemplateLite[] {return clone(data().templates??[]);}
+export function nativeCreateTemplate(input:{name?:unknown;materialIds?:unknown}|undefined, resolve:(id:string)=>{id:string;title:string;primaryDomain:string}|null):TemplateLite {
+  const name=typeof input?.name==="string"?input.name.trim():"";
+  if(!name||name.length>40) throw invalid("TEMPLATE_NAME_INVALID","セット名は 1〜40 文字で入力してください");
+  const ids=Array.isArray(input?.materialIds)?[...new Set((input!.materialIds as unknown[]).filter((x):x is string=>typeof x==="string"))]:[];
+  if(ids.length===0||ids.length>20) throw invalid("TEMPLATE_MATERIALS_INVALID","教材は 1〜20 件で選んでください");
+  const materials=ids.map(resolve);
+  if(materials.some(m=>!m)) throw invalid("TEMPLATE_MATERIALS_INVALID","この施設で使えない教材が含まれています");
+  const t:TemplateLite={id:crypto.randomUUID(),name,description:null,scope:"org",materials:materials as TemplateLite["materials"]};
+  const state=data();state.templates=[...(state.templates??[]),t];save();return t;
 }
 export function nativeClinicianNotes() {return clone(data().notes).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));}
 const fixedDay=fixture.intervisit.intervisit.period.to;

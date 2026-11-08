@@ -2,7 +2,7 @@ import fixture from "./fixtures/consultation.json";
 import { ApiError } from "./judge-errors";
 import { addDeliveries, endJudgeSession, getJudgeSession, isJudgeActive, requestJudgeExtension, setFeedbackStatus } from "./judge-store";
 import { patientApi, patientLearningChanges, rememberNativeDeliveries } from "./judge-patient-api";
-import { nativeRecordApi, nativeClinicianHealth, nativeClinicianNotes, nativeResolveNote, hasNativeRecordChanges } from "./judge-native-records";
+import { nativeRecordApi, nativeClinicianHealth, nativeClinicianNotes, nativeResolveNote, nativeTemplates, nativeCreateTemplate, hasNativeRecordChanges } from "./judge-native-records";
 import { nativePeriodPayload } from "./judge-native-period";
 import { studioApi, studioPublishedForVisit } from "./judge-studio";
 import { recommendMaterials } from "@/lib/recommend";
@@ -79,7 +79,11 @@ export async function api<T = unknown>(path: string, init:Options = {}):Promise<
     },3);
     return {generator:"rule",model:null,items,note:items.length?null:"質問・症状・理解確認のつまずき・未学習の教材がないため、候補はありません。"} as T;
   }
-  if (endpoint==="templates" && method==="GET") return copy(fixture.templates) as T;
+  if (endpoint==="templates" && method==="GET") return {templates:[...copy(fixture.templates).templates,...nativeTemplates()]} as T;
+  if (endpoint==="templates" && method==="POST") {
+    const t=nativeCreateTemplate(init.json as {name?:unknown;materialIds?:unknown}|undefined,(id)=>{const m=materials.find(x=>x.materialId===id);return m?{id:m.materialId,title:m.title,primaryDomain:m.primaryDomain}:null;});
+    return {id:t.id,templates:[...copy(fixture.templates).templates,...nativeTemplates()]} as T;
+  }
   if (endpoint==="health" && method==="GET") return caseDates(nativeClinicianHealth()) as T;
   if (endpoint==="intervisit" && method==="GET") {
     const data=await nativePeriodPayload(url.searchParams.get("from"),url.searchParams.get("to"));

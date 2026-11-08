@@ -145,12 +145,14 @@ export function useStudio(orgId: string | null, enabled: boolean, notify: (messa
   };
 
   /** Claude に構成案（3 案）と必須事項の候補を依頼 */
+  // sourceIdOverride: 登録直後（state 反映前）に同じ操作で続けて依頼するときに使う
   const requestOutlines = useCallback(
-    async () =>
+    async (sourceIdOverride?: string) =>
       run("outline", async () => {
-        if (!sourceId) throw new Error("原資料を登録してください");
+        const sid = sourceIdOverride ?? sourceId;
+        if (!sid) throw new Error("原資料を登録してください");
         const q = orgId ? `?orgId=${orgId}` : "";
-        const { jobId } = await api<{ jobId: string }>(`/api/v1/studio/jobs${q}`, { json: { mode: "outline", sourceIds: [sourceId] } });
+        const { jobId } = await api<{ jobId: string }>(`/api/v1/studio/jobs${q}`, { json: { mode: "outline", sourceIds: [sid] } });
         const j = await waitJob(jobId, setOutlineJob);
         if (j.status !== "succeeded") throw new Error(j.errorMessage ?? "構成案を作れませんでした");
         return j;
@@ -160,11 +162,12 @@ export function useStudio(orgId: string | null, enabled: boolean, notify: (messa
 
   /** テーマ・学習目標を指定して下書きを作る（構成案なし） */
   const requestFreeform = useCallback(
-    async (brief: { theme: string; audience: string; objectives: string[] }) =>
+    async (brief: { theme: string; audience: string; objectives: string[] }, sourceIdOverride?: string) =>
       run("draft", async () => {
-        if (!sourceId) throw new Error("原資料を登録してください");
+        const sid = sourceIdOverride ?? sourceId;
+        if (!sid) throw new Error("原資料を登録してください");
         const q = orgId ? `?orgId=${orgId}` : "";
-        const { jobId } = await api<{ jobId: string }>(`/api/v1/studio/jobs${q}`, { json: { mode: "freeform", sourceIds: [sourceId], ...brief } });
+        const { jobId } = await api<{ jobId: string }>(`/api/v1/studio/jobs${q}`, { json: { mode: "freeform", sourceIds: [sid], ...brief } });
         const j = await waitJob(jobId, setDraftJob);
         if (j.status !== "succeeded" || !j.outputVersionId) throw new Error(j.errorMessage ?? "下書きを作れませんでした");
         await loadDraft(j.outputVersionId);

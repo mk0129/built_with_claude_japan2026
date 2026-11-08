@@ -935,3 +935,39 @@
   [data-questions] article.resolving { opacity: .4; }
   .cd-material-row, .cd-material-row > button, .cd-reco-list li > button, .cd-template-row > button, .cd-stepper-v2 button, .cd-stepper-v2 button > span { transition: none; }
 }
+
+/* ---------- 診察サマリー: 診察の 10 分の順（1 体調 → 2 質問 → 3 理解 → 4 処方）を番号で見せる ---------- */
+.cd-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+.cd-flow-step { display: flex; align-items: center; gap: 6px; }
+.cd-flow-step > i { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; background: var(--blue-dark); color: #fff; font-style: normal; font-size: 11px; font-weight: 700; }
+.cd-flow-step > span { color: var(--blue-dark); font-size: 11.5px; font-weight: 700; margin-right: 2px; }
+.cd-head-step { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cd-head-step h2 { margin: 0; }
+.cd-step-no { width: 22px; height: 22px; flex: 0 0 22px; display: grid; place-items: center; border-radius: 50%; background: var(--blue-dark); color: #fff; font-style: normal; font-size: 11.5px; font-weight: 700; }
+/* 正答率は「理解につまずいたこと」の見出し右に小さく（別カードにしない） */
+.cd-score-inline { text-align: left; }
+.cd-score-inline .cd-score-main { width: auto; display: inline-flex; align-items: baseline; gap: 6px; min-height: 36px; padding: 0 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+.cd-score-inline .cd-score-main > small { color: var(--muted); font-size: 10.5px; }
+.cd-score-inline .cd-score-main > b { font-family: 'Zen Old Mincho', serif; font-size: 20px; line-height: 1; color: var(--blue-dark); }
+.cd-score-inline .cd-score-main:disabled { border-color: transparent; background: transparent; }
+.cd-score-inline .cd-score-detail { margin-top: 10px; }
+.cd-device.cd-820 .cd-flow { gap: 6px 12px; }
+
+/* 選択トレイ: 「セットとして保存」（名前を付けて 1 回で） */
+.cd-tray-save-set { flex: 0 0 auto; min-height: 36px; padding: 0 10px; border: 1px solid #bcd3c3; border-radius: 9px; background: #fff; color: #2f6a41; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.cd-tray-save-set:hover { background: #eef5f0; }
+.cd-tray-set-form { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; }
+.cd-tray-set-form input { min-height: 36px; width: 200px; padding: 0 10px; border: 1px solid #bcd3c3; border-radius: 9px; background: #fff; font-size: 12.5px; }
+.cd-tray-set-form .cd-primary { min-height: 36px; padding: 0 12px; }
+.cd-tray-set-form .cd-text-back { font-size: 11.5px; }
+.cd-set-saved { position: sticky; bottom: 0; z-index: 7; display: flex; align-items: center; gap: 6px; margin: 6px -4px 0; padding: 8px 14px; border-radius: 10px; background: #e4f0e7; color: #2f6a41; font-size: 12px; font-weight: 700; animation: cd-rise-in 200ms ease-out; }
+.cd-device.cd-820 .cd-tray-set-form input { width: 150px; }
+
+/* 教材スタジオ 4 手順: 方針は原資料の下に小さく */
+.cd-approach-compact { margin-top: 14px; }
+.cd-approach-title { margin: 0 0 8px; font-size: 13px; color: var(--blue-dark); }
+.cd-approach-compact .cd-approach-grid button { padding: 10px 12px; }
+.cd-approach-compact .cd-approach-grid button > span { width: 32px; height: 32px; }
+.cd-approach-compact .cd-approach-grid button > span svg { width: 18px; height: 18px; }
+.cd-approach-compact .cd-approach-grid h3 { font-size: 12.5px; }
+.cd-approach-compact .cd-approach-grid p { font-size: 10.5px; }
