@@ -25,6 +25,9 @@ export default async function PatientLoginPage({ searchParams }: { searchParams:
         </header>
         {u && <SwitchNote name={u.name} current="医療者" />}
         <LoginPanel kind="patient" redirectTo={safeReturn} switching={!!u} />
+        <Link href="/signup" className="au-switch-link" data-to-signup>
+          はじめての方はこちら（新規登録）
+        </Link>
         <Link href="/staff/login" className="au-switch-link">
           医療者の方のログインはこちら
         </Link>

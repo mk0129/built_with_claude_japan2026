@@ -175,7 +175,8 @@ test("患者: 処方のない教材を自分で探して学べる（自主学習
   await p.locator(".d-nav").getByRole("button", { name: "教材を探す" }).click();
   await p.locator(".d-category-cards button").filter({ hasText: "手術" }).click();
   await expect(p.locator(".d-area-overview")).toContainText("公開教材");
-  await p.locator(".d-lesson-card").first().click();
+  // 2026-11-08 に手術の教材が増えたので、題名で選ぶ
+  await p.locator(".d-lesson-card").filter({ hasText: "乳房の手術の種類と選び方" }).click();
   await expect(p.locator(".d-detail .d-status")).toContainText("自主・未学習");
   await p.getByRole("button", { name: "学習を始める" }).click();
   await p.getByRole("button", { name: "次へ" }).click();

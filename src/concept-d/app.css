@@ -235,6 +235,19 @@
 .au-text-button { align-self: flex-start; min-height: 40px; border: 0; background: none; color: var(--blue-dark); font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .au-switch-link { align-self: center; min-height: 44px; display: inline-flex; align-items: center; color: var(--blue-dark); font-size: 13px; font-weight: 600; }
 
+/* 新規登録（患者）: 3 手順の表示・確認のチェック行 */
+.au-steps { display: flex; gap: 14px; margin: 0; padding: 0; list-style: none; color: var(--muted); font-size: 12px; }
+.au-steps li { display: inline-flex; align-items: center; gap: 6px; }
+.au-steps li i { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #e3ecee; color: var(--muted); font-style: normal; font-size: 12px; font-weight: 700; }
+.au-steps li.now { color: var(--blue-dark); font-weight: 700; }
+.au-steps li.now i, .au-steps li.done i { background: var(--blue-dark); color: #fff; }
+.au-sub { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.au-sub a { color: var(--blue-dark); font-weight: 700; }
+.au-center { text-align: center; }
+.au-check { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fbfdfd; color: var(--ink); font-size: 13px; line-height: 1.7; }
+.au-check input { flex: 0 0 auto; width: 20px; height: 20px; margin-top: 2px; accent-color: var(--blue-dark); }
+.au-entry-signup { margin-top: -4px; }
+
 /* 入口 */
 .au-entry { padding-top: max(24px, 8dvh); gap: 22px; }
 .au-entry h1 { margin: 8px 0 0; font-family: 'Zen Old Mincho', serif; font-size: 26px; line-height: 1.5; letter-spacing: .03em; }

@@ -1251,3 +1251,6 @@
 .cd-summary-v2 .cd-check-list article > .cd-check-resolve { grid-column: 2; grid-row: 1; align-self: center; margin-right: 8px; }
 .cd-summary-v2 .cd-check-list article > .cd-check-expanded { grid-column: 1 / -1; }
 .cd-summary-v2 .cd-understanding .cd-panel-head h2 { font-size: 14px; }
+
+/* 公開デモの帯のボタンは 32px 以上（タップしやすさの監査基準） */
+.cd-demo-claude button, .cd-demo-claude [data-demo-claude-sample] { min-height: 32px; }

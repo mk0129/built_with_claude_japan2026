@@ -6,22 +6,22 @@
 
 | 画面 | 横スクロール | はみ出し | 重なり | 小さいボタン | 見切れ | 囲いの入れ子（最大） | 説明文の文字数 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 診察（初期表示） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1092 |
-| 診察（AI 外来間サマリーを開く） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1390 |
+| 診察（初期表示） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1098 |
+| 診察（AI 外来間サマリーを開く） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1396 |
 | 在宅経過（初期表示） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-avatar） | 200 |
 | 在宅経過（症状のグラフ） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-avatar） | 200 |
-| 教材ライブラリ（初期表示） | なし | 0 | 0 | 0 | 0 | 3（cd-zone > cd-material-row > cd-rx-status） | 392 |
-| 教材スタジオ（初期表示） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-share-chip） | 63 |
+| 教材ライブラリ（初期表示） | なし | 0 | 0 | 0 | 0 | 3（cd-zone > cd-material-row > cd-rx-status） | 919 |
+| 教材スタジオ（初期表示） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-share-chip） | 95 |
 
 ## 820x1180
 
 | 画面 | 横スクロール | はみ出し | 重なり | 小さいボタン | 見切れ | 囲いの入れ子（最大） | 説明文の文字数 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 診察（初期表示） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1092 |
-| 診察（AI 外来間サマリーを開く） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1390 |
+| 診察（初期表示） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1098 |
+| 診察（AI 外来間サマリーを開く） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1396 |
 | 在宅経過（初期表示） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-avatar） | 200 |
 | 在宅経過（症状のグラフ） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-avatar） | 200 |
-| 教材ライブラリ（初期表示） | なし | 0 | 0 | 0 | 0 | 3（cd-zone > cd-material-row > cd-rx-status） | 392 |
-| 教材スタジオ（初期表示） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-share-chip） | 63 |
+| 教材ライブラリ（初期表示） | なし | 0 | 0 | 0 | 0 | 3（cd-zone > cd-material-row > cd-rx-status） | 919 |
+| 教材スタジオ（初期表示） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-share-chip） | 95 |
 
 問題の合計: 0
