@@ -3713,7 +3713,6 @@ function LiveSummary({
                           </p>
                         )}
                         <div>
-                          <span>患者が入力した原文は変更されません</span>
                           <button onClick={() => onConcern(item.id)}>
                             詳しく確認
                             <CIcon name="arrow" />

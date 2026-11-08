@@ -146,7 +146,7 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   await expect(q).toContainText("診察ノート ·");
   await expect(q).toContainText("自由な質問");
   await q.getByRole("button").first().click();
-  await expect(q).toContainText("患者が入力した原文は変更されません");
+  await expect(q.getByRole("button", { name: "詳しく確認" })).toBeVisible(); // 2026-11: 注記は削除（原文を変えないのは設計どおり）
   await openAi(s);
   await expect(s.locator("[data-intervisit]")).toContainText("来月、2泊の旅行に行ってもよいですか？");
   // 体調記録の取得 API（Step 4 の経過表で使う）は共有中だけ読める
