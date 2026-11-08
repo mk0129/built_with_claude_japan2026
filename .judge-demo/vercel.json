@@ -27,7 +27,7 @@
     }
   ],
   "functions": {
-    "api/*.ts": {
+    "api/*.js": {
       "maxDuration": 300,
       "memory": 1024
     }
