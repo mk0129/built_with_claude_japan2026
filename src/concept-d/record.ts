@@ -485,10 +485,15 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
 
   /** 質問の確認状態（任意。診療記録ではない） */
   const setQuestionStatus = useCallback(
-    async (feedbackId: string, status: "reviewed" | "resolved") => {
+    async (questionId: string, status: "reviewed" | "resolved" | "unread") => {
       if (!sid) return false;
       try {
-        await api(`/api/v1/consultations/${sid}/questions/${feedbackId}`, { json: { status } });
+        if (questionId.startsWith("note:")) {
+          // 診察ノートの質問: 医療者が診察で答えたら「解決」に（戻すこともできる）。原文は変えない
+          await api(`/api/v1/consultations/${sid}/notes/${questionId.slice(5)}`, { json: { resolved: status === "resolved" } });
+        } else {
+          await api(`/api/v1/consultations/${sid}/questions/${questionId}`, { json: { status } });
+        }
         void reload();
         return true;
       } catch (e) {

@@ -26,6 +26,12 @@ function save(changed = true) {
 }
 export function hasNativeRecordChanges() {return data().changed||patientLearningChanges().length>0;}
 export function nativeClinicianHealth() {return {records:clone(data().records).sort((a,b)=>b.measuredAt.localeCompare(a.measuredAt)||b.createdAt.localeCompare(a.createdAt)),symptoms:clone(data().settings)};}
+/** 医療者が診察で答えた質問を「解決」にする（審査用デモ。原文は変えない） */
+export function nativeResolveNote(id:string,resolved:boolean) {
+  const state=data();const i=state.notes.findIndex(n=>n.id===id);
+  if(i<0) return false;
+  state.notes[i]={...state.notes[i],resolvedAt:resolved?now():null};save();return true;
+}
 export function nativeClinicianNotes() {return clone(data().notes).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));}
 const fixedDay=fixture.intervisit.intervisit.period.to;
 export function nativeCaseDay() {

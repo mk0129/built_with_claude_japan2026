@@ -2,7 +2,7 @@ import fixture from "./fixtures/consultation.json";
 import { ApiError } from "./judge-errors";
 import { addDeliveries, endJudgeSession, getJudgeSession, isJudgeActive, requestJudgeExtension, setFeedbackStatus } from "./judge-store";
 import { patientApi, patientLearningChanges, rememberNativeDeliveries } from "./judge-patient-api";
-import { nativeRecordApi, nativeClinicianHealth, nativeClinicianNotes, hasNativeRecordChanges } from "./judge-native-records";
+import { nativeRecordApi, nativeClinicianHealth, nativeClinicianNotes, nativeResolveNote, hasNativeRecordChanges } from "./judge-native-records";
 import { nativePeriodPayload } from "./judge-native-period";
 import { studioApi, studioPublishedForVisit } from "./judge-studio";
 import { recommendMaterials } from "@/lib/recommend";
@@ -110,6 +110,11 @@ export async function api<T = unknown>(path: string, init:Options = {}):Promise<
     const added=addDeliveries(items,init.json?.note?.trim()??"");
     rememberNativeDeliveries();
     return {count:added.length,materialIds:added.map(x=>x.materialId)} as T;
+  }
+  if (endpoint.startsWith("notes/") && method==="POST") {
+    const id=endpoint.split("/")[1];
+    if (typeof init.json?.resolved!=="boolean" || !nativeResolveNote(id,init.json.resolved)) throw reject("対象の質問を確認してください");
+    return {ok:true} as T;
   }
   if (endpoint.startsWith("questions/") && method==="POST") {
     const id=endpoint.split("/")[1],status=init.json?.status;

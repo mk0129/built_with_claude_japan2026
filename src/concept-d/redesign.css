@@ -787,3 +787,12 @@
 .cd-summary-v2 .cd-ai-fold-toggle > span:first-child { display: flex; align-items: baseline; gap: 8px; }
 .cd-summary-v2 .cd-ai-fold-toggle small { color: var(--muted); font-size: 10.5px; }
 .cd-summary-v2 .cd-ai-fold[data-ai-open="true"], .cd-summary-v2 .cd-ai-fold:has(.cd-ai-fold-toggle[aria-expanded="true"]) { border: 1px solid var(--line); background: #fff; }
+
+/* 患者の質問: 「解決」を 1 タップ（または左スワイプ）で。解決中は薄く */
+.cd-question-list article { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 6px; }
+.cd-question-list article > .cd-question-toggle { grid-column: 1; }
+.cd-question-list article > .cd-question-expanded { grid-column: 1 / -1; }
+.cd-question-resolve { grid-column: 2; align-self: center; min-height: 36px; display: inline-flex; align-items: center; gap: 4px; padding: 0 10px; border: 1px solid #bcd3c3; border-radius: 9px; background: #fff; color: #2f6a41; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.cd-question-resolve:hover { background: #eef5f0; }
+.cd-question-list article.resolving { opacity: .5; }
+.cd-resolved-list li .cd-text-back { display: inline-flex; min-height: 28px; margin: 0 0 0 8px; padding: 0 6px; font-size: 11px; }

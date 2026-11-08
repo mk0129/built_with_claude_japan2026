@@ -3,6 +3,7 @@ import { getDb, type Db } from "@/server/db/client";
 import { materialVersions, materials, quizAttempts, quizAnswers, visitNotes } from "@/server/db/schema";
 import { badRequest, notFound } from "@/server/authz/errors";
 import { assertPatientHasVersion } from "./learning";
+import type { ConsultationContext } from "@/server/authz/consultation";
 import { audit } from "./audit";
 
 /**
@@ -117,4 +118,22 @@ export async function deleteVisitNote(patientId: string, noteId: string, db: Db 
 /** 医療者のサマリー用（新しい順） */
 export async function listVisitNotesForClinician(patientId: string, db: Db = getDb()) {
   return (await listVisitNotes(patientId, db)).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}
+
+/**
+ * 医療者が診察で答えた質問を「解決」にする（または戻す）。有効な診察セッションの患者の質問だけ。原文・更新日時は変えない。
+ * 監査には医療者・施設・セッションを残す（患者本人の「聞けた」と区別できる）。
+ */
+export async function resolveVisitNoteForClinician(ctx: ConsultationContext, noteId: string, resolved: boolean, db: Db = getDb()) {
+  const updated = await db
+    .update(visitNotes)
+    .set({ resolvedAt: resolved ? new Date() : null })
+    .where(and(eq(visitNotes.id, noteId), eq(visitNotes.patientId, ctx.patientId)))
+    .returning({ id: visitNotes.id });
+  if (updated.length !== 1) throw notFound("NOTE_NOT_FOUND");
+  await audit(
+    { actorUserId: ctx.clinician.userId, orgId: ctx.orgId, action: resolved ? "note.resolve" : "note.reopen", resourceType: "visit_note", resourceId: noteId, consultationSessionId: ctx.sessionId, outcome: "ok" },
+    db,
+  );
+  return (await listVisitNotes(ctx.patientId, db)).find((n) => n.id === noteId)!;
 }

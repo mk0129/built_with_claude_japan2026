@@ -1100,7 +1100,8 @@ function VisitWorkspace({
           setSelectedConcern(id)
           setPage("detail")
         }}
-        onPrescribe={() => setPage("prescribe")}
+        // 候補を選んであれば教材ライブラリを経由せず、確認画面へ直行（手数を 1 つ減らす）
+        onPrescribe={() => setPage(prescription.length ? "review" : "prescribe")}
         onOpenCourse={onOpenCourse}
         prescription={prescription}
         onAddToPrescription={(id) => {
@@ -3493,6 +3494,14 @@ function LiveSummary({
   })
   const rootRef = useRef<HTMLDivElement>(null)
   const jump = (selector: string) => rootRef.current?.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" })
+  // 質問を「解決」に（診察で答えたらその場で消す。数字も減る）。原文は変えない
+  const [resolving, setResolving] = useState<string | null>(null)
+  const swipeStart = useRef<{ id: string; x: number; y: number } | null>(null)
+  const resolveQuestion = async (id: string) => {
+    setResolving(id)
+    await record.setQuestionStatus(id, "resolved")
+    setResolving(null)
+  }
   return (
     <div className="cd-content cd-summary cd-summary-v2" data-summary-v2 ref={rootRef}>
       <div className="cd-title-row">
@@ -3663,7 +3672,23 @@ function LiveSummary({
             {questionsOpen.length ? (
               <div className="cd-question-list">
                 {questionsOpen.map((item, index) => (
-                  <article key={item.id}>
+                  <article
+                    key={item.id}
+                    data-question-id={item.id}
+                    className={resolving === item.id ? "resolving" : ""}
+                    // 診察で答えたら、左へスワイプ（横 80px 以上・縦 30px 未満）でも「解決」にできる
+                    onTouchStart={(event) => {
+                      const t = event.touches[0]
+                      swipeStart.current = t ? { id: item.id, x: t.clientX, y: t.clientY } : null
+                    }}
+                    onTouchEnd={(event) => {
+                      const st = swipeStart.current
+                      swipeStart.current = null
+                      const t = event.changedTouches[0]
+                      if (!st || st.id !== item.id || !t) return
+                      if (st.x - t.clientX >= 80 && Math.abs(t.clientY - st.y) < 30) void resolveQuestion(item.id)
+                    }}
+                  >
                     <button className="cd-question-toggle" onClick={() => setOpenQuestion(openQuestion === item.id ? null : item.id)} aria-expanded={openQuestion === item.id}>
                       <span className="cd-question-number">{index + 1}</span>
                       <span>
@@ -3674,6 +3699,10 @@ function LiveSummary({
                         </small>
                       </span>
                       <span>{openQuestion === item.id ? "閉じる" : "詳細"}</span>
+                    </button>
+                    <button className="cd-question-resolve" data-question-resolve onClick={() => void resolveQuestion(item.id)} disabled={resolving === item.id} aria-label="この質問を解決にする" title="診察で答えたら解決に（左スワイプでも）">
+                      <CIcon name="check" size={14} />
+                      解決
                     </button>
                     {openQuestion === item.id && (
                       <div className="cd-question-expanded">
@@ -3706,7 +3735,7 @@ function LiveSummary({
             )}
             {questionsResolved.length > 0 && (
               <button className="cd-text-back cd-resolved-toggle" aria-expanded={resolvedOpen} onClick={() => setResolvedOpen(!resolvedOpen)}>
-                {resolvedOpen ? "閉じる" : `患者が「聞けた」にした質問（${questionsResolved.length}件）`}
+                {resolvedOpen ? "閉じる" : `解決した質問（${questionsResolved.length}件）`}
               </button>
             )}
             {resolvedOpen && (
@@ -3714,6 +3743,11 @@ function LiveSummary({
                 {questionsResolved.map((q) => (
                   <li key={q.id}>
                     「{q.title}」<small>{q.source}</small>
+                    {q.id.startsWith("note:") && (
+                      <button className="cd-text-back" onClick={() => void record.setQuestionStatus(q.id, "unread")} data-question-reopen>
+                        戻す
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
