@@ -1,6 +1,6 @@
 {
   "framework": null,
-  "buildCommand": "node tools/build.mjs && node tools/verify-dist.mjs dist",
+  "buildCommand": "node tools/build-api.mjs && node tools/build.mjs && node tools/verify-dist.mjs dist",
   "outputDirectory": "dist",
   "installCommand": "cd .. && npm ci --include=dev --legacy-peer-deps",
   "headers": [

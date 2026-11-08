@@ -8,7 +8,7 @@
 import http from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
-import handlerModule from "../../.judge-demo/api/studio";
+import handlerModule from "../../.judge-demo/api-src/studio";
 // CJS/ESM どちらで読み込まれても既定の関数を取り出す
 const handler = ((handlerModule as unknown as { default?: unknown }).default ?? handlerModule) as (req: { method?: string; body?: unknown; headers: Record<string, string | string[] | undefined> }, res: { status: (c: number) => unknown; setHeader: (k: string, v: string) => void; json: (b: unknown) => void }) => Promise<void>;
 
