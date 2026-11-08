@@ -3118,6 +3118,13 @@ function Summary({
   if (record && !record.loaded)
     return (
       <div className="cd-content cd-summary">
+      {/* 開発用プロトタイプ（実データなし）: この診察サマリーは Figma 時点の旧レイアウト。最新の画面は実データ（/staff で患者と共有）と公開デモで表示される */}
+      {!record && (
+        <p className="cd-studio-env" data-proto-summary-note role="note">
+          <CIcon name="alert" size={14} />
+          開発用プロトタイプの診察サマリーは旧レイアウトです。最新の診察サマリー（診察の順に 1 体調 → 2 質問 → 3 理解 → 4 処方）は、医療者ログイン（/staff）で患者と共有したときと公開デモで表示されます。
+        </p>
+      )}
         <p>診察サマリーを読み込んでいます…</p>
       </div>
     )
