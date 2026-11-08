@@ -1041,3 +1041,7 @@
 /* 手順2: 未確認の件数と「すべて確認済みにする」 */
 .cd-must-head-actions { display: inline-flex; align-items: center; gap: 10px; }
 .cd-must-head-actions .cd-text-back { min-height: 32px; font-size: 11.5px; }
+/* ライブラリ: この患者への候補（先頭） */
+.cd-library-candidates { margin-top: 10px; }
+.cd-library-candidates .cd-library-group-title { color: var(--blue-dark); }
+.cd-library-candidates .cd-library-group-title::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--blue-dark); align-self: center; }
