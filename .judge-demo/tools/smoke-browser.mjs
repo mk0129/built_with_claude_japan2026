@@ -21,8 +21,6 @@ try {
   await page.locator('[data-home-note-add]').click();
   await page.getByText(note,{exact:true}).first().waitFor();
   await page.getByRole('button',{name:'医師側',exact:true}).click();
-  // 共有がないタブでは医師側で入口の選択が出る（勝手に共有を始めない）。架空患者の診察を明示して始める
-  await page.locator('[data-start-fictional]').click();
   const question = page.locator('[data-key-question]').filter({hasText:note}).first();
   await question.getByRole('button').first().click();
   assert.match(await question.innerText(), /審査用の架空メモ/u);

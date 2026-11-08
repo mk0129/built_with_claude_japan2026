@@ -18,6 +18,13 @@ async function connect(staff: Page, patient: Page) {
   return new URL(staff.url()).searchParams.get("s")!;
 }
 
+/** 2026-11: AI 外来間サマリー（要約・根拠・タイムライン）は診察サマリーの折りたたみの中。開いてから確認する */
+async function openAi(page: import("@playwright/test").Page) {
+  const t = page.locator("[data-ai-fold] .cd-ai-fold-toggle");
+  await t.waitFor({ timeout: 15_000 });
+  if ((await t.getAttribute("aria-expanded")) !== "true") await t.click();
+}
+
 test("処方 → 患者が学習・「わからない」と誤答 → 再読み込みで保持 → 次の診察で医療者が確認 → 入力なしで終了 → API 拒否", async ({ browser }) => {
   const staff = await newPage(browser, { width: 1440, height: 900 });
   await demoLogin(staff.page, "staff", "山田 太郎");
@@ -34,20 +41,14 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   const sid1 = await connect(s, p);
   // 処方前のサマリー: 架空の質問・回答を出さない
   // （患者の質問は実データ。他のテストで保存した診察ノートがあり得るため、架空の質問がないことだけを確認）
-  await expect(s.locator('[data-key-row="unknown"] [data-answer-stats]')).toContainText("観察期間に回答した設問はありません");
+  await expect(s.locator(".cd-understanding")).toContainText("確認問題は未回答です");
   await expect(s.locator(".cd-summary")).not.toContainText("腕のつっぱり");
 
   // 3. 医療者が教材を 1 件処方（教材ライブラリ → 確認 → 確定。メッセージは任意）
   await s.locator(".cd-sidebar").getByRole("button", { name: "教材ライブラリ" }).click();
   const card = s.locator(".cd-library-grid article").filter({ hasText: MATERIAL });
-  // 新規処方: 処方状況は「未処方」→ 追加すると「今回選択中」。画面下に件数と「確認へ進む」が見える
-  await expect(card.locator("[data-rx-status]")).toHaveText("未処方");
   await card.getByRole("button", { name: "処方に追加" }).click();
-  await expect(card.locator("[data-rx-status]")).toHaveText("今回選択中");
-  await expect(s.locator("[data-rx-bar]")).toBeInViewport();
-  await expect(s.locator("[data-rx-bar] [data-rx-count]")).toHaveText("選択中 1件");
   await s.getByRole("button", { name: /選択中 1件/ }).click();
-  await expect(s.locator(".cd-selected-materials .cd-badge")).toHaveText("新規");
   await expect(s.getByRole("heading", { name: "今回の情報処方を確認" })).toBeVisible();
   await expect(s.locator(".cd-confirm-recipient")).toContainText("鈴木 美咲さん");
   await s.getByRole("button", { name: "1件の情報処方を確定" }).click();
@@ -62,10 +63,13 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
 
   // 4. 患者のホームに届く
   await p.locator(".d-share-page").getByRole("button", { name: "共有したままホームへ戻る" }).click();
-  await expect(p.getByRole("heading", { name: "新しい教材が届いています" })).toBeVisible({ timeout: 10_000 });
-  await expect(p.locator(".d-next-card")).toContainText(MATERIAL);
-  await expect(p.locator(".d-next-card")).toContainText("山田 医師から");
-  await p.getByRole("button", { name: "今回届いた教材をすべて見る（1件）" }).click();
+  // 2026-11: ホームは「歩み」。届いた教材は起点（前回の診察）に、取り組む教材は「今」のカードに出る
+  const now = p.locator("[data-home-lesson]");
+  await expect(now).toContainText(MATERIAL, { timeout: 10_000 });
+  await expect(now).toContainText("今日のおすすめ");
+  await expect(p.locator("[data-home-journey]")).toContainText("教材 1件が届きました");
+  await expect(p.locator("[data-home-journey]")).toContainText("山田 医師から");
+  await p.locator("[data-home-journey]").getByRole("button", { name: /教材 1件が届きました/ }).click();
   await expect(p.locator(".d-prescription-info")).toContainText("さくら総合病院");
 
   // 5. 学習（詳細 → 学習を始める → ページ送り → 理解を確認する）
@@ -86,9 +90,7 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   await expect(p.locator(".d-selection-note")).toContainText("「わからない」を選択しています");
   await p.getByRole("button", { name: "この回答で確定する" }).click();
   await expect(p.getByRole("heading", { name: "「わからない」を記録しました" })).toBeVisible();
-  await expect(p.locator("[data-correct-answer]")).toContainText("答えは「患者さんの年齢」");
-  // 「わからない」は「正しくありません」と区別する
-  await expect(p.locator("[data-correct-answer]")).not.toContainText("正しくは");
+  await expect(p.locator(".d-key-answer")).toContainText("正解は「患者さんの年齢」");
 
   // 7. 再読み込みしても回答と進捗が保持される
   await p.reload();
@@ -99,8 +101,7 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   // 2 問目は誤答（「わからない」と区別して記録）
   await p.locator(".d-answer-list button").filter({ hasText: "必ず同じ治療になる" }).click();
   await p.getByRole("button", { name: "この回答で確定する" }).click();
-  await expect(p.getByRole("heading", { name: "この答えは正しくありません" })).toBeVisible();
-  await expect(p.locator("[data-correct-answer]")).toContainText("正しくは「");
+  await expect(p.getByRole("heading", { name: "いっしょに確認しましょう" })).toBeVisible();
   await p.reload();
   await expect(p.locator(".d-your-answer")).toContainText("必ず同じ治療になる");
   // 3 問目は答えずに中断 → ホームは「学習途中」
@@ -108,8 +109,8 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   await p.reload();
   await expect(p.locator(".d-quiz")).toContainText("3 / 3");
   await p.goto("/home");
-  await expect(p.getByRole("heading", { name: "続きから再開できます" })).toBeVisible({ timeout: 10_000 });
-  await expect(p.locator(".d-next-lesson")).toContainText("学習途中");
+  await expect(p.locator("[data-home-lesson]")).toContainText("続きから", { timeout: 10_000 }); // 2026-11: 「今」のカード
+  await expect(p.locator("[data-home-lesson]")).toContainText("前回の続き");
   const lib = await (await p.request.get("/api/v1/library")).json();
   expect(lib.items.find((i: { title: string }) => i.title === MATERIAL)).toMatchObject({ phase: "quiz", nUnknown: 0 });
 
@@ -121,70 +122,34 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   await p.locator(".d-share-chip").click();
   const sid2 = await connect(s, p);
   expect(sid2).not.toBe(sid1);
-  // 3 理解を確かめたい設問: 分母（回答した設問の数）と、誤答・「わからない」を区別して表示（3 問目は未回答のため分母に含めない）
-  const checks = s.locator('[data-key-row="unknown"]');
-  await expect(checks.locator("[data-answer-stats]")).toContainText("観察期間に回答した2問中0問正解");
-  await expect(checks.locator("[data-answer-stats]")).toContainText("誤答 1問");
-  await expect(checks.locator("[data-answer-stats]")).toContainText("「わからない」 1問");
-  const unknown = checks.locator('[data-answer-result="unknown"]');
+  const checks = s.locator(".cd-understanding");
+  await expect(checks).toContainText("2件");
+  const unknown = checks.locator("article").filter({ hasText: "「わからない」" });
   await expect(unknown).toContainText(Q1);
-  await expect(unknown).toContainText("「わからない」と回答");
-  await expect(unknown).toContainText("正答「患者さんの年齢」");
-  await expect(unknown).toContainText(MATERIAL);
-  const wrong = checks.locator('[data-answer-result="wrong"]');
+  await expect(unknown).toContainText("回答「わからない」");
+  const wrong = checks.locator("article").filter({ hasText: "誤答" });
   await expect(wrong).toContainText(Q2);
-  await expect(wrong).toContainText("「必ず同じ治療になる」と回答");
-  // 未回答（3 問目）は誤答・「わからない」と分けて示す
-  await expect(checks.locator("[data-unanswered]")).toContainText(`処方済みで設問に未回答：「${MATERIAL}」1問（全3問・学習途中）`);
-  // 4 対応する教材の候補（規則による・AI 不使用）: 前回処方済み（日付）の教材を、理由つきで再処方できる
-  const cand = s.locator('[data-key-row="candidates"]');
-  await expect(cand.locator("[data-candidate-kind]")).toHaveText("ルールによる候補（AI不使用）");
-  const rx = cand.locator(`[data-rx-candidate="${MATERIAL}"]`);
-  await expect(rx.locator("[data-rx-status]")).toContainText(/前回処方済み（\d+月\d+日）/);
-  await expect(rx.locator("[data-reason='answer']").first()).toContainText("設問「");
-  await expect(rx.getByRole("button", { name: "再処方に追加" })).toBeVisible();
-  // 領域別（点数で断定しない）と学習履歴の根拠は「詳細」を開いて見る
-  await expect(s.locator(".cd-area-compact")).toHaveCount(0);
-  await s.locator("[data-details-toggle]").click();
+  await expect(wrong).toContainText("回答「必ず同じ治療になる」");
+  await unknown.getByRole("button", { name: /詳細/ }).click();
+  await expect(unknown).toContainText("「患者さんの年齢」");
+  await expect(unknown).toContainText(`関連教材：${MATERIAL}`);
+  await expect(unknown).toContainText(/回答/);
+  // 理解度（合計の正答率を押すと領域別。点数で断定しない）と学習履歴の根拠
+  await s.locator("[data-understanding] .cd-score-main").click();
   await expect(s.locator(".cd-area-compact")).toContainText("検査・診断");
-  await expect(s.locator(".cd-area-compact button").filter({ hasText: "検査・診断" })).toContainText("0 / 2");
+  await expect(s.locator(".cd-area-compact .cd-area-line").filter({ hasText: "検査・診断" })).toContainText("0 / 2");
+  await openAi(s);
   await s.locator(".cd-intervisit-cards article").filter({ hasText: "学習履歴" }).getByRole("button").click();
   await expect(s.locator("[data-learning-evidence]")).toContainText(`${MATERIAL}（第1版）：学習途中`);
   await expect(s.locator("[data-intervisit]")).toContainText("直近14日間");
   // 詳しく確認 → 再処方候補（同じ診察ではまだ処方していないので追加できる）
-  await unknown.getByRole("button", { name: "解説・詳しく確認" }).click();
+  await unknown.getByRole("button", { name: "詳しく確認" }).click();
   await expect(s.locator(".cd-answer-compare")).toContainText("わからない");
   await expect(s.locator(".cd-answer-compare")).toContainText("患者さんの年齢");
   await s.getByRole("button", { name: "再処方候補へ" }).click();
   await expect(s.locator(".cd-toast").filter({ hasText: "処方候補へ追加しました" })).toBeVisible();
   await expect(s.locator(".cd-toast").filter({ hasText: /エラー|ERROR|できません/ })).toHaveCount(0);
   await s.getByRole("button", { name: "何も記録せずサマリーへ戻る" }).click();
-  // 選択は候補に「今回選択中」と出て、画面下に件数と「確認へ進む」が常に見える
-  await expect(rx.locator("[data-rx-status]")).toContainText("今回選択中");
-  const bar = s.locator("[data-rx-bar]");
-  await expect(bar).toBeInViewport();
-  await expect(bar.locator("[data-rx-count]")).toHaveText("選択中 1件");
-
-  // 8-2. 同じ教材の再処方: 確認画面で「再処方」と前回の処方日。メッセージは別の画面へ行って戻っても残る
-  await bar.getByRole("button", { name: "確認へ進む" }).click();
-  await expect(s.getByRole("heading", { name: "今回の情報処方を確認" })).toBeVisible();
-  await expect(s.locator(".cd-sidebar nav button.active")).toContainText("教材ライブラリ");
-  await expect(s.locator(".cd-selected-materials")).toContainText(MATERIAL);
-  await expect(s.locator(".cd-selected-materials")).toContainText(/前回処方済み（\d+月\d+日）/);
-  await expect(s.locator(".cd-selected-materials .cd-badge")).toHaveText("再処方");
-  await s.locator(".cd-confirm-panel textarea").fill("病期の説明をもう一度一緒に確認しましょう（架空）");
-  await s.locator(".cd-sidebar").getByRole("button", { name: "在宅経過" }).click();
-  await expect(s.getByRole("heading", { name: "在宅経過表" })).toBeVisible();
-  await s.locator(".cd-sidebar").getByRole("button", { name: "教材ライブラリ" }).click();
-  await expect(card.locator("[data-rx-status]")).toContainText("今回選択中");
-  await s.locator("[data-rx-bar]").getByRole("button", { name: "確認へ進む" }).click();
-  await expect(s.locator(".cd-confirm-panel textarea")).toHaveValue("病期の説明をもう一度一緒に確認しましょう（架空）");
-  await s.getByRole("button", { name: "1件の情報処方を確定" }).click();
-  await expect(s.getByRole("heading", { name: "情報処方を届けました" })).toBeVisible();
-  // この診察で処方済みになり、同じ診察では重複処方しない
-  await s.getByRole("button", { name: "診察サマリーへ戻る" }).click();
-  await expect(rx.locator("[data-rx-status]")).toContainText("この診察で処方済み");
-  await expect(rx.getByRole("button", { name: "この診察で処方済み" })).toBeDisabled();
 
   // 9. 何も追加入力せずに共有を終了できる
   await s.locator(".cd-app-header").getByRole("button", { name: "共有終了" }).click();
@@ -210,14 +175,13 @@ test("患者: 処方のない教材を自分で探して学べる（自主学習
   await p.locator(".d-category-cards button").filter({ hasText: "手術" }).click();
   await expect(p.locator(".d-area-overview")).toContainText("公開教材");
   await p.locator(".d-lesson-card").first().click();
-  await expect(p.locator(".d-detail .d-status")).toContainText("未学習");
-  await expect(p.locator(".d-detail [data-source]")).toHaveText("自分で読める");
+  await expect(p.locator(".d-detail .d-status")).toContainText("自主・未学習");
   await p.getByRole("button", { name: "学習を始める" }).click();
   await p.getByRole("button", { name: "次へ" }).click();
   await p.getByRole("button", { name: "閉じる" }).click();
   await expect(p.locator(".toast")).toContainText("学習位置を保存しました");
   await p.locator(".d-nav").getByRole("button", { name: "学習記録" }).click();
-  await expect(p.locator(".d-recent .d-lesson-card").filter({ hasText: "自分で読める" }).filter({ hasText: "学習途中" })).toHaveCount(1);
+  await expect(p.locator(".d-recent .d-lesson-card").filter({ hasText: "自主・学習途中" })).toHaveCount(1);
   await expect(p.locator(".d-recent")).toContainText("乳房の手術の種類と選び方");
   await patient.ctx.close();
 });

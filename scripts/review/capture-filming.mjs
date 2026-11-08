@@ -110,13 +110,11 @@ for (const [w, vp] of Object.entries(PATIENT_VP)) {
     await shot(a, `F_P22_sim_result_${w}`);
     await shot(a, `F_P22_sim_result_full_${w}`, { fullPage: true });
     await a.getByRole("button", { name: "最初から選び直す" }).click();
-    for (const sel of ["[data-sim-choice='entry-known']", "[data-sim-step='1'] button >> text=2026年11月", "[data-sim-choice='under70']", "[data-sim-choice='employee']"]) await a.locator(sel).first().click();
+    for (const sel of ["[data-sim-step='1'] button >> text=2026年11月", "[data-sim-choice='under70']", "[data-sim-choice='employee']"]) await a.locator(sel).first().click();
     await shot(a, `F_P23_sim_bracket_${w}`);
     await a.locator("[data-sim-choice='bracket-c']").click();
-    await a.locator("[data-sim-choice='many-no']").click();
     await shot(a, `F_P24_sim_cost_${w}`);
     await a.goto(B + "/home?view=simulator");
-    await a.locator("[data-sim-choice='entry-known']").click();
     await a.locator("[data-sim-step='1'] button >> text=2026年11月").first().click();
     await a.locator("[data-sim-choice='over70']").click();
     await a.locator("[data-sim-unsupported]").waitFor();

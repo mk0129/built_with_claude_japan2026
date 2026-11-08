@@ -10,6 +10,13 @@ const symptom = (p: Page, name: string) => p.locator(".d-symptom-records article
 const vital = (p: Page, label: string) => p.locator(".d-vital-card").filter({ hasText: label }).locator("input").first();
 const severity = (p: Page, name: string, value: number) => symptom(p, name).locator(".d-severity-scale button").nth(value).click();
 
+/** 2026-11: AI 外来間サマリー（要約・根拠・タイムライン）は診察サマリーの折りたたみの中。開いてから確認する */
+async function openAi(page: import("@playwright/test").Page) {
+  const t = page.locator("[data-ai-fold] .cd-ai-fold-toggle");
+  await t.waitFor({ timeout: 15_000 });
+  if ((await t.getAttribute("aria-expanded")) !== "true") await t.click();
+}
+
 test("体調記録・症状の設定・診察ノート → QR 共有で医療者が質問を確認 → 終了後は拒否", async ({ browser }) => {
   // 1. 患者がログイン（患者B: 履歴なし）
   const patient = await newPage(browser, { width: 390, height: 844 });
@@ -19,7 +26,7 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   await expect(p.locator("[data-proto-flag]")).toHaveCount(0);
   await expect(p.locator(".d-home")).toContainText("まだ記録はありません");
 
-  // 2. バイタルと症状を記録（新しい記録は空欄から。前回の値は入らない）
+  // 2. バイタルと症状を記録（初回は前回の記録がないので空欄から）
   await p.locator(".d-nav").getByRole("button", { name: "体調記録" }).click();
   await expect(vital(p, "体温")).toHaveValue("");
   await vital(p, "体温").fill("36.8");
@@ -27,11 +34,16 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   await severity(p, "だるさ・倦怠感", 0); // なし
   await severity(p, "吐き気", 2); // 中くらい
   await severity(p, "発汗・ほてり", 1); // 軽い（このあと非表示にする）
-  await expect(symptom(p, "手足のしびれ")).toContainText("未回答（欠測として保存）");
+  await expect(symptom(p, "手足のしびれ")).toContainText("未回答");
   await p.getByRole("button", { name: "この記録を保存" }).click();
   await expect(p.locator(".toast")).toContainText("体調を記録しました");
   await expect(p.locator(".d-gentle-feedback")).toContainText("1");
-  // 保存後のフォームは空に戻る（次の記録に前回の値を使わない）
+  // 2026-11: 保存後のフォームには前回（いま保存した記録）の値が入り、変わったところだけ直せばよい。「空欄から記録」で空にできる
+  await expect(p.locator("[data-prefill-note]")).toBeVisible();
+  await expect(vital(p, "体温")).toHaveValue("36.8");
+  await expect(symptom(p, "吐き気").locator(".d-severity-scale button.active")).toContainText("中くらい");
+  await expect(symptom(p, "手足のしびれ")).toContainText("未回答");
+  await p.locator("[data-prefill-clear]").click();
   await expect(vital(p, "体温")).toHaveValue("");
   await expect(symptom(p, "吐き気")).toContainText("未回答");
 
@@ -65,7 +77,7 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   await severity(p, "足の裏のぴりぴり", 1);
   await p.getByRole("button", { name: "この記録を保存" }).click();
   await expect(p.locator(".toast")).toContainText("体調を記録しました");
-  await p.getByRole("button", { name: "履歴・グラフ" }).click();
+  await p.getByRole("button", { name: "履歴" }).click();
   await expect(p.locator(".d-health-list .d-section-head")).toContainText("1日分・2件");
 
   // 7. 欠測と「なし」が区別される / 非表示にした症状の過去の記録は残る
@@ -74,10 +86,10 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   await expect(items.nth(1)).toContainText("だるさ・倦怠感0 · なし");
   await expect(items.nth(1)).toContainText("発汗・ほてり1 · 軽い");
   await expect(items.nth(1)).not.toContainText("手足のしびれ");
-  await expect(items.nth(1)).toContainText("血圧 未記録");
+  await expect(items.nth(1)).toContainText("血圧 —");
   await items.nth(0).locator("summary").click(); // 2 回目
-  await expect(items.nth(0)).toContainText("118/74 mmHg");
-  await expect(items.nth(0)).toContainText("脈拍 未記録");
+  await expect(items.nth(0)).toContainText("118/74");
+  await expect(items.nth(0)).toContainText("脈拍 72"); // 2026-11: 前回の値（脈拍 72）を引き継いで保存
   await expect(items.nth(0)).toContainText("足の裏のぴりぴり1 · 軽い");
   // 過去の記録の編集（体温を直す）
   await items.nth(0).getByRole("button", { name: "この記録を編集" }).click();
@@ -87,7 +99,7 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   await expect(p.locator(".toast")).toContainText("記録を更新しました");
   const { records } = await (await p.request.get("/api/v1/health/records")).json();
   expect(records).toHaveLength(2);
-  expect(records[0].vitals).toMatchObject({ temperature: 37, systolic: 118, diastolic: 74, pulse: null, spo2: null });
+  expect(records[0].vitals).toMatchObject({ temperature: 37, systolic: 118, diastolic: 74, pulse: 72, spo2: null });
   expect(records[1].symptoms.map((s: { key: string }) => s.key)).not.toContain("numbness");
 
   // 8. 教材に紐づかない質問を作成
@@ -129,18 +141,13 @@ test("体調記録・症状の設定・診察ノート → QR 共有で医療者
   const sid = new URL(s.url()).searchParams.get("s")!;
 
   // 11. 医療者が診察サマリーで質問を確認（教材に紐づかない質問。閲覧だけで操作は求めない）
-  // 2 今日聞きたい質問: 原文・患者原文の表示・教材に結びつかない質問であること。根拠は 1 操作で開く
-  const q = s.locator('[data-key-row="questions"] [data-key-question]').filter({ hasText: "来月、2泊の旅行に行ってもよいですか？" });
+  const q = s.locator(".cd-question-priority article").filter({ hasText: "来月、2泊の旅行に行ってもよいですか？" });
   await expect(q).toBeVisible();
-  await expect(q).toContainText("患者原文");
-  await expect(q).toContainText("教材に結びつかない質問");
-  await q.locator("button.cd-key-sentence").click();
-  await expect(q.locator("[data-source-id^='vn:']")).toContainText("「来月、2泊の旅行に行ってもよいですか？」（患者原文）");
-  // 4 教材の候補: 教材に結びつかない質問だけなら候補を作らない（候補なし。ライブラリから選べることを示す）
-  const cand = s.locator('[data-key-row="candidates"]');
-  await expect(cand.locator("[data-no-candidates]")).toHaveText("質問・設問・症状に対応する承認済み教材は見つかりませんでした");
-  await expect(cand).toContainText("教材に結びつかない質問（1件）からは候補を作りません");
-  await expect(cand.getByRole("button", { name: /ほかの承認済み教材から選ぶ/ })).toBeVisible();
+  await expect(q).toContainText("診察ノート ·");
+  await expect(q).toContainText("自由な質問");
+  await q.getByRole("button").first().click();
+  await expect(q.getByRole("button", { name: "詳しく確認" })).toBeVisible(); // 2026-11: 注記は削除（原文を変えないのは設計どおり）
+  await openAi(s);
   await expect(s.locator("[data-intervisit]")).toContainText("来月、2泊の旅行に行ってもよいですか？");
   // 体調記録の取得 API（Step 4 の経過表で使う）は共有中だけ読める
   const h = await (await s.request.get(`/api/v1/consultations/${sid}/health`)).json();
@@ -177,11 +184,12 @@ test("理解確認から作った質問候補は、患者が確認して保存�
   await p.getByRole("button", { name: "理解を確認する" }).click();
   await p.locator(".d-answer-list button").filter({ hasText: "わからない" }).click();
   await p.getByRole("button", { name: "この回答で確定する" }).click();
-  await p.getByRole("button", { name: "次の診察で聞く（質問に残す）" }).click();
+  await p.getByRole("button", { name: "この内容を「聞きたいこと」に入れる" }).click();
   // 入力欄に候補が入るだけ（まだ記録されない）
   await expect(p.locator(".d-add-question textarea")).toHaveValue(/について、私の場合を教えてください/);
   expect((await (await p.request.get("/api/v1/notes")).json()).notes.length).toBe(before);
-  await p.getByRole("button", { name: "質問を保存" }).click();
+  await expect(p.locator("[data-notes-return]")).toBeVisible(); // 理解確認へ戻れる
+  await p.getByRole("button", { name: "質問を保存", exact: true }).click();
   await expect(p.locator(".toast")).toContainText("質問を保存しました");
   const { notes } = await (await p.request.get("/api/v1/notes")).json();
   expect(notes.length).toBe(before + 1);

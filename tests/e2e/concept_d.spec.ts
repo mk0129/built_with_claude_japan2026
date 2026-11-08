@@ -61,10 +61,10 @@ test("患者: ログイン後に Figma 版ホーム。主要な画面遷移、�
   const css = await page.evaluate(() => ({ html: getComputedStyle(document.documentElement).fontSize, font: getComputedStyle(document.body).fontFamily }));
   expect(css.html).toBe("16px");
   expect(css.font).toContain("Noto Sans JP");
-  await expect(page.getByRole("heading", { name: "今日、確認すること" })).toBeVisible();
+  await expect(page.locator("[data-home-journey]")).toBeVisible(); // 2026-11: ホームは「次の診察（固定）・歩み・聞きたいこと（固定）」の 3 ゾーン
 
   // 実データ（Step 2）: 今回の処方の教材 → 詳細 → 学習 → 再読み込みで同じページ → 閉じてホーム（理解確認の通しは prescribe_learn.spec.ts）
-  await page.locator(".d-next-card .primary-button").click();
+  await page.locator("[data-home-lesson] .primary-button").click(); // 2026-11: 歩みの「今」のカード
   await expect(page).toHaveURL(/view=detail/);
   await page.locator(".d-detail .d-bottom-action").click();
   await expect(page).toHaveURL(/view=learn/);
@@ -91,9 +91,9 @@ test("患者: ログイン後に Figma 版ホーム。主要な画面遷移、�
   await expect(page.getByRole("button", { name: "この医療者に共有を許可する" })).toHaveCount(0);
   await expect(page.getByText(/と一時共有中です/)).toHaveCount(0);
 
-  // PC: Figma のタブレット表示（768px）を中央に置く
+  // PC: 患者はスマートフォンで使う前提。430px のスマートフォン枠を中央に置く（2026-11: タブレット幅には広げない）
   await page.setViewportSize({ width: 1440, height: 948 });
-  expect(await device.boundingBox()).toMatchObject({ x: 336, y: 24, width: 768, height: 900 });
+  expect(await device.boundingBox()).toMatchObject({ x: 505, y: 24, width: 430, height: 900 });
   await ctx.close();
 });
 
@@ -142,7 +142,7 @@ test("開発用 /d/dev: 一時共有中 → 診察サマリー・質問・理解
   await page.locator(".cd-sidebar").getByRole("button", { name: "在宅経過" }).click();
   for (const v of ["バイタル統合", "症状グラフ", "経過表"]) await page.getByRole("button", { name: v }).click();
   await page.locator(".cd-sidebar").getByRole("button", { name: "教材スタジオ" }).click();
-  await expect(page.locator(".cd-stepper button")).toHaveCount(7);
+  await expect(page.locator(".cd-stepper button")).toHaveCount(4);
   await page.locator(".cd-sidebar").getByRole("button", { name: "共有を終了" }).click();
   await expect(page.getByText("患者一覧はありません")).toBeVisible();
   await ctx.close();

@@ -17,6 +17,8 @@ export const VITAL_LIMITS = {
   diastolic: [30, 160],
   pulse: [20, 250],
   spo2: [50, 100],
+  /** 酸素投与量（L/分）。酸素を吸入している患者だけが任意で記録する */
+  oxygenFlow: [0, 15],
 } as const;
 type VitalKey = keyof typeof VITAL_LIMITS;
 
@@ -49,7 +51,7 @@ function validate(input: HealthRecordInput) {
     const lim = VITAL_LIMITS[k as VitalKey];
     if (!lim) throw badRequest("INVALID_VITAL");
     if (!Number.isFinite(v) || v < lim[0] || v > lim[1]) throw badRequest("INVALID_VITAL", `${k} は ${lim[0]}〜${lim[1]} の範囲で入力してください`);
-    if (k !== "temperature" && !Number.isInteger(v)) throw badRequest("INVALID_VITAL", `${k} は整数で入力してください`);
+    if (k !== "temperature" && k !== "oxygenFlow" && !Number.isInteger(v)) throw badRequest("INVALID_VITAL", `${k} は整数で入力してください`);
   }
   const seen = new Set<string>();
   for (const s of input.symptoms) {
@@ -95,7 +97,7 @@ async function loadRecords(patientId: string, db: Db, ids?: string[], range?: { 
     measuredAt: r.measuredAt,
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
-    vitals: { temperature: num(r.temperature), systolic: r.systolic, diastolic: r.diastolic, pulse: r.pulse, spo2: r.spo2 },
+    vitals: { temperature: num(r.temperature), systolic: r.systolic, diastolic: r.diastolic, pulse: r.pulse, spo2: r.spo2, oxygenFlow: num(r.oxygenFlow) },
     symptoms: entries
       .filter((e) => e.recordId === r.id)
       .map((e) => ({ key: e.symptomKey, name: e.symptomName ?? nameOf(e.symptomKey) ?? e.symptomKey, severity: e.severity, count: e.count, location: e.location, interference: e.interference })),
@@ -129,6 +131,7 @@ const vitalColumns = (v: HealthRecordInput["vitals"]) => ({
   diastolic: v.diastolic ?? null,
   pulse: v.pulse ?? null,
   spo2: v.spo2 ?? null,
+  oxygenFlow: v.oxygenFlow == null ? null : String(v.oxygenFlow),
 });
 
 /** 新しい記録（同じ日でも別の記録）。前回の値は引き継がない */

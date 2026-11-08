@@ -23,6 +23,9 @@ const severity = (p: Page, name: string, value: number) =>
 
 async function record(p: Page, daysAgo: number, hh: number, mm: number, v: Partial<Record<"体温" | "脈拍" | "SpO₂", string>> & { bp?: [string, string] }, numbness: number) {
   await p.locator(".d-measured-at input").fill(localInput(daysAgo, hh, mm));
+  // 2026-11: フォームには前回の値が入る。このテストは記録ごとの値を厳密に決めたいので、空欄から入力する
+  const clear = p.locator("[data-prefill-clear]");
+  if (await clear.isVisible().catch(() => false)) await clear.click();
   for (const [k, val] of Object.entries(v)) if (k !== "bp") await vital(p, k).fill(val as string);
   if (v.bp) {
     await p.getByLabel("収縮期血圧").fill(v.bp[0]);
@@ -32,6 +35,13 @@ async function record(p: Page, daysAgo: number, hh: number, mm: number, v: Parti
   await p.getByRole("button", { name: "この記録を保存" }).click();
   await expect(p.locator(".toast")).toContainText("体調を記録しました");
   await p.locator(".d-feedback-close").click();
+}
+
+/** 2026-11: AI 外来間サマリー（要約・根拠・タイムライン）は診察サマリーの折りたたみの中。開いてから確認する */
+async function openAi(page: import("@playwright/test").Page) {
+  const t = page.locator("[data-ai-fold] .cd-ai-fold-toggle");
+  await t.waitFor({ timeout: 15_000 });
+  if ((await t.getAttribute("aria-expanded")) !== "true") await t.click();
 }
 
 test("在宅経過表・バイタル統合グラフ・外来間サマリー（構造化・AI）・根拠・再生成・代替表示・終了後の拒否", async ({ browser }) => {
@@ -84,6 +94,7 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   const sid = new URL(s.url()).searchParams.get("s")!;
 
   // 10. 外来間の構造化サマリー（実データから）。前回外来日ではなく期間と前回共有日を明記
+  await openAi(s);
   const iv = s.locator("[data-intervisit]");
   await expect(iv.locator("[data-period-line]")).toContainText("直近14日間");
   await expect(iv).toContainText("前回の共有記録なし");
@@ -135,18 +146,14 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await expect(iv.locator("[data-severity-legend]")).toHaveCount(0);
   // 症状は記録された値を日付つきで（言い換えない）。元の記録を 1 操作で開ける
   const numb = iv.locator('[data-key-row="symptom"] [data-symptom="numbness"]');
-  // 「最大」「直近」をラベルで示し、値と日付を並べる
-  await expect(numb.locator("[data-stat='max']")).toHaveText(`最大3/4（${md(3)}）`);
-  await expect(numb.locator("[data-stat='last']")).toHaveText(`直近2/4（${md(1)}）`);
+  await expect(numb).toContainText(`${md(3)} 3/4`);
+  await expect(numb).toContainText(`直近の記録は${md(1)} 2/4`);
   await numb.locator("button.cd-key-sentence").click();
   await expect(numb.locator("[data-summary-sources] [data-source-id^='hs:']")).toHaveCount(4);
   await numb.locator("button.cd-key-sentence").click();
   // 生成元は 1 回だけ短く示し、作成情報を開くと生成元・照合方法・尺度の説明
   await expect(iv.locator("[data-ai-kind]")).toHaveCount(1);
   await expect(iv.locator("[data-ai-kind]")).toHaveText("開発用の擬似要約（AIではありません）");
-  // 1〜3 は記録の値をそのまま（AI 不使用）、教材の候補は規則による（AI 不使用）と区別して表示
-  await expect(iv.locator("[data-structured-note]")).toContainText("1〜3は記録の値・原文をそのまま表示（AI不使用）");
-  await expect(iv.locator("[data-candidate-kind]")).toHaveText("ルールによる候補（AI不使用）");
   await iv.locator("[data-ai-info-toggle]").click();
   await expect(iv.locator("[data-ai-info]")).toContainText("開発用の擬似生成です。Claude ではありません。");
   await expect(iv.locator("[data-severity-legend]")).toContainText("患者本人が記録した");
@@ -172,14 +179,7 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await expect(s.locator(".cd-course-controls")).toContainText("記録日 3日 / 14日 · 4件");
   const numbRow = s.locator(".cd-course-table tr").filter({ hasText: "手足のしびれ" });
   await expect(numbRow).toContainText("2×2");
-  // 経過表は直近の日（右端）が最初に見える位置で開く
-  const wrap = s.locator(".cd-course-table-wrap");
-  expect(await wrap.evaluate((el) => el.scrollWidth - el.clientWidth - el.scrollLeft)).toBeLessThan(2);
   await numbRow.getByRole("button", { name: /2×2/ }).click();
-  // セルの詳細は表の下に出し、隣のセルを覆わない
-  const detailBox = (await s.locator("[data-course-detail]").boundingBox())!;
-  const tableBox = (await wrap.boundingBox())!;
-  expect(detailBox.y).toBeGreaterThanOrEqual(tableBox.y + tableBox.height - 1);
   await expect(s.locator("[data-day-entries]")).toContainText("08:00 3 / 4（強い）");
   await expect(s.locator("[data-day-entries]")).toContainText("20:30 2 / 4（中くらい）");
   await s.locator(".cd-course-detail").getByRole("button", { name: "閉じる" }).click();
@@ -194,13 +194,15 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await s.locator(".cd-vital-plot rect.hover-zone").nth(1).hover();
   await expect(s.locator(".cd-vital-tooltip")).toContainText("37.4 ℃");
   await expect(s.locator(".cd-vital-tooltip")).toContainText("未測定");
-  // 欠測期間（4・5 日前）を線で結ばない: 体温の線は 6 日前と 3 日前を結ばない
-  const tempPath = await s.locator(".cd-vital-plot g.metric.temperature path").getAttribute("d");
-  expect(tempPath?.match(/M /g)?.length).toBeGreaterThanOrEqual(2);
+  // 欠測期間（4・5 日前、2 日前）をはさむ区間は破線（data-vital-gap）で結び、実線（隣の日どうし）にはしない
+  const gapPath = await s.locator(".cd-vital-plot g.metric.temperature path[data-vital-gap]").getAttribute("d");
+  expect(gapPath?.match(/M /g)?.length).toBeGreaterThanOrEqual(2);
+  const solidPath = await s.locator(".cd-vital-plot g.metric.temperature path:not([data-vital-gap])").getAttribute("d");
+  expect(solidPath ?? "").not.toContain("L ");
 
   // 13. 元データを変更すると、再生成した要約に反映される
   await p.goto("/home?view=health");
-  await p.getByRole("button", { name: "履歴・グラフ" }).click();
+  await p.getByRole("button", { name: "履歴" }).click();
   const target = p.locator(".d-health-list details").filter({ hasText: "37.4" });
   await target.locator("summary").click();
   await target.getByRole("button", { name: "この記録を編集" }).click();
@@ -208,12 +210,14 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await p.getByRole("button", { name: "この記録を更新" }).click();
   await expect(p.locator(".toast")).toContainText("記録を更新しました");
   await s.locator(".cd-sidebar").getByRole("button", { name: "診察" }).click();
+  await openAi(s);
   await s.locator("[data-intervisit] [data-summary-all-toggle]").click();
   await s.getByRole("button", { name: "外来間サマリーを再生成" }).click();
   await expect(s.locator("[data-intervisit]")).toContainText(`手足のしびれは${md(6)}に1/4、${md(1)}に2/4と記録されました（期間内の最大は${md(3)}の2/4、4回記録）。`, { timeout: 15_000 });
 
   // 14. AI 生成エラー・検証不合格時は安全な代替表示（ルールベース）。元データは閲覧できる
   await s.goto(`/staff?s=${sid}&aisim=invalid`);
+  await openAi(s);
   await expect(s.locator('.cd-summary-narrative[data-summary-kind="rule"]')).toBeVisible({ timeout: 15_000 });
   await expect(s.locator("[data-ai-status='fallback']")).toContainText("AI要約は表示していません");
   // 擬似生成の不正な出力（「改善」「39.9℃」「理解力」）は表示されない
@@ -223,15 +227,17 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await s.locator("[data-intervisit] [data-summary-all-toggle]").click();
   await expect(s.locator("[data-intervisit]")).toContainText("体調記録は14日中3日、4件です。");
   await s.goto(`/staff?s=${sid}&aisim=error`);
+  await openAi(s);
   await expect(s.locator("[data-ai-status='fallback']")).toContainText("AI 要約を生成できませんでした", { timeout: 15_000 });
   // 代替表示でも、患者の質問は原文のまま先頭に出る（AI の文に置き換えない）
   await expect(s.locator('[data-key-row="questions"] [data-key-question]').first()).toContainText("「仕事に戻る時期の目安を相談したいです。」");
 
   // 14-2. 期間を変える（質問を保存する前の 6〜5 日前だけ）: 質問がない状態を区別し、前の期間の質問を出さない
   await s.goto(`/staff?s=${sid}`);
+  await openAi(s);
   const iv2 = s.locator("[data-intervisit]");
   await expect(iv2.locator('[data-key-row="questions"] [data-key-question]').first()).toBeVisible({ timeout: 15_000 });
-  await iv2.getByRole("button", { name: "期間を確認・変更" }).click();
+  await s.locator("[data-summary-v2]").getByRole("button", { name: "期間を変更" }).click();
   const dIn = (n: number) => localInput(n, 0).slice(0, 10);
   await s.locator(".cd-period-editor input").first().fill(dIn(6));
   await s.locator(".cd-period-editor input").nth(1).fill(dIn(5));

@@ -22,13 +22,15 @@
   box-shadow: none;
   transition: none;
 }
-@media (min-width: 816px) {
-  .d-app-stage { padding: 24px; }
-  .d-device.d-device-app.viewport-tablet {
-    width: 768px;
+/* PC で開いたとき: 患者はスマートフォンで使う前提なので、430px のスマートフォン枠を中央に置く（タブレット幅には広げない） */
+@media (min-width: 701px) {
+  .d-app-stage { display: flex; justify-content: center; align-items: flex-start; padding: 24px; }
+  .d-device.d-device-app.viewport-430 {
+    width: 430px;
     height: calc(100vh - 48px);
     height: calc(100dvh - 48px);
-    border-radius: 24px;
+    max-height: 932px;
+    border-radius: 32px;
     box-shadow: var(--shadow), 0 0 0 8px #dce4e4;
   }
 }

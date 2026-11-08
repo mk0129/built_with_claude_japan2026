@@ -77,7 +77,10 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
 ];
 
 /** 教材10本の骨子（本文・クイズは Day2 以降に投入） */
+import { SOCIAL_MATERIALS } from "./seed-content-social";
+
 export const DEMO_MATERIALS: { title: string; primaryDomain: string; scope: "common" | "org"; ownerOrgSlug?: string; summary: string }[] = [
+  ...SOCIAL_MATERIALS,
   { title: "乳がんの診断と病期の考え方", primaryDomain: "diagnosis_staging", scope: "common", summary: "病期（ステージ）が何を表すか、検査結果の見方を短く整理します。" },
   { title: "サブタイプと治療方針のつながり", primaryDomain: "diagnosis_staging", scope: "common", summary: "ホルモン受容体やHER2が治療の選び方にどう関わるかを説明します。" },
   { title: "乳房の手術の種類と選び方", primaryDomain: "surgery", scope: "common", summary: "乳房温存手術と乳房全切除の違い、センチネルリンパ節生検について。" },

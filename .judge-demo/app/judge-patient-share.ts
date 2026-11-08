@@ -17,33 +17,10 @@ function readGrant():NativeGrant|null {
   if(grant.decision==="pending" && Date.parse(grant.expiresAt)<=Date.now())grant.decision="expired";
   return grant;
 }
-const grantEvent="judge:grant";
-function save(grant:NativeGrant){sessionStorage.setItem(grantKey,JSON.stringify(grant));dispatchEvent(new Event(grantEvent));}
+function save(grant:NativeGrant){sessionStorage.setItem(grantKey,JSON.stringify(grant));}
 export function getNativePatientGrant() {
   const grant=readGrant();
   return grant?.decision==="pending"?grant:null;
-}
-/** デモの外枠の案内用: 共有コードの状態（値で比較できる文字列。コードの有効期限切れも反映） */
-export function getGrantSnapshot():string {
-  try { const grant=readGrant(); return grant?JSON.stringify(grant):""; } catch { return ""; }
-}
-export function subscribeGrant(listener:()=>void) {
-  addEventListener(grantEvent,listener);
-  return ()=>removeEventListener(grantEvent,listener);
-}
-/** 医療者が「架空患者の診察」を選んだとき、発行済みで未承認の共有コードを取り消す（共有は始めない） */
-export function cancelPendingGrant() {
-  const grant=getNativePatientGrant();
-  if(grant){grant.decision="denied";save(grant);}
-}
-const practiceKey="shiori:judge:share-practice:v1";
-/** 審査員が「共有の操作を試す」を選んだか（このタブの間だけ。案内の表示にだけ使う） */
-export function isSharePractice() {
-  try { return sessionStorage.getItem(practiceKey)==="1"; } catch { return false; }
-}
-export function setSharePractice(on:boolean) {
-  try { if(on)sessionStorage.setItem(practiceKey,"1"); else sessionStorage.removeItem(practiceKey); } catch {}
-  dispatchEvent(new Event(grantEvent));
 }
 
 export function nativeShareApi(url:URL,method:string,body:Record<string,unknown>) {

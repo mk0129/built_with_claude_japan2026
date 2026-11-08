@@ -1,24 +1,20 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode, type RefObject } from "react"
 import { useUrlState } from "./urlState"
 import { ShioriLogo } from "./ShioriLogo"
 import { setCoverFor, themeImageFor, toneFor } from "./thumbnails"
 import { CostSimulator } from "./CostSimulator"
-import { searchMaterials, type MaterialSearchOptions, type SearchSnippet } from "./materialSearch"
-import { useMaterialSearchSlides } from "./materialSearchSlides"
 import { MONEY_THEME, MONEY_TITLES, SIMULATOR_MATERIAL, SIMULATOR_NAME } from "./socialSupport"
+import { VITAL_FLAG_NOTE, vitalFlag } from "@/lib/recommend"
 import { daysUntil, visitDateLabel, type PatientVisit } from "./visit"
 import type { PatientLive } from "./live"
-import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes } from "./health"
-import { answeredSymptoms, clearHealthDraft, hasDraftInput, readHealthDraft, writeHealthDraft } from "./healthDraft"
+import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes, type VisitNote } from "./health"
+import { DEFAULT_ANCHORS, SEVERITY_ANCHORS, SYMPTOM_ALIASES, TREATMENTS } from "./symptomGuide"
+import { SlideArt, slideArtKey } from "./SlideArt"
+import { speakText, stopSpeaking, speechSupported } from "./speech"
 import {
-  isNewRx,
-  isRecentRx,
-  readSeenRx,
   saveProgress,
-  shortDate,
-  writeSeenRx,
   useAttempt,
   useLearnView,
   type LiveLesson,
@@ -56,12 +52,6 @@ export function Icon({ name, size = 20 }: { name: string; size?: number }) {
     ),
     check: <path d="m5 12 4 4L19 6" />,
     arrow: <path d="m9 18 6-6-6-6" />,
-    bell: (
-      <>
-        <path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4Z" />
-        <path d="M10 20a2 2 0 0 0 4 0" />
-      </>
-    ),
     clock: (
       <>
         <circle cx="12" cy="12" r="9" />
@@ -156,6 +146,69 @@ export function Icon({ name, size = 20 }: { name: string; size?: number }) {
         <path d="M20 7a5 5 0 0 0-8-3 5 5 0 0 0-8 6c0 5 8 10 8 10s4-2.5 6.5-5.5" />
       </>
     ),
+    // 学習領域のアイコン（内容に合わせた絵柄。配色は CSS の .d-area-* で領域ごとに変える）
+    clipboard: (
+      <>
+        <rect x="5" y="4" width="14" height="17" rx="2" />
+        <path d="M9 2h6v4H9zM8 11h8M8 15h5" />
+      </>
+    ),
+    scalpel: (
+      <>
+        <path d="M4 20 15 9" />
+        <path d="M13 7l4-4 4 4-4 4" />
+        <path d="M5 13c3 0 6 3 6 6" />
+      </>
+    ),
+    pill: (
+      <>
+        <rect x="3" y="9" width="18" height="8" rx="4" transform="rotate(-35 12 13)" />
+        <path d="m9.5 8.5 5 7" />
+      </>
+    ),
+    sun: (
+      <>
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" />
+      </>
+    ),
+    leaf: (
+      <>
+        <path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14Z" />
+        <path d="M5 19c3-4 6-7 10-10" />
+      </>
+    ),
+    chat: (
+      <>
+        <path d="M4 5h16v11H9l-5 4Z" />
+        <path d="M8 9h8M8 12h5" />
+      </>
+    ),
+    wallet: (
+      <>
+        <rect x="3" y="6" width="18" height="13" rx="2" />
+        <path d="M3 10h18M16 14h2" />
+      </>
+    ),
+    flag: (
+      <>
+        <path d="M5 21V4" />
+        <path d="M5 4h12l-2 4 2 4H5" />
+      </>
+    ),
+    bell: (
+      <>
+        <path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4Z" />
+        <path d="M10 21h4" />
+      </>
+    ),
+    flask: (
+      <>
+        <path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3" />
+        <path d="M7 15h10" />
+      </>
+    ),
+    x: <path d="M6 6l12 12M18 6 6 18" />,
   }
   return (
     <svg
@@ -324,13 +377,15 @@ const dLessons: DLesson[] = [
 ]
 
 const dCategories = [
-  { name: "検査・診断", count: 5, icon: "search", progress: 50 },
-  { name: "手術", count: 6, icon: "plus", progress: 40 },
-  { name: "薬物療法", count: 8, icon: "book", progress: 10 },
-  { name: "放射線療法", count: 4, icon: "shield", progress: 0 },
-  { name: "副作用・支持療法", count: 12, icon: "help", progress: 20 },
-  { name: "日常生活・相談支援", count: 9, icon: "home", progress: 35 },
+  { name: "検査・診断", count: 5, icon: "clipboard", progress: 50 },
+  { name: "手術", count: 6, icon: "scalpel", progress: 40 },
+  { name: "薬物療法", count: 8, icon: "pill", progress: 10 },
+  { name: "放射線療法", count: 4, icon: "sun", progress: 0 },
+  { name: "副作用・支持療法", count: 12, icon: "leaf", progress: 20 },
+  { name: "日常生活・相談支援", count: 9, icon: "chat", progress: 35 },
 ]
+/** 学習領域ごとの配色クラス（CSS の .d-area-1〜6） */
+export const areaTone = (name: string) => `d-area-${Math.max(0, dCategories.findIndex((c) => c.name === name)) + 1}`
 
 /** 学習領域の一覧。本番は DB の教材数・学習状況から作ったものを Provider で渡す（なければ Figma の架空の値） */
 type DCategoryInfo = { name: string; count: number; icon: string; progress: number }
@@ -349,9 +404,11 @@ type DLiveInfo = {
   homeSets: PatientLearning["homeSets"]
   sharingLabel: string | null
   sharingRemainingMin: number
-  /** 本番（Step 3）: 診察ノートの質問数・最後に体調を記録した日（未記録は null） */
+  /** 本番（Step 3）: 聞きたいこと（未解決の質問）の数・最後に体調を記録した日（未記録は null） */
   noteCount: number
   lastHealthDate: string | null
+  /** 今日の体調記録があるか（リマインドの表示に使う） */
+  recordedToday: boolean
 }
 const LiveInfoContext = createContext<DLiveInfo | null>(null)
 
@@ -363,7 +420,7 @@ const dScenarios = [
   "今回処方3件",
   "学習途中あり",
   "処方をすべて完了",
-  "自分で読める教材を利用",
+  "自主学習を利用",
   "公開教材が多数",
   "一時共有中",
 ]
@@ -402,10 +459,21 @@ function DImageSlot({
         </div>
       </div>
     )
+  // 小さな枠（教材カード）では、1600px の原寸をブラウザで 48px まで縮めると線画がぎざぎざになるため、あらかじめ 192px に縮めた画像を使う
+  // （public/thumbnails/small/*.png。なければ原寸に戻す）
+  const smallSrc = compact ? image.src.replace(/^\/thumbnails\/([^/]+)\.webp$/, "/thumbnails/small/$1.png") : image.src
   const placeholderContent = (
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={image.src} alt={image.alt} style={{ width: "100%", height: "100%", objectFit: fit, background: "#fff" }} />
+      <img
+        src={smallSrc}
+        alt={image.alt}
+        className="d-slot-image"
+        style={{ width: "100%", height: "100%", objectFit: fit }}
+        onError={(event) => {
+          if (event.currentTarget.src.endsWith(smallSrc) && smallSrc !== image.src) event.currentTarget.src = image.src
+        }}
+      />
       {onExpand && (
         <span className="d-expand">
           <Icon name="search" size={16} />
@@ -434,9 +502,9 @@ function DImageSlot({
   )
 }
 
-/** 学習状態（未学習・学習途中・学習済み）。入手経路は DSource で別に示す（short は以前の呼び出しとの互換のため残す） */
 function DStatus({
   lesson,
+  short = false,
 }: {
   lesson: DLesson
   short?: boolean
@@ -459,17 +527,9 @@ function DStatus({
         }
         size={15}
       />
-      {statusText}
-    </span>
-  )
-}
-
-/** 入手経路（医療者から届いた／自分で読める）。学習状態（DStatus）とは別の言葉・アイコンで示す */
-function DSource({ lesson }: { lesson: DLesson }) {
-  return (
-    <span className={`d-source ${lesson.prescribed ? "rx" : "self"}`} data-source>
-      <Icon name={lesson.prescribed ? "user" : "search"} size={13} />
-      {lesson.prescribed ? "医療者から届いた" : "自分で読める"}
+      {short
+        ? statusText
+        : `${lesson.prescribed ? "処方" : "自主"}・${statusText}`}
     </span>
   )
 }
@@ -485,7 +545,7 @@ function DLessonCard({
 }) {
   return (
     <button
-      className={`d-lesson-card ${horizontal ? "horizontal" : ""}`}
+      className={`d-lesson-card ${horizontal ? "horizontal" : ""} ${areaTone(lesson.category)}`}
       onClick={onOpen}
     >
       <DImageSlot
@@ -497,18 +557,12 @@ function DLessonCard({
         seed={lesson.title}
       />
       <span className="d-lesson-card-body">
-        <span className="d-card-top">
-          <span className="d-status-pair">
-            <DSource lesson={lesson} />
-            <DStatus lesson={lesson} />
-          </span>
-          <span className="d-time">
-            <Icon name="clock" size={14} />
-            {lesson.time}分
-          </span>
-        </span>
         <b>{lesson.title}</b>
-        <span className="d-category">{lesson.category}</span>
+        <span className="d-card-meta">
+          <DStatus lesson={lesson} />
+          <span className="d-time">{lesson.time}分</span>
+          <span className="d-category">{lesson.category}</span>
+        </span>
         {lesson.status === "doing" && (
           <span className="d-progress-line">
             <i style={{ width: `${lesson.progress}%` }} />
@@ -612,7 +666,6 @@ export function DPrototype({
   live,
   learning,
   userName,
-  patientId,
   health,
   notesLive,
   visit,
@@ -633,8 +686,6 @@ export function DPrototype({
   learning?: PatientLearning
   /** 本番: 患者の表示名（ホームの呼びかけ） */
   userName?: string
-  /** 本番: ログイン中の患者の ID（体調記録の下書きの持ち主。画面には出さない） */
-  patientId?: string
   /** 本番（Step 3）: 体調記録・症状の設定の実 API。なければ Figma の架空の記録 */
   health?: PatientHealth
   /** 本番（Step 3）: 診察ノートの実 API。なければ Figma の架空の質問メモ */
@@ -657,15 +708,10 @@ export function DPrototype({
   const [selectedId, setSelectedId] = useUrlState<string>("lesson", "1")
   // 本番: 理解確認から作った質問候補（診察ノートの入力欄に入れ、患者が確認して保存したときだけ DB に記録）
   const [noteDraft, setNoteDraft] = useState<{ text: string; versionId: string; questionId: string; title: string } | null>(null)
-  // 理解確認の解説から「次の診察で聞く」に移ったとき、同じ設問・解説・スクロール位置へ戻るための記録（この画面の中だけ）
-  const [quizReturn, setQuizReturn] = useState<{ lessonId: string; questionId: string; title: string; scrollTop: number } | null>(null)
-  const [restoreScroll, setRestoreScroll] = useState<number | null>(null)
-  const mainRef = useRef<HTMLElement | null>(null)
-  useEffect(() => {
-    // 聞きたいことの画面から別の画面へ移ったら、戻り先の記録は使わない
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (page !== "notes") setQuizReturn(null)
-  }, [page])
+  // 理解確認から「聞きたいこと」へ移ったとき、元の画面へ戻るための行き先
+  const [notesReturn, setNotesReturn] = useState<DPage | null>(null)
+  // 学習記録からの復習（最新の挑戦の誤答・「わからない」を順に読む。回答は記録しない）
+  const [reviewMode, setReviewMode] = useState(false)
   // 本番: 回答の解説を表示している設問（再読み込みで同じ解説に戻る）
   const [quizQuestionId, setQuizQuestionId] = useUrlState<string>("q", "")
   const [selectedCategory, setSelectedCategory] = useUrlState<string>("area", "手術")
@@ -691,15 +737,9 @@ export function DPrototype({
   ])
   // 本番: 体調記録・症状の設定（Figma の架空の記録の代わり）
   const records = health ? health.records : healthRecords
-  // 体調記録の下書きの持ち主（患者 ID がない公開デモはタブに 1 人の架空患者だけ）
-  const draftOwner = health ? patientId || "local" : undefined
-  useEffect(() => {
-    // 別の患者の下書きが同じタブに残っていれば、体調記録を開く前でも消す（患者を切り替えても持ち越さない）
-    if (draftOwner) readHealthDraft(draftOwner)
-  }, [draftOwner])
-  const noteCount = notesLive ? notesLive.notes.length : notes.length
+  const unresolvedNotes = notesLive ? notesLive.notes.filter((note) => !note.resolvedAt) : null
+  const noteCount = unresolvedNotes ? unresolvedNotes.length : notes.length
   const [quizAnswer, setQuizAnswer] = useState("")
-  const [motionEnabled, setMotionEnabled] = useState(true)
   const [lessonStates, setLessonStates] = useState<Record<string, {
     status: DLesson["status"]
     progress: number
@@ -729,7 +769,7 @@ export function DPrototype({
   })
   const figmaLessons =
     scenario === 6
-      ? [...scenarioLessons, ...dLessons.slice(3, 8).map((lesson, index) => ({
+      ? [...scenarioLessons, ...dLessons.slice(3, 8).map((lesson) => ({
             ...lesson,
             id: Number(lesson.id) + 20,
             title: `${lesson.title}：詳しく知る`,
@@ -746,50 +786,10 @@ export function DPrototype({
   const activePrescription =
     prescriptions.find((lesson) => lesson.status === "doing") ||
     prescriptions.find((lesson) => lesson.status === "new")
-  // ---- ホームの「新着」: まだ開いていない今回の処方（既読はこの端末に処方の鍵だけを保存。サーバーは変えない） ----
-  const rxOwner = patientId || "local"
-  const latestRxKey = learning?.loaded ? (learning.latest?.key ?? "") : ""
-  const [seenRx, setSeenRx] = useState<string | null | undefined>(() => (typeof window === "undefined" ? undefined : readSeenRx(rxOwner)))
-  const allLatestStarted = prescriptions.length > 0 && prescriptions.every((lesson) => lesson.status !== "new")
-  const markRxSeen = () => {
-    if (!latestRxKey || seenRx === latestRxKey) return
-    writeSeenRx(rxOwner, latestRxKey)
-    setSeenRx(latestRxKey)
-  }
-  const rxRecent = isRecentRx(learning?.latest?.createdAt ?? "")
-  const rxIsNew = !!learning && isNewRx(latestRxKey, seenRx, allLatestStarted, rxRecent)
-  useEffect(() => {
-    if (!learning || !latestRxKey) return
-    // この端末で初めて開いた患者: すでに読み始めている処方は「開いた」として記録（以後の再処方から新着を出す）
-    if (seenRx === null && allLatestStarted && !rxRecent) {
-      writeSeenRx(rxOwner, latestRxKey)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSeenRx(latestRxKey)
-      return
-    }
-    // 今回届いた教材の一覧・今回届いた教材の詳細を開いたら既読にする（学習の進捗・処方の履歴は変えない）
-    if (rxIsNew && (page === "prescriptions" || (page === "detail" && selected?.latest))) {
-      writeSeenRx(rxOwner, latestRxKey)
-      setSeenRx(latestRxKey)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [latestRxKey, seenRx, allLatestStarted, rxRecent, page, selected?.id])
-  const newRxSingle = prescriptions.length === 1 ? prescriptions[0] : null
-  const newRx: DNewRx | null =
-    rxIsNew && learning?.latest
-      ? {
-          count: prescriptions.length,
-          sender: learning.latest.sender,
-          date: learning.latest.date,
-          hasNote: learning.latest.hasNote,
-          reread: prescriptions.filter((lesson) => lesson.status !== "new").length,
-          singleTitle: newRxSingle?.title ?? null,
-        }
-      : null
   const filteredLessons = visibleLessons.filter((lesson) => {
     const sourceMatch =
       sourceFilter === "すべて" ||
-      (sourceFilter === "届いた" ? lesson.prescribed : !lesson.prescribed)
+      (sourceFilter === "処方" ? lesson.prescribed : !lesson.prescribed)
     const statusMatch =
       statusFilter === "すべて" ||
       (statusFilter === "未学習" && lesson.status === "new") ||
@@ -802,24 +802,6 @@ export function DPrototype({
     setDetailBack(from)
     setSelectedId(String(lesson.id))
     setPage("detail")
-  }
-  // 検索で本文・スライドも探す（教材一覧にはスライドがないため、検索画面を開いたときだけ取得する）
-  const searchSlides = useMaterialSearchSlides(
-    learning ? visibleLessons.map((lesson) => lesson.versionId).filter((id): id is string => !!id) : [],
-    page === "search",
-  )
-  // 検索結果のスライドから、その説明のページを直接開く（戻ると教材の詳細）
-  const openLessonAt = (lesson: DLesson, seq: number) => {
-    setDetailBack("search")
-    setSelectedId(String(lesson.id))
-    if (!learning || !lesson.versionId) {
-      setPage("detail")
-      return
-    }
-    // 学習位置の保存は従来どおり（未学習なら開始として 1 ページ目を記録し、以降はページ移動で保存される）
-    if (lesson.status === "new") void saveProgress(lesson.versionId, 1, "reading").catch(() => {})
-    setSlideAt({ versionId: lesson.versionId, seq })
-    setPage("learn")
   }
 
   // ---- 本番（Step 2）: 学習・理解確認の実データ ----
@@ -856,21 +838,29 @@ export function DPrototype({
   }, [learning, versionId, page, quiz.attempt])
   // 一覧の画面へ戻ったら、学習状態を読み直す（学習・回答の結果を反映）
   useEffect(() => {
-    if (learning && ["home", "set", "money", "prescriptions", "library", "category", "search", "detail", "history"].includes(page)) void learning.reload()
+    if (learning && ["home", "set", "money", "prescriptions", "library", "category", "search", "detail", "history"].includes(page)) {
+      void learning.reload()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
-  const attempt = quiz.attempt
+  // 一覧の画面に戻ったら、学習記録からの復習は終わり
+  const listPage = ["home", "set", "money", "prescriptions", "library", "category", "search", "detail", "history"].includes(page)
+  if (reviewMode && listPage) setReviewMode(false)
+  // 一時共有中は、医療者が処方した教材をすぐ反映する（10 秒ごと・画面に戻ったとき）
   useEffect(() => {
-    if (restoreScroll === null || page !== "explanation" || !attempt) return
-    const top = restoreScroll
-    const id = window.requestAnimationFrame(() => {
-      if (mainRef.current) mainRef.current.scrollTop = top
-      window.scrollTo(0, top)
-    })
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setRestoreScroll(null)
-    return () => window.cancelAnimationFrame(id)
-  }, [restoreScroll, page, attempt])
+    if (!learning) return
+    const onFocus = () => void learning.reload({ silent: true })
+    window.addEventListener("focus", onFocus)
+    document.addEventListener("visibilitychange", onFocus)
+    const timer = live?.sharing ? window.setInterval(onFocus, 10000) : null
+    return () => {
+      window.removeEventListener("focus", onFocus)
+      document.removeEventListener("visibilitychange", onFocus)
+      if (timer) window.clearInterval(timer)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [learning?.loaded, live?.sharing])
+  const attempt = quiz.attempt
   // 結果の画面: 理解確認の完了はサーバーで記録済み（最後の回答で学習を完了にする）。一覧を読み直して件数を DB と合わせる。
   // 読み直しの間は「確認中」、失敗したら成功の表示を出さない
   // 確認の単位（教材・再試行の回数）。保存済みの確認結果がこの単位のものでなければ「確認中」
@@ -892,8 +882,10 @@ export function DPrototype({
   }, [resultKey])
   const syncResult = () => setResultTry((n) => n + 1)
   const nextQuestion = attempt?.questions.find((question) => !question.answer) ?? null
+  const reviewQuestions = (attempt?.questions ?? []).filter((question) => question.answer && !question.answer.isCorrect)
   const shownQuestion =
     attempt?.questions.find((question) => question.questionId === quizQuestionId && question.answer) ??
+    (reviewMode ? reviewQuestions[0] : null) ??
     [...(attempt?.questions ?? [])].reverse().find((question) => question.answer) ??
     null
   const startQuiz = async () => {
@@ -942,26 +934,17 @@ export function DPrototype({
             setSetId(id)
             setPage("set")
           }}
-          onOpenMoney={() => setPage("money")}
           setPage={setPage}
           visit={visit}
           recentNotes={
-            notesLive
-              ? [...notesLive.notes]
-                  .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-                  .map((note) => ({ body: note.body, date: shortDate(note.createdAt) }))
-              : [...notes].reverse().map((body) => ({ body, date: null }))
+            unresolvedNotes
+              ? [...unresolvedNotes].reverse().map((note) => ({ id: note.id, body: note.body }))
+              : [...notes].reverse().map((body, index) => ({ id: `${index}-${body}`, body }))
           }
-          newRx={newRx}
-          onOpenNewRx={() => {
-            markRxSeen()
-            if (newRxSingle) openLesson(newRxSingle, "home")
-            else setPage("prescriptions")
-          }}
           onAddNote={async (body) => {
             if (notesLive) {
               const ok = await notesLive.create(body)
-              if (ok) notify("質問を保存しました")
+              if (ok) notify("聞きたいことに保存しました")
               return ok
             }
             setNotes([...notes, body])
@@ -1037,6 +1020,7 @@ export function DPrototype({
             setSelectedCategory(category)
             setPage("category")
           }}
+          onOpenMoney={() => setPage("money")}
           onOpen={openLesson}
         />
       )
@@ -1058,10 +1042,7 @@ export function DPrototype({
           query={query}
           setQuery={setQuery}
           lessons={visibleLessons}
-          slidesByVersion={searchSlides.slidesByVersion}
-          loadingSlides={searchSlides.loading}
           onOpen={openLesson}
-          onOpenSlide={openLessonAt}
           onBack={() => setPage("library")}
         />
       )
@@ -1169,7 +1150,10 @@ export function DPrototype({
                   question: shownQuestion,
                   relatedTitle:
                     learnView?.slides.find((slide) => slide.seq === shownQuestion?.relatedSlideSeq)?.title ?? null,
-                  remaining: attempt?.questions.filter((q) => !q.answer).length ?? 0,
+                  remaining: reviewMode
+                    ? Math.max(0, reviewQuestions.length - 1 - reviewQuestions.findIndex((q) => q.questionId === shownQuestion?.questionId))
+                    : (attempt?.questions.filter((q) => !q.answer).length ?? 0),
+                  review: reviewMode ? { index: reviewQuestions.findIndex((q) => q.questionId === shownQuestion?.questionId) + 1, total: reviewQuestions.length } : null,
                 }
               : undefined
           }
@@ -1179,6 +1163,18 @@ export function DPrototype({
             setPage("learn")
           }}
           onNext={() => {
+            if (learning && reviewMode) {
+              const idx = reviewQuestions.findIndex((q) => q.questionId === shownQuestion?.questionId)
+              const next = reviewQuestions[idx + 1]
+              if (next) {
+                setQuizQuestionId(next.questionId)
+                return
+              }
+              setReviewMode(false)
+              setQuizQuestionId("")
+              setPage("history")
+              return
+            }
             if (learning) {
               setQuizAnswer("")
               setPage(attempt?.questions.some((q) => !q.answer) ? "quiz" : "result")
@@ -1193,19 +1189,14 @@ export function DPrototype({
           onAddQuestion={() => {
             // 本番: 候補を診察ノートの入力欄に入れるだけ（患者が確認して「質問を保存」を押したときに記録）
             if (notesLive && shownQuestion && selected?.versionId) {
-              setQuizReturn({
-                lessonId: String(selected.id),
-                questionId: shownQuestion.questionId,
-                title: selected.title,
-                scrollTop: mainRef.current?.scrollTop || window.scrollY || 0,
-              })
               setNoteDraft({
                 text: `「${shownQuestion.stem}」について、私の場合を教えてください`,
                 versionId: selected.versionId,
                 questionId: shownQuestion.questionId,
                 title: selected.title,
               })
-              notify("質問の候補を入力欄に入れました。確認して保存してください")
+              notify("質問候補を入力欄に入れました。確認して保存してください")
+              setNotesReturn("explanation")
               setPage("notes")
               return
             }
@@ -1213,7 +1204,7 @@ export function DPrototype({
               ? `「${shownQuestion.stem}」について、私の場合を教えてください`
               : "腕を動かす範囲について、私の場合の目安を教えてください"
             if (!notes.includes(candidate)) setNotes([...notes, candidate])
-            notify("質問を保存しました")
+            notify("質問候補を「聞きたいこと」に追加しました")
           }}
         />
       )
@@ -1244,8 +1235,6 @@ export function DPrototype({
             ).size
           }
           questionCount={noteCount}
-          motionEnabled={motionEnabled}
-          setMotionEnabled={setMotionEnabled}
           onNotes={() => setPage("notes")}
           onHome={() => setPage("home")}
         />
@@ -1259,6 +1248,18 @@ export function DPrototype({
             setSelectedCategory(category)
             setPage("category")
           }}
+          onReview={
+            learning
+              ? (lesson) => {
+                  // 復習: 教材を選び、最新の挑戦の解説（最初の誤答・「わからない」）を開く
+                  setDetailBack("history")
+                  setSelectedId(String(lesson.id))
+                  setQuizQuestionId("")
+                  setReviewMode(true)
+                  setPage("explanation")
+                }
+              : undefined
+          }
         />
       )
     if (page === "health")
@@ -1275,11 +1276,6 @@ export function DPrototype({
           customNames={health ? health.customNames : customSymptomNames}
           setCustomNames={setCustomSymptomNames}
           health={health}
-          draftOwner={draftOwner}
-          learnedCount={visibleLessons.filter((lesson) => lesson.status !== "new").length}
-          noteCount={noteCount}
-          motionEnabled={motionEnabled}
-          setMotionEnabled={setMotionEnabled}
           notify={notify}
         />
       )
@@ -1291,24 +1287,9 @@ export function DPrototype({
           live={notesLive}
           draftFrom={noteDraft}
           clearDraft={() => setNoteDraft(null)}
-          returnTo={
-            quizReturn
-              ? {
-                  title: quizReturn.title,
-                  onReturn: () => {
-                    setSelectedId(quizReturn.lessonId)
-                    setQuizQuestionId(quizReturn.questionId)
-                    setRestoreScroll(quizReturn.scrollTop)
-                    setNoteDraft(null)
-                    setQuizReturn(null)
-                    setPage("explanation")
-                  },
-                }
-              : null
-          }
           notify={notify}
-          onShare={() => setPage("share")}
           visitDate={visit?.date ?? null}
+          returnTo={notesReturn ? { label: "理解確認に戻る", go: () => { const to = notesReturn; setNotesReturn(null); setPage(to) } } : null}
         />
       )
     return (
@@ -1343,6 +1324,7 @@ export function DPrototype({
         sharingLabel: live?.clinicianName ?? null,
         sharingRemainingMin: live?.remainingMin ?? 0,
         noteCount,
+        recordedToday: records.some((record) => record.measuredAt.slice(0, 10) === toLocalInput(now).slice(0, 10)),
         lastHealthDate: records.length
           ? (() => {
               const d = new Date([...records].sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))[0].measuredAt)
@@ -1378,7 +1360,7 @@ export function DPrototype({
         {!fullScreen && (
           <DHeader sharing={sharing} onShare={() => setPage("share")} />
         )}
-        <main ref={mainRef} className={`d-main ${fullScreen ? "full" : ""}`}>
+        <main className={`d-main ${fullScreen ? "full" : ""}`}>
           {renderPage()}
         </main>
         {!fullScreen && (
@@ -1431,6 +1413,51 @@ export function DPrototype({
   )
 }
 
+/** 体調記録の入力欄で受け付ける範囲（UI の上限。サーバーの VITAL_LIMITS より狭く、生理的にあり得る範囲だけ入力できる） */
+const VITAL_UI: Record<string, { min: number; max: number; intDigits: number; decimals: number }> = {
+  temperature: { min: 34, max: 42, intDigits: 2, decimals: 1 },
+  systolic: { min: 60, max: 250, intDigits: 3, decimals: 0 },
+  diastolic: { min: 30, max: 150, intDigits: 3, decimals: 0 },
+  pulse: { min: 30, max: 200, intDigits: 3, decimals: 0 },
+  spo2: { min: 70, max: 100, intDigits: 3, decimals: 0 },
+  oxygenFlow: { min: 0, max: 15, intDigits: 2, decimals: 1 },
+}
+/** 入力途中の文字列を受け付けるか（桁数と上限だけ見る。下限は保存時に確認） */
+function acceptVital(key: string, raw: string): boolean {
+  if (raw === "") return true
+  const rule = VITAL_UI[key]
+  if (!rule) return true
+  const re = rule.decimals > 0 ? new RegExp(`^\\d{0,${rule.intDigits}}(\\.\\d{0,${rule.decimals}})?$`) : new RegExp(`^\\d{0,${rule.intDigits}}$`)
+  if (!re.test(raw)) return false
+  const n = Number(raw)
+  return Number.isNaN(n) || n <= rule.max
+}
+const vitalRange = (key: string) => {
+  const r = VITAL_UI[key]
+  return r.decimals > 0 ? `${r.min.toFixed(1)}〜${r.max.toFixed(1)}` : `${r.min}〜${r.max}`
+}
+
+type VitalForm = { temperature: string; systolic: string; diastolic: string; pulse: string; spo2: string; oxygenFlow: string }
+type SymptomDetailForm = Record<string, { count?: string; location?: string; interference?: string }>
+type HealthForm = {
+  /** 前回値を入れた元の記録（この記録が最新である間はこのフォームを使う。新しい記録が増えたら前回値を入れ直す） */
+  base: string | null
+  /** 「空欄から記録」を選んだ */
+  cleared?: boolean
+  vitals: VitalForm
+  symptoms: Record<string, number | undefined>
+  details: SymptomDetailForm
+}
+const emptyVitals: VitalForm = { temperature: "", systolic: "", diastolic: "", pulse: "", spo2: "", oxygenFlow: "" }
+const vitalsToForm = (v: HealthRecord["vitals"]): VitalForm => ({
+  temperature: String(v.temperature ?? ""),
+  systolic: String(v.systolic ?? ""),
+  diastolic: String(v.diastolic ?? ""),
+  pulse: String(v.pulse ?? ""),
+  spo2: String(v.spo2 ?? ""),
+  oxygenFlow: String(v.oxygenFlow ?? ""),
+})
+
 function DHealthTracker({
   records,
   setRecords,
@@ -1438,201 +1465,123 @@ function DHealthTracker({
   setActiveSymptomIds,
   customNames,
   setCustomNames,
-  motionEnabled,
-  setMotionEnabled,
   notify,
   health,
-  draftOwner,
-  learnedCount,
-  noteCount,
 }: {
-  /** 本番（Step 3）: 体調記録の実 API。1 回の測定 = 1 記録（同じ日でも別の記録）。新しい記録は空欄から始める */
+  /** 本番（Step 3）: 体調記録の実 API。1 回の測定 = 1 記録（同じ日でも別の記録） */
   health?: PatientHealth
-  /** 本番: 保存前の入力（下書き）の持ち主。同じ患者がこの画面に戻ったときだけ入力を戻す（healthDraft.ts） */
-  draftOwner?: string
-  learnedCount?: number
-  noteCount?: number
   records: HealthRecord[]
   setRecords: (records: HealthRecord[]) => void
   activeSymptomIds: string[]
   setActiveSymptomIds: (ids: string[]) => void
   customNames: Record<string, string>
   setCustomNames: (names: Record<string, string>) => void
-  motionEnabled: boolean
-  setMotionEnabled: (value: boolean) => void
   notify: (message?: string) => void
 }) {
   const latest =
     [...records].sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))[0] ||
     initialHealthRecords[initialHealthRecords.length - 1]
+  const latestLive = health ? [...records].sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))[0] : undefined
   const [view, setView] = useState<"record" | "history" | "manage">("record")
-  // 本番: 新しい記録は今の日時・すべて空欄（前回の値を今回の値として入れない）
   const [measuredAt, setMeasuredAt] = useState(() => (health ? toLocalInput(new Date()) : latest.measuredAt))
-  const emptyVitals = { temperature: "", systolic: "", diastolic: "", pulse: "", spo2: "" }
-  const [vitals, setVitals] = useState(() =>
-    health
-      ? emptyVitals
-      : {
-          temperature: String(latest.vitals.temperature ?? ""),
-          systolic: String(latest.vitals.systolic ?? ""),
-          diastolic: String(latest.vitals.diastolic ?? ""),
-          pulse: String(latest.vitals.pulse ?? ""),
-          spo2: String(latest.vitals.spo2 ?? ""),
-        },
-  )
-  const [symptoms, setSymptoms] = useState<Record<string, number | undefined>>(() =>
-    health
-      ? {}
-      : Object.fromEntries(
-          activeSymptomIds.map((id) => [id, latest.symptoms[id]?.severity]),
-        ),
-  )
+  // 酸素投与量の欄は、酸素を吸入している患者だけが開く（一度値を入れたら開いたまま）
+  const [oxygenOpen, setOxygenOpen] = useState(() => records.some((record) => record.vitals.oxygenFlow !== undefined))
+  const [anchorsOpen, setAnchorsOpen] = useState<string | null>(null)
+  /**
+   * 入力フォーム。毎回すべて入れ直さなくて済むよう、前回（最新）の記録の値を入れておき、変わったところだけ直して保存する。
+   * 最新の記録が変わったら（保存した・読み込んだ）、その値を入れ直す（base で判定。効果（useEffect）での setState は使わない）
+   */
+  const sortedRecords = [...records].sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))
+  // 症状は、その症状を最後に回答した記録の値を使う（前回の記録で答えていない症状も、前々回の値が入る）
+  const prefill = (record?: HealthRecord): HealthForm => ({
+    base: record?.id ?? null,
+    vitals: record ? vitalsToForm(record.vitals) : emptyVitals,
+    symptoms: record
+      ? Object.fromEntries(
+          activeSymptomIds
+            .map((id) => [id, sortedRecords.find((r) => r.symptoms[id])?.symptoms[id]?.severity] as const)
+            .filter(([, severity]) => severity !== undefined),
+        )
+      : {},
+    details: {},
+  })
+  const [form, setFormState] = useState<HealthForm>(() => prefill(health ? undefined : latest))
   // 本番: 履歴から編集している記録（なければ新しい記録）
   const [editingId, setEditingId] = useState<string | null>(null)
+  const baseId = health ? (latestLive?.id ?? null) : latest.id
+  const current: HealthForm = editingId || !health || form.base === baseId ? form : prefill(latestLive)
+  const { vitals, symptoms, details } = current
+  const setVitals = (next: VitalForm) => setFormState({ ...current, base: editingId ? current.base : baseId, vitals: next })
+  const setSymptoms = (next: Record<string, number | undefined>) => setFormState({ ...current, base: editingId ? current.base : baseId, symptoms: next })
+  const setDetails = (next: SymptomDetailForm) => setFormState({ ...current, base: editingId ? current.base : baseId, details: next })
+  const prefilled = !!health && !editingId && !!latestLive && !current.cleared
   const [saving, setSaving] = useState(false)
   const [detailOpen, setDetailOpen] = useState<string | null>(null)
-  const [details, setDetails] = useState<Record<string, {
-    count?: string
-    location?: string
-    interference?: string
-  }>>({})
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("すべて")
   const [customName, setCustomName] = useState("")
-  const [chartSymptom, setChartSymptom] = useState("numbness")
-  const [feedbackOpen, setFeedbackOpen] = useState(false)
-  // 本番: 保存前の入力（下書き）。このタブの sessionStorage にだけ置き、サーバーへは送らない
-  const draftEnabled = !!health && !!draftOwner
-  const healthLoaded = !!health?.loaded
-  const [draftReady, setDraftReady] = useState(false)
-  const [draftRestored, setDraftRestored] = useState(false)
-  // 連続タップでも保存は 1 回だけ（saving の state が反映される前の 2 回目を止める）
-  const savingRef = useRef(false)
-  useEffect(() => {
-    if (!draftEnabled || !healthLoaded || draftReady || !health || !draftOwner) return
-    const draft = readHealthDraft(draftOwner)
-    if (draft) {
-      // 編集中だった記録が削除されていれば、新しい記録として戻す
-      const editing = draft.editingId && health.records.some((record) => record.id === draft.editingId) ? draft.editingId : null
-      /* eslint-disable react-hooks/set-state-in-effect -- sessionStorage（外部）からの復元は表示後に一度だけ */
-      setMeasuredAt(draft.measuredAt)
-      setVitals(draft.vitals)
-      setSymptoms(draft.symptoms)
-      setDetails(draft.details)
-      setEditingId(editing)
-      setDraftRestored(true)
-    }
-    setDraftReady(true)
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [draftEnabled, healthLoaded, draftReady, health, draftOwner])
-  useEffect(() => {
-    if (!draftEnabled || !draftReady || !draftOwner) return
-    writeHealthDraft(draftOwner, { measuredAt, vitals, symptoms: answeredSymptoms(symptoms), details, editingId })
-  }, [draftEnabled, draftReady, draftOwner, measuredAt, vitals, symptoms, details, editingId])
+  const [chartSymptom, setChartSymptom] = useState("__all")
+  const [savedCount, setSavedCount] = useState<number | null>(null)
 
-  const limits: Record<string, [number, number]> = {
-    temperature: [30, 45],
-    systolic: [50, 260],
-    diastolic: [30, 160],
-    pulse: [20, 250],
-    spo2: [50, 100],
-  }
   const invalidFields = Object.entries(vitals)
     .filter(([, value]) => value !== "")
     .filter(([key, value]) => {
       const number = Number(value)
-      return (
-        Number.isNaN(number) ||
-        number < limits[key][0] ||
-        number > limits[key][1]
-      )
+      return Number.isNaN(number) || number < VITAL_UI[key].min || number > VITAL_UI[key].max
     })
     .map(([key]) => key)
+  // 血圧は上が下より大きい
+  const bpOrder = vitals.systolic !== "" && vitals.diastolic !== "" && Number(vitals.systolic) <= Number(vitals.diastolic)
+  const canSave = invalidFields.length === 0 && !bpOrder && !saving
   const displayName = (id: string) => customNames[id] || symptomName(id)
   const selectedDateRecord = records.find(
     (record) => record.measuredAt.slice(0, 10) === measuredAt.slice(0, 10),
   )
-  const recordedDayCount = new Set(
-    records.map((record) => record.measuredAt.slice(0, 10)),
-  ).size
-  // 本番: 保存前の入力があるか（あれば保存ボタンを画面の下に留め、症状一つだけでもすぐ保存できるようにする）
-  const answered = answeredSymptoms(symptoms)
-  const answeredIds = Object.keys(answered)
-  const hasInput = draftEnabled && hasDraftInput({ vitals, symptoms: answered, details })
-  const inputSummary = answeredIds.length
-    ? `${displayName(answeredIds[0])} ${answered[answeredIds[0]]}・${severityLabels[answered[answeredIds[0]]]}${answeredIds.length > 1 ? ` ほか${answeredIds.length - 1}件` : ""}`
-    : "バイタルサイン"
+  const recordedDayCount = new Set(records.map((record) => record.measuredAt.slice(0, 10))).size
 
   const loadRecordForDate = (value: string) => {
     setMeasuredAt(value)
     // 本番: 同じ日に何回でも記録できるため、日時を変えても既存の記録を読み込まない
     if (health) return
-    const found = records.find(
-      (record) => record.measuredAt.slice(0, 10) === value.slice(0, 10),
-    )
-    if (!found) {
-      setVitals({
-        temperature: "",
-        systolic: "",
-        diastolic: "",
-        pulse: "",
-        spo2: "",
-      })
-      setSymptoms({})
-      return
-    }
-    setVitals({
-      temperature: String(found.vitals.temperature ?? ""),
-      systolic: String(found.vitals.systolic ?? ""),
-      diastolic: String(found.vitals.diastolic ?? ""),
-      pulse: String(found.vitals.pulse ?? ""),
-      spo2: String(found.vitals.spo2 ?? ""),
-    })
-    setSymptoms(
-      Object.fromEntries(
-        activeSymptomIds.map((id) => [id, found.symptoms[id]?.severity]),
-      ),
-    )
+    const found = records.find((record) => record.measuredAt.slice(0, 10) === value.slice(0, 10))
+    setFormState(found ? { ...prefill(found), base: latest.id } : { base: latest.id, vitals: emptyVitals, symptoms: {}, details: {} })
   }
 
   /** 本番: 履歴の記録を編集のために読み込む */
   const editRecord = (record: HealthRecord) => {
     setEditingId(record.id)
     setMeasuredAt(record.measuredAt)
-    setVitals({
-      temperature: String(record.vitals.temperature ?? ""),
-      systolic: String(record.vitals.systolic ?? ""),
-      diastolic: String(record.vitals.diastolic ?? ""),
-      pulse: String(record.vitals.pulse ?? ""),
-      spo2: String(record.vitals.spo2 ?? ""),
-    })
-    setSymptoms(Object.fromEntries(Object.entries(record.symptoms).map(([id, entry]) => [id, entry.severity])))
-    setDetails(
-      Object.fromEntries(
+    if (record.vitals.oxygenFlow !== undefined) setOxygenOpen(true)
+    setFormState({
+      base: record.id,
+      vitals: vitalsToForm(record.vitals),
+      symptoms: Object.fromEntries(Object.entries(record.symptoms).map(([id, entry]) => [id, entry.severity])),
+      details: Object.fromEntries(
         Object.entries(record.symptoms).map(([id, entry]) => [
           id,
           { count: entry.count == null ? undefined : String(entry.count), location: entry.location, interference: entry.interference },
         ]),
       ),
-    )
-    setFeedbackOpen(false)
+    })
+    setSavedCount(null)
     setView("record")
   }
   const resetForm = () => {
-    setDraftRestored(false)
     setEditingId(null)
     setMeasuredAt(toLocalInput(new Date()))
-    setVitals(emptyVitals)
-    setSymptoms({})
-    setDetails({})
+    setFormState(prefill(latestLive))
+    setDetailOpen(null)
+  }
+  const clearForm = () => {
+    setFormState({ base: baseId, cleared: true, vitals: emptyVitals, symptoms: {}, details: {} })
     setDetailOpen(null)
   }
   const saveLive = async () => {
-    if (!health || invalidFields.length || saving || savingRef.current) return
+    if (!health || !canSave) return
     const n = (v: string) => (v === "" ? null : Number(v))
     const input: HealthInput = {
       measuredAt,
-      vitals: { temperature: n(vitals.temperature), systolic: n(vitals.systolic), diastolic: n(vitals.diastolic), pulse: n(vitals.pulse), spo2: n(vitals.spo2) },
+      vitals: { temperature: n(vitals.temperature), systolic: n(vitals.systolic), diastolic: n(vitals.diastolic), pulse: n(vitals.pulse), spo2: n(vitals.spo2), oxygenFlow: n(vitals.oxygenFlow) },
       // 回答した症状だけ（未回答は欠測として送らない）。非表示にした症状も、編集中の記録に回答があれば残す
       symptoms: Object.entries(symptoms)
         .filter(([, severity]) => severity !== undefined)
@@ -1644,24 +1593,21 @@ function DHealthTracker({
           interference: details[key]?.interference || null,
         })),
     }
-    savingRef.current = true
     setSaving(true)
     const wasEditing = !!editingId
     const ok = await health.save(input, editingId)
-    savingRef.current = false
     setSaving(false)
-    // 失敗したときは下書きを残す（入力を失わない）
     if (!ok) return
-    // 記録になった入力は下書きから消す（戻っても同じ入力が二重に保存されない）
-    clearHealthDraft()
-    resetForm()
-    setFeedbackOpen(true)
+    setEditingId(null)
+    setMeasuredAt(toLocalInput(new Date()))
+    setDetailOpen(null)
+    setSavedCount(new Set([...records.map((record) => record.measuredAt.slice(0, 10)), measuredAt.slice(0, 10)]).size)
     notify(wasEditing ? "記録を更新しました" : "体調を記録しました")
   }
 
   const saveRecord = () => {
     if (health) return void saveLive()
-    if (invalidFields.length) return
+    if (!canSave) return
     const symptomEntries: HealthRecord["symptoms"] = {}
     Object.entries(symptoms).forEach(([id, severity]) => {
       if (severity === undefined) return
@@ -1677,27 +1623,20 @@ function DHealthTracker({
       id: selectedDateRecord?.id || `r-${Date.now()}`,
       measuredAt,
       vitals: {
-        temperature: vitals.temperature
-          ? Number(vitals.temperature)
-          : undefined,
+        temperature: vitals.temperature ? Number(vitals.temperature) : undefined,
         systolic: vitals.systolic ? Number(vitals.systolic) : undefined,
         diastolic: vitals.diastolic ? Number(vitals.diastolic) : undefined,
         pulse: vitals.pulse ? Number(vitals.pulse) : undefined,
         spo2: vitals.spo2 ? Number(vitals.spo2) : undefined,
+        oxygenFlow: vitals.oxygenFlow ? Number(vitals.oxygenFlow) : undefined,
       },
       symptoms: symptomEntries,
     }
     setRecords(
-      selectedDateRecord
-        ? records.map((record) =>
-            record.id === selectedDateRecord.id ? nextRecord : record,
-          )
-        : [...records, nextRecord],
+      selectedDateRecord ? records.map((record) => (record.id === selectedDateRecord.id ? nextRecord : record)) : [...records, nextRecord],
     )
-    setFeedbackOpen(true)
-    notify(
-      selectedDateRecord ? "この日の記録を更新しました" : "体調を記録しました",
-    )
+    setSavedCount(selectedDateRecord ? recordedDayCount : recordedDayCount + 1)
+    notify(selectedDateRecord ? "この日の記録を更新しました" : "体調を記録しました")
   }
 
   if (view === "manage")
@@ -1725,48 +1664,40 @@ function DHealthTracker({
         }
         onBack={() => setView("record")}
         notify={notify}
+        onApplyTreatment={(ids: string[]) => {
+          const next = [...activeSymptomIds, ...ids.filter((id) => !activeSymptomIds.includes(id))]
+          setActiveSymptomIds(next)
+          notify(`治療に合わせて症状を${ids.filter((id) => !activeSymptomIds.includes(id)).length}件追加しました`)
+        }}
       />
     )
 
+  const symptomIds = health
+    ? [...activeSymptomIds, ...Object.keys(symptoms).filter((id) => symptoms[id] !== undefined && !activeSymptomIds.includes(id))]
+    : activeSymptomIds
+  const prefilledAt = latestLive
+    ? `${formatShortDate(latestLive.measuredAt)} ${new Date(latestLive.measuredAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`
+    : ""
+
   return (
-    <div className="d-health">
-      <p className="eyebrow">おうちでの記録</p>
-      <h1>体調記録</h1>
-      <p className="d-health-intro">
-        測ったもの、気になる症状だけを記録できます。毎日すべて入力する必要はありません。
-      </p>
-      <div className="d-health-tabs">
-        <button
-          className={view === "record" ? "active" : ""}
-          onClick={() => setView("record")}
-        >
-          今日の記録
-        </button>
-        <button
-          className={view === "history" ? "active" : ""}
-          onClick={() => setView("history")}
-        >
-          履歴・グラフ
-        </button>
+    <div className="d-health d-health-v2">
+      <div className="d-health-head">
+        <h1>体調記録</h1>
+        <div className="d-health-tabs">
+          <button aria-pressed={view === "record"} className={view === "record" ? "active" : ""} onClick={() => setView("record")}>
+            {editingId ? "記録を編集" : "今日の記録"}
+          </button>
+          <button aria-pressed={view === "history"} className={view === "history" ? "active" : ""} onClick={() => setView("history")}>
+            履歴
+          </button>
+        </div>
       </div>
       {view === "record" ? (
         <>
-          {draftRestored && hasInput && (
-            <div className="d-draft-restored" role="status" data-health-draft-restored>
-              <Icon name="clock" />
-              <p>
-                <b>保存前の入力を戻しました</b>
-                まだ記録には残っていません。
-              </p>
-              <button className="d-text-action" onClick={resetForm}>
-                入力を消す
-              </button>
-            </div>
-          )}
           <label className="d-measured-at">
             <span>
-              <Icon name="calendar" />
-              測定日時
+              <Icon name="calendar" size={16} />
+              日時
             </span>
             <input
               type="datetime-local"
@@ -1775,192 +1706,213 @@ function DHealthTracker({
               onChange={(event) => loadRecordForDate(event.target.value)}
             />
           </label>
-          <section className="d-health-section">
-            <div className="d-health-section-head">
-              <div>
-                <span className="d-health-step">1</span>
-                <div>
-                  <h2>バイタルサイン</h2>
-                  <p>測定していない項目は空欄で保存できます</p>
-                </div>
-              </div>
-              <BadgeLike>すべて任意</BadgeLike>
+          {prefilled && (
+            <div className="d-prefill-note" data-prefill-note>
+              <p>
+                前回（{prefilledAt}）の値です。変わったところだけ直してください。
+                <button className="d-text-action" data-prefill-clear onClick={clearForm}>
+                  空欄から記録
+                </button>
+              </p>
+              <button className="d-prefill-save" data-prefill-save disabled={!canSave} onClick={saveRecord}>
+                <Icon name="check" size={16} />
+                前回と同じ内容で保存
+              </button>
             </div>
+          )}
+          {editingId && (
+            <p className="d-prefill-note editing" data-editing-note>
+              {formatShortDate(measuredAt)} の記録を編集しています。
+              <button className="d-text-action" onClick={resetForm}>
+                やめて新しい記録へ
+              </button>
+            </p>
+          )}
+
+          {savedCount !== null && (
+            <div className="d-gentle-feedback" role="status">
+              <Icon name="check" size={18} />
+              <span>
+                保存しました · 記録した日 <b>{savedCount}</b>日
+              </span>
+              <button className="d-text-action" onClick={() => setView("history")}>
+                一覧で見る
+              </button>
+              <button className="d-feedback-close" onClick={() => setSavedCount(null)} aria-label="閉じる">
+                ×
+              </button>
+            </div>
+          )}
+
+          <section className="d-health-section">
+            <h2>バイタルサイン <small>測ったものだけ</small></h2>
             <div className="d-vital-grid">
               <DVitalField
                 label="体温"
                 unit="℃"
+                fieldKey="temperature"
                 value={vitals.temperature}
                 step="0.1"
                 invalid={invalidFields.includes("temperature")}
-                hint="30.0〜45.0"
-                onChange={(value) =>
-                  setVitals({ ...vitals, temperature: value })
-                }
+                onChange={(value) => setVitals({ ...vitals, temperature: value })}
               />
-              <div className="d-vital-card blood-pressure">
-                <label>血圧</label>
+              <div className={`d-vital-card blood-pressure${invalidFields.includes("systolic") || invalidFields.includes("diastolic") || bpOrder ? " invalid" : ""}`}>
+                <label>血圧 <span>mmHg</span></label>
                 <div>
                   <input
                     inputMode="numeric"
+                    type="number"
+                    min={VITAL_UI.systolic.min}
+                    max={VITAL_UI.systolic.max}
                     value={vitals.systolic}
-                    onChange={(event) =>
-                      setVitals({ ...vitals, systolic: event.target.value })
-                    }
+                    onChange={(event) => acceptVital("systolic", event.target.value) && setVitals({ ...vitals, systolic: event.target.value })}
                     placeholder="上"
                     aria-label="収縮期血圧"
                   />
                   <span>/</span>
                   <input
                     inputMode="numeric"
+                    type="number"
+                    min={VITAL_UI.diastolic.min}
+                    max={VITAL_UI.diastolic.max}
                     value={vitals.diastolic}
-                    onChange={(event) =>
-                      setVitals({ ...vitals, diastolic: event.target.value })
-                    }
+                    onChange={(event) => acceptVital("diastolic", event.target.value) && setVitals({ ...vitals, diastolic: event.target.value })}
                     placeholder="下"
                     aria-label="拡張期血圧"
                   />
                 </div>
-                <small>mmHg</small>
-                {(invalidFields.includes("systolic") ||
-                  invalidFields.includes("diastolic")) && (
-                  <p>桁数・単位を確認してください</p>
-                )}
+                {(invalidFields.includes("systolic") || invalidFields.includes("diastolic")) && <p>上 {vitalRange("systolic")}・下 {vitalRange("diastolic")}</p>}
+                {bpOrder && <p>上の値は下より大きくしてください</p>}
               </div>
               <DVitalField
                 label="脈拍"
                 unit="回/分"
+                fieldKey="pulse"
                 value={vitals.pulse}
                 invalid={invalidFields.includes("pulse")}
-                hint="20〜250"
                 onChange={(value) => setVitals({ ...vitals, pulse: value })}
               />
               <DVitalField
                 label="SpO₂"
                 unit="%"
+                fieldKey="spo2"
                 value={vitals.spo2}
                 invalid={invalidFields.includes("spo2")}
-                hint="50〜100"
                 onChange={(value) => setVitals({ ...vitals, spo2: value })}
               />
+              {oxygenOpen && (
+                <DVitalField
+                  label="酸素投与量"
+                  unit="L/分"
+                  fieldKey="oxygenFlow"
+                  value={vitals.oxygenFlow}
+                  step="0.5"
+                  invalid={invalidFields.includes("oxygenFlow")}
+                  onChange={(value) => setVitals({ ...vitals, oxygenFlow: value })}
+                />
+              )}
             </div>
-            <p className="d-value-policy">
-              入力値は自動補正しません。表示された単位と桁数を確認してください。
-            </p>
-          </section>
-          <section className="d-health-section symptoms">
-            <div className="d-health-section-head">
-              <div>
-                <span className="d-health-step">2</span>
-                <div>
-                  <h2>自覚症状</h2>
-                  <p>該当する程度を1回タップします</p>
-                </div>
-              </div>
-              <button onClick={() => setView("manage")}>
-                <Icon name="plus" />
-                症状を追加
+            {!oxygenOpen && (
+              <button className="d-text-action d-oxygen-toggle" data-oxygen-toggle onClick={() => setOxygenOpen(true)}>
+                酸素を吸入している方: 酸素投与量も記録
               </button>
-            </div>
+            )}
+          </section>
+
+          <section className="d-health-section symptoms">
+            <h2>
+              自覚症状 <small>程度を 1 回タップ</small>
+              <button className="d-link-button" onClick={() => setView("manage")} data-manage-symptoms>
+                <Icon name="plus" size={14} />
+                症状を追加・変更
+              </button>
+            </h2>
+            {symptomIds.length === 0 && (
+              <p className="d-symptom-setup-hint">
+                記録する症状がまだありません。「症状を追加・変更」から、受けている治療に合わせてまとめて選べます。
+              </p>
+            )}
             <div className="d-symptom-records">
-              {(health
-                ? [...activeSymptomIds, ...Object.keys(symptoms).filter((id) => symptoms[id] !== undefined && !activeSymptomIds.includes(id))]
-                : activeSymptomIds
-              ).map((id) => {
+              {symptomIds.map((id) => {
                 const definition = symptomLibrary.find((item) => item.id === id)
+                const anchors = SEVERITY_ANCHORS[id] ?? DEFAULT_ANCHORS
+                const chosen = symptoms[id]
                 return (
-                  <article key={id}>
+                  <article key={id} data-symptom-row={id}>
                     <div className="d-symptom-title">
-                      <div>
-                        <b>{displayName(id)}</b>
-                        <small>{definition?.category || "その他"}</small>
-                      </div>
-                      <button
-                        onClick={() =>
-                          setDetailOpen(detailOpen === id ? null : id)
-                        }
-                      >
-                        {detailOpen === id ? "詳細を閉じる" : "詳細（任意）"}
+                      <b>{displayName(id)}</b>
+                      {chosen === undefined && <small className="d-missing-label">未回答</small>}
+                      <button data-symptom-anchors onClick={() => setAnchorsOpen(anchorsOpen === id ? null : id)} aria-expanded={anchorsOpen === id}>
+                        目安
+                      </button>
+                      <button data-symptom-memo onClick={() => setDetailOpen(detailOpen === id ? null : id)} aria-expanded={detailOpen === id}>
+                        メモ{details[id]?.interference || details[id]?.count || details[id]?.location ? " ●" : ""}
                       </button>
                     </div>
                     <div className="d-severity-scale">
                       {severityLabels.map((label, value) => (
                         <button
                           key={label}
-                          className={
-                            symptoms[id] === value ? `active s${value}` : ""
-                          }
-                          onClick={() =>
-                            setSymptoms({ ...symptoms, [id]: value })
-                          }
+                          className={symptoms[id] === value ? `active s${value}` : ""}
+                          onClick={() => setSymptoms({ ...symptoms, [id]: value })}
                           aria-pressed={symptoms[id] === value}
+                          title={value === 0 ? "症状なし" : anchors[value - 1]}
                         >
                           <span>{value}</span>
                           {label}
                         </button>
                       ))}
                     </div>
-                    {symptoms[id] === undefined && (
-                      <p className="d-missing-label">
-                        未回答（欠測として保存）
+                    {chosen !== undefined && chosen > 0 && anchorsOpen !== id && (
+                      <p className="d-anchor-line" data-anchor-line>
+                        {anchors[chosen - 1]}
                       </p>
+                    )}
+                    {anchorsOpen === id && (
+                      <ol className="d-anchor-list" data-anchor-list>
+                        <li>
+                          <b>0</b>
+                          <span>症状はない</span>
+                        </li>
+                        {anchors.map((text, index) => (
+                          <li key={index} className={chosen === index + 1 ? "active" : ""}>
+                            <b>{index + 1}</b>
+                            <span>{text}</span>
+                          </li>
+                        ))}
+                      </ol>
                     )}
                     {detailOpen === id && (
                       <div className="d-symptom-detail">
-                        {(definition?.detailType === "count" ||
-                          id === "vomiting" ||
-                          id === "diarrhea") && (
+                        {(definition?.detailType === "count" || id === "vomiting" || id === "diarrhea") && (
                           <label>
                             回数
                             <input
                               inputMode="numeric"
                               value={details[id]?.count || ""}
-                              onChange={(event) =>
-                                setDetails({
-                                  ...details,
-                                  [id]: {
-                                    ...details[id],
-                                    count: event.target.value,
-                                  },
-                                })
-                              }
+                              onChange={(event) => setDetails({ ...details, [id]: { ...details[id], count: event.target.value } })}
                               placeholder="任意"
                             />
                           </label>
                         )}
-                        {(definition?.detailType === "location" ||
-                          ["numbness", "jointPain"].includes(id)) && (
+                        {(definition?.detailType === "location" || ["numbness", "jointPain"].includes(id)) && (
                           <label>
                             部位
                             <input
                               value={details[id]?.location || ""}
-                              onChange={(event) =>
-                                setDetails({
-                                  ...details,
-                                  [id]: {
-                                    ...details[id],
-                                    location: event.target.value,
-                                  },
-                                })
-                              }
+                              onChange={(event) => setDetails({ ...details, [id]: { ...details[id], location: event.target.value } })}
                               placeholder="例：両手の指"
                             />
                           </label>
                         )}
-                        <label>
-                          日常生活への支障
-                          <input
+                        <label className="d-symptom-comment">
+                          メモ
+                          <textarea
+                            data-symptom-comment
                             value={details[id]?.interference || ""}
-                            onChange={(event) =>
-                              setDetails({
-                                ...details,
-                                [id]: {
-                                  ...details[id],
-                                  interference: event.target.value,
-                                },
-                              })
-                            }
-                            placeholder="任意"
+                            maxLength={200}
+                            onChange={(event) => setDetails({ ...details, [id]: { ...details[id], interference: event.target.value } })}
+                            placeholder="例：夕方に強くなる。ボタンが留めにくい"
                           />
                         </label>
                       </div>
@@ -1969,98 +1921,17 @@ function DHealthTracker({
                 )
               })}
             </div>
-            <div className="d-scale-note">
-              <Icon name="help" />
-              <p>
-                0〜4は患者本人による症状の程度です。CTCAE
-                Gradeや正式なPRO-CTCAE回答ではありません。
-              </p>
-            </div>
           </section>
-          <div className="d-monitoring-note">
-            <Icon name="alert" />
-            <p>
-              <b>この記録は緊急連絡ではありません</b>
-              記録しただけでは医療者へ通知されません。急な症状や強い苦痛がある場合は、医療機関から案内された連絡先へご相談ください。
-            </p>
-          </div>
-          <div className={`d-save-dock${hasInput ? " sticky" : ""}`} data-health-save-dock>
-            {hasInput && (
-              <p className="d-save-summary" aria-live="polite">
-                <span>入力中</span>
-                {inputSummary}
-              </p>
-            )}
-            {hasInput && (
-              // 下の注意書きを読む前に保存できるため、留めた保存ボタンの上にも同じ注意を出す
-              <p className="d-save-caution">記録しただけでは医療者へ通知されません。</p>
-            )}
-            <button
-              className="primary-button d-save-health"
-              disabled={invalidFields.length > 0 || saving}
-              onClick={saveRecord}
-            >
+
+          <div className="d-save-bar">
+            <button className="primary-button d-save-health" disabled={!canSave} onClick={saveRecord}>
               <Icon name="check" />
               {health ? (editingId ? "この記録を更新" : "この記録を保存") : "この日の記録を保存"}
             </button>
           </div>
-          {health && editingId && (
-            <button className="d-text-action" onClick={resetForm}>
-              編集をやめて新しい記録にする
-            </button>
-          )}
-          <p className="d-share-health">
-            <Icon name="shield" />
-            QR一時共有を承認したときだけ、医療者がこの記録を閲覧できます。
+          <p className="d-health-footnote">
+            記録は医療者に自動では届きません（QR 共有を承認したときだけ閲覧できます）。急な症状や強い苦痛は、病院から案内された連絡先へ。
           </p>
-          {feedbackOpen && (
-            <div
-              className={`d-gentle-feedback ${
-                motionEnabled ? "" : "no-motion"
-              }`}
-              role="status"
-            >
-              <button
-                className="d-feedback-close"
-                onClick={() => setFeedbackOpen(false)}
-                aria-label="閉じる"
-              >
-                ×
-              </button>
-              <span className="d-feedback-mark">
-                <Icon name="check" size={26} />
-              </span>
-              <div>
-                <p className="eyebrow">保存しました</p>
-                <h2>今日の体調を残せました</h2>
-                <p>小さな変化も、大切な記録です。</p>
-              </div>
-              <div className="d-feedback-totals">
-                <span>
-                  <b>
-                    {health || selectedDateRecord
-                      ? recordedDayCount
-                      : recordedDayCount + 1}
-                  </b>
-                  体調を記録した日
-                </span>
-                <span>
-                  <b>{health ? (learnedCount ?? 0) : 4}</b>
-                  これまでに学んだ教材
-                </span>
-                <span>
-                  <b>{health ? (noteCount ?? 0) : 2}</b>
-                  診察につなげた質問
-                </span>
-              </div>
-              <button
-                className="d-motion-toggle"
-                onClick={() => setMotionEnabled(!motionEnabled)}
-              >
-                動きの効果：{motionEnabled ? "オン" : "オフ"}
-              </button>
-            </div>
-          )}
         </>
       ) : (
         <DHealthHistory
@@ -2089,42 +1960,42 @@ function DHealthTracker({
   )
 }
 
-function BadgeLike({ children }: { children: ReactNode }) {
-  return <span className="d-badge-like">{children}</span>
-}
-
 function DVitalField({
   label,
   unit,
+  fieldKey,
   value,
   onChange,
   invalid,
-  hint,
   step,
 }: {
   label: string
   unit: string
+  fieldKey: string
   value: string
   onChange: (value: string) => void
   invalid: boolean
-  hint: string
   step?: string
 }) {
+  const rule = VITAL_UI[fieldKey]
   return (
     <div className={`d-vital-card ${invalid ? "invalid" : ""}`}>
-      <label>{label}</label>
+      <label>
+        {label} <span>{unit}</span>
+      </label>
       <div>
         <input
           inputMode="decimal"
           type="number"
           step={step}
+          min={rule.min}
+          max={rule.max}
           value={value}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={(event) => acceptVital(fieldKey, event.target.value) && onChange(event.target.value)}
           placeholder="—"
         />
-        <span>{unit}</span>
       </div>
-      {invalid && <p>{hint}の範囲で確認</p>}
+      {invalid && <p>{vitalRange(fieldKey)} の範囲で</p>}
     </div>
   )
 }
@@ -2143,9 +2014,12 @@ function DSymptomManager({
   onBack,
   notify,
   onAddCustom,
+  onApplyTreatment,
 }: {
   /** 本番: 独自の症状の追加（表示の並びと症状名を 1 回で保存） */
   onAddCustom?: (name: string) => void
+  /** 受けている治療・薬から、起こりやすい症状をまとめて記録項目に追加する */
+  onApplyTreatment?: (ids: string[]) => void
   activeIds: string[]
   setActiveIds: (ids: string[]) => void
   search: string
@@ -2163,13 +2037,13 @@ function DSymptomManager({
     "すべて",
     ...Array.from(new Set(symptomLibrary.map((item) => item.category))),
   ]
-  const filtered = symptomLibrary.filter(
-    (item) =>
-      (category === "すべて" || item.category === category) &&
-      `${item.name}${item.ctcaeReference}`
-        .toLowerCase()
-        .includes(search.toLowerCase()),
-  )
+  const [treatmentOpen, setTreatmentOpen] = useState(activeIds.length === 0)
+  const [pickedTreatments, setPickedTreatments] = useState<string[]>([])
+  const q = search.trim().toLowerCase()
+  // 検索: 症状名・CTCAE 用語に加えて、言い換え（眠い → だるさ・眠気 など）でも探せる
+  const matches = (item: (typeof symptomLibrary)[number]) =>
+    !q || `${item.name}${item.ctcaeReference}`.toLowerCase().includes(q) || (SYMPTOM_ALIASES[item.id] ?? []).some((alias) => alias.toLowerCase().includes(q) || q.includes(alias.toLowerCase()))
+  const filtered = symptomLibrary.filter((item) => (category === "すべて" || item.category === category) && matches(item))
   const move = (index: number, direction: -1 | 1) => {
     const nextIndex = index + direction
     if (nextIndex < 0 || nextIndex >= activeIds.length) return
@@ -2177,21 +2051,84 @@ function DSymptomManager({
     ;[next[index], next[nextIndex]] = [next[nextIndex], next[index]]
     setActiveIds(next)
   }
+  const pickedIds = [...new Set(TREATMENTS.filter((t) => pickedTreatments.includes(t.id)).flatMap((t) => t.symptomIds))]
+  const newIds = pickedIds.filter((id) => !activeIds.includes(id))
+  const groups = ["化学療法", "分子標的薬", "ホルモン療法", "放射線", "その他"] as const
   return (
     <div className="d-symptom-manager">
-      <DPageHeader title="記録する症状" eyebrow="体調記録の設定" onBack={onBack} />
-      <p className="d-support-copy">
-        非表示にしても過去の記録は削除されません。毎日すべてに回答する必要はありません。
-      </p>
-      <p className="d-terminology-note">
-        候補名はCTCAE
-        v6.0の症候性有害事象名を参考にしたUI用表現です。正式な用語対応は医療者による確認を前提とします。
-      </p>
+      <DPageHeader title="記録する症状" onBack={onBack} />
+      <section className="d-treatment-setup" data-treatment-setup>
+        <button className="d-treatment-toggle" aria-expanded={treatmentOpen} onClick={() => setTreatmentOpen(!treatmentOpen)}>
+          <span className="d-treatment-icon">
+            <Icon name="pill" size={18} />
+          </span>
+          <span>
+            <b>治療・薬からまとめて選ぶ</b>
+            <small>起こりやすい症状を一度に追加</small>
+          </span>
+          <span className="d-treatment-arrow">{treatmentOpen ? "−" : "＋"}</span>
+        </button>
+        {treatmentOpen && (
+          <div className="d-treatment-body">
+            {groups.map((group) => (
+              <div key={group} className="d-treatment-group">
+                <small>{group}</small>
+                <div className="d-treatment-chips">
+                  {TREATMENTS.filter((t) => t.group === group).map((t) => {
+                    const on = pickedTreatments.includes(t.id)
+                    return (
+                      <button
+                        key={t.id}
+                        className={on ? "active" : ""}
+                        aria-pressed={on}
+                        data-treatment={t.id}
+                        onClick={() => setPickedTreatments(on ? pickedTreatments.filter((x) => x !== t.id) : [...pickedTreatments, t.id])}
+                      >
+                        {on && <Icon name="check" size={12} />}
+                        {t.name}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+            {pickedIds.length > 0 && (
+              <div className="d-treatment-preview" data-treatment-preview>
+                <p>
+                  起こりやすい症状 {pickedIds.length}件：
+                  {pickedIds.map((id) => (
+                    <span key={id} className={activeIds.includes(id) ? "have" : ""}>
+                      {symptomName(id)}
+                    </span>
+                  ))}
+                </p>
+                <button
+                  className="primary-button"
+                  data-treatment-apply
+                  disabled={newIds.length === 0}
+                  onClick={() => {
+                    if (onApplyTreatment) onApplyTreatment(newIds)
+                    else {
+                      setActiveIds([...activeIds, ...newIds])
+                      notify(`症状を${newIds.length}件追加しました`)
+                    }
+                    setPickedTreatments([])
+                  }}
+                >
+                  {newIds.length === 0 ? "すべて追加済みです" : `${newIds.length}件を記録項目に追加`}
+                </button>
+                <small>治療や薬の名前は保存しません（症状の並びだけ）。</small>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
       <section>
         <div className="d-section-head">
-          <h2>日々の入力に表示中</h2>
+          <h2>記録している症状</h2>
           <span>{activeIds.length}項目</span>
         </div>
+        {activeIds.length === 0 && <p className="d-notes-empty">まだありません。治療から選ぶか、下の一覧から追加してください。</p>}
         <div className="d-active-symptoms">
           {activeIds.map((id, index) => (
             <div key={id}>
@@ -2209,7 +2146,7 @@ function DSymptomManager({
               <button
                 onClick={() => {
                   setActiveIds(activeIds.filter((item) => item !== id))
-                  notify("日々の入力から非表示にしました。過去の記録は残ります")
+                  notify("非表示にしました（過去の記録は残ります）")
                 }}
               >
                 非表示
@@ -2227,7 +2164,8 @@ function DSymptomManager({
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="症状名を検索"
+            placeholder="症状名や言葉で検索（例：眠い、しびれ）"
+            data-symptom-search
           />
         </label>
         <div className="d-category-chips">
@@ -2242,15 +2180,16 @@ function DSymptomManager({
           ))}
         </div>
         <div className="d-symptom-library">
+          {filtered.length === 0 && (
+            <p className="d-notes-empty">一致する症状がありません。下の「その他の症状」に自由に入力できます。</p>
+          )}
           {filtered.map((item) => {
             const active = activeIds.includes(item.id)
             return (
-              <div key={item.id}>
+              <div key={item.id} data-symptom-option={item.id}>
                 <span>
                   <b>{item.name}</b>
-                  <small>
-                    {item.category} · CTCAE用語参照：{item.ctcaeReference}
-                  </small>
+                  <small>{item.category}</small>
                 </span>
                 <button
                   disabled={active}
@@ -2266,7 +2205,7 @@ function DSymptomManager({
           })}
         </div>
         <div className="d-custom-symptom">
-          <h3>その他の症状を自由に追加</h3>
+          <h3>その他（自由に入力）</h3>
           <div>
             <input
               value={customName}
@@ -2297,6 +2236,176 @@ function DSymptomManager({
   )
 }
 
+/** 患者側の経過グラフで使うバイタルの指標（在宅経過表と同じ固定の表示範囲） */
+const patientVitalMetrics: { key: keyof HealthRecord["vitals"]; label: string; unit: string; min: number; max: number; step?: number }[] = [
+  { key: "temperature", label: "体温", unit: "℃", min: 35, max: 40 },
+  { key: "systolic", label: "血圧（上）", unit: "mmHg", min: 70, max: 200 },
+  { key: "diastolic", label: "血圧（下）", unit: "mmHg", min: 40, max: 130 },
+  { key: "pulse", label: "脈拍", unit: "回/分", min: 40, max: 160 },
+  { key: "spo2", label: "SpO₂", unit: "%", min: 80, max: 100 },
+  { key: "oxygenFlow", label: "酸素投与量", unit: "L/分", min: 0, max: 15 },
+]
+
+/**
+ * 1 日 1 枠の折れ線（記録のある点どうしを続けて結ぶ。間に記録のない日があるときは破線で結び、その日は線の上に点を置かない）。
+ * 「記録がない＝症状なし」とは扱わず、点のない日は軸の下の短い印で欠測を示す。
+ */
+function DDayLineChart({
+  days,
+  values,
+  yMin,
+  yMax,
+  yTicks,
+  tickLabel,
+  ariaLabel,
+  pointClass,
+}: {
+  days: Date[]
+  values: (number | null)[]
+  yMin: number
+  yMax: number
+  yTicks: number[]
+  tickLabel: (value: number) => string
+  ariaLabel: string
+  pointClass?: (value: number) => string
+}) {
+  const n = days.length
+  const plotLeft = 56
+  const plotRight = 330
+  const top = 14
+  const bottom = 108
+  const xOf = (i: number) => plotLeft + (i / Math.max(n - 1, 1)) * (plotRight - plotLeft)
+  const yOf = (value: number) => bottom - ((Math.min(yMax, Math.max(yMin, value)) - yMin) / (yMax - yMin)) * (bottom - top)
+  const points = values.map((value, i) => (value === null ? null : { i, value })).filter((p): p is { i: number; value: number } => !!p)
+  // 記録のある点を順に結ぶ。隣の日なら実線、間に記録のない日があれば破線
+  const segments: { from: { i: number; value: number }; to: { i: number; value: number }; gap: boolean }[] = []
+  for (let k = 1; k < points.length; k++) segments.push({ from: points[k - 1], to: points[k], gap: points[k].i - points[k - 1].i > 1 })
+  const shortDay = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`
+  return (
+    <>
+      <svg viewBox="0 0 340 130" role="img" aria-label={ariaLabel} data-health-chart>
+        {yTicks.map((value) => (
+          <g key={value}>
+            <line x1={plotLeft} y1={yOf(value)} x2={plotRight} y2={yOf(value)} />
+            <text x="0" y={yOf(value) + 3}>
+              {tickLabel(value)}
+            </text>
+          </g>
+        ))}
+        {segments.map((seg) => (
+          <line
+            key={`seg-${seg.from.i}`}
+            className={seg.gap ? "d-chart-gap" : "d-chart-line"}
+            x1={xOf(seg.from.i)}
+            y1={yOf(seg.from.value)}
+            x2={xOf(seg.to.i)}
+            y2={yOf(seg.to.value)}
+            data-chart-segment={seg.gap ? "gap" : "solid"}
+          />
+        ))}
+        {values.map((value, i) =>
+          value === null ? (
+            <line key={i} className="d-chart-missing" x1={xOf(i) - 2.5} y1="124" x2={xOf(i) + 2.5} y2="124" data-chart-missing />
+          ) : (
+            <circle key={i} cx={xOf(i)} cy={yOf(value)} r="4" className={pointClass?.(value) ?? ""} data-chart-point={value}>
+              <title>{`${shortDay(days[i])} ${tickLabel(value)}`}</title>
+            </circle>
+          ),
+        )}
+      </svg>
+      <div className="d-chart-dates" style={{ paddingLeft: `${(plotLeft / 340) * 100}%` }}>
+        <span>{shortDay(days[0])}</span>
+        <span>{shortDay(days[Math.floor((n - 1) / 2)])}</span>
+        <span>{shortDay(days[n - 1])}</span>
+      </div>
+    </>
+  )
+}
+
+/** 症状の重ね描きで使う色（最大 8 系列。それ以上は繰り返す） */
+const SERIES_COLORS = ["#315e68", "#c27a5d", "#8a76a6", "#d0a04c", "#5f9a70", "#5f7fa8", "#b5607a", "#6f8082"]
+
+/**
+ * 複数の系列を 1 枚に重ねる折れ線（症状の推移）。各系列は記録のある点どうしを結び、間に記録のない日があれば破線。
+ * 1 件も記録のない日は軸の下の短い印で欠測を示す。
+ */
+function DMultiLineChart({
+  days,
+  series,
+  focus,
+  yTicks,
+  tickLabel,
+  ariaLabel,
+}: {
+  days: Date[]
+  series: { id: string; name: string; color: string; values: (number | null)[] }[]
+  /** 強調する系列（null なら全部同じ強さ） */
+  focus: string | null
+  yTicks: number[]
+  tickLabel: (value: number) => string
+  ariaLabel: string
+}) {
+  const n = days.length
+  const plotLeft = 52
+  const plotRight = 330
+  const top = 12
+  const bottom = 108
+  const yMin = yTicks[0]
+  const yMax = yTicks[yTicks.length - 1]
+  const xOf = (i: number) => plotLeft + (i / Math.max(n - 1, 1)) * (plotRight - plotLeft)
+  const yOf = (value: number) => bottom - ((Math.min(yMax, Math.max(yMin, value)) - yMin) / (yMax - yMin)) * (bottom - top)
+  const shortDay = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`
+  const anyRecord = days.map((_, i) => series.some((s) => s.values[i] !== null))
+  return (
+    <>
+      <svg viewBox="0 0 340 130" role="img" aria-label={ariaLabel} data-health-chart>
+        {yTicks.map((value) => (
+          <g key={value}>
+            <line x1={plotLeft} y1={yOf(value)} x2={plotRight} y2={yOf(value)} />
+            <text x="0" y={yOf(value) + 3}>
+              {tickLabel(value)}
+            </text>
+          </g>
+        ))}
+        {series.map((s) => {
+          const points = s.values.map((value, i) => (value === null ? null : { i, value })).filter((p): p is { i: number; value: number } => !!p)
+          const dim = focus !== null && focus !== s.id
+          return (
+            <g key={s.id} data-series={s.id} style={{ opacity: dim ? 0.18 : 1 }}>
+              {points.slice(1).map((p, k) => {
+                const prev = points[k]
+                return (
+                  <line
+                    key={`seg-${p.i}`}
+                    className={p.i - prev.i > 1 ? "d-chart-gap" : "d-chart-line"}
+                    style={{ stroke: s.color }}
+                    x1={xOf(prev.i)}
+                    y1={yOf(prev.value)}
+                    x2={xOf(p.i)}
+                    y2={yOf(p.value)}
+                    data-chart-segment={p.i - prev.i > 1 ? "gap" : "solid"}
+                  />
+                )
+              })}
+              {points.map((p) => (
+                <circle key={p.i} cx={xOf(p.i)} cy={yOf(p.value)} r={p.value === 0 ? 3 : 4} style={{ fill: p.value === 0 ? "#fff" : s.color, stroke: s.color }} data-chart-point={p.value}>
+                  <title>{`${shortDay(days[p.i])} ${s.name} ${tickLabel(p.value)}`}</title>
+                </circle>
+              ))}
+            </g>
+          )
+        })}
+        {anyRecord.map((has, i) => (has ? null : <line key={i} className="d-chart-missing" x1={xOf(i) - 2.5} y1="124" x2={xOf(i) + 2.5} y2="124" data-chart-missing />))}
+      </svg>
+      <div className="d-chart-dates" style={{ paddingLeft: `${(plotLeft / 340) * 100}%` }}>
+        <span>{shortDay(days[0])}</span>
+        <span>{shortDay(days[Math.floor((n - 1) / 2)])}</span>
+        <span>{shortDay(days[n - 1])}</span>
+      </div>
+    </>
+  )
+}
+
 function DHealthHistory({
   records,
   chartSymptom,
@@ -2304,6 +2413,7 @@ function DHealthHistory({
   live,
 }: {
   records: HealthRecord[]
+  /** グラフで強調する症状（"__all" なら全部を同じ強さで重ねる） */
   chartSymptom: string
   setChartSymptom: (id: string) => void
   /** 本番: 推移を見る症状の候補（表示中＋記録のある症状）、症状名、記録の編集・削除 */
@@ -2318,62 +2428,144 @@ function DHealthHistory({
 }) {
   const nameOf = (id: string) => live?.nameOf(id) ?? symptomName(id)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
-  // 本番: 選んだ症状に記録がなければ、記録のある最初の症状の推移を表示する
-  const has = (id: string) => records.some((record) => record.symptoms[id])
-  const chart = live && !has(chartSymptom) ? (live.symptomIds.find(has) ?? chartSymptom) : chartSymptom
-  // 日付の軸: 選んだ期間の 1 日ごとに 1 枠。記録のない日（その症状の回答がない日）は線をつながない。程度 0 は「なし」として点を打つ
+  const [mode, setMode] = useState<"table" | "chart">("table")
+  const [vitalKey, setVitalKey] = useState<keyof HealthRecord["vitals"]>("temperature")
+  const [openWeeks, setOpenWeeks] = useState<string[]>([])
+  const [pickedDay, setPickedDay] = useState("")
   const [periodDays, setPeriodDays] = useState<7 | 14 | 28>(14)
+  const tableRef = useRef<HTMLDivElement>(null)
   const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
   const latestRecord = [...records].sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))[0]
   // 本番はサーバーの今日まで（撮影用デモ環境では基準日。医療者の在宅経過表・外来間サマリーと同じ期間）。Figma の架空データ（開発用）は最後の記録の日まで
   const endDay = live?.today ? new Date(`${live.today}T00:00:00`) : live || !latestRecord ? new Date() : new Date(latestRecord.measuredAt)
-  const days = Array.from({ length: periodDays }, (_, i) => {
-    const d = new Date(endDay.getFullYear(), endDay.getMonth(), endDay.getDate() - (periodDays - 1 - i))
-    // 同じ日に複数の記録があれば、その症状を回答した最後の記録を使う
-    const answered = records
-      .filter((record) => dayKey(new Date(record.measuredAt)) === dayKey(d) && record.symptoms[chart] !== undefined)
-      .sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))[0]
-    return { date: d, value: answered ? Number(answered.symptoms[chart]!.severity) : null }
-  })
-  const plotLeft = 56
-  const plotRight = 330
-  const xOf = (i: number) => plotLeft + (i / Math.max(periodDays - 1, 1)) * (plotRight - plotLeft)
-  const yOf = (value: number) => 108 - value * 23
-  // 記録が続いている日だけを 1 本の線にする（記録のない日で区切る）
-  const segments: { i: number; value: number }[][] = []
-  days.forEach((day, i) => {
-    if (day.value === null) return
-    const last = segments[segments.length - 1]
-    if (last && last[last.length - 1].i === i - 1) last.push({ i, value: day.value })
-    else segments.push([{ i, value: day.value }])
-  })
-  const recordedDays = days.filter((day) => day.value !== null).length
-  const shortDay = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`
+  const days = Array.from({ length: periodDays }, (_, i) => new Date(endDay.getFullYear(), endDay.getMonth(), endDay.getDate() - (periodDays - 1 - i)))
+  const recordsOn = (d: Date) => records.filter((record) => dayKey(new Date(record.measuredAt)) === dayKey(d)).sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))
+  // 症状: 同じ日に複数の記録があれば、その症状を回答した最後の記録を使う
+  const symptomValuesOf = (id: string) =>
+    days.map((d) => {
+      const answered = recordsOn(d).find((record) => record.symptoms[id] !== undefined)
+      return answered ? Number(answered.symptoms[id]!.severity) : null
+    })
+  // バイタル: 同じ日に複数の測定があれば最後の値
+  const vitalValuesOf = (key: keyof HealthRecord["vitals"]) =>
+    days.map((d) => {
+      const measured = recordsOn(d).find((record) => record.vitals[key] !== undefined)
+      return measured ? Number(measured.vitals[key]) : null
+    })
+  const allSymptomIds = live ? live.symptomIds : initialActiveSymptomIds
+  // 症状の行: 期間内の最大の程度が高い順 → 記録の多い順（気になる症状が上に来る）
+  const symptomRows = allSymptomIds
+    .map((id) => ({ id, values: symptomValuesOf(id) }))
+    .filter((row) => row.values.some((v) => v !== null))
+    .map((row) => ({ ...row, max: Math.max(...row.values.map((v) => v ?? -1)), count: row.values.filter((v) => v !== null).length }))
+    .sort((a, b) => b.max - a.max || b.count - a.count)
+  const vitalRows = patientVitalMetrics
+    .filter((m) => m.key !== "diastolic")
+    .map((m) => ({ metric: m, values: vitalValuesOf(m.key), diastolic: m.key === "systolic" ? vitalValuesOf("diastolic") : null }))
+    .filter((row) => row.values.some((v) => v !== null))
+  const recordedDays = days.filter((d) => recordsOn(d).length > 0).length
+  const metric = patientVitalMetrics.find((m) => m.key === vitalKey) ?? patientVitalMetrics[0]
+  const vitalValues = vitalValuesOf(vitalKey)
+  const vitalsRecorded = vitalValues.filter((v) => v !== null).length
+  const vitalTicks = (() => {
+    const span = metric.max - metric.min
+    const step = span >= 100 ? 40 : span >= 60 ? 20 : span >= 20 ? 5 : 1
+    const ticks: number[] = []
+    for (let v = metric.min; v <= metric.max; v += step) ticks.push(v)
+    return ticks
+  })()
+  const series = symptomRows.map((row, index) => ({ id: row.id, name: nameOf(row.id), color: SERIES_COLORS[index % SERIES_COLORS.length], values: row.values }))
+  const focus = chartSymptom !== "__all" && series.some((s) => s.id === chartSymptom) ? chartSymptom : null
+  // 表は最新の日が見えるよう右端から（スクロール位置だけを動かす。状態は変えない）
+  useEffect(() => {
+    const el = tableRef.current
+    if (el) el.scrollLeft = el.scrollWidth
+  }, [mode, periodDays, records.length])
+  const todayKey = dayKey(endDay)
+  const flag = (key: keyof HealthRecord["vitals"], v: number | null) => (v === null ? "" : key === "oxygenFlow" ? "" : vitalFlag(key, v) > 0 ? ` vflag${vitalFlag(key, v)}` : "")
+  // 過去の記録: 週ごとにまとめ、最新の週だけ開く。日付を選ぶとその日の記録だけを開く
+  const sorted = [...records].sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))
+  const weekKey = (iso: string) => {
+    const d = new Date(iso)
+    const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7))
+    return `${monday.getFullYear()}-${String(monday.getMonth() + 1).padStart(2, "0")}-${String(monday.getDate()).padStart(2, "0")}`
+  }
+  const weeks: { key: string; label: string; items: HealthRecord[] }[] = []
+  for (const record of sorted) {
+    const key = weekKey(record.measuredAt)
+    let w = weeks.find((x) => x.key === key)
+    if (!w) {
+      const start = new Date(`${key}T00:00:00`)
+      const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6)
+      w = { key, label: `${start.getMonth() + 1}/${start.getDate()}〜${end.getMonth() + 1}/${end.getDate()}`, items: [] }
+      weeks.push(w)
+    }
+    w.items.push(record)
+  }
+  const pickedRecords = pickedDay ? sorted.filter((record) => record.measuredAt.slice(0, 10) === pickedDay) : null
+  const weekOpen = (key: string, index: number) => (openWeeks.includes(key) ? !openWeeks.includes(`!${key}`) : index === 0)
+  const toggleWeek = (key: string, index: number) => {
+    const open = weekOpen(key, index)
+    setOpenWeeks([...openWeeks.filter((x) => x !== key && x !== `!${key}`), open ? `!${key}` : key])
+  }
+  const recordRow = (record: HealthRecord) => (
+    <details key={record.id} data-record-id={record.id}>
+      <summary>
+        <span>
+          <b>{formatShortDate(record.measuredAt)}</b>
+          <small>{new Date(record.measuredAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}</small>
+        </span>
+        <span>
+          {record.vitals.temperature !== undefined ? `体温 ${record.vitals.temperature}℃ · ` : ""}
+          症状 {Object.keys(record.symptoms).length}項目
+          {Object.values(record.symptoms).some((e) => e.severity >= 3) ? " · 強い症状あり" : ""}
+        </span>
+        <Icon name="arrow" />
+      </summary>
+      <div>
+        <p>
+          血圧 {record.vitals.systolic && record.vitals.diastolic ? `${record.vitals.systolic}/${record.vitals.diastolic}` : "—"} · 脈拍 {record.vitals.pulse ?? "—"} · SpO₂ {record.vitals.spo2 ?? "—"}
+          {record.vitals.oxygenFlow !== undefined ? ` · 酸素 ${record.vitals.oxygenFlow} L/分` : ""}
+        </p>
+        {Object.entries(record.symptoms).map(([id, entry]) => (
+          <span key={id} className={`s${entry.severity}`}>
+            {entry.customName || nameOf(id)}
+            {entry.interference ? <small className="d-record-memo">「{entry.interference}」</small> : null}
+            <b>
+              {entry.severity} · {severityLabels[entry.severity]}
+            </b>
+          </span>
+        ))}
+        {live && Object.keys(record.symptoms).length === 0 && <p>自覚症状：回答なし（欠測）</p>}
+        {live && (
+          // 本番: 過去の記録の編集・削除（本人だけ。削除は確認してから）
+          <p className="d-record-actions">
+            <button className="d-text-action" onClick={() => live.onEdit(record)}>
+              この記録を編集
+            </button>
+            {confirmDelete === record.id ? (
+              <>
+                <button className="d-text-action" onClick={() => live.onDelete(record.id)}>
+                  削除する
+                </button>
+                <button className="d-text-action" onClick={() => setConfirmDelete(null)}>
+                  やめる
+                </button>
+              </>
+            ) : (
+              <button className="d-text-action" onClick={() => setConfirmDelete(record.id)}>
+                この記録を削除
+              </button>
+            )}
+          </p>
+        )}
+      </div>
+    </details>
+  )
+  const cell = (v: number | null, format: (n: number) => string) => (v === null ? <span className="d-hc-missing">·</span> : format(v))
   return (
-    <div className="d-health-history">
-      <section className="d-health-chart">
-        <div className="d-health-section-head">
-          <div>
-            <span className="d-health-step">
-              <Icon name="pulse" size={16} />
-            </span>
-            <div>
-              <h2>症状の推移</h2>
-              <p>自己申告の程度（なし〜非常に強い）</p>
-            </div>
-          </div>
-          <select
-            value={chart}
-            onChange={(event) => setChartSymptom(event.target.value)}
-            aria-label="推移を見る症状"
-          >
-            {(live ? live.symptomIds : initialActiveSymptomIds).map((id) => (
-              <option key={id} value={id}>
-                {nameOf(id)}
-              </option>
-            ))}
-          </select>
-        </div>
+    <div className="d-health-history d-health-history-v2">
+      <div className="d-history-controls">
         <div className="d-chart-period" role="group" aria-label="表示する期間">
           {([7, 14, 28] as const).map((n) => (
             <button key={n} className={periodDays === n ? "active" : ""} aria-pressed={periodDays === n} onClick={() => setPeriodDays(n)}>
@@ -2381,120 +2573,174 @@ function DHealthHistory({
             </button>
           ))}
         </div>
-        <svg
-          viewBox="0 0 340 130"
-          role="img"
-          aria-label={`${nameOf(chart)}の推移（直近${periodDays}日のうち${recordedDays}日に記録）`}
-          data-health-chart
-        >
-          {severityLabels.map((label, value) => (
-            <g key={label}>
-              <line x1={plotLeft} y1={yOf(value)} x2={plotRight} y2={yOf(value)} />
-              <text x="0" y={yOf(value) + 3}>
-                {label}
-              </text>
-            </g>
-          ))}
-          {segments.map((segment) =>
-            segment.length > 1 ? (
-              <polyline key={`line-${segment[0].i}`} points={segment.map((point) => `${xOf(point.i)},${yOf(point.value)}`).join(" ")} />
-            ) : null,
-          )}
-          {days.map((day, i) =>
-            day.value === null ? (
-              // 記録なし: 軸の下に短い印だけ（点も線も描かない）
-              <line key={i} className="d-chart-missing" x1={xOf(i) - 2.5} y1="124" x2={xOf(i) + 2.5} y2="124" data-chart-missing />
+        <div className="d-chart-period d-view-mode" role="group" aria-label="表示の形式">
+          <button className={mode === "table" ? "active" : ""} aria-pressed={mode === "table"} onClick={() => setMode("table")} data-history-mode="table">
+            表
+          </button>
+          <button className={mode === "chart" ? "active" : ""} aria-pressed={mode === "chart"} onClick={() => setMode("chart")} data-history-mode="chart">
+            グラフ
+          </button>
+        </div>
+      </div>
+      <p className="d-history-meta">
+        直近{periodDays}日のうち{recordedDays}日に記録
+      </p>
+
+      {mode === "table" && recordedDays > 0 && (
+        <p className="d-table-note" title={VITAL_FLAG_NOTE}>症状は 0（なし）〜4（非常に強い）。「·」は記録なし。色付きのバイタルは一般的な目安の範囲外（体温 37.5℃以上、血圧 140 以上、脈拍 100 以上、SpO₂ 95%以下など）</p>
+      )}
+      {mode === "table" ? (
+        recordedDays === 0 ? (
+          <p className="d-chart-empty">この期間の記録はありません。</p>
+        ) : (
+          <div className="d-course-wrap" ref={tableRef} data-health-table>
+            <table className="d-course-table">
+              <thead>
+                <tr>
+                  <th />
+                  {days.map((d, i) => (
+                    <th key={dayKey(d)} className={dayKey(d) === todayKey ? "today" : ""}>
+                      {/* 月は最初の列と月が変わる列だけ。日は毎列 */}
+                      <small>{i === 0 || d.getMonth() !== days[i - 1].getMonth() ? `${d.getMonth() + 1}月` : ""}</small>
+                      <b>{d.getDate()}</b>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {vitalRows.map((row) => (
+                  <tr key={row.metric.key} className="vital">
+                    <th>
+                      {row.metric.key === "systolic" ? "血圧" : row.metric.label}
+                      <small>{row.metric.unit}</small>
+                    </th>
+                    {row.values.map((v, i) => (
+                      <td key={i} className={`${flag(row.metric.key, v)}${dayKey(days[i]) === todayKey ? " today-col" : ""}`}>
+                        {row.metric.key === "systolic"
+                          ? v === null
+                            ? cell(null, String)
+                            : `${v}/${row.diastolic?.[i] ?? "–"}`
+                          : cell(v, (n) => (row.metric.key === "temperature" ? n.toFixed(1) : String(n)))}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+                {symptomRows.map((row) => (
+                  <tr key={row.id} className="symptom" data-table-symptom={row.id}>
+                    <th>{nameOf(row.id)}</th>
+                    {row.values.map((v, i) => (
+                      <td key={i} className={`${v === null ? "" : `s${v}`}${dayKey(days[i]) === todayKey ? " today-col" : ""}`}>
+                        {cell(v, String)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      ) : (
+        <>
+          <section className="d-health-chart" data-symptom-chart>
+            <div className="d-chart-head">
+              <h2>症状</h2>
+              <span>0 なし〜4 非常に強い</span>
+            </div>
+            {series.length === 0 ? (
+              <p className="d-chart-empty">この期間に症状の記録はありません。</p>
             ) : (
-              <circle key={i} cx={xOf(i)} cy={yOf(day.value)} r="4" className={day.value === 0 ? "none" : ""} data-chart-point={day.value} />
-            ),
-          )}
-        </svg>
-        <div className="d-chart-dates" style={{ paddingLeft: `${(plotLeft / 340) * 100}%` }}>
-          <span>{shortDay(days[0].date)}</span>
-          <span>{shortDay(days[Math.floor((periodDays - 1) / 2)].date)}</span>
-          <span>{shortDay(days[periodDays - 1].date)}</span>
-        </div>
-        <div className="d-chart-legend">
-          <span className="point">症状あり（軽い〜非常に強い）</span>
-          <span className="none">なし（症状なし）</span>
-          <span className="missing">記録なし</span>
-        </div>
-        <p>
-          記録のない日は線をつなぎません。記録がないことを「なし（症状なし）」とは扱いません。
-        </p>
-      </section>
+              <>
+                <DMultiLineChart
+                  days={days}
+                  series={series}
+                  focus={focus}
+                  yTicks={[0, 1, 2, 3, 4]}
+                  tickLabel={(v) => String(v)}
+                  ariaLabel={`症状の推移（直近${periodDays}日・${series.length}項目）`}
+                />
+                <div className="d-series-legend" role="group" aria-label="表示する症状">
+                  <button className={focus === null ? "active" : ""} aria-pressed={focus === null} onClick={() => setChartSymptom("__all")} data-symptom-select="__all">
+                    すべて
+                  </button>
+                  {series.map((s) => (
+                    <button
+                      key={s.id}
+                      className={focus === s.id ? "active" : ""}
+                      aria-pressed={focus === s.id}
+                      onClick={() => setChartSymptom(focus === s.id ? "__all" : s.id)}
+                      data-symptom-select={s.id}
+                    >
+                      <i style={{ background: s.color }} />
+                      {s.name}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            <p>記録のある日どうしを線で結んでいます（間に記録のない日があるところは破線）。記録がない日を「症状なし」とは扱いません。</p>
+          </section>
+          <section className="d-health-chart" data-vitals-chart>
+            <div className="d-chart-head">
+              <h2>バイタルサイン</h2>
+              <select value={vitalKey} onChange={(event) => setVitalKey(event.target.value as keyof HealthRecord["vitals"])} aria-label="推移を見る項目">
+                {patientVitalMetrics.map((m) => (
+                  <option key={m.key} value={m.key}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {vitalsRecorded === 0 ? (
+              <p className="d-chart-empty">この期間に{metric.label}の記録はありません。</p>
+            ) : (
+              <DDayLineChart
+                days={days}
+                values={vitalValues}
+                yMin={metric.min}
+                yMax={metric.max}
+                yTicks={vitalTicks}
+                tickLabel={(v) => `${v}${metric.unit}`}
+                ariaLabel={`${metric.label}の推移（直近${periodDays}日のうち${vitalsRecorded}日に記録）`}
+              />
+            )}
+          </section>
+        </>
+      )}
+
       <section className="d-health-list">
         <div className="d-section-head">
-          <h2>過去の記録</h2>
+          <h2>記録の一覧</h2>
           <span>
-            {live
-              ? `${new Set(records.map((record) => record.measuredAt.slice(0, 10))).size}日分・${records.length}件`
-              : `${records.length}日分`}
+            {live ? `${new Set(records.map((record) => record.measuredAt.slice(0, 10))).size}日分・${records.length}件` : `${records.length}日分`}
           </span>
         </div>
-        {[...records]
-          .sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))
-          .map((record) => (
-            <details key={record.id}>
-              <summary>
-                <span>
-                  <b>{formatShortDate(record.measuredAt)}</b>
-                  <small>
-                    {new Date(record.measuredAt).toLocaleTimeString("ja-JP", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </small>
-                </span>
-                <span>
-                  体温 {record.vitals.temperature ?? "—"}℃ · 症状{" "}
-                  {Object.keys(record.symptoms).length}項目
-                </span>
-                <Icon name="arrow" />
-              </summary>
-              <div>
-                <p>
-                  血圧{" "}
-                  {record.vitals.systolic && record.vitals.diastolic
-                    ? `${record.vitals.systolic}/${record.vitals.diastolic} mmHg`
-                    : "未記録"}{" "}
-                  · 脈拍 {record.vitals.pulse ?? "未記録"} · SpO₂{" "}
-                  {record.vitals.spo2 ?? "未記録"}
-                </p>
-                {Object.entries(record.symptoms).map(([id, entry]) => (
-                  <span key={id}>
-                    {entry.customName || nameOf(id)}
-                    <b>
-                      {entry.severity} · {severityLabels[entry.severity]}
-                    </b>
-                  </span>
-                ))}
-                {live && Object.keys(record.symptoms).length === 0 && <p>自覚症状：回答なし（欠測）</p>}
-                {live && (
-                  // 本番: 過去の記録の編集・削除（本人だけ。削除は確認してから）
-                  <p className="d-record-actions">
-                    <button className="d-text-action" onClick={() => live.onEdit(record)}>
-                      この記録を編集
-                    </button>
-                    {confirmDelete === record.id ? (
-                      <>
-                        <button className="d-text-action" onClick={() => live.onDelete(record.id)}>
-                          削除する
-                        </button>
-                        <button className="d-text-action" onClick={() => setConfirmDelete(null)}>
-                          やめる
-                        </button>
-                      </>
-                    ) : (
-                      <button className="d-text-action" onClick={() => setConfirmDelete(record.id)}>
-                        この記録を削除
-                      </button>
-                    )}
-                  </p>
-                )}
-              </div>
-            </details>
-          ))}
+        <label className="d-record-picker">
+          <Icon name="calendar" size={16} />
+          <input type="date" value={pickedDay} max={live?.today ?? undefined} onChange={(event) => setPickedDay(event.target.value)} data-record-picker aria-label="日付で探す" />
+          {pickedDay && (
+            <button className="d-text-action" onClick={() => setPickedDay("")}>
+              解除
+            </button>
+          )}
+        </label>
+        {pickedRecords ? (
+          pickedRecords.length ? (
+            pickedRecords.map(recordRow)
+          ) : (
+            <p className="d-chart-empty">この日の記録はありません。</p>
+          )
+        ) : (
+          weeks.map((week, index) => (
+            <div key={week.key} className="d-record-week" data-record-week={week.key}>
+              <button className="d-record-week-toggle" aria-expanded={weekOpen(week.key, index)} onClick={() => toggleWeek(week.key, index)}>
+                <b>{week.label}の週</b>
+                <small>{week.items.length}件</small>
+                <span>{weekOpen(week.key, index) ? "閉じる" : "開く"}</span>
+              </button>
+              {weekOpen(week.key, index) && week.items.map(recordRow)}
+            </div>
+          ))
+        )}
       </section>
     </div>
   )
@@ -2503,21 +2749,6 @@ function DHealthHistory({
 /** ホームの「次に学ぶ教材」: 学習途中 → 未学習の順で最初の 1 件（残りは「今回の教材をすべて見る」） */
 const homeLessonOrder = { doing: 0, new: 1, done: 2 } as const
 
-/** ホーム上部の「新着」: まだ開いていない今回の処方（新規・同じ教材の再処方・既存セット内の教材の再処方を含む） */
-type DNewRx = {
-  count: number
-  sender: string
-  date: string
-  hasNote: boolean
-  /** 以前から読み始めている教材の数（再処方。進捗はそのまま） */
-  reread: number
-  /** 1 件だけのときの教材名（タップでその教材を直接開く） */
-  singleTitle: string | null
-}
-
-/** ホームの「次の診察で聞きたいこと」に出す質問（新しい順） */
-type DHomeNote = { body: string; date: string | null }
-
 function DHome({
   scenario,
   prescriptions,
@@ -2525,13 +2756,10 @@ function DHome({
   sharing,
   onOpen,
   onOpenSet,
-  onOpenMoney,
   setPage,
   visit,
   recentNotes,
   onAddNote,
-  newRx,
-  onOpenNewRx,
 }: {
   scenario: number
   prescriptions: DLesson[]
@@ -2540,203 +2768,244 @@ function DHome({
   onOpen: (lesson: DLesson) => void
   /** 本番: 情報処方セットの内容を開く */
   onOpenSet: (setId: string) => void
-  /** 「仕事とお金のこと」を開く */
-  onOpenMoney?: () => void
   setPage: (page: DPage) => void
   /** 本番: 次回の診察日（患者が登録した日付のみ）。Figma の架空データ表示では undefined */
   visit?: PatientVisit
-  /** 保存済みの質問（新しい順） */
-  recentNotes: DHomeNote[]
+  /** 未解決の質問（新しい順）。ホームでは件数だけ出す */
+  recentNotes: { id: string; body: string }[]
   /** ホームから質問を保存。保存できたときだけ true（入力欄を空にする） */
   onAddNote: (body: string) => Promise<boolean>
-  /** 本番: まだ開いていない今回の処方（なければ null） */
-  newRx?: DNewRx | null
-  onOpenNewRx?: () => void
 }) {
-  const completed = prescriptions.filter((lesson) => lesson.status === "done")
   const live = useContext(LiveInfoContext)
+  const completed = prescriptions.filter((lesson) => lesson.status === "done")
   // 本番: 今回の処方をすべて学習済み（Figma の検証シナリオ 4 と同じ表示）
   const allDone = live
     ? prescriptions.length > 0 && completed.length === prescriptions.length
     : scenario === 4
-  const homeLessons = [...prescriptions]
-    .sort((a, b) => homeLessonOrder[a.status] - homeLessonOrder[b.status])
-    .filter((lesson) => lesson.status !== "done")
-    .slice(0, 1)
+  const ordered = [...prescriptions].sort((a, b) => homeLessonOrder[a.status] - homeLessonOrder[b.status])
+  // 今日取り組む 1 件（学習途中 → 未学習）。残りは見出しと所要時間だけで並べ、先にやりたければ選べる
+  const next = active && active.status !== "done" ? active : ordered.find((lesson) => lesson.status !== "done")
+  const remaining = ordered.filter((lesson) => lesson.status !== "done" && lesson !== next)
   const remainingMin = (lesson: DLesson) =>
     live ? Math.max(1, Math.round((lesson.time * (100 - lesson.progress)) / 100)) : 4
-  // 本番: これまでの処方に情報処方セット（例: 診断時セット）が含まれるときは、セットのカードを出す（なければ従来の「今回届いた教材」）。
-  // 後日ほかの教材が処方されても、セットはホームに残し、新しく届いた教材は上部の「新着」から開く
+  // 本番: これまでの処方に情報処方セット（例: 診断時セット）が含まれるときは、歩みの起点にセットを置く。
+  // 後日ほかの教材が処方されても、セットはホームに残し、新しく届いた教材は別に案内する
   const homeSet = live?.homeSets.find((item) => item.lessons.length > 0)
   const setIds = new Set(homeSet?.lessons.map((lesson) => lesson.id) ?? [])
-  // セットに含まれない、今回（最新）届いた教材
   const newOutsideSet = homeSet ? prescriptions.filter((lesson) => !setIds.has(String(lesson.id))) : []
+  // 前回の診察 = 教材が届いた日（処方の記録）。Figma の架空データでは 6月12日
+  const since = live ? live.latest : { sender: "さくら総合病院 山田 医師", clinician: "山田 医師", org: "さくら総合病院", date: "6月12日" }
+  const recordedToday = live ? live.recordedToday : false
+  const total = prescriptions.length
+  // 初回表示: 学習済みが多くて「今」のカードが画面の下に隠れるときだけ、歩みをその位置まで送る（過去は上にスクロールすると見える）
+  const journeyRef = useRef<HTMLDivElement>(null)
+  const nowRef = useRef<HTMLLIElement>(null)
+  const loaded = !live || live.loaded
+  const nextId = next ? String(next.id) : null
+  const scrolledFor = useRef<string | null>(null)
+  useEffect(() => {
+    if (!loaded || scrolledFor.current === nextId) return
+    scrolledFor.current = nextId
+    const box = journeyRef.current
+    const now = nowRef.current
+    if (!box || !now) return
+    const over = now.getBoundingClientRect().bottom - box.getBoundingClientRect().bottom
+    if (over > 0) box.scrollTop += over + 8
+  }, [loaded, nextId])
   return (
-    <div className="d-home">
-      <div className="d-welcome">
-        <div>
-          <p>こんにちは、{live ? live.familyName : "佐藤"}さん</p>
-          <h1>今日、確認すること</h1>
+    <div className="d-home d-home-v3" data-home-v3>
+      {/* 上: 次の診察と今日の体調（固定） */}
+      <div className="d-home-top" data-home-top>
+        <div className="d-home-greet">
+          <h1>こんにちは、{live ? live.familyName : "佐藤"}さん</h1>
+          <span>{live ? live.today : "6月14日 金曜日"}</span>
         </div>
-        <span>{live ? live.today : "6月14日 金曜日"}</span>
-      </div>
-      {sharing && (
-        <button className="d-sharing-banner" onClick={() => setPage("share")}>
-          <Icon name="shield" />
-          <span>
-            <b>{live ? `${live.sharingLabel ?? "医療者"}と一時共有中` : "山田医師と一時共有中"}</b>
-            <small>{live ? `残り${live.sharingRemainingMin}分` : "残り24分"} · タップして管理</small>
-          </span>
-          <Icon name="arrow" />
-        </button>
-      )}
-      <DVisitCard visit={visit} />
-      {/* 新着: まだ開いていない今回の処方。色だけでなく「新着」の文字とアイコンで示す */}
-      {newRx && (
-        <button className="d-new-rx" data-new-rx onClick={onOpenNewRx}>
-          <span className="d-new-rx-badge">
-            <Icon name="bell" size={16} />
-            新着
-          </span>
-          <span className="d-new-rx-text">
-            <b>
-              医療者から届いた教材 {newRx.count}件
-            </b>
-            {newRx.singleTitle && <span className="d-new-rx-title">{newRx.singleTitle}</span>}
-            <small>
-              {newRx.sender}から · {newRx.date}
-            </small>
-            <span className="d-new-rx-tags">
-              {newRx.hasNote && (
-                <span className="d-new-rx-tag" data-new-rx-note>
-                  <Icon name="note" size={14} />
-                  メッセージあり
-                </span>
-              )}
-              {newRx.reread > 0 && (
-                <span className="d-new-rx-tag" data-new-rx-reread>
-                  <Icon name="play" size={14} />
-                  {newRx.count === 1 ? "再び届いた教材・進捗はそのまま" : `うち${newRx.reread}件は再び届いた教材・進捗はそのまま`}
-                </span>
-              )}
-            </span>
-          </span>
-          <Icon name="arrow" />
-        </button>
-      )}
-      {/* 今日できること: 体調の記録と、次の診察で聞きたいこと（どちらか一つだけでもよい） */}
-      <button className="d-note-summary d-home-health" data-home-health onClick={() => setPage("health")}>
-        <span className="stat-icon blue">
-          <Icon name="pulse" />
-        </span>
-        <span>
-          <b>体調を記録</b>
-          <small>
-            任意 · 気になることだけでも ·{" "}
-            {live ? (live.lastHealthDate ? `前回 ${live.lastHealthDate}` : "まだ記録はありません") : "前回 6月19日"}
-          </small>
-        </span>
-        <Icon name="arrow" />
-      </button>
-      <DHomeAsk recentNotes={recentNotes} onAddNote={onAddNote} setPage={setPage} />
-      {/* 医療者から届いた教材（セット・今回届いた教材）。次に学ぶ 1 件をコンパクトに表示 */}
-      <section className="d-home-section d-home-rx" aria-labelledby="d-home-rx-title">
-        <div className="d-section-head">
-          <h2 id="d-home-rx-title">医療者から届いた教材</h2>
-        </div>
-        {live && !live.loaded ? null : homeSet ? (
-          <DHomeSetCard
-            set={homeSet}
-            extraCount={homeSet.inLatest ? newOutsideSet.length : 0}
-            remainingMin={remainingMin}
-            onOpenSet={() => onOpenSet(homeSet.id)}
-            onOpen={onOpen}
-            onAll={() => setPage("prescriptions")}
-          />
-        ) : prescriptions.length === 0 ? (
-          <div className="d-home-empty">
-            <h3>今届いている教材はありません</h3>
-            <p>医療者から教材が届くと、ここに表示されます。公開教材は下の「教材を探す」からいつでも読めます。</p>
-          </div>
-        ) : allDone ? (
-          <section className="d-complete-hero d-home-compact">
-            <span className="d-complete-icon">
-              <Icon name="check" size={22} />
-            </span>
-            <div>
-              <Pill tone="soft">今回届いた教材</Pill>
-              <h2>{live ? prescriptions.length : 3}件すべて確認しました</h2>
-              <p>必要なときは、いつでも読み直せます。</p>
-            </div>
-            <button onClick={() => setPage("prescriptions")}>
-              学習済みを見る
-            </button>
-          </section>
-        ) : (
-          <section className="d-next-card d-home-compact" aria-label="次に学ぶ教材">
-            <div className="d-next-meta">
-              <Pill>今回届いた教材</Pill>
-              <span>{live?.latest ? `${live.latest.date} · ${live.latest.clinician}から` : "6月12日 · 山田医師から"}</span>
-            </div>
-            <h2>
-              {active?.status === "doing"
-                ? "続きから再開できます"
-                : "新しい教材が届いています"}
-            </h2>
-            {homeLessons.map((lesson) => (
-              <div key={lesson.id} className="d-home-lesson" data-home-lesson>
-                <div className="d-next-lesson">
-                  <span className="d-next-icon">
-                    <Icon
-                      name={lesson.status === "doing" ? "play" : "book"}
-                      size={20}
-                    />
-                  </span>
-                  <span>
-                    <b>{lesson.title}</b>
-                    <small>
-                      <DStatus lesson={lesson} short />
-                      {lesson.status === "doing"
-                        ? `${lesson.progress}%まで · あと約${remainingMin(lesson)}分`
-                        : `約${lesson.time}分`}
-                    </small>
-                  </span>
-                </div>
-                <button className="primary-button" onClick={() => onOpen(lesson)}>
-                  {lesson.status === "doing" ? "続きから学ぶ" : "教材を確認する"}
-                  <Icon name="arrow" size={18} />
-                </button>
-              </div>
-            ))}
-            <button
-              className="d-text-action"
-              onClick={() => setPage("prescriptions")}
-            >
-              今回届いた教材をすべて見る（{prescriptions.length}件）
-            </button>
-          </section>
-        )}
-      </section>
-      {onOpenMoney && (
-        <section className="d-home-section">
-          <button className="d-money-card" data-money-card onClick={onOpenMoney}>
-            <DThemeImage name={MONEY_THEME} />
+        {sharing && (
+          <button className="d-sharing-banner" onClick={() => setPage("share")}>
+            <Icon name="shield" />
             <span>
-              <b>{MONEY_THEME}</b>
-              <small>治療と仕事、医療費の制度を知る・医療費の目安を計算する</small>
+              <b>{live ? `${live.sharingLabel ?? "医療者"}と一時共有中` : "山田医師と一時共有中"}</b>
+              <small>{live ? `残り${live.sharingRemainingMin}分` : "残り24分"} · タップして管理</small>
             </span>
             <Icon name="arrow" />
           </button>
-        </section>
-      )}
-      {/* 「自分で教材を探す」は画面下の「教材を探す」から（ホームでは重ねて出さない） */}
-      {completed.length > 0 && (
-        <p className="d-home-footnote">
-          <Icon name="check" size={16} />
-          学習済みの教材は「学習記録」から読み直せます
-        </p>
-      )}
+        )}
+        <DVisitCard visit={visit} />
+        <button className={`d-home-health-card d-home-health-top${recordedToday ? " done" : ""}`} data-home-health onClick={() => setPage("health")}>
+          <span className="d-health-mark">
+            <Icon name={recordedToday ? "check" : "pulse"} size={18} />
+          </span>
+          <span>
+            <b>{recordedToday ? "今日の体調は記録済み" : "今日の体調を記録する"}</b>
+            <small>
+              {recordedToday
+                ? "見る・追加する"
+                : live
+                  ? live.lastHealthDate
+                    ? `前回 ${live.lastHealthDate}`
+                    : "まだ記録はありません"
+                  : "前回 6月19日"}
+            </small>
+          </span>
+          <Icon name="arrow" />
+        </button>
+      </div>
+
+      {/* 中: 前回の診察から次の診察までの歩み（スクロール。線は下の「聞きたいこと」まで続く） */}
+      <div className="d-journey" data-home-journey ref={journeyRef}>
+        <div className="d-journey-head">
+          <h2>次の診察までの歩み</h2>
+          {total > 0 && (
+            <span className="d-journey-count" aria-label={`教材 ${total}件のうち ${completed.length}件が完了`}>
+              <i style={{ width: `${Math.round((completed.length / total) * 100)}%` }} />
+              <b>
+                {completed.length} / {total}
+              </b>
+            </span>
+          )}
+        </div>
+        {live && !live.loaded ? (
+          <div className="d-journey-loading" aria-hidden />
+        ) : (
+          <ol className="d-journey-list">
+            {/* 起点: 前回の診察（届いた教材・セット） */}
+            {homeSet ? (
+              <DJourneyNode state="done" icon="clipboard" label={`${homeSet.date ?? since?.date ?? ""} · 前回の診察`}>
+                <div data-set-card data-set-in-latest={homeSet.inLatest}>
+                  <button className="d-jn-row" data-set-open onClick={() => onOpenSet(homeSet.id)} aria-label={`${homeSet.name}の内容を見る`}>
+                    <span>
+                      <b>{homeSet.name}</b>
+                      <small>
+                        <span className="d-set-sender">{homeSet.sender ?? since?.sender ?? "医療者"}から</span> · 教材 {homeSet.lessons.length}件
+                      </small>
+                    </span>
+                    <Icon name="arrow" size={16} />
+                  </button>
+                </div>
+              </DJourneyNode>
+            ) : total > 0 ? (
+              <DJourneyNode state="done" icon="clipboard" label={`${since?.date ?? ""} · 前回の診察`}>
+                <button className="d-jn-row" onClick={() => setPage("prescriptions")}>
+                  <span>
+                    <b>教材 {total}件が届きました</b>
+                    {since && <small>{since.sender}から</small>}
+                  </span>
+                  <Icon name="arrow" size={16} />
+                </button>
+              </DJourneyNode>
+            ) : (
+              <DJourneyNode state="todo" icon="clipboard" label="前回の診察">
+                <div className="d-jn-row static">
+                  <span>
+                    <b>教材はまだ届いていません</b>
+                  </span>
+                </div>
+              </DJourneyNode>
+            )}
+            {homeSet && !homeSet.inLatest && newOutsideSet.length > 0 && (
+              <DJourneyNode state="todo" icon="book" label={since ? `${since.date} · 新しく届いた教材` : "新しく届いた教材"}>
+                <button className="d-jn-row" data-new-rx onClick={() => setPage("prescriptions")}>
+                  <span>
+                    <b>新しく届いた教材 {newOutsideSet.length}件</b>
+                    {since && <small>{since.sender}から</small>}
+                  </span>
+                  <Icon name="arrow" size={16} />
+                </button>
+              </DJourneyNode>
+            )}
+
+            {/* 学習済み */}
+            {completed.map((lesson) => (
+              <DJourneyNode key={lesson.id} state="done" label={`${lesson.completedAt ? `${lesson.completedAt} · ` : ""}完了`}>
+                <button className="d-jn-row" onClick={() => onOpen(lesson)}>
+                  <span>
+                    <b>{lesson.title}</b>
+                  </span>
+                  <Icon name="arrow" size={16} />
+                </button>
+              </DJourneyNode>
+            ))}
+
+            {/* 今日 */}
+            <DJourneyNode state="now" nodeRef={nowRef}>
+              {next ? (
+                <section className="d-jn-now-card" data-home-lesson aria-label="今日のおすすめ">
+                  <Pill>{next.status === "doing" ? "続きから" : "今日のおすすめ"}</Pill>
+                  <h3>{next.title}</h3>
+                  <small>{next.status === "doing" ? `前回の続き · あと約${remainingMin(next)}分` : `約${next.time}分`}</small>
+                  <button className="primary-button" onClick={() => onOpen(next)}>
+                    {next.status === "doing" ? "続きを学ぶ" : "学び始める"}
+                    <Icon name="arrow" size={18} />
+                  </button>
+                </section>
+              ) : allDone ? (
+                <section className="d-jn-now-card done" aria-label="今回の教材はすべて完了">
+                  <Pill tone="soft">今回の教材</Pill>
+                  <h3>すべて確認しました</h3>
+                  <small>読み直すときは、学習記録から開けます。</small>
+                  <button className="secondary-button" onClick={() => setPage("history")}>
+                    学習記録を見る
+                  </button>
+                </section>
+              ) : (
+                <section className="d-jn-now-card" aria-label="自分で学ぶ">
+                  <h3>今届いている教材はありません</h3>
+                  <small>医療者から届くと、ここに表示されます。</small>
+                  <button className="secondary-button" onClick={() => setPage("library")}>
+                    教材を探す
+                    <Icon name="arrow" size={16} />
+                  </button>
+                </section>
+              )}
+            </DJourneyNode>
+
+            {/* これから */}
+            {remaining.map((lesson, index) => (
+              <DJourneyNode key={lesson.id} state="todo" label={index === 0 ? "診察までに" : undefined}>
+                <button className="d-jn-row" data-journey-todo onClick={() => onOpen(lesson)}>
+                  <span>
+                    <b>{lesson.title}</b>
+                    <small>{lesson.status === "doing" ? `あと約${remainingMin(lesson)}分` : `約${lesson.time}分`}</small>
+                  </span>
+                  <Icon name="arrow" size={16} />
+                </button>
+              </DJourneyNode>
+            ))}
+          </ol>
+        )}
+      </div>
+
+      {/* 下: 次の診察で聞きたいこと（固定。歩みの線の終点） */}
+      <DHomeAsk recentNotes={recentNotes} onAddNote={onAddNote} setPage={setPage} />
     </div>
+  )
+}
+
+/** ホームの歩み: 1 つの節目（済 = チェック、今 = 「今」、これから = 白丸）。icon があればそれを優先 */
+function DJourneyNode({
+  state,
+  icon,
+  label,
+  children,
+  nodeRef,
+}: {
+  state: "done" | "now" | "todo"
+  icon?: string
+  /** 節目の見出し（日付や「診察までに」）。なければ出さない */
+  label?: string
+  children: ReactNode
+  nodeRef?: RefObject<HTMLLIElement | null>
+}) {
+  return (
+    <li className={`d-jn d-jn-${state}`} data-journey-node={state} ref={nodeRef}>
+      <span className="d-jn-mark" aria-hidden="true">
+        {state === "now" ? "今" : icon ? <Icon name={icon} size={15} /> : state === "done" ? <Icon name="check" size={14} /> : null}
+      </span>
+      <div className="d-jn-body">
+        {label && <small className="d-jn-label">{label}</small>}
+        {children}
+      </div>
+    </li>
   )
 }
 
@@ -2765,96 +3034,6 @@ function DSetCover({ name, size = "small" }: { name: string; size?: "small" | "l
 const nextInSet = (lessons: DLesson[]) =>
   [...lessons].sort((a, b) => homeLessonOrder[a.status] - homeLessonOrder[b.status]).find((lesson) => lesson.status !== "done")
 
-/**
- * ホーム: 今回届いた情報処方セットのカード（Figma Production UX の PrescriptionSetCard）。
- * 届いた医療者・日付、セット名・説明、教材数と学習状況、「セットの内容を見る」、続きから学ぶ教材 1 件。
- */
-function DHomeSetCard({
-  set,
-  extraCount,
-  remainingMin,
-  onOpenSet,
-  onOpen,
-  onAll,
-}: {
-  set: DHomeSet
-  /** セット以外に今回届いた教材の数 */
-  extraCount: number
-  remainingMin: (lesson: DLesson) => number
-  onOpenSet: () => void
-  onOpen: (lesson: DLesson) => void
-  onAll: () => void
-}) {
-  const live = useContext(LiveInfoContext)
-  const total = set.lessons.length
-  const done = set.lessons.filter((lesson) => lesson.status === "done").length
-  const next = nextInSet(set.lessons)
-  return (
-    <section className="d-next-card d-set-card" data-set-card data-set-in-latest={set.inLatest} aria-label={set.inLatest ? "今回届いたセット" : "以前に届いたセット"}>
-      <div className="d-set-card-main">
-        <DSetCover name={set.name} />
-        <div className="d-set-card-text">
-          <Pill tone="soft">{set.inLatest ? "今回届いたセット" : "以前に届いたセット"}</Pill>
-          <small className="d-set-sender">
-            {set.sender && set.date ? (
-              <>
-                <span className="d-nowrap">{set.sender}から</span>
-                <span className="d-nowrap">届きました・{set.date}</span>
-              </>
-            ) : live?.latest ? `${live.latest.sender}から届きました・${live.latest.date}` : "医療者から届きました"}
-          </small>
-          <h2>{set.name}</h2>
-          {set.description && <p className="d-set-desc">{set.description}</p>}
-        </div>
-      </div>
-      <div className="d-set-stats">
-        <span>
-          教材 <b>{total}件</b>
-        </span>
-        <span>
-          学習済み{" "}
-          <b>
-            {done} / {total}
-          </b>
-        </span>
-      </div>
-      <div className="d-set-progress" aria-hidden="true">
-        <i style={{ width: `${total ? Math.round((done / total) * 100) : 0}%` }} />
-      </div>
-      <button className="d-set-open" data-set-open onClick={onOpenSet}>
-        セットの内容を見る
-        <Icon name="arrow" size={18} />
-      </button>
-      {next ? (
-        <div className="d-home-lesson d-set-resume" data-home-lesson>
-          <span className="d-set-resume-text">
-            <small>{next.status === "doing" ? "続きから" : "次に学ぶ教材"}</small>
-            <b>{next.title}</b>
-            <small>
-              {next.status === "doing"
-                ? `${next.progress}%まで · あと約${remainingMin(next)}分`
-                : `約${next.time}分`}
-            </small>
-          </span>
-          <button className="primary-button" onClick={() => onOpen(next)}>
-            {next.status === "doing" ? "続きから学ぶ" : "学び始める"}
-          </button>
-        </div>
-      ) : (
-        <p className="d-set-done">
-          <Icon name="check" size={16} />
-          このセットの教材をすべて学習しました。いつでも読み直せます。
-        </p>
-      )}
-      {extraCount > 0 && (
-        <button className="d-text-action" onClick={onAll}>
-          今回届いた教材をすべて見る（{total + extraCount}件）
-        </button>
-      )}
-    </section>
-  )
-}
-
 /** 情報処方セットの内容（Figma Production UX の SetDetail）。今回処方された教材を 1 件ずつカードで表示する */
 function DSetDetail({
   set,
@@ -2875,7 +3054,7 @@ function DSetDetail({
       <section className="d-set-hero">
         <DSetCover name={set.name} size="large" />
         <div>
-          <Pill tone="soft">医療者から届いたセット</Pill>
+          <Pill tone="soft">情報処方セット</Pill>
           {set.sender && set.date ? (
             <p className="d-set-sender">
               {set.sender}から届きました
@@ -2898,7 +3077,6 @@ function DSetDetail({
         </div>
       </section>
       {set.description && <p className="d-set-detail-desc">{set.description}</p>}
-      <p className="d-set-note">順番は決まっていません。今気になるものから、体調に合わせて進めてください。</p>
       <div className="d-set-lessons">
         {set.lessons.map((lesson, index) => (
           <button
@@ -2987,7 +3165,7 @@ function DMoneyTheme({
       <section className="d-set-hero">
         <DThemeImage name={MONEY_THEME} size="large" />
         <div>
-          <Pill tone="soft">{prescribedAs ? "医療者から届いたセット" : "社会制度の情報"}</Pill>
+          <Pill tone="soft">{prescribedAs ? "情報処方セット" : "社会制度の情報"}</Pill>
           {prescribedAs && (
             <p className="d-set-sender" data-money-prescribed>
               {prescribedAs.sender}から届きました
@@ -3005,9 +3183,7 @@ function DMoneyTheme({
           )}
         </div>
       </section>
-      <p className="d-set-note">
-        制度を使えるかどうかや金額は、加入している健康保険・勤務先などによって違います。このアプリでは判定しません。
-      </p>
+      <p className="d-set-note">使えるかどうかは、加入している健康保険・勤務先で異なります。最終的な判定は保険者に確認してください。</p>
       <div className="d-set-lessons">
         {lessons.map((lesson, index) => (
           <button key={lesson.id} className="d-set-lesson" data-money-lesson onClick={() => onOpen(lesson)}>
@@ -3040,7 +3216,7 @@ function DMoneyTheme({
         <DThemeImage name={SIMULATOR_NAME} />
         <span>
           <b>{SIMULATOR_NAME}</b>
-          <small>高額療養費制度を考えた、保険診療1か月分の自己負担の目安を計算します（2026年8月〜2027年7月の診療分・70歳未満）</small>
+          <small>年齢・保険・年収の目安・治療内容から、1か月の自己負担の目安</small>
         </span>
         <Icon name="arrow" />
       </button>
@@ -3056,8 +3232,18 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState("")
   const [busy, setBusy] = useState(false)
-  if (!visit) return null
-  if (!visit.loaded) return <div className="d-visit-card loading" aria-hidden />
+  // Figma の架空データ表示（visit なし）: 画面例と同じ固定の日付
+  if (!visit)
+    return (
+      <section className="d-visit-card d-visit-top" aria-label="次回の診察日">
+        <span className="d-visit-text">
+          <span className="d-visit-days">
+            <small>次の診察まで</small> <b>あと6日</b> <em className="d-visit-when">6月20日（木）</em>
+          </span>
+        </span>
+      </section>
+    )
+  if (!visit.loaded) return <div className="d-visit-card d-visit-top loading" aria-hidden />
   const startEdit = () => {
     setValue(visit.date ?? "")
     setEditing(true)
@@ -3070,7 +3256,7 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
   }
   if (editing)
     return (
-      <section className="d-visit-card editing" aria-label="次回の診察日">
+      <section className="d-visit-card d-visit-top editing" aria-label="次回の診察日">
         <label htmlFor="d-visit-input">
           <Icon name="calendar" />
           次回の診察日
@@ -3100,54 +3286,54 @@ function DVisitCard({ visit }: { visit?: PatientVisit }) {
     )
   if (!visit.date)
     return (
-      <section className="d-visit-card empty" aria-label="次回の診察日">
-        <span className="d-visit-icon">
-          <Icon name="calendar" size={18} />
-        </span>
+      <section className="d-visit-card d-visit-top empty" aria-label="次回の診察日">
         <span className="d-visit-text">
-          <b>次回の診察日は未登録です</b>
-          <small>登録すると、診察までの日数を表示します</small>
+          <small>次の診察</small>
+          <b>診察日は未登録です</b>
         </span>
         <button className="d-visit-register" data-visit-edit onClick={startEdit}>
-          次回診察日を登録
+          <Icon name="calendar" size={16} />
+          日付を登録
         </button>
       </section>
     )
   const days = daysUntil(visit.date)
   return (
-    <section className="d-visit-card" aria-label="次回の診察日">
-      <span className="d-visit-icon">
-        <Icon name="calendar" size={18} />
-      </span>
+    <section className={`d-visit-card d-visit-top${days === 0 ? " today" : days < 0 ? " past" : ""}`} aria-label="次回の診察日">
       <span className="d-visit-text">
-        <small>次の診察</small>
-        <span className="d-visit-days" data-visit-days>
-          {days > 0 ? (
-            <>
-              <span className="d-visit-date-main">{visitDateLabel(visit.date)}</span> <b>あと{days}日</b>
-            </>
-          ) : days === 0 ? (
-            <b>今日が診察日です</b>
-          ) : (
-            <>登録した診察日（{visitDateLabel(visit.date)}）を過ぎました。次の日付を登録してください</>
-          )}
-        </span>
+        {days > 0 ? (
+          <span className="d-visit-days" data-visit-days>
+            <small>次の診察まで</small> <b>あと{days}日</b> <em className="d-visit-when">{visitDateLabel(visit.date)}</em>
+          </span>
+        ) : days === 0 ? (
+          <>
+            <span className="d-visit-days" data-visit-days>
+              <b>今日が診察日です</b>
+            </span>
+            <em className="d-visit-when">{visitDateLabel(visit.date)}</em>
+          </>
+        ) : (
+          <>
+            <span className="d-visit-days" data-visit-days>登録した診察日を過ぎました。次の日付を登録してください</span>
+            <em className="d-visit-when">{visitDateLabel(visit.date)}</em>
+          </>
+        )}
       </span>
-      <button className="d-visit-change" data-visit-edit onClick={startEdit}>
-        変更
+      <button className="d-visit-change" data-visit-edit onClick={startEdit} aria-label="次回の診察日を変更">
+        <Icon name="calendar" size={20} />
+        <small>変更</small>
       </button>
     </section>
   )
 }
 
-/** ホームから「次の診察で聞きたいこと」を直接追加（既存の質問 API。保存に成功したときだけ表示に反映）。直近 2 件と作成日、ほかの件数 */
+/** ホーム下部（固定）: 歩みの終点。「次の診察で聞きたいこと」を直接追加（既存の診察ノート API。保存に成功したときだけ件数に反映） */
 function DHomeAsk({
   recentNotes,
   onAddNote,
   setPage,
 }: {
-  /** 新しい順 */
-  recentNotes: DHomeNote[]
+  recentNotes: { id: string; body: string }[]
   onAddNote: (body: string) => Promise<boolean>
   setPage: (page: DPage) => void
 }) {
@@ -3160,52 +3346,44 @@ function DHomeAsk({
     setBusy(false)
     if (ok) setDraft("")
   }
-  const shown = recentNotes.slice(0, 2)
-  const more = recentNotes.length - shown.length
   return (
-    <section className="d-home-section d-home-ask" aria-labelledby="d-home-ask-title">
-      <div className="d-section-head">
-        <h2 id="d-home-ask-title">次の診察で聞きたいこと</h2>
-        <span data-home-note-count>{recentNotes.length}件 保存済み</span>
-      </div>
-      <form
-        className="d-home-ask-form"
-        onSubmit={(event) => {
-          event.preventDefault()
-          void add()
-        }}
-      >
-        <label htmlFor="d-home-note" className="sr-only">
-          次の診察で聞きたいこと
-        </label>
-        <input
-          id="d-home-note"
-          data-home-note-input
-          value={draft}
-          maxLength={500}
-          onChange={(event) => setDraft(event.target.value)}
-          placeholder="例：副作用が出たときの連絡先は？"
-        />
-        <button type="submit" className="primary-button" data-home-note-add disabled={!draft.trim() || busy}>
-          <Icon name="plus" size={18} />
-          追加
-        </button>
-      </form>
-      {shown.length > 0 && (
-        <ul className="d-home-ask-list">
-          {shown.map((note, index) => (
-            <li key={`${index}-${note.body}`}>
-              <span>{note.body}</span>
-              {note.date && <small className="d-home-ask-date">{note.date}に保存</small>}
-            </li>
-          ))}
-        </ul>
-      )}
-      <div className="d-home-ask-foot">
-        {more > 0 && <span data-home-note-more>ほか{more}件</span>}
-        <button className="d-text-action" data-home-note-all onClick={() => setPage("notes")}>
-          {recentNotes.length > 0 ? "すべて見る・編集する" : "聞きたいことの一覧を開く"}
-        </button>
+    <section className="d-home-ask d-home-bottom" data-home-block="ask">
+      <span className="d-bottom-rail" aria-hidden="true">
+        <span className="d-jn-mark d-bottom-mark">
+          <Icon name="calendar" size={15} />
+        </span>
+      </span>
+      <div className="d-home-ask-body">
+        <div className="d-home-ask-head">
+          <h2>次の診察で聞きたいこと</h2>
+          <button className="d-home-ask-count" data-home-note-count onClick={() => setPage("notes")} aria-label={`聞きたいこと ${recentNotes.length}件の一覧を開く`}>
+            {recentNotes.length}件
+            <Icon name="arrow" size={14} />
+          </button>
+        </div>
+        <form
+          className="d-home-ask-form"
+          onSubmit={(event) => {
+            event.preventDefault()
+            void add()
+          }}
+        >
+          <label htmlFor="d-home-note" className="sr-only">
+            次の診察で聞きたいこと
+          </label>
+          <input
+            id="d-home-note"
+            data-home-note-input
+            value={draft}
+            maxLength={500}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder="例：腕のつっぱりはいつまで続く？"
+          />
+          <button type="submit" className="primary-button" data-home-note-add disabled={!draft.trim() || busy}>
+            <Icon name="plus" size={18} />
+            追加
+          </button>
+        </form>
       </div>
     </section>
   )
@@ -3224,8 +3402,8 @@ function DPrescriptions({
   return (
     <div>
       <DPageHeader
-        title="医療者から届いた教材"
-        eyebrow="今回届いた分"
+        title="今回の情報処方"
+        eyebrow="医療者から届いた教材"
         onBack={onBack}
       />
       <div className="d-prescription-info">
@@ -3235,24 +3413,6 @@ function DPrescriptions({
           <small>{live?.latest ? `${live.latest.date}に届きました · ${lessons.length}件` : "6月12日に届きました · 3件"}</small>
         </span>
       </div>
-      {(() => {
-        // 医療者のメッセージ（同じ文は 1 回だけ）。届いた教材の詳細にも表示される
-        const messages = [...new Set(lessons.map((lesson) => lesson.note).filter((note): note is string => !!note))]
-        return messages.length > 0 ? (
-          <div className="d-rx-message" data-rx-message>
-            <b>
-              <Icon name="note" size={16} />
-              医療者からのメッセージ
-            </b>
-            {messages.map((message) => (
-              <p key={message}>「{message}」</p>
-            ))}
-          </div>
-        ) : null
-      })()}
-      <p className="d-gentle-copy">
-        次の診察までの目安です。順番は決まっていません。体調や時間に合わせて進めてください。
-      </p>
       <div className="d-card-list">
         {lessons.map((lesson) => (
           <DLessonCard
@@ -3278,6 +3438,7 @@ function DLibrary({
   onSearch,
   onCategory,
   onOpen,
+  onOpenMoney,
 }: {
   lessons: DLesson[]
   sourceFilter: string
@@ -3289,11 +3450,13 @@ function DLibrary({
   onSearch: () => void
   onCategory: (category: string) => void
   onOpen: (lesson: DLesson) => void
+  /** 「仕事とお金のこと」（制度と医療費の目安）。ホームには置かず、探す画面から開く */
+  onOpenMoney?: () => void
 }) {
   const categories = useContext(CategoriesContext)
   return (
     <div className="d-library">
-      <h1>知りたいことを探す</h1>
+      <h1>教材を探す</h1>
       <form
         className="d-search"
         onSubmit={(event) => {
@@ -3311,16 +3474,13 @@ function DLibrary({
       </form>
       <section>
         <div className="d-section-head">
-          <h2>学習領域から探す</h2>
-          <span>順番はありません</span>
+          <h2>領域から探す</h2>
         </div>
-        <p className="d-support-copy">
-          今の治療や関心に合わせて、どの領域からでも選べます。
-        </p>
         <div className="d-category-cards">
           {categories.map((category) => (
             <button
               key={category.name}
+              className={areaTone(category.name)}
               onClick={() => onCategory(category.name)}
             >
               <span className="d-category-icon">
@@ -3334,31 +3494,35 @@ function DLibrary({
             </button>
           ))}
         </div>
+        {onOpenMoney && (
+          <button className="d-theme-card" data-money-card onClick={onOpenMoney}>
+            <span className="d-category-icon">
+              <Icon name="wallet" />
+            </span>
+            <span>
+              <b>{MONEY_THEME}</b>
+              <small>制度と医療費の目安</small>
+            </span>
+            <Icon name="arrow" />
+          </button>
+        )}
       </section>
       <section className="d-all-lessons">
         <div className="d-section-head">
           <h2>すべての公開教材</h2>
           <span>{lessons.length}件</span>
         </div>
-        <div className="d-filter-group" role="group" aria-label="入手経路で絞り込む">
-          {[
-            { value: "すべて", label: "すべて" },
-            { value: "届いた", label: "医療者から届いた教材" },
-            { value: "自分で", label: "自分で読める教材" },
-          ].map((filter) => (
+        <div className="d-filter-group" aria-label="教材の種類">
+          {["すべて", "処方", "自主"].map((filter) => (
             <button
-              key={filter.value}
-              className={sourceFilter === filter.value ? "active" : ""}
-              aria-pressed={sourceFilter === filter.value}
-              onClick={() => setSourceFilter(filter.value)}
+              key={filter}
+              className={sourceFilter === filter ? "active" : ""}
+              onClick={() => setSourceFilter(filter)}
             >
-              {filter.label}
+              {filter === "自主" ? "自分で選んだ教材" : filter === "処方" ? "処方された教材" : filter}
             </button>
           ))}
         </div>
-        <p className="d-filter-help" data-filter-help>
-          「自分で読める教材」は、医療者から届いていない公開教材です。読んだかどうかは「学習状態」で絞り込めます。
-        </p>
         <label className="d-select-filter">
           学習状態
           <select
@@ -3404,8 +3568,8 @@ function DCategory({
   const shown = lessons.length || !fallback ? lessons : figmaFallback
   return (
     <div>
-      <DPageHeader title={category} eyebrow="学習領域" onBack={onBack} />
-      <div className="d-area-overview">
+      <DPageHeader title={category} onBack={onBack} />
+      <div className={`d-area-overview ${areaTone(category)}`}>
         <span className="d-category-icon">
           <Icon
             name={
@@ -3421,9 +3585,6 @@ function DCategory({
               shown.length}
             件
           </b>
-          <p>
-            教材を読む順番は決まっていません。必要な内容から選んでください。
-          </p>
         </div>
       </div>
       <div className="d-card-list">
@@ -3440,39 +3601,25 @@ function DCategory({
   )
 }
 
-function DSnippet({ snippet }: { snippet: SearchSnippet }) {
-  const { text, start, end } = snippet
-  return (
-    <span className="d-search-snippet">
-      {text.slice(0, start)}
-      <mark>{text.slice(start, end)}</mark>
-      {text.slice(end)}
-    </span>
-  )
-}
-
 function DSearch({
   query,
   setQuery,
   lessons,
-  slidesByVersion,
-  loadingSlides,
   onOpen,
-  onOpenSlide,
   onBack,
 }: {
   query: string
   setQuery: (value: string) => void
   lessons: DLesson[]
-  slidesByVersion: MaterialSearchOptions["slidesByVersion"]
-  loadingSlides: boolean
   onOpen: (lesson: DLesson) => void
-  onOpenSlide: (lesson: DLesson, seq: number) => void
   onBack: () => void
 }) {
   const normalized = query.trim()
-  const hits = searchMaterials(lessons, query, { slidesByVersion })
-  const results = hits.map((hit) => hit.material)
+  const results = lessons.filter(
+    (lesson) =>
+      !normalized ||
+      `${lesson.title}${lesson.category}${lesson.summary}`.includes(normalized),
+  )
   return (
     <div>
       <DPageHeader title="検索結果" onBack={onBack} />
@@ -3492,30 +3639,14 @@ function DSearch({
       </div>
       {results.length ? (
         <div className="d-card-list">
-          {hits.map(({ material: lesson, slides }) => (
-            <div className="d-search-hit" key={lesson.id}>
-              <DLessonCard lesson={lesson} onOpen={() => onOpen(lesson)} horizontal />
-              {normalized && slides.length > 0 && (
-                <ul className="d-search-slides" aria-label={`${lesson.title}の該当ページ`}>
-                  {slides.slice(0, 3).map((slide) => (
-                    <li key={slide.seq}>
-                      <button onClick={() => onOpenSlide(lesson, slide.seq)}>
-                        <b>
-                          {slide.seq}ページ目　{slide.title}
-                        </b>
-                        <DSnippet snippet={slide.snippet} />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+          {results.map((lesson) => (
+            <DLessonCard
+              key={lesson.id}
+              lesson={lesson}
+              onOpen={() => onOpen(lesson)}
+              horizontal
+            />
           ))}
-        </div>
-      ) : loadingSlides ? (
-        <div className="d-empty-search" role="status">
-          <Icon name="search" size={32} />
-          <h2>教材の本文を探しています</h2>
         </div>
       ) : (
         <div className="d-empty-search">
@@ -3542,7 +3673,7 @@ function DDetail({
 }) {
   return (
     <div className="d-detail">
-      <DPageHeader title="教材の詳細" onBack={onBack} />
+      <DPageHeader title="教材" onBack={onBack} />
       <DImageSlot
         kind={imageKind(lesson)}
         // 装飾用サムネイルの下には説明を出さない（監修済みの医学図解と区別する）。画像がないときは小さな代替表示だけ
@@ -3554,10 +3685,7 @@ function DDetail({
         seed={lesson.title}
       />
       <div className="d-detail-meta">
-        <span className="d-status-pair">
-          <DSource lesson={lesson} />
-          <DStatus lesson={lesson} />
-        </span>
+        <DStatus lesson={lesson} />
         <span>
           <Icon name="clock" size={16} />約{lesson.time}分
         </span>
@@ -3570,7 +3698,7 @@ function DDetail({
           <span>
             <b>{lesson.sender}から届きました</b>
             <small>
-              {lesson.date} · {lesson.latest === false ? "以前に届いた教材" : "今回届いた教材"}
+              {lesson.date} · {lesson.latest === false ? "以前の情報処方" : "今回の情報処方"}
               {lesson.note ? ` · 「${lesson.note}」` : ""}
             </small>
           </span>
@@ -3582,21 +3710,10 @@ function DDetail({
         <p>{lesson.goal}</p>
       </section>
       )}
-      <div className="d-content-list">
-        <span>
-          <Icon name="book" />
-          短い説明 {lesson.slideCount ?? 3}ページ
-        </span>
-        <span>
-          <Icon name="audio" />
-          音声読み上げあり
-        </span>
-        {(lesson.questionCount ?? 1) > 0 && (
-        <span>
-          <Icon name="help" />
-          理解確認 {lesson.questionCount ?? 1}問
-        </span>
-        )}
+      <div className="d-content-list d-content-list-compact">
+        <span>短い説明 {lesson.slideCount ?? 3}ページ</span>
+        {(lesson.questionCount ?? 1) > 0 && <span>理解確認 {lesson.questionCount ?? 1}問</span>}
+        <span>読み上げ可</span>
       </div>
       {onSimulator && (
         <button className="d-sim-open" data-open-simulator onClick={onSimulator}>
@@ -3632,115 +3749,6 @@ type DLearningLive = {
 const keyPoints = (slide: Slide) =>
   (slide.bodyMd.match(/[^。！？]+[。！？]?/g) ?? [slide.bodyMd]).map((t) => t.trim()).filter(Boolean).slice(0, 3)
 
-type SpeechState = "idle" | "starting" | "playing" | "error"
-
-/**
- * 端末の読み上げ（Web Speech API の speechSynthesis）。表示は実際のイベントに合わせる:
- * 押した直後は「準備中」→ start で「読み上げ中」→ end で消える。error・開始しない・日本語の音声がないときは理由を表示する。
- * ページを移ったとき・画面を閉じたときに止める（親の再描画では止めない）。
- * 注: 音が実際に聞こえたかはブラウザーからは分からない（音量・消音・出力先は端末側）。
- */
-function useSpeech(pageKey: number | null) {
-  const [state, setState] = useState<SpeechState>("idle")
-  const [message, setMessage] = useState("")
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
-  const timerRef = useRef<number | null>(null)
-  const clearTimer = () => {
-    if (timerRef.current !== null) window.clearTimeout(timerRef.current)
-    timerRef.current = null
-  }
-  const fail = (text: string) => {
-    clearTimer()
-    utteranceRef.current = null
-    setMessage(text)
-    setState("error")
-  }
-  const stop = () => {
-    clearTimer()
-    utteranceRef.current = null
-    if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel()
-    setState("idle")
-  }
-  // ページを移ったら止める（教材を閉じたときも）
-  useEffect(() => {
-    return () => {
-      clearTimer()
-      utteranceRef.current = null
-      if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel()
-    }
-  }, [pageKey])
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setState("idle")
-  }, [pageKey])
-  const speak = (text: string) => {
-    const synth = typeof window !== "undefined" ? window.speechSynthesis : undefined
-    if (!synth || typeof SpeechSynthesisUtterance === "undefined") {
-      fail("この端末・ブラウザーは音声の読み上げに対応していません。本文をお読みください。")
-      return
-    }
-    if (!text.trim()) {
-      fail("このページには読み上げる文章がありません。")
-      return
-    }
-    const voices = synth.getVoices()
-    const ja = voices.find((voice) => voice.lang.replace("_", "-").toLowerCase().startsWith("ja"))
-    // 音声の一覧が読み込み済みで、日本語の音声がない端末
-    if (voices.length > 0 && !ja) {
-      fail("この端末に日本語の読み上げ音声が見つかりません。端末の設定で日本語の音声を追加すると使えます。")
-      return
-    }
-    const u = new SpeechSynthesisUtterance(text)
-    u.lang = "ja-JP"
-    if (ja) u.voice = ja
-    u.onstart = () => {
-      if (utteranceRef.current !== u) return
-      clearTimer()
-      setState("playing")
-    }
-    u.onend = () => {
-      if (utteranceRef.current !== u) return
-      clearTimer()
-      utteranceRef.current = null
-      setState("idle")
-    }
-    u.onerror = (event) => {
-      if (utteranceRef.current !== u) return
-      // 停止・ページ移動による中断はエラーとして出さない
-      if (event.error === "interrupted" || event.error === "canceled") {
-        clearTimer()
-        utteranceRef.current = null
-        setState("idle")
-        return
-      }
-      fail(
-        event.error === "not-allowed"
-          ? "ブラウザーが読み上げを許可しませんでした。もう一度「音声」を押してください。"
-          : event.error === "language-unavailable" || event.error === "voice-unavailable"
-            ? "この端末に日本語の読み上げ音声が見つかりません。端末の設定で日本語の音声を追加すると使えます。"
-            : "読み上げを開始できませんでした。本文をお読みください。",
-      )
-    }
-    synth.cancel()
-    utteranceRef.current = u
-    setMessage("")
-    setState("starting")
-    synth.speak(u)
-    // 一部の端末では、音声がないと start も error も届かない。一定時間で理由を表示する
-    clearTimer()
-    timerRef.current = window.setTimeout(() => {
-      if (utteranceRef.current !== u) return
-      synth.cancel()
-      fail(
-        voices.length === 0
-          ? "読み上げが始まりませんでした。この端末に日本語の読み上げ音声がない可能性があります。本文をお読みください。"
-          : "読み上げが始まりませんでした。端末の音量や設定をご確認のうえ、もう一度お試しください。",
-      )
-    }, 4000)
-  }
-  return { state, message, speak, stop }
-}
-
 function DLearning({
   lesson,
   panel,
@@ -3761,29 +3769,111 @@ function DLearning({
 }) {
   const [detailOpen, setDetailOpen] = useState(false)
   const [audioPlaying, setAudioPlaying] = useState(false)
-  // 本番の音声: 端末の読み上げ機能（speechSynthesis）の実際の開始・終了・エラーに合わせて表示する
-  const speech = useSpeech(live?.seq ?? null)
+  const [audioNotice, setAudioNotice] = useState<string | null>(null)
+  // 文字を大きく（端末に記憶。高齢の方や見えにくいときに）
+  const [largeText, setLargeText] = useState(() => {
+    try {
+      return typeof window !== "undefined" && window.localStorage.getItem("shiori.largeText") === "1"
+    } catch {
+      return false
+    }
+  })
+  const toggleLargeText = () => {
+    const next = !largeText
+    setLargeText(next)
+    try {
+      window.localStorage.setItem("shiori.largeText", next ? "1" : "0")
+    } catch {
+      /* 保存できなくても表示は切り替える */
+    }
+  }
+  // 左右のスワイプでページを送る（縦スクロールと区別するため、横 60px 以上・縦 40px 未満のときだけ）
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
+  // 本番の音声: 端末の読み上げ機能でスライドの読み上げ用テキストを読む（ページを移ったら止める）
+  useEffect(() => {
+    if (!live) return
+    // ページを移ったら読み上げを止める（表示の状態は、読み上げの終了コールバックと下のキーの切り替えで戻る）
+    return () => stopSpeaking()
+  }, [live?.seq, live])
+  // ページが変わったら「もう少し詳しく」を閉じ、読み上げ中の表示を戻す（key で状態を作り直す）
+  const [shownSeq, setShownSeq] = useState(live?.seq ?? 0)
+  if (live && live.seq !== shownSeq) {
+    setShownSeq(live.seq)
+    setAudioPlaying(false)
+    setDetailOpen(false)
+  }
+  // 読み上げ中にページを送ったら、次のページも続けて読む（止めてから送ったときは読まない）
+  const continueReading = useRef(false)
+  const liveSlide = live?.slide ?? null
+  const liveSeq = live?.seq ?? 0
+  useEffect(() => {
+    if (!continueReading.current || !liveSlide) return
+    continueReading.current = false
+    const text = [liveSlide.title, liveSlide.proposition, liveSlide.voiceText !== liveSlide.proposition ? liveSlide.voiceText : null].filter(Boolean).join("。")
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 読み上げの開始に合わせて表示を切り替える
+    if (speakText(text, () => setAudioPlaying(false))) setAudioPlaying(true)
+  }, [liveSeq, liveSlide])
   if (live) {
     const slide = live.slide
     const figure = slide?.figures[0]
-    const speaking = speech.state === "starting" || speech.state === "playing"
+    const turnPage = (go: () => void) => {
+      continueReading.current = audioPlaying
+      go()
+    }
+    const onTouchStart = (event: React.TouchEvent) => {
+      const t = event.touches[0]
+      touchStart.current = t ? { x: t.clientX, y: t.clientY } : null
+    }
+    const onTouchEnd = (event: React.TouchEvent) => {
+      const start = touchStart.current
+      touchStart.current = null
+      const t = event.changedTouches[0]
+      if (!start || !t || !slide) return
+      const dx = t.clientX - start.x
+      const dy = t.clientY - start.y
+      if (Math.abs(dx) < 60 || Math.abs(dy) > 40) return
+      if (dx < 0) turnPage(live.onNext)
+      else if (live.seq > 1) turnPage(live.onPrev)
+    }
     const toggleAudio = () => {
       if (!slide) return
-      if (speaking) speech.stop()
-      else speech.speak(slide.voiceText)
+      if (audioPlaying) {
+        stopSpeaking()
+        setAudioPlaying(false)
+        return
+      }
+      if (!speechSupported()) {
+        setAudioNotice("この端末のブラウザでは読み上げを使えません。文章をそのままお読みください。")
+        return
+      }
+      // 読み上げる文: 見出し → 要点 → 本文（「もう少し詳しく」は開いているときだけ）
+      const text = [slide.title, slide.proposition, slide.voiceText !== slide.proposition ? slide.voiceText : null, detailOpen ? slide.detailMd : null].filter(Boolean).join("。")
+      const started = speakText(text, () => setAudioPlaying(false))
+      if (!started) {
+        setAudioNotice("読み上げを開始できませんでした。端末の音量をご確認ください。")
+        return
+      }
+      setAudioNotice(null)
+      setAudioPlaying(true)
     }
     const isLast = live.seq >= live.total
+    const art = slide ? slideArtKey(slide.title, slide.bodyMd) : "book"
     return (
-      <div className="d-learning">
+      <div className={`d-learning${largeText ? " large" : ""}`} data-large-text={largeText} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div className="d-learning-head">
           <button onClick={onClose}>閉じる</button>
           <span>
             {live.seq} / {live.total || "—"}
           </span>
-          <button className={speaking ? "active" : ""} onClick={toggleAudio} aria-pressed={speaking} data-audio-toggle>
-            <Icon name="audio" />
-            {speaking ? "停止" : "音声"}
-          </button>
+          <span className="d-learning-tools">
+            <button className={`d-text-size${largeText ? " active" : ""}`} onClick={toggleLargeText} aria-pressed={largeText} aria-label="文字の大きさを切り替える" data-text-size>
+              Aa
+            </button>
+            <button className={audioPlaying ? "active" : ""} onClick={toggleAudio} aria-pressed={audioPlaying} data-audio-toggle>
+              <Icon name="audio" />
+              {audioPlaying ? "停止" : "読み上げ"}
+            </button>
+          </span>
         </div>
         <div className="d-learning-progress">
           <i style={{ width: `${live.total ? Math.round((live.seq / live.total) * 100) : 0}%` }} />
@@ -3793,26 +3883,34 @@ function DLearning({
           <>
             <h1>{slide.title}</h1>
             <p className="d-learning-lead">{slide.proposition ?? slide.bodyMd}</p>
-            {speech.state !== "idle" && (
-              <div className={`d-audio-state ${speech.state}`} data-audio-state={speech.state} role="status">
-                {speech.state === "playing" && <span className="live-dot" />}
-                {speech.state === "playing" ? "読み上げ中" : speech.state === "starting" ? "読み上げを準備しています…" : speech.message}
-                {speech.state === "playing" && <span className="d-audio-wave" aria-hidden="true">〰 〰 〰</span>}
+            {audioPlaying && (
+              <div className="d-audio-state" role="status">
+                <span className="live-dot" />
+                読み上げ中
+                <span className="d-audio-wave">〰 〰 〰</span>
               </div>
             )}
-            {/* 図解がないページ: 枠を出さず、本文をそのまま読めるようにする（図解は医療者の承認後にだけ届く） */}
+            {audioNotice && !audioPlaying && (
+              <p className="d-audio-notice" role="status">
+                {audioNotice}
+              </p>
+            )}
+            {/* 図解がないページ: 主題に合った挿絵（装飾）と本文。医学図解は医療者の承認後にだけ届く */}
             {!figure ? (
-              slide.proposition && slide.bodyMd && slide.bodyMd !== slide.proposition ? (
-                <p className="d-learning-body">{slide.bodyMd}</p>
-              ) : null
+              <div className="d-learning-plain">
+                <SlideArt art={art} tone={live.seq} />
+                {slide.proposition && slide.bodyMd && slide.bodyMd !== slide.proposition ? (
+                  <p className="d-learning-body">{slide.bodyMd}</p>
+                ) : null}
+              </div>
             ) : (
             <>
             <div className="d-learning-tabs">
               <button className={panel === "figure" ? "active" : ""} onClick={() => setPanel("figure")}>
-                医学図解
+                図解
               </button>
               <button className={panel === "points" ? "active" : ""} onClick={() => setPanel("points")}>
-                要点だけ読む
+                要点
               </button>
             </div>
             {panel === "figure" ? (
@@ -3836,11 +3934,8 @@ function DLearning({
             )}
             {slide.detailMd && (
               <>
-                <button className="d-disclosure" onClick={() => setDetailOpen(!detailOpen)}>
-                  <span>
-                    <b>もう少し詳しく</b>
-                    <small>{slide.title}</small>
-                  </span>
+                <button className="d-disclosure" onClick={() => setDetailOpen(!detailOpen)} aria-expanded={detailOpen}>
+                  <b>もう少し詳しく</b>
                   <span>{detailOpen ? "−" : "＋"}</span>
                 </button>
                 {detailOpen && <div className="d-detail-copy">{slide.detailMd}</div>}
@@ -3851,8 +3946,8 @@ function DLearning({
           <h1>読み込んでいます…</h1>
         )}
         <div className="d-learning-actions">
-          <button onClick={live.onPrev}>前へ</button>
-          <button className="primary-button" onClick={live.onNext} disabled={!slide}>
+          <button onClick={() => turnPage(live.onPrev)}>前へ</button>
+          <button className="primary-button" onClick={() => turnPage(live.onNext)} disabled={!slide}>
             {/* 読み込み中は最後のページ用の文言（学習を終える）を出さない */}
             {!slide ? "次へ" : !isLast ? "次へ" : live.hasQuiz ? "理解を確認する" : "学習を終える"}
             <Icon name="arrow" />
@@ -3995,9 +4090,6 @@ function DQuiz({
         理解の確認{live && live.total > 1 ? ` · ${live.index + 1} / ${live.total}` : ""}
       </p>
       <h1>{live ? (live.question?.stem ?? "読み込んでいます…") : "腕を動かすとき、適切なのはどれですか？"}</h1>
-      <p className="d-quiz-support">
-        今の理解を振り返るための確認です。迷ったときは「わからない」を選べます。
-      </p>
       <div className="d-answer-list">
         {answers.map((item, index) => (
           <button
@@ -4011,11 +4103,7 @@ function DQuiz({
           </button>
         ))}
       </div>
-      <div className="d-selection-note">
-        {answer
-          ? `「${answer}」を選択しています`
-          : "選択しただけでは回答は記録されません"}
-      </div>
+      <div className="d-selection-note">{answer ? `「${answer}」を選択しています` : "迷ったときは「わからない」を選べます"}</div>
       <button
         className="primary-button d-bottom-action"
         disabled={!answer || !!live?.busy || (!!live && !live.question)}
@@ -4040,7 +4128,7 @@ function DExplanation({
   onNext: () => void
   onAddQuestion: () => void
   /** 本番: 記録した回答（サーバーの採点結果）と解説 */
-  live?: { question: AttemptQuestion | null; relatedTitle: string | null; remaining: number }
+  live?: { question: AttemptQuestion | null; relatedTitle: string | null; remaining: number; review?: { index: number; total: number } | null }
   /** 医療者の下書きプレビュー: 回答は記録しない（文言だけ変え、質問候補の作成は出さない） */
   preview?: boolean
 }) {
@@ -4054,22 +4142,24 @@ function DExplanation({
         : live.question!.options[a.selectedIndex ?? 0]
       : "未選択"
     : answer || "未選択"
+  const verdict: "correct" | "wrong" | "unsure" = correct ? "correct" : unsure ? "unsure" : "wrong"
   return (
     <div className="d-explanation">
-      <div className={`d-answer-result ${correct ? "correct" : "review"}`}>
+      <div className={`d-answer-result ${verdict === "correct" ? "correct" : verdict === "wrong" ? "wrong" : "review"}`} data-answer-verdict={verdict}>
         <span>
-          <Icon name={correct ? "check" : "help"} size={28} />
+          <Icon name={verdict === "correct" ? "check" : verdict === "wrong" ? "x" : "help"} size={28} />
         </span>
         <div>
-          <p className="eyebrow">{preview ? "プレビュー · 回答は記録されません" : "回答を記録しました"}</p>
+          <p className="eyebrow">{preview ? "プレビュー · 回答は記録されません" : live?.review ? `復習 ${live.review.index} / ${live.review.total} · 前回の回答` : "回答を記録しました"}</p>
+          <span className={`d-verdict-badge ${verdict}`}>{verdict === "correct" ? "正解" : verdict === "wrong" ? "不正解" : "わからない"}</span>
           <h1>
-            {correct
+            {verdict === "correct"
               ? "この内容で確認できています"
-              : unsure
+              : verdict === "unsure"
                 ? preview
                   ? "「わからない」を選びました"
                   : <span className="d-keep">「わからない」を<wbr />記録しました</span>
-                : <span className="d-keep">この答えは<wbr />正しくありません</span>}
+                : "正しい答えをいっしょに確認しましょう"}
           </h1>
         </div>
       </div>
@@ -4077,21 +4167,19 @@ function DExplanation({
         <span>あなたの回答</span>
         <b>{yourAnswer}</b>
       </div>
-      {/* 誤答・「わからない」: 正しい答えを先に短く示す（理由は既存の解説をそのまま使う。新しい説明は作らない） */}
-      {!correct && (live ? a : true) && (
-        <div className={`d-correct-answer ${unsure ? "unsure" : "wrong"}`} data-correct-answer>
-          <Icon name="check" />
-          <p>
-            {unsure ? "答えは" : "正しくは"}
-            <b>「{live ? live.question!.options[a!.correctIndex] : "無理のない範囲でゆっくり動かす"}」</b>
-            です。
-          </p>
-        </div>
-      )}
       {live ? (
         <section className="d-explanation-copy">
-          <h2>{correct ? "解説" : "理由（解説）"}</h2>
+          <h2>解説</h2>
           <p>{a?.explanation ?? ""}</p>
+          {a && !a.isCorrect && (
+            <div className="d-key-answer">
+              <Icon name="check" />
+              <span>
+                <b>確認したいポイント</b>
+                <p>正解は「{live.question!.options[a.correctIndex]}」です。</p>
+              </span>
+            </div>
+          )}
         </section>
       ) : (
       <section className="d-explanation-copy">
@@ -4127,14 +4215,11 @@ function DExplanation({
           onClick={onAddQuestion}
         >
           <Icon name="note" />
-          次の診察で聞く（質問に残す）
+          この内容を「聞きたいこと」に入れる
         </button>
       )}
-      <p className="d-understanding-note">
-        この回答だけで、医学的な理解を判断するものではありません。
-      </p>
       <button className="primary-button d-bottom-action" onClick={onNext}>
-        {live && live.remaining > 0 ? "次の問題へ" : "振り返りへ"}
+        {live?.review ? (live.remaining > 0 ? "次の問題へ" : "学習記録に戻る") : live && live.remaining > 0 ? "次の問題へ" : "振り返りへ"}
         <Icon name="arrow" />
       </button>
     </div>
@@ -4321,8 +4406,6 @@ function DResult({
   live,
   healthDays,
   questionCount,
-  motionEnabled,
-  setMotionEnabled,
   onNotes,
   onHome,
 }: {
@@ -4340,8 +4423,6 @@ function DResult({
   }
   healthDays: number
   questionCount: number
-  motionEnabled: boolean
-  setMotionEnabled: (value: boolean) => void
   onNotes: () => void
   onHome: () => void
 }) {
@@ -4361,7 +4442,7 @@ function DResult({
       </div>
     )
   return (
-    <div className={`d-result-page ${motionEnabled ? "" : "no-motion"}`} data-result-state={state} aria-busy={state === "saving"}>
+    <div className="d-result-page" data-result-state={state} aria-busy={state === "saving"}>
       <span className="d-result-mark">
         <Icon name="check" size={34} />
       </span>
@@ -4369,9 +4450,6 @@ function DResult({
         {state === "saving" ? "学習の記録を確認しています" : "学習を記録しました"}
       </p>
       <h1>今日もひとつ、知ることが増えました</h1>
-      <p>
-        学んだ内容は、いつでも振り返れます。正答率ではなく、確認した内容を残しています。
-      </p>
       <div className="d-result-summary">
         <div>
           <span>教材</span>
@@ -4391,7 +4469,7 @@ function DResult({
         </div>
       </div>
       <div className="d-growth-summary">
-        <h2>これまでの積み重なり</h2>
+        <h2>これまで</h2>
         <div>
           <span>
             <b data-learned-count>{!live ? 4 : state === "saving" ? "…" : live.learnedCount}</b>
@@ -4406,9 +4484,6 @@ function DResult({
             診察につなげた質問
           </span>
         </div>
-        <p>
-          記録しなかった日や迷った回答も、失敗ではありません。必要なときに、自分のペースで続けられます。
-        </p>
       </div>
       {needsReview && (
         <button className="d-next-note" onClick={onNotes}>
@@ -4416,20 +4491,14 @@ function DResult({
             <Icon name="note" />
           </span>
           <span>
-            <b>次の診察で聞きたいことを確認する</b>
-            <small>質問候補を編集できます</small>
+            <b>聞きたいことを確認する</b>
+            <small>質問の候補を編集できます</small>
           </span>
           <Icon name="arrow" />
         </button>
       )}
       <button className="primary-button d-bottom-action" onClick={onHome}>
         ホームへ戻る
-      </button>
-      <button
-        className="d-motion-toggle"
-        onClick={() => setMotionEnabled(!motionEnabled)}
-      >
-        動きの効果：{motionEnabled ? "オン" : "オフ"}
       </button>
     </div>
   )
@@ -4439,15 +4508,43 @@ function DHistory({
   lessons,
   onOpen,
   onCategory,
+  onReview,
 }: {
   lessons: DLesson[]
   onOpen: (lesson: DLesson) => void
   onCategory: (category: string) => void
+  /** 本番: 理解確認で誤答・「わからない」だった教材の復習（該当の設問の解説を開く） */
+  onReview?: (lesson: DLesson) => void
 }) {
   const categories = useContext(CategoriesContext)
+  const toReview = lessons.filter((lesson) => (lesson.nWrong ?? 0) + (lesson.nUnknown ?? 0) > 0)
   return (
     <div className="d-history">
       <h1>これまでの学び</h1>
+      {toReview.length > 0 && (
+        <section className="d-review-section" data-review-section>
+          <div className="d-section-head">
+            <div>
+              <h2>もう一度確認したいこと</h2>
+            </div>
+            <span>{toReview.length}教材</span>
+          </div>
+          <div className="d-review-list">
+            {toReview.map((lesson) => (
+              <button key={lesson.id} className="d-review-item" data-review-item onClick={() => (onReview ? onReview(lesson) : onOpen(lesson))}>
+                <span className="d-review-badge">
+                  {(lesson.nWrong ?? 0) > 0 ? `不正解 ${lesson.nWrong}` : ""}
+                  {(lesson.nWrong ?? 0) > 0 && (lesson.nUnknown ?? 0) > 0 ? " · " : ""}
+                  {(lesson.nUnknown ?? 0) > 0 ? `わからない ${lesson.nUnknown}` : ""}
+                </span>
+                <b>{lesson.title}</b>
+                <small>{lesson.category}</small>
+                <Icon name="arrow" size={16} />
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
       <div className="d-history-summary">
         <div>
           <b>{lessons.filter((item) => item.status === "done").length}</b>
@@ -4457,16 +4554,10 @@ function DHistory({
           <b>{lessons.filter((item) => item.status === "doing").length}</b>
           <span>学習途中</span>
         </div>
-        <p>
-          <Icon name="help" />
-          学習進捗と医学的な理解は別のものです
-        </p>
       </div>
       <section>
         <div className="d-section-head">
-          <div>
-            <h2>領域別の学習状況</h2>
-          </div>
+          <h2>領域ごと</h2>
         </div>
         <div className="d-area-list">
           {categories.map((category) => {
@@ -4482,6 +4573,7 @@ function DHistory({
             return (
               <button
                 key={category.name}
+                className={areaTone(category.name)}
                 onClick={() => onCategory(category.name)}
               >
                 <span className="d-category-icon">
@@ -4518,6 +4610,7 @@ function DHistory({
             />
           ))}
       </section>
+      <p className="d-health-footnote">学習の進み具合と、医学的な理解の度合いは別のものです。</p>
     </div>
   )
 }
@@ -4526,7 +4619,6 @@ function DNotes({
   notes: figmaNotes,
   setNotes,
   notify,
-  onShare,
   live,
   draftFrom,
   clearDraft,
@@ -4536,57 +4628,131 @@ function DNotes({
   notes: string[]
   setNotes: (notes: string[]) => void
   notify: (message?: string) => void
-  onShare: () => void
-  /** 本番（Step 3）: 診察ノートの実 API（作成・編集・削除・作成日時・更新日時） */
+  /** 本番（Step 3）: 聞きたいことの実 API（作成・編集・削除・「聞けた」の印） */
   live?: PatientNotes
   /** 本番: 理解確認から作った質問候補（保存するまで記録しない） */
   draftFrom?: { text: string; versionId: string; questionId: string; title: string } | null
   clearDraft?: () => void
   /** 本番: 患者が登録した次回の診察日（未登録は null） */
   visitDate?: string | null
-  /** 理解確認の解説から来たとき: 同じ設問・解説へ戻る */
-  returnTo?: { title: string; onReturn: () => void } | null
+  /** 理解確認から来たときの戻り先 */
+  returnTo?: { label: string; go: () => void } | null
 }) {
   const [draft, setDraft] = useState(draftFrom?.text ?? "")
-  const [savedFromQuiz, setSavedFromQuiz] = useState(false)
-  const returnRef = useRef<HTMLDivElement | null>(null)
-  useEffect(() => {
-    // 保存したら「質問を保存しました」と戻るボタンを画面内に出す
-    if (savedFromQuiz) returnRef.current?.scrollIntoView({ block: "nearest" })
-  }, [savedFromQuiz])
-  const [editing, setEditing] = useState<number | null>(null)
+  const [editing, setEditing] = useState<string | null>(null)
   const [editValue, setEditValue] = useState("")
   const [busy, setBusy] = useState(false)
-  const notes = live ? live.notes.map((note) => note.body) : figmaNotes
+  const [resolvedOpen, setResolvedOpen] = useState(false)
+  const [saved, setSaved] = useState(false)
+  // 本番: 未解決（新しい順）と「聞けた」（新しい順）に分ける。Figma の架空データは未解決だけ
+  const liveNotes: VisitNote[] = live ? live.notes : figmaNotes.map((body, index) => ({ id: `f-${index}`, body, source: "free", materialId: null, materialTitle: null, createdAt: "", updatedAt: "", resolvedAt: null }))
+  const open = [...liveNotes].filter((note) => !note.resolvedAt).reverse()
+  const done = [...liveNotes].filter((note) => !!note.resolvedAt).reverse()
   const addNote = async () => {
+    if (!draft.trim() || busy) return
     if (live) {
-      if (!draft.trim() || busy) return
       setBusy(true)
       const ok = await live.create(draft.trim(), draftFrom ? { versionId: draftFrom.versionId, questionId: draftFrom.questionId } : null)
       setBusy(false)
       if (!ok) return
       setDraft("")
-      if (draftFrom) setSavedFromQuiz(true)
       clearDraft?.()
+      setSaved(true)
       notify("質問を保存しました")
       return
     }
-    if (!draft.trim()) return
-    setNotes([...notes, draft.trim()])
+    setNotes([...figmaNotes, draft.trim()])
     setDraft("")
     notify("質問を保存しました")
   }
+  const dateOf = (iso: string) => {
+    if (!iso) return ""
+    const d = new Date(iso)
+    return `${d.getMonth() + 1}月${d.getDate()}日`
+  }
+  const noteRow = (note: VisitNote, index: number, resolved: boolean) => (
+    <div key={note.id} className={`d-note-row${resolved ? " resolved" : ""}`} data-note-id={note.id} data-note-resolved={resolved}>
+      <span className="d-note-number">{resolved ? <Icon name="check" size={13} /> : index + 1}</span>
+      {editing === note.id ? (
+        <textarea value={editValue} onChange={(event) => setEditValue(event.target.value)} />
+      ) : (
+        <p>
+          {note.body}
+          {live && (
+            <small className="d-note-meta">
+              {note.materialTitle ? `教材「${note.materialTitle}」から · ` : ""}
+              {resolved && note.resolvedAt ? `${dateOf(note.resolvedAt)}に聞けた` : `${dateOf(note.updatedAt)}${note.updatedAt !== note.createdAt ? "に更新" : "に保存"}`}
+            </small>
+          )}
+        </p>
+      )}
+      <div>
+        {editing === note.id ? (
+          <>
+            <button
+              disabled={!editValue.trim()}
+              onClick={async () => {
+                if (live) {
+                  if (!(await live.update(note.id, editValue))) return
+                  setEditing(null)
+                  notify("質問を更新しました")
+                  return
+                }
+                setNotes(figmaNotes.map((item) => (item === note.body ? editValue : item)))
+                setEditing(null)
+                notify("質問を更新しました")
+              }}
+            >
+              保存
+            </button>
+            <button onClick={() => setEditing(null)}>取消</button>
+          </>
+        ) : (
+          <>
+            {live && (
+              <button
+                className={resolved ? "" : "d-note-resolve"}
+                data-note-resolve
+                onClick={async () => {
+                  if (await live.resolve(note.id, !resolved)) notify(resolved ? "未解決に戻しました" : "「聞けた」に移しました")
+                }}
+              >
+                {resolved ? "未解決に戻す" : "聞けた"}
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setEditing(note.id)
+                setEditValue(note.body)
+              }}
+            >
+              編集
+            </button>
+            <button
+              onClick={async () => {
+                if (live) {
+                  if (await live.remove(note.id)) notify("質問を削除しました")
+                  return
+                }
+                setNotes(figmaNotes.filter((item) => item !== note.body))
+              }}
+            >
+              削除
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  )
   return (
     <div className="d-notes">
-      <p className="eyebrow">次の診察に向けて</p>
-      <h1>次の診察で聞きたいこと</h1>
+      <h1>聞きたいこと</h1>
       <div className="d-visit-date">
         <Icon name="calendar" />
         {live ? (
           // 本番: 患者が登録した次回診察日だけを表示する（架空の日時を出さない）
           <span>
             <b>{visitDate ? `次回診察日：${visitDateLabel(visitDate)}` : "次回診察日：未登録"}</b>
-            <small>QR一時共有を承認したときだけ、医療者がこの質問を閲覧できます</small>
           </span>
         ) : (
         <span>
@@ -4595,38 +4761,18 @@ function DNotes({
         </span>
         )}
       </div>
-      <div className="d-not-emergency">
-        <Icon name="alert" />
-        <p>
-          <b>このノートは緊急相談ではありません</b>
-          急な症状や強い痛みなどは、医療機関から案内された連絡先へご相談ください。
-        </p>
-      </div>
       {returnTo && (
-        <div ref={returnRef} className={`d-quiz-return ${savedFromQuiz ? "saved" : ""}`} data-quiz-return role={savedFromQuiz ? "status" : undefined}>
-          {savedFromQuiz ? (
-            <b>
-              <Icon name="check" size={18} />
-              質問を保存しました
-            </b>
-          ) : (
-            <b>
-              <Icon name="help" size={18} />
-              「{returnTo.title}」の理解確認から来ました
-            </b>
-          )}
-          <button className="secondary-button" data-back-to-question onClick={returnTo.onReturn}>
-            {savedFromQuiz ? "問題と解説に戻る" : "保存せずに問題と解説に戻る"}
-            <Icon name="arrow" size={16} />
-          </button>
-        </div>
+        <button className="d-link-card d-notes-return" data-notes-return onClick={returnTo.go}>
+          <Icon name="arrow" />
+          <span>
+            <b>{returnTo.label}</b>
+            <small>{saved ? "保存しました。学習の続きに戻れます" : "保存してもしなくても、ここから学習の続きに戻れます"}</small>
+          </span>
+        </button>
       )}
       <section className="d-add-question">
-        <h2>聞きたいことを追加</h2>
         {live && draftFrom && (
-          <p className="d-support-copy">
-            「{draftFrom.title}」の理解確認から作った候補です。確認・編集して保存してください（保存するまで記録されません）。
-          </p>
+          <p className="d-support-copy">「{draftFrom.title}」の理解確認から作った候補です。確認して保存してください。</p>
         )}
         <textarea
           value={draft}
@@ -4644,92 +4790,27 @@ function DNotes({
       </section>
       <section>
         <div className="d-section-head">
-          <h2>保存した質問</h2>
-          <span>{notes.length}件</span>
+          <h2>まだ聞いていないこと</h2>
+          <span>{open.length}件</span>
         </div>
-        <div className="d-saved-notes">
-          {notes.map((note, index) => (
-            <div key={live ? live.notes[index].id : `${note}-${index}`}>
-              <span className="d-note-number">{index + 1}</span>
-              {editing === index ? (
-                <textarea
-                  value={editValue}
-                  onChange={(event) => setEditValue(event.target.value)}
-                />
-              ) : (
-                <p>
-                  {note}
-                  {live && (
-                    <small className="d-note-meta">
-                      {live.notes[index].materialTitle ? `教材「${live.notes[index].materialTitle}」から · ` : ""}
-                      {(() => {
-                        const n = live.notes[index]
-                        const d = new Date(n.updatedAt)
-                        return `${d.getMonth() + 1}月${d.getDate()}日${n.updatedAt !== n.createdAt ? "に更新" : "に保存"}`
-                      })()}
-                    </small>
-                  )}
-                </p>
-              )}
-              <div>
-                {editing === index ? (
-                  <>
-                    <button
-                      disabled={!editValue.trim()}
-                      onClick={async () => {
-                        if (live) {
-                          if (!(await live.update(live.notes[index].id, editValue))) return
-                          setEditing(null)
-                          notify("質問を更新しました")
-                          return
-                        }
-                        setNotes(
-                          notes.map((item, itemIndex) =>
-                            itemIndex === index ? editValue : item,
-                          ),
-                        )
-                        setEditing(null)
-                        notify("質問を更新しました")
-                      }}
-                    >
-                      保存
-                    </button>
-                    <button onClick={() => setEditing(null)}>取消</button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => {
-                        setEditing(index)
-                        setEditValue(note)
-                      }}
-                    >
-                      編集
-                    </button>
-                    <button
-                      onClick={async () => {
-                        if (live) {
-                          if (await live.remove(live.notes[index].id)) notify("質問を削除しました")
-                          return
-                        }
-                        setNotes(
-                          notes.filter((_, itemIndex) => itemIndex !== index),
-                        )
-                      }}
-                    >
-                      削除
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        {open.length === 0 && <p className="d-notes-empty">まだありません。</p>}
+        <div className="d-saved-notes">{open.map((note, index) => noteRow(note, index, false))}</div>
       </section>
-      <button className="secondary-button d-share-notes" onClick={onShare}>
-        <Icon name="qr" />
-        医療者へ一時共有する
-      </button>
+      {done.length > 0 && (
+        <section className="d-notes-resolved">
+          <button className="d-notes-resolved-toggle" aria-expanded={resolvedOpen} onClick={() => setResolvedOpen(!resolvedOpen)}>
+            <span>
+              <Icon name="check" size={16} />
+              聞けた質問（{done.length}件）
+            </span>
+            <span>{resolvedOpen ? "閉じる" : "開く"}</span>
+          </button>
+          {resolvedOpen && <div className="d-saved-notes">{done.map((note, index) => noteRow(note, index, true))}</div>}
+        </section>
+      )}
+      <p className="d-health-footnote">
+        共有を承認したときだけ、医療者がこの質問を見られます。急な症状や強い痛みは、病院から案内された連絡先へ。
+      </p>
     </div>
   )
 }
@@ -4739,20 +4820,15 @@ function DShareLiveIntro({ live }: { live: PatientLive }) {
   const p = live.pending
   if (!p && live.code)
     return (
-      <p className="d-share-intro">
-        医療者にQRコードを読み取ってもらうか、6桁コードを入力してもらってください。
-      </p>
+      <p className="d-share-intro">医療者に QR を読み取ってもらうか、6 桁コードを伝えてください。</p>
     )
   if (!p)
     return (
       <>
-        <p className="d-share-intro">
-          診察のときに、あなたのQRコードと6桁コードを表示して、医療者に読み取ってもらってください。
-        </p>
+        <p className="d-share-intro">診察のときに、QRコードと6桁コードを表示して医療者に読み取ってもらいます。</p>
         <ol className="d-share-steps" data-share-steps>
-          <li>「QRコードと6桁コードを表示する」を押す</li>
-          <li>医療者がQRコードを読み取るか、6桁コードを入力する</li>
-          <li>この画面に出る医療機関・医療者・共有する内容・有効期間を確認して承認すると、60分間だけ共有されます</li>
+          <li>下のボタンで QR と 6 桁コードを表示</li>
+          <li>医療者が読み取ったら、表示された医療機関・医療者を確認して承認（60 分間だけ共有）</li>
         </ol>
       </>
     )
@@ -4760,8 +4836,8 @@ function DShareLiveIntro({ live }: { live: PatientLive }) {
     <>
       <p className="d-share-intro">
         {p.kind === "extension"
-          ? "共有中の医療者が、共有時間の延長を申請しています。"
-          : "次の医療者が閲覧を申請しています。共有する内容を確認してください。"}
+          ? "共有中の医療者が、延長を申請しています。"
+          : "次の医療者が閲覧を申請しています。確認して承認してください。"}
       </p>
       <div className="d-share-session d-share-request" data-share-request>
         <span>
@@ -4797,7 +4873,7 @@ function DShareCode({ live }: { live: PatientLive }) {
           <Icon name="qr" />
           QRコードと6桁コードを表示する
         </button>
-        <small>5分間・1回限り有効です。読み取り・入力されただけでは共有されません。</small>
+        <small>5 分間・1 回限り。読み取られただけでは共有されません。</small>
       </div>
     )
   return (
@@ -4818,7 +4894,7 @@ function DShareCode({ live }: { live: PatientLive }) {
         <b>あと{live.code.remainingMin}分・1回限り</b>
       </span>
       <span className="wide">
-        <small>医療者のパソコンにカメラがない場合は、6桁コードを入力してもらってください。読み取り・入力の後、この画面に表示される共有先をあなたが確認して承認したときに、共有が始まります。電話やメールでは送らないでください。</small>
+        <small>共有は、表示された共有先をあなたが承認したときに始まります。コードは電話やメールで送らないでください。</small>
         <button className="d-text-action" onClick={() => void live.cancelCode()}>
           QRとコードを取り消す
         </button>
@@ -4844,17 +4920,6 @@ function DShare({
       <DPageHeader title="医療者との一時共有" onBack={onBack} />
       {!sharing ? (
         <>
-          {!live?.code && (
-          <div className="d-share-visual">
-            <span>
-              <Icon name="qr" size={46} />
-            </span>
-            <i />
-            <span>
-              <Icon name="user" size={40} />
-            </span>
-          </div>
-          )}
           <h2>あなたの承認後に、医療者が閲覧できます</h2>
           {live ? (
             <DShareLiveIntro live={live} />
@@ -4877,7 +4942,7 @@ function DShare({
             </span>
             <span>
               <Icon name="check" />
-              次の診察で聞きたいこと（質問）
+              聞きたいこと（質問）
             </span>
             <span>
               <Icon name="check" />
@@ -4894,8 +4959,8 @@ function DShare({
               onChange={(event) => setConfirmed(event.target.checked)}
             />
             <span>
-              <b>一時共有の内容を確認しました</b>
-              <small>共有はいつでも終了できます</small>
+              <b>共有する内容を確認しました</b>
+              <small>いつでも終了できます</small>
             </span>
           </label>
           <button
@@ -4917,9 +4982,7 @@ function DShare({
           )}
           </>
           )}
-          <p className="d-privacy-caption">
-            患者情報はあなたが管理します。医療者側に患者一覧として保存されません。
-          </p>
+          <p className="d-privacy-caption">情報はあなたが管理し、医療者側に患者一覧として残りません。</p>
         </>
       ) : (
         <div className="d-sharing-active">

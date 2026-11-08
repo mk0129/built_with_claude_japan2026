@@ -2,13 +2,12 @@ import fixture from "./fixtures/consultation.json";
 import { ApiError } from "./judge-errors";
 import { addDeliveries, endJudgeSession, getJudgeSession, isJudgeActive, requestJudgeExtension, setFeedbackStatus } from "./judge-store";
 import { patientApi, patientLearningChanges, rememberNativeDeliveries } from "./judge-patient-api";
-import { nativeRecordApi, nativeClinicianHealth, nativeClinicianNotes, hasNativeRecordChanges } from "./judge-native-records";
+import { nativeRecordApi, nativeClinicianHealth, nativeClinicianNotes, nativeResolveNote, nativeTemplates, nativeCreateTemplate, hasNativeRecordChanges } from "./judge-native-records";
 import { nativePeriodPayload } from "./judge-native-period";
 import { studioApi, studioPublishedForVisit } from "./judge-studio";
+import { recommendMaterials } from "@/lib/recommend";
 export { ApiError, errorText } from "./judge-errors";
 
-// 本番 API と同じ任意の JSON 本文を受ける（各経路で値を検証する）
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Options = RequestInit & { json?: any };
 const copy = <T,>(value:T):T => structuredClone(value);
 const forbidden=()=>new ApiError(403,"NO_ACTIVE_CONSULTATION","この診察の共有は終了しています");
@@ -63,7 +62,28 @@ export async function api<T = unknown>(path: string, init:Options = {}):Promise<
       currentSet:session.prescriptions.length ? {setId:session.id,createdAt:session.prescriptions[0].prescribedAt,items:copy(session.prescriptions)} : data.currentSet} as T;
   }
   if (endpoint==="materials" && method==="GET") return {items:copy(materials)} as T;
-  if (endpoint==="templates" && method==="GET") return copy(fixture.templates) as T;
+  if (endpoint==="recommendations" && method==="GET") {
+    // 審査用デモ: ルールベースのリコメンドだけ（Claude は呼ばない）
+    const answers=[...patientLearningChanges(),...fixture.patient.answers];
+    const nowIds=new Set(session.prescriptions.map(p=>p.materialId));
+    const before=new Set(fixture.patient.learning.filter(l=>l.prescribed).map(l=>l.materialId));
+    const health=nativeClinicianHealth().records.filter(r=>Date.parse(r.measuredAt)>=Date.now()-120*864e5);
+    const sym=new Map<string,{name:string;max:number}>();
+    for(const r of health)for(const s of r.symptoms)sym.set(s.key,{name:s.name,max:Math.max(sym.get(s.key)?.max??0,s.severity)});
+    const items=recommendMaterials({
+      materials:materials.map(m=>({materialId:m.materialId,title:m.title,summary:m.summary,primaryDomain:m.primaryDomain,prescribedNow:nowIds.has(m.materialId),prescribedBefore:before.has(m.materialId)})),
+      questions:[...nativeClinicianNotes().filter(n=>!n.resolvedAt).map(n=>({id:"vn:"+n.id,body:n.body,materialId:n.materialId})),...fixture.patient.questions.filter(q=>q.freeText).map(q=>({id:q.feedbackId,body:q.freeText as string,materialId:q.materialId}))],
+      misses:answers.filter(a=>!a.isCorrect).map(a=>({materialId:a.materialId,materialTitle:a.materialTitle,stem:a.stem,isUnknown:a.isUnknown})),
+      symptoms:[...sym.entries()].map(([key,v])=>({key,...v})),
+      unlearned:fixture.patient.learning.filter(l=>l.prescribed&&l.phase!=="completed").map(l=>({materialId:l.materialId,title:l.title,phase:l.phase})),
+    },3);
+    return {generator:"rule",model:null,items,note:items.length?null:"質問・症状・理解確認のつまずき・未学習の教材がないため、候補はありません。"} as T;
+  }
+  if (endpoint==="templates" && method==="GET") return {templates:[...copy(fixture.templates).templates,...nativeTemplates()]} as T;
+  if (endpoint==="templates" && method==="POST") {
+    const t=nativeCreateTemplate(init.json as {name?:unknown;materialIds?:unknown}|undefined,(id)=>{const m=materials.find(x=>x.materialId===id);return m?{id:m.materialId,title:m.title,primaryDomain:m.primaryDomain}:null;});
+    return {id:t.id,templates:[...copy(fixture.templates).templates,...nativeTemplates()]} as T;
+  }
   if (endpoint==="health" && method==="GET") return caseDates(nativeClinicianHealth()) as T;
   if (endpoint==="intervisit" && method==="GET") {
     const data=await nativePeriodPayload(url.searchParams.get("from"),url.searchParams.get("to"));
@@ -94,6 +114,11 @@ export async function api<T = unknown>(path: string, init:Options = {}):Promise<
     const added=addDeliveries(items,init.json?.note?.trim()??"");
     rememberNativeDeliveries();
     return {count:added.length,materialIds:added.map(x=>x.materialId)} as T;
+  }
+  if (endpoint.startsWith("notes/") && method==="POST") {
+    const id=endpoint.split("/")[1];
+    if (typeof init.json?.resolved!=="boolean" || !nativeResolveNote(id,init.json.resolved)) throw reject("対象の質問を確認してください");
+    return {ok:true} as T;
   }
   if (endpoint.startsWith("questions/") && method==="POST") {
     const id=endpoint.split("/")[1],status=init.json?.status;

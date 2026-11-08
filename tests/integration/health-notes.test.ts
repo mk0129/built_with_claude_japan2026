@@ -7,6 +7,7 @@ import { DELETE as deleteNote, PATCH as updateNote } from "@/app/api/v1/notes/[i
 import { GET as clinicianHealth } from "@/app/api/v1/consultations/[id]/health/route";
 import { GET as patientSummary } from "@/app/api/v1/consultations/[id]/patient/route";
 import { POST as endRoute } from "@/app/api/v1/consultations/[id]/end/route";
+import { POST as resolveNoteRoute } from "@/app/api/v1/consultations/[id]/notes/[noteId]/route";
 import { POST as startAttempt } from "@/app/api/v1/learn/[versionId]/attempts/route";
 import { POST as answerRoute } from "@/app/api/v1/attempts/[attemptId]/answers/route";
 import { GET as libraryRoute } from "@/app/api/v1/library/route";
@@ -39,10 +40,10 @@ describe("体調記録（Step 3）", () => {
       await createRecord(req(pb, { measuredAt: at(3), vitals: { temperature: 36.8, pulse: 72 }, symptoms: [{ key: "fatigue", severity: 0 }, { key: "nausea", severity: 2, interference: "食事が半分" }] })),
     );
     expect(first.status).toBe(200);
-    expect(first.json.record.vitals).toEqual({ temperature: 36.8, systolic: null, diastolic: null, pulse: 72, spo2: null });
+    expect(first.json.record.vitals).toEqual({ temperature: 36.8, systolic: null, diastolic: null, pulse: 72, spo2: null, oxygenFlow: null });
     // 同じ日の 2 回目（前回の値は引き継がない）
     const second = await body(await createRecord(req(pb, { measuredAt: at(1), vitals: { systolic: 118, diastolic: 74 }, symptoms: [] })));
-    expect(second.json.record.vitals).toEqual({ temperature: null, systolic: 118, diastolic: 74, pulse: null, spo2: null });
+    expect(second.json.record.vitals).toEqual({ temperature: null, systolic: 118, diastolic: 74, pulse: null, spo2: null, oxygenFlow: null });
     expect(second.json.record.symptoms).toEqual([]);
     const list = (await body(await listRecords(req(pb)))).json.records;
     expect(list).toHaveLength(2);
@@ -142,5 +143,29 @@ describe("診察ノート（Step 3）", () => {
     await endRoute(req(pb, {}), ctx("id", sessionId));
     expect((await clinicianHealth(req(staff), ctx("id", sessionId))).status).toBe(403);
     expect((await patientSummary(req(staff), ctx("id", sessionId))).status).toBe(403);
+  });
+  it("医療者は有効な一時共有の間だけ、その患者の質問を「解決」にできる（戻すこともできる）。他院の医療者・終了後は 403、原文は変わらない", async () => {
+    const pb = await loginHeaders(PATIENT_B);
+    const created = (await body(await createNote(req(pb, { body: "吐き気止めはいつ飲めばよいですか？" })))).json.note;
+    const staff = await loginHeaders(DR_YAMADA);
+    const { sessionId } = await startSession(seeded, PATIENT_B, DR_YAMADA, "sakura-general");
+    const params = (noteId: string) => ({ params: Promise.resolve({ id: sessionId, noteId }) });
+    // 共有の当事者でない医療者は 403
+    expect((await resolveNoteRoute(req(await loginHeaders(DR_KOBAYASHI), { resolved: true }), params(created.id))).status).toBe(403);
+    // 解決 → 患者側の一覧でも resolvedAt が付き、本文は変わらない
+    const r1 = await body(await resolveNoteRoute(req(staff, { resolved: true }), params(created.id)));
+    expect(r1.status).toBe(200);
+    expect(r1.json.note.resolvedAt).toBeTruthy();
+    expect(r1.json.note.body).toBe("吐き気止めはいつ飲めばよいですか？");
+    const mine = (await body(await listNotes(req(pb)))).json.notes.find((n: { id: string }) => n.id === created.id);
+    expect(mine.resolvedAt).toBeTruthy();
+    // 戻す
+    const r2 = await body(await resolveNoteRoute(req(staff, { resolved: false }), params(created.id)));
+    expect(r2.json.note.resolvedAt).toBeNull();
+    // ほかの患者の質問 ID は 404
+    expect((await resolveNoteRoute(req(staff, { resolved: true }), params("00000000-0000-0000-0000-000000000000"))).status).toBe(404);
+    // 共有終了後は 403
+    await endRoute(req(pb, {}), ctx("id", sessionId));
+    expect((await resolveNoteRoute(req(staff, { resolved: true }), params(created.id))).status).toBe(403);
   });
 });

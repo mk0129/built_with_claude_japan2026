@@ -4,7 +4,7 @@ import { z } from "zod";
 const vital = z.number().nullable().optional();
 export const HealthBody = z.object({
   measuredAt: z.string().min(10).max(40),
-  vitals: z.object({ temperature: vital, systolic: vital, diastolic: vital, pulse: vital, spo2: vital }).default({}),
+  vitals: z.object({ temperature: vital, systolic: vital, diastolic: vital, pulse: vital, spo2: vital, oxygenFlow: vital }).default({}),
   symptoms: z
     .array(
       z.object({

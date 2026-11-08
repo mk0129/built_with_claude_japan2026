@@ -1,9 +1,13 @@
+import { EXTRA_SYMPTOMS } from "./symptomGuide"
+
 export type VitalValues = {
   temperature?: number
   systolic?: number
   diastolic?: number
   pulse?: number
   spo2?: number
+  /** 酸素投与量（L/分）。酸素を吸入している患者だけが任意で記録する */
+  oxygenFlow?: number
 }
 
 export type SymptomEntry = {
@@ -212,6 +216,8 @@ export const symptomLibrary: SymptomDefinition[] = [
     category: "その他",
     ctcaeReference: "Urinary frequency",
   },
+  // 追加の症状（2026-11 の見直し。発熱・脱毛・眠気・爪・出血しやすさ・体重減少。言い換えと程度の目安は symptomGuide.ts）
+  ...EXTRA_SYMPTOMS,
 ]
 
 export const initialActiveSymptomIds = [

@@ -12,14 +12,22 @@ const B = { from: "2026-10-25", to: "2026-10-26" };
 const NOTE = "手のしびれは、治療が終わったら戻りますか？";
 
 async function setPeriod(s: Page, p: { from: string; to: string }) {
-  const iv = s.locator("[data-intervisit]");
-  await iv.getByRole("button", { name: "期間を確認・変更" }).click();
+  await openAi(s);
+  // 2026-11: 期間の変更は診察サマリーの見出し（観察期間）から
+  await s.locator("[data-summary-v2]").getByRole("button", { name: "期間を変更" }).click();
   await s.locator(".cd-period-editor input").first().fill(p.from);
   await s.locator(".cd-period-editor input").nth(1).fill(p.to);
   await s.locator(".cd-period-editor").getByRole("button", { name: "この期間で表示" }).click();
 }
 const isPeriod = (route: Route, p: { from: string }) =>
   route.request().url().includes(`from=${p.from}`) || (route.request().postData() ?? "").includes(p.from);
+
+/** 2026-11: AI 外来間サマリー（要約・根拠・タイムライン）は診察サマリーの折りたたみの中。開いてから確認する */
+async function openAi(page: import("@playwright/test").Page) {
+  const t = page.locator("[data-ai-fold] .cd-ai-fold-toggle");
+  await t.waitFor({ timeout: 15_000 });
+  if ((await t.getAttribute("aria-expanded")) !== "true") await t.click();
+}
 
 test("期間を素早く変えても、遅れて返った古い期間の質問・根拠を出さない（構造化データ・AI 要約）", async ({ browser }) => {
   const pt = await newPage(browser, { width: 393, height: 852 });
@@ -28,6 +36,7 @@ test("期間を素早く変えても、遅れて返った古い期間の質問�
   await demoLogin(st.page, "staff", "佐藤 一郎");
   const s = st.page;
   await shareByPatientCode(s, pt.page);
+  await openAi(s);
   const iv = s.locator("[data-intervisit]");
   await expect(iv.locator('[data-summary-kind="replay"]')).toBeVisible({ timeout: 30_000 }); // 記録済みの Claude 出力の再生
   await expect(iv.locator("[data-key-question]").first()).toContainText(NOTE);
@@ -68,6 +77,7 @@ test("期間を素早く変えても、遅れて返った古い期間の質問�
   const heldAi: Route[] = [];
   await s.route(/\/intervisit\/summary$/, async (route) => void heldAi.push(route));
   await s.goto(`/staff?s=${sid}`);
+  await openAi(s);
   const q = s.locator("[data-intervisit] [data-key-question]").first();
   await expect(q).toContainText(NOTE, { timeout: 15_000 });
   await expect(s.locator("[data-ai-status='loading']")).toBeVisible();
@@ -90,6 +100,7 @@ test("サマリー → 在宅経過表・グラフ → サマリーで同じ期�
   await demoLogin(st.page, "staff", "佐藤 一郎");
   const s = st.page;
   await shareByPatientCode(s, pt.page);
+  await openAi(s);
   const iv = s.locator("[data-intervisit]");
   await expect(iv).toContainText("10月22日〜11月4日（14日間）", { timeout: 30_000 });
   const heads = s.locator(".cd-course-table thead th span");
@@ -101,6 +112,7 @@ test("サマリー → 在宅経過表・グラフ → サマリーで同じ期�
   await expect(heads.last()).toHaveText("11/4");
   await expect(s.locator(".cd-course-controls")).toContainText("/ 14日");
   await s.locator(".cd-sidebar").getByRole("button", { name: "診察" }).click();
+  await openAi(s);
   await expect(iv).toContainText("10月22日〜11月4日（14日間）");
 
   // 指定期間（10/25〜10/26）: 経過表は 2 日だけ（範囲外の記録を含めない）→ サマリーに戻っても同じ期間
@@ -114,6 +126,7 @@ test("サマリー → 在宅経過表・グラフ → サマリーで同じ期�
   await expect(s.locator(".cd-course-controls")).toContainText("/ 2日");
   await expect(s.locator(".cd-course-controls")).not.toContainText("/ 14日");
   await s.locator(".cd-sidebar").getByRole("button", { name: "診察" }).click();
+  await openAi(s);
   await expect(iv).toContainText("10月25日〜10月26日（2日間）", { timeout: 15_000 });
   await expect(iv).not.toContainText("直近14日間");
 
@@ -126,6 +139,7 @@ test("サマリー → 在宅経過表・グラフ → サマリーで同じ期�
   const close = pt.page.getByRole("button", { name: /^閉じる$/ });
   if (await close.isVisible({ timeout: 3_000 }).catch(() => false)) await close.click();
   await shareByPatientCode(s, pt.page);
+  await openAi(s);
   await expect(s.locator("[data-intervisit]")).toContainText("10月22日〜11月4日（14日間）", { timeout: 30_000 });
   await s.locator("[data-intervisit]").getByRole("button", { name: "在宅経過表・症状のグラフで確認" }).click();
   await expect(heads.first()).toHaveText("10/22");

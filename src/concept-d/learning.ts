@@ -83,6 +83,11 @@ export type LiveLesson = {
   selfLearning: boolean
   /** 登録済みの完成サムネイル（なければ Figma の「画像準備中」） */
   thumbnail: { src: string; alt: string; band?: true } | null
+  /** 最新の挑戦の誤答・「わからない」の数（復習の案内に使う） */
+  nWrong: number
+  nUnknown: number
+  /** 学習を終えた日（「11月1日」。未完了は null）。ホームの歩みに表示する */
+  completedAt: string | null
 };
 
 export function toLesson(i: LibraryApiItem): LiveLesson {
@@ -109,17 +114,10 @@ export function toLesson(i: LibraryApiItem): LiveLesson {
     previouslyPrescribed: !!i.prescribed && !i.prescribed.latest,
     selfLearning: i.selfLearning,
     thumbnail: thumbnailFor(i.title),
+    nWrong: i.nWrong,
+    nUnknown: i.nUnknown,
+    completedAt: i.completedAt ? shortDate(i.completedAt) : null,
   };
-}
-
-/** 今回（最新）の処方を区別する鍵。処方の記録 ID・最も新しい処方日時・教材 ID（並べ替え済み）から作る */
-export function rxKey(latestItems: Pick<LibraryApiItem, "materialId" | "prescribed">[]): string {
-  if (!latestItems.length) return "";
-  const setId = latestItems[0].prescribed?.setId ?? "";
-  const dates = latestItems.map((i) => String(i.prescribed?.createdAt ?? "")).sort();
-  const at = dates[dates.length - 1] ?? "";
-  const ids = latestItems.map((i) => i.materialId).sort().join(",");
-  return `${setId}|${at}|${ids}`;
 }
 
 export type PatientLearning = ReturnType<typeof usePatientLearning>;
@@ -152,29 +150,12 @@ export function usePatientLearning(notify: (message: string) => void) {
     void reload();
   }, [reload]);
   const lessons = (items ?? []).map(toLesson);
-  const latestItems = (items ?? []).filter((i) => i.prescribed?.latest);
-  const latest = latestItems[0]?.prescribed ?? null;
+  const latest = (items ?? []).find((i) => i.prescribed?.latest)?.prescribed ?? null;
   return {
     loaded: items !== null,
     lessons,
     /** 今回（最新）の情報処方 */
-    latest: latest
-      ? {
-          sender: `${latest.orgName} ${latest.clinicianName}`,
-          clinician: latest.clinicianName,
-          org: latest.orgName,
-          date: shortDate(latest.createdAt),
-          /** 医療者のメッセージが付いた教材がある */
-          hasNote: latestItems.some((i) => !!i.prescribed?.note),
-          /**
-           * 今回の処方を区別する鍵（処方の記録 ID・処方日時・教材）。同じ教材や既存セット内の教材を再処方しても、
-           * 処方の記録が新しくなれば鍵が変わる（ホームの「新着」の表示に使う。サーバーには送らない）
-           */
-          key: rxKey(latestItems),
-          /** 今回の処方の日時（ISO。最も新しいもの） */
-          createdAt: latestItems.map((i) => String(i.prescribed?.createdAt ?? "")).sort().reverse()[0] ?? "",
-        }
-      : null,
+    latest: latest ? { sender: `${latest.orgName} ${latest.clinicianName}`, clinician: latest.clinicianName, org: latest.orgName, date: shortDate(latest.createdAt) } : null,
     /**
      * 今回（最新）の処方に含まれるセット（例: 診断時セット）。患者向けの名前と、セットに含まれる教材（処方された実際の教材）。
      * 処方の記録にセットの ID はないため、テンプレートの教材がすべて処方されているときだけ出す。
@@ -320,49 +301,4 @@ export function useAttempt(versionId: string | null, notify: (message: string) =
     [attempt, busy, notify],
   );
   return { attempt: attempt && attempt.versionId === versionId ? attempt : null, load, answer, busy };
-}
-
-/*
- * ---- ホームの「新着」（患者がまだ開いていない今回の処方） ----
- * サーバーには「患者が処方を開いた」記録がない（学習の進捗は教材ごとで、処方ごとではない）。
- * そのため既読は、この端末のブラウザーに処方の鍵（rxKey）だけを保存して判定する（医療情報・本文は保存しない）。
- * 学習の進捗・処方の履歴はサーバーの記録のまま変えない。
- */
-const SEEN_RX_PREFIX = "shiori:rx-seen:v1:";
-
-/** 保存済みの「開いた処方」の鍵。記録がなければ null（保存できない環境でも null） */
-export function readSeenRx(owner: string): string | null {
-  try {
-    return window.localStorage.getItem(SEEN_RX_PREFIX + owner);
-  } catch {
-    return null;
-  }
-}
-
-export function writeSeenRx(owner: string, key: string) {
-  try {
-    window.localStorage.setItem(SEEN_RX_PREFIX + owner, key);
-  } catch {
-    /* 保存できない環境（プライベートブラウズ等）ではこの画面の中だけで既読にする */
-  }
-}
-
-/**
- * 今回の処方を「新着」として示すか。
- * - 開いた処方の鍵と同じなら新着ではない
- * - この端末で初めて開いたとき（記録なし）は、今回の教材をすべて読み始めていて、処方から日が経っていれば
- *   新着としない（以前から読んでいる処方）。最近（RECENT_RX_DAYS 日以内）の処方は、読み始めた教材の再処方でも新着
- * - 同じ教材・既存セット内の教材の再処方は、処方の記録が新しくなるので鍵が変わり、新着になる
- */
-export const RECENT_RX_DAYS = 3;
-export function isRecentRx(createdAt: string, now = Date.now()): boolean {
-  const t = Date.parse(createdAt);
-  return Number.isFinite(t) && now - t < RECENT_RX_DAYS * 864e5;
-}
-export function isNewRx(key: string, seen: string | null | undefined, allStarted: boolean, recent = false): boolean {
-  if (!key) return false;
-  if (seen === undefined) return false;
-  if (seen === key) return false;
-  if (seen === null && allStarted && !recent) return false;
-  return true;
 }

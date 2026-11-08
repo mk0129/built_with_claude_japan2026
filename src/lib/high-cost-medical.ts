@@ -82,6 +82,37 @@ export const BRACKET_INCOME_HINT: Record<Bracket, string> = {
   d: "年収 〜約370万円",
   e: "住民税非課税",
 };
+
+// ---------- 70 歳以上（令和8年8月〜令和9年7月診療分。厚生労働省「高額療養費制度の見直しについて」4 ページ目の表） ----------
+/** 70 歳以上の所得区分。現役並み（3 割）は 70 歳未満のア〜ウと同じ計算式。一般・低所得は外来（個人）と世帯（入院を含む）の定額 */
+export type SeniorTier = "active3" | "active2" | "active1" | "general" | "low2" | "low1";
+export const SENIOR_NAME: Record<SeniorTier, string> = {
+  active3: "現役並みIII",
+  active2: "現役並みII",
+  active1: "現役並みI",
+  general: "一般",
+  low2: "住民税非課税（低所得II）",
+  low1: "住民税非課税で所得が一定以下（低所得I）",
+};
+export const SENIOR_INCOME_HINT: Record<SeniorTier, string> = {
+  active3: "年収 約1,160万円〜（課税所得690万円以上）",
+  active2: "年収 約770万〜約1,160万円（課税所得380万円以上）",
+  active1: "年収 約370万〜約770万円（課税所得145万円以上）",
+  general: "年収 〜約370万円（課税所得145万円未満）",
+  low2: "世帯全員が住民税非課税",
+  low1: "住民税非課税で、年金収入80万円以下など",
+};
+export const SENIOR_RULES: Record<SeniorTier, { kind: "formula"; base: number; threshold: number; many: number } | { kind: "fixed"; outpatient: number; household: number; many: number | null; outpatientYear: number | null }> = {
+  active3: { kind: "formula", base: 270_300, threshold: 901_000, many: 140_100 },
+  active2: { kind: "formula", base: 179_100, threshold: 597_000, many: 93_000 },
+  active1: { kind: "formula", base: 85_800, threshold: 286_000, many: 44_400 },
+  general: { kind: "fixed", outpatient: 22_000, household: 61_500, many: 44_400, outpatientYear: 216_000 },
+  low2: { kind: "fixed", outpatient: 11_000, household: 25_700, many: 24_600, outpatientYear: 96_000 },
+  low1: { kind: "fixed", outpatient: 8_000, household: 15_700, many: null, outpatientYear: null },
+};
+/** 70 歳以上の負担割合（保険証・資格確認書に書いてある）。3 割は現役並み、1〜2 割は一般・低所得 */
+export type CopayRate = 1 | 2 | 3;
+export const SENIOR_TIERS_BY_RATE: Record<CopayRate, SeniorTier[]> = { 3: ["active3", "active2", "active1"], 2: ["general", "low2", "low1"], 1: ["general", "low2", "low1"] };
 export const INSURANCE_NAME: Record<InsuranceType, string> = {
   employee: "会社などの健康保険（協会けんぽ・健康保険組合・共済組合など）",
   national: "国民健康保険",
@@ -222,3 +253,123 @@ export const SUPPORTED_MONTHS = Array.from({ length: 12 }, (_, i) => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 });
 export const monthLabel = (m: string) => `${Number(m.slice(0, 4))}年${Number(m.slice(5, 7))}月`;
+
+
+// ---------- 拡張版（2026-11 の見直し）: 70 歳以上・小学校入学前・保険や区分が「わからない」場合も金額の目安を出す ----------
+export type SimInputV2 = {
+  serviceMonth: string;
+  age: AgeGroup;
+  /** 70 歳未満・小学校入学前: 保険の種類（わからないままでも計算できる） */
+  insurance: InsuranceType | "unknown";
+  /** 70 歳未満・小学校入学前: 所得区分（わからないときは全区分の目安を出す） */
+  bracket: Bracket | "unknown";
+  /** 70 歳以上: 窓口の負担割合（保険証・資格確認書の記載） */
+  copayRate?: CopayRate;
+  /** 70 歳以上: 所得区分（わからないときは負担割合に応じた区分の目安をすべて出す） */
+  seniorTier?: SeniorTier | "unknown";
+  /** 70 歳以上: 外来（個人ごとの上限）か入院（世帯ごとの上限）か */
+  setting?: "outpatient" | "inpatient";
+  totalCost: number;
+  manyTimes: "yes" | "no" | "unknown";
+};
+
+export type Scenario = {
+  /** 区分の表示名（例: 区分ウ、現役並みI、一般） */
+  label: string;
+  /** 区分の判定基準・年収の目安 */
+  criteria: string;
+  /** 多数回該当「はい」ならその額。「いいえ」「わからない」は該当しない場合 */
+  main: Estimate;
+  /** 多数回該当「わからない」のときだけ: 該当する場合（70 歳以上の外来の上限には多数回該当がない） */
+  ifManyTimes: Estimate | null;
+};
+export type SimResultV2 = {
+  kind: "result";
+  rule: RuleSet;
+  input: SimInputV2;
+  /** 窓口の負担割合（1〜3） */
+  rate: CopayRate;
+  /** 区分がわかっているときは 1 件。わからないときは候補の区分ごと */
+  scenarios: Scenario[];
+  /** 区分が「わからない」で、複数の区分の目安を出している */
+  assumed: boolean;
+  /** 画面に出す注意（70 歳以上の外来・入院の扱いなど） */
+  notes: string[];
+};
+
+function copayAt(totalCost: number, rate: CopayRate) {
+  return Math.floor((totalCost * rate + 5) / 10);
+}
+
+function estimateWith(limit: number | null, formula: string, totalCost: number, rate: CopayRate): Estimate {
+  const copay = copayAt(totalCost, rate);
+  const reachedLimit = limit !== null && copay > limit;
+  const outOfPocket = reachedLimit ? limit! : copay;
+  return { copay, limit: reachedLimit ? limit : null, outOfPocket, reduction: copay - outOfPocket, reachedLimit, formula };
+}
+
+function bracketScenario(b: Bracket, input: SimInputV2, rate: CopayRate): Scenario {
+  const r = RULE_2026_08.brackets[b];
+  const normal = (() => {
+    if ("fixed" in r) return estimateWith(r.fixed, yen(r.fixed), input.totalCost, rate);
+    const limit = input.totalCost > r.threshold ? r.base + onePercent(input.totalCost - r.threshold) : null;
+    return estimateWith(limit, `${yen(r.base)}＋（総医療費 − ${yen(r.threshold)}）× 1%`, input.totalCost, rate);
+  })();
+  const many = estimateWith(r.many, `多数回該当 ${yen(r.many)}`, input.totalCost, rate);
+  const criteria = input.insurance === "unknown" ? BRACKET_INCOME_HINT[b] : `${BRACKET_CRITERIA[input.insurance][b]}（${BRACKET_INCOME_HINT[b]}）`;
+  return { label: BRACKET_NAME[b], criteria, main: input.manyTimes === "yes" ? many : normal, ifManyTimes: input.manyTimes === "unknown" ? many : null };
+}
+
+function seniorScenario(t: SeniorTier, input: SimInputV2, rate: CopayRate): Scenario {
+  const r = SENIOR_RULES[t];
+  const setting = input.setting ?? "outpatient";
+  if (r.kind === "formula") {
+    const normal = (() => {
+      const limit = input.totalCost > r.threshold ? r.base + onePercent(input.totalCost - r.threshold) : null;
+      return estimateWith(limit, `${yen(r.base)}＋（総医療費 − ${yen(r.threshold)}）× 1%`, input.totalCost, rate);
+    })();
+    const many = estimateWith(r.many, `多数回該当 ${yen(r.many)}`, input.totalCost, rate);
+    return { label: SENIOR_NAME[t], criteria: SENIOR_INCOME_HINT[t], main: input.manyTimes === "yes" ? many : normal, ifManyTimes: input.manyTimes === "unknown" ? many : null };
+  }
+  if (setting === "outpatient") {
+    // 外来（個人ごと）の上限には多数回該当の区分がない
+    const normal = estimateWith(r.outpatient, `外来（個人ごと）の上限 ${yen(r.outpatient)}`, input.totalCost, rate);
+    return { label: SENIOR_NAME[t], criteria: SENIOR_INCOME_HINT[t], main: normal, ifManyTimes: null };
+  }
+  const normal = estimateWith(r.household, `世帯ごと（入院を含む）の上限 ${yen(r.household)}`, input.totalCost, rate);
+  const many = r.many === null ? null : estimateWith(r.many, `多数回該当 ${yen(r.many)}`, input.totalCost, rate);
+  return { label: SENIOR_NAME[t], criteria: SENIOR_INCOME_HINT[t], main: input.manyTimes === "yes" && many ? many : normal, ifManyTimes: input.manyTimes === "unknown" ? many : null };
+}
+
+/** 拡張版の計算。対象外は診療月だけ（70 歳以上・小学校入学前・保険や区分が不明でも目安を出す） */
+export function simulateV2(input: SimInputV2): SimResultV2 | Unsupported | InvalidInput {
+  if (!monthOk(input.serviceMonth)) return { kind: "invalid", message: "診療月を選んでください" };
+  if (!Number.isInteger(input.totalCost) || input.totalCost < 1 || input.totalCost > MAX_TOTAL_COST)
+    return { kind: "invalid", message: `総医療費は 1円〜${yen(MAX_TOTAL_COST)} の整数で入力してください` };
+  const rule = RULE_2026_08;
+  const reasons: Unsupported["reasons"] = [];
+  if (input.serviceMonth < rule.from) reasons.push({ code: "month_before", message: "2026年7月以前の診療分は見直し前の制度のため、この画面では計算しません。" });
+  if (input.serviceMonth > rule.to) reasons.push({ code: "month_after", message: "2027年8月以降の診療分は所得区分が細かく分かれるため、この画面では計算しません。" });
+  if (reasons.length) return { kind: "unsupported", reasons };
+  const notes: string[] = [];
+  if (input.age === "over70") {
+    const rate: CopayRate = input.copayRate ?? 2;
+    if (!input.copayRate) notes.push("負担割合が選ばれていないため 2 割として計算しています。");
+    const tiers = input.seniorTier && input.seniorTier !== "unknown" ? [input.seniorTier] : SENIOR_TIERS_BY_RATE[rate];
+    const scenarios = tiers.filter((t) => SENIOR_TIERS_BY_RATE[rate].includes(t)).map((t) => seniorScenario(t, input, rate));
+    if (rate !== 3 && (input.setting ?? "outpatient") === "outpatient") notes.push("外来の上限は個人ごとの月額です。年間の外来上限（8月〜翌年7月）は別にあります。");
+    if (rate !== 3 && input.setting === "inpatient") notes.push("入院の上限は世帯ごとの月額です。同じ世帯の70歳以上の方の医療費を合算して判定されます。");
+    return { kind: "result", rule, input, rate, scenarios: scenarios.length ? scenarios : SENIOR_TIERS_BY_RATE[rate].map((t) => seniorScenario(t, input, rate)), assumed: !input.seniorTier || input.seniorTier === "unknown", notes };
+  }
+  const rate: CopayRate = input.age === "preschool" ? 2 : 3;
+  if (input.age === "preschool") notes.push("小学校入学前のお子さんは窓口負担が2割です。上限額は世帯の所得区分（ア〜オ）で決まります。自治体の子ども医療費助成がある場合は、さらに負担が軽くなります。");
+  if (input.insurance === "unknown") notes.push("保険の種類が未選択のため、所得区分は年収の目安で選んでいます。正式な区分は加入している健康保険（保険者）が判定します。");
+  const brackets: Bracket[] = input.bracket === "unknown" ? ["a", "b", "c", "d", "e"] : [input.bracket];
+  return { kind: "result", rule, input, rate, scenarios: brackets.map((b) => bracketScenario(b, input, rate)), assumed: input.bracket === "unknown", notes };
+}
+
+/** 今日の診療月（YYYY-MM）。対象の 12 か月に入っていなければ null */
+export function currentServiceMonth(now = new Date()): string | null {
+  const m = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  return SUPPORTED_MONTHS.includes(m) ? m : null;
+}

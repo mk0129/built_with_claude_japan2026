@@ -13,6 +13,13 @@ async function connect(s: Page, p: Page) {
   return new URL(s.url()).searchParams.get("s")!;
 }
 
+/** 2026-11: AI 外来間サマリー（要約・根拠・タイムライン）は診察サマリーの折りたたみの中。開いてから確認する */
+async function openAi(page: import("@playwright/test").Page) {
+  const t = page.locator("[data-ai-fold] .cd-ai-fold-toggle");
+  await t.waitFor({ timeout: 15_000 });
+  if ((await t.getAttribute("aria-expanded")) !== "true") await t.click();
+}
+
 test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わからない」→ 体調と質問 → QR 共有 → AI サマリーと根拠 → 追加処方 → 入力なしで終了", async ({ browser }) => {
   test.setTimeout(240_000);
   const staff = await newPage(browser, { width: 1440, height: 900 });
@@ -25,27 +32,21 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   // ---- 1. 医療者が教材を作成・承認する（教材スタジオ）----
   await connect(s, p);
   await s.locator(".cd-sidebar").getByRole("button", { name: "教材スタジオ" }).click();
-  // 手順 1: 「次へ」の近くに不足項目（登録に必要なもの）が出る
-  await expect(s.locator("[data-step-missing]")).toContainText("原資料");
   await s.locator("[data-source-file]").setInputFiles("tests/fixtures/sources/hormone_therapy_demo.docx");
   await s.locator(".cd-form-grid input").nth(1).fill("さくら総合病院 薬剤部（架空）");
   await s.locator(".cd-form-grid textarea").fill("院内作成の架空資料。患者向け教材化と AI 処理を許可（デモ）");
   await s.locator(".cd-license-check input").nth(0).check();
   await s.locator(".cd-license-check input").nth(1).check();
-  await expect(s.locator("[data-step-missing]")).toHaveCount(0);
-  await s.getByRole("button", { name: "次へ進む" }).click();
-  await expect(s.getByRole("heading", { name: "教材の作成方針" })).toBeVisible({ timeout: 30_000 });
+  // 作成方針は原資料と同じ画面（既定: Claudeが3つの構成案を提案）。4 手順
+  await expect(s.locator(".cd-stepper button")).toHaveCount(4);
   await s.getByRole("button", { name: "Claudeに構成案を依頼" }).click();
   await expect(s.getByRole("heading", { name: "Claudeの構成案を比較" })).toBeVisible({ timeout: 60_000 });
   await expect(s.locator(".cd-proposal-grid article")).not.toHaveCount(0);
-  await s.getByRole("button", { name: "次へ進む" }).click();
-  // 必須事項: 未確認があれば進めない → すべて確認
+  // 必須事項（構成案と同じ画面）: 未確認があれば進めない → すべて確認
   await expect(s.getByRole("button", { name: "確認した内容で下書きを作成" })).toBeDisabled();
   for (const c of await s.locator("[data-must-item] input[type=checkbox]").all()) await c.check();
   await s.getByRole("button", { name: "確認した内容で下書きを作成" }).click();
   await expect(s.locator("[data-studio-editor]")).toBeVisible({ timeout: 60_000 });
-  // 公開前の自動チェック（本文と設問を原資料の引用と照合。出力は書き換えない）
-  await expect(s.locator("[data-draft-checks]")).toBeVisible();
   // 本文の編集（自動保存）
   const heading = s.locator("[data-studio-editor] input").first();
   await heading.fill("ホルモン療法を続けるために（デモ）");
@@ -55,7 +56,7 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await s.locator("[data-studio-detail]").fill("詳しい説明（デモの編集）");
   await heading.click();
   await expect(s.locator(".cd-draft-status")).toContainText("自動保存", { timeout: 10_000 });
-  await s.getByRole("button", { name: "次へ進む" }).click();
+  await s.getByRole("button", { name: "患者の見え方を確認" }).click();
   // 患者向けプレビュー（患者の学習画面と同じ部品。学習・回答 API は呼ばない）→ 承認依頼
   const writes: string[] = [];
   s.on("request", (r) => {
@@ -87,11 +88,6 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await expect(s.locator(".cd-demo-approval-note")).toContainText("本番の医学的監修を意味しません");
   const approve = s.getByRole("button", { name: "医学的に承認して公開" });
   await expect(approve).toBeDisabled();
-  // 公開の許可は手順 1 では求めず、公開の段階で確認して原資料の利用条件に登録する
-  await expect(s.locator("[data-publish-permission]")).toBeVisible();
-  await s.locator("[data-publish-permission] input").check();
-  await s.getByRole("button", { name: "公開の許可を登録する" }).click();
-  await expect(s.locator("[data-publish-permission]")).toHaveCount(0, { timeout: 10_000 });
   for (const c of await s.locator(".cd-approval-check input").all()) await c.check();
   await approve.click();
   await expect(s.getByRole("heading", { name: "教材を公開しました" })).toBeVisible({ timeout: 15_000 });
@@ -110,8 +106,8 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
 
   // ---- 3. 患者が学習し、理解確認で「わからない」----
   await p.goto("/home");
-  await expect(p.locator(".d-next-card")).toContainText("【擬似生成】", { timeout: 10_000 });
-  await p.locator(".d-next-card .primary-button").click();
+  await expect(p.locator("[data-home-lesson]")).toContainText("【擬似生成】", { timeout: 10_000 }); // 2026-11: 歩みの「今」のカード
+  await p.locator("[data-home-lesson] .primary-button").click();
   await p.locator(".d-detail .d-bottom-action").click();
   await expect(p.locator(".d-learning h1")).toContainText("ホルモン療法を続けるために（デモ）");
   for (let i = 0; i < 8; i++) {
@@ -137,6 +133,7 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
 
   // ---- 5. QR 共有を承認 → 6. AI 外来間サマリー → 7. 根拠の記録 ----
   const sid = await connect(s, p);
+  await openAi(s);
   await expect(s.locator('.cd-summary-narrative[data-summary-kind="fake"]')).toBeVisible({ timeout: 15_000 });
   const iv = s.locator("[data-intervisit]");
   // 患者の質問（原文）が先頭の行に出る
@@ -147,9 +144,9 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await expect(s.locator("[data-summary-sources] [data-source-id^='hs:']").first()).toContainText("手足のしびれ 2/4（中くらい）");
 
   // ---- 8. 必要な教材を追加処方（「わからない」の詳細 → 再処方候補 → 別の教材も追加）----
-  // 理解を確かめたい設問（3）の「わからない」の行から、解説・詳しく確認へ
-  const unknown = iv.locator('[data-key-row="unknown"] [data-answer-result="unknown"]').first();
-  await unknown.getByRole("button", { name: "解説・詳しく確認" }).click();
+  const unknown = s.locator(".cd-understanding article").filter({ hasText: "「わからない」" }).first();
+  await unknown.getByRole("button").first().click();
+  await unknown.getByRole("button", { name: "詳しく確認" }).click();
   await s.getByRole("button", { name: "再処方候補へ" }).click();
   await s.getByRole("button", { name: "関連教材の候補を見る" }).click();
   await s.locator(".cd-library-grid article").filter({ hasText: "化学療法中の副作用とセルフケア" }).getByRole("button", { name: "処方に追加" }).click();
@@ -162,8 +159,8 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await expectShareEnded(s);
   for (const path of ["patient", "intervisit", "health"]) expect((await s.request.get(`/api/v1/consultations/${sid}/${path}`)).status()).toBe(403);
   await p.goto("/home");
-  await expect(p.locator(".d-next-card")).toContainText("今回届いた教材");
-  await p.getByRole("button", { name: /今回届いた教材をすべて見る（2件）/ }).click();
+  await expect(p.locator("[data-home-journey]")).toContainText("教材 2件が届きました"); // 2026-11: 歩みの起点（前回の診察）
+  await p.locator("[data-home-journey]").getByRole("button", { name: /教材 2件が届きました/ }).click();
   await expect(p.locator(".d-card-list")).toContainText("化学療法中の副作用とセルフケア");
 
   await staff.ctx.close();

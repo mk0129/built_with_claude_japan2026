@@ -12,6 +12,7 @@ import { SELECTION_LABEL } from "@/lib/labels";
 import { areaOf, estimateMinutes, FIGMA_AREA, shortDate } from "./learning";
 import { toFigma, type ApiRecord } from "./health";
 import { thumbnailFor } from "./thumbnails";
+import type { Recommendation } from "@/lib/recommend";
 
 type Phase = "not_started" | "reading" | "quiz" | "completed";
 export type SummaryApi = {
@@ -29,7 +30,7 @@ export type SummaryApi = {
     status: "unread" | "reviewed" | "resolved";
   }[];
   /** Step 3: 診察ノートの質問（教材に紐づかないものを含む。新しい順） */
-  visitNotes: { id: string; body: string; source: "free" | "quiz"; materialId: string | null; materialTitle: string | null; primaryDomain: string | null; createdAt: string; updatedAt: string }[];
+  visitNotes: { id: string; body: string; source: "free" | "quiz"; materialId: string | null; materialTitle: string | null; primaryDomain: string | null; resolvedAt?: string | null; createdAt: string; updatedAt: string }[];
   currentSet: null | { setId: string; createdAt: string; items: { materialId: string; title: string; prescribedAt: string }[] };
   learning: {
     materialId: string;
@@ -110,6 +111,9 @@ export type LiveConcern = {
   status?: "unread" | "reviewed" | "resolved";
   /** 質問と同じ教材の誤答・「わからない」（関連する可能性がある項目として表示） */
   related?: { stem: string; answer: string } | null;
+  /** 患者が「聞けた・解決した」と印を付けた質問（診察ノート） */
+  resolved?: boolean;
+  createdAt?: string;
 };
 
 export function toConcerns(s: SummaryApi) {
@@ -149,6 +153,8 @@ export function toConcerns(s: SummaryApi) {
       materialTitle: n.materialTitle,
       materialStatus: n.materialId ? (status.get(n.materialId) ?? "") : "",
       related: rel ? { stem: rel.stem, answer: rel.isUnknown ? "わからない" : (rel.selectedText ?? "") } : null,
+      resolved: !!n.resolvedAt,
+      createdAt: n.createdAt,
     };
   });
   const feedback: LiveConcern[] = s.questions.map((q) => {
@@ -169,6 +175,8 @@ export function toConcerns(s: SummaryApi) {
       feedbackId: q.feedbackId,
       status: q.status,
       related: rel ? { stem: rel.stem, answer: rel.isUnknown ? "わからない" : (rel.selectedText ?? "") } : null,
+      resolved: q.status === "resolved",
+      createdAt: q.createdAt,
     };
   });
   // 診察ノートの質問 → 学習後の質問（既存）の順に統合
@@ -211,10 +219,6 @@ export type LiveLibraryItem = {
   prescribedNow: boolean;
   /** 以前の診察で処方済み（再処方できる） */
   prescribedBefore: boolean;
-  /** 以前の処方日（最新。学習記録の処方日。なければ null） */
-  prescribedAt: string | null;
-  /** 規則による教材候補の照合に使う文（題名以外の概要・学習目標。表示はしない） */
-  searchText: string;
   thumbnail: { src: string; alt: string } | null;
 };
 
@@ -234,7 +238,7 @@ export type IntervisitApi = {
       missingDays: string[];
       metrics: Record<string, { label: string; unit: string; count: number; min: { at: string; value: number } | null; max: { at: string; value: number } | null; values: { at: string; value: number; sourceId: string }[] }>;
     };
-    symptoms: { key: string; name: string; count: number; min: number; max: number; changed: boolean; newInPeriod: boolean; stoppedRecording: boolean; entries: { at: string; severity: number; sourceId: string; location?: string | null; count?: number | null; interference?: string | null }[] }[];
+    symptoms: { key: string; name: string; count: number; min: number; max: number; changed: boolean; newInPeriod: boolean; stoppedRecording: boolean; entries: { at: string; severity: number; sourceId: string }[] }[];
     learning: { versionId: string; title: string; versionNo: number; status: string; answersInPeriod: { sourceId: string; result: string; stem: string; at: string }[] }[];
     questions: {
       sourceId: string;
@@ -266,6 +270,14 @@ export type AiSummaryApi = {
   generatedAt: string;
   cached: boolean;
   sources: Record<string, { label: string; at?: string }>;
+};
+
+/** 情報処方のリコメンド。GET /api/v1/consultations/:id/recommendations */
+export type RecommendationApi = {
+  generator: "claude" | "fake" | "mock" | "rule";
+  model: string | null;
+  items: (Recommendation & { aiReason?: string })[];
+  note: string | null;
 };
 
 /** 処方テンプレート（セット）。GET /api/v1/consultations/:id/templates。教材はこの施設から見える公開中のものだけ */
@@ -388,6 +400,24 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     },
     [sid, fail],
   );
+  // 情報処方のリコメンド（ルールベース → Claude が使えるときは絞り込み）。共有ごとに 1 回読み、処方後に読み直す
+  const [reco, setReco] = useState<{ sid: string; data: RecommendationApi } | null>(null);
+  const [recoLoading, setRecoLoading] = useState(false);
+  const loadRecommendations = useCallback(
+    async (opts: { regenerate?: boolean } = {}) => {
+      if (!sid) return;
+      setRecoLoading(true);
+      try {
+        const d = await api<RecommendationApi>(`/api/v1/consultations/${sid}/recommendations${opts.regenerate ? "?regenerate=1" : ""}`);
+        setReco({ sid, data: d });
+      } catch (e) {
+        fail(sid, e);
+      } finally {
+        setRecoLoading(false);
+      }
+    },
+    [sid, fail],
+  );
   // 処方テンプレート（セット）の読み取り（既存 API。読み取りのみ）
   const [tpl, setTpl] = useState<{ sid: string; items: TemplateApi[] } | null>(null);
   const loadTemplates = useCallback(async () => {
@@ -399,6 +429,21 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
       fail(sid, e);
     }
   }, [sid, fail]);
+  // 施設のセットを作る（選択中の教材から）。成功したら一覧を差し替える
+  const createTemplate = useCallback(
+    async (name: string, materialIds: string[]) => {
+      if (!sid) return false;
+      try {
+        const d = await api<{ id: string; templates: TemplateApi[] }>(`/api/v1/consultations/${sid}/templates`, { json: { name, materialIds } });
+        setTpl({ sid, items: d.templates });
+        return true;
+      } catch (e) {
+        fail(sid, e);
+        return false;
+      }
+    },
+    [sid, fail],
+  );
   useEffect(() => {
     // 共有が終わったら外来間のデータ・要約も消す
     if (!sid) {
@@ -413,7 +458,6 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
   const concerns = view ? toConcerns(view) : null;
   const nowIds = new Set(view?.currentSet?.items.map((i) => i.materialId) ?? []);
   const beforeIds = new Set(view?.learning.filter((l) => l.prescribed).map((l) => l.materialId) ?? []);
-  const beforeAt = new Map(view?.learning.filter((l) => l.prescribed && l.prescribedAt).map((l) => [l.materialId, l.prescribedAt]) ?? []);
   const library: LiveLibraryItem[] | null =
     sid && materials
       ? materials.map((m) => ({
@@ -427,8 +471,6 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
           scope: m.scope === "org" ? "施設内教材" : "共通教材",
           prescribedNow: nowIds.has(m.materialId),
           prescribedBefore: !nowIds.has(m.materialId) && beforeIds.has(m.materialId),
-          prescribedAt: beforeAt.get(m.materialId) ?? null,
-          searchText: [m.summary ?? "", ...m.objectives].join(" "),
           thumbnail: thumbnailFor(m.title),
         }))
       : null;
@@ -445,6 +487,7 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
       try {
         await api(`/api/v1/consultations/${sid}/prescriptions`, { json: { materialIds: ids, ...(note.trim() ? { note: note.trim() } : {}) } });
         await reload();
+        void loadRecommendations();
         return ids.length;
       } catch (e) {
         fail(sid, e);
@@ -452,15 +495,20 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sid, reload, view],
+    [sid, reload, view, loadRecommendations],
   );
 
   /** 質問の確認状態（任意。診療記録ではない） */
   const setQuestionStatus = useCallback(
-    async (feedbackId: string, status: "reviewed" | "resolved") => {
+    async (questionId: string, status: "reviewed" | "resolved" | "unread") => {
       if (!sid) return false;
       try {
-        await api(`/api/v1/consultations/${sid}/questions/${feedbackId}`, { json: { status } });
+        if (questionId.startsWith("note:")) {
+          // 診察ノートの質問: 医療者が診察で答えたら「解決」に（戻すこともできる）。原文は変えない
+          await api(`/api/v1/consultations/${sid}/notes/${questionId.slice(5)}`, { json: { resolved: status === "resolved" } });
+        } else {
+          await api(`/api/v1/consultations/${sid}/questions/${questionId}`, { json: { status } });
+        }
         void reload();
         return true;
       } catch (e) {
@@ -497,8 +545,13 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     checks: concerns?.checks ?? [],
     areas: view ? toAreas(view) : [],
     library,
+    /** 情報処方のリコメンド（未読み込みは null） */
+    recommendations: sid && reco?.sid === sid ? reco.data : null,
+    recommendationsLoading: recoLoading,
+    loadRecommendations,
     /** 処方テンプレート（セット）。未読み込みは null */
     templates: sid && tpl?.sid === sid ? tpl.items : null,
+    createTemplate,
     loadTemplates,
     reload,
     prescribe,
