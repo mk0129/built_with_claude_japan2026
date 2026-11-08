@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import handler from "../../.judge-demo/api-src/studio";
 
 /**
@@ -81,5 +82,19 @@ describe("公開デモの Claude 関数", () => {
     expect(d.status).toBe(200);
     expect((d.body as { material: { slides: unknown[] } }).material.slides).toHaveLength(1);
     expect((await call("POST", { mode: "generate", passcode: "aikotoba", source: { title: "t", text: longText } })).status).toBe(400);
+  });
+
+  it("extract: PDF と Word から本文を取り出す（本番と同じ抽出）。未対応の拡張子は 400、大きすぎるファイルは 413", async () => {
+    for (const name of ["hormone_therapy_demo.pdf", "hormone_therapy_demo.docx"]) {
+      const b64 = readFileSync(`tests/fixtures/sources/${name}`).toString("base64");
+      const r = await call("POST", { mode: "extract", passcode: "aikotoba", filename: name, mime: "", contentBase64: b64 });
+      expect(r.status).toBe(200);
+      const body = r.body as { text: string; charCount: number; warnings: string[] };
+      expect(body.text).toContain("ホルモン療法");
+      expect(body.charCount).toBeGreaterThan(300);
+    }
+    expect((await call("POST", { mode: "extract", passcode: "aikotoba", filename: "x.exe", mime: "", contentBase64: "QUJD" })).status).toBe(400);
+    const big = "A".repeat(Math.ceil((3.6 * 1024 * 1024 * 4) / 3));
+    expect((await call("POST", { mode: "extract", passcode: "aikotoba", filename: "big.pdf", mime: "", contentBase64: big })).status).toBe(413);
   });
 });
