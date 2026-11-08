@@ -8,7 +8,18 @@ import { nativePatientMaterial, patientAnsweredQuestion, patientLearningChanges 
 type Note = { id: string; body: string; source: "free" | "quiz"; materialId: string | null; materialTitle: string | null; primaryDomain: string | null; resolvedAt?: string | null; createdAt: string; updatedAt: string };
 type Settings = { active: string[]; hidden: string[]; customNames: Record<string,string> };
 type TemplateLite = { id:string; name:string; description:string|null; scope:"common"|"org"; materials:{id:string;title:string;primaryDomain:string}[] };
-type Records = { records: ApiRecord[]; notes: Note[]; settings: Settings; visit: {date:string; updatedAt:string}|null; changed: boolean; templates?: TemplateLite[] };
+type TreatProfile = { cancerType:string|null; modality:"infusion"|"oral"|"radiation"|"surgery"|"observation"|"none"; treatmentName:string|null; startDate:string|null; cycleDays:number|null; plannedSessions:number|null };
+type TreatEvent = { id:string; date:string; kind:"infusion"|"oral_start"|"radiation"|"surgery"|"visit_only"|"other"; label:string|null; courseNo:number|null };
+type Records = { records: ApiRecord[]; notes: Note[]; settings: Settings; visit: {date:string; updatedAt:string}|null; changed: boolean; templates?: TemplateLite[]; treatment?: {profile:TreatProfile; events:TreatEvent[]} };
+/** 架空症例（佐藤 花子）の治療の記録の初期値: 乳がん・術後の点滴の薬物療法。症例日 11/4 時点で第 2 コースの 21 日目 */
+const DEMO_TREATMENT:{profile:TreatProfile;events:TreatEvent[]}={
+  profile:{cancerType:"乳がん",modality:"infusion",treatmentName:"術後の化学療法（架空）",startDate:"2026-09-24",cycleDays:21,plannedSessions:null},
+  events:[
+    {id:"treat-demo-1",date:"2026-09-24",kind:"infusion",label:null,courseNo:1},
+    {id:"treat-demo-2",date:"2026-10-15",kind:"infusion",label:null,courseNo:2},
+    {id:"treat-demo-3",date:"2026-10-29",kind:"visit_only",label:null,courseNo:null},
+  ],
+};
 const key = "shiori:judge:patient-records:v1";
 const clone = <T,>(x:T):T => structuredClone(x);
 const invalid = (code:string, message:string) => new ApiError(400,code,message);
@@ -44,6 +55,45 @@ export function nativeCreateTemplate(input:{name?:unknown;materialIds?:unknown}|
   if(materials.some(m=>!m)) throw invalid("TEMPLATE_MATERIALS_INVALID","この施設で使えない教材が含まれています");
   const t:TemplateLite={id:crypto.randomUUID(),name,description:null,scope:"org",materials:materials as TemplateLite["materials"]};
   const state=data();state.templates=[...(state.templates??[]),t];save();return t;
+}
+/** 治療の記録（審査用デモ。患者が変えた内容はこの端末のセッションの間だけ保持） */
+export function nativeTreatment() {
+  const t=data().treatment??(data().treatment=clone(DEMO_TREATMENT));
+  return {profile:clone(t.profile),events:clone(t.events).sort((a,b)=>b.date.localeCompare(a.date)),today:nativeCaseDay()};
+}
+const dayOk=(v:unknown)=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T00:00:00Z"));
+const optText=(v:unknown,max:number)=>{ if(v===null||v===undefined) return null; if(typeof v!=="string"||v.trim().length>max) throw invalid("TREATMENT_INVALID",`${max}文字以内で入力してください`); return v.trim()||null; };
+const optInt=(v:unknown,max:number)=>{ if(v===null||v===undefined||v==="") return null; const n=Number(v); if(!Number.isInteger(n)||n<1||n>max) throw invalid("TREATMENT_INVALID",`1〜${max} の整数で入力してください`); return n; };
+export function nativeTreatmentApi(path:string,method:string,input?:any):{handled:boolean;data?:unknown}|null {
+  const ok=(d:unknown)=>({handled:true,data:d});
+  if(path==="/api/v1/treatment") {
+    if(method==="PUT") {
+      const modality=String(input?.modality??"none") as TreatProfile["modality"];
+      if(!["infusion","oral","radiation","surgery","observation","none"].includes(modality)) throw invalid("TREATMENT_INVALID","治療の種類を確認してください");
+      const startDate=input?.startDate?String(input.startDate):null;
+      if(startDate!==null&&!dayOk(startDate)) throw invalid("INVALID_TREATMENT_DATE","開始日を確認してください");
+      const t=data().treatment??clone(DEMO_TREATMENT);
+      t.profile={cancerType:optText(input?.cancerType,30),modality,treatmentName:optText(input?.treatmentName,60),startDate,cycleDays:optInt(input?.cycleDays,60),plannedSessions:optInt(input?.plannedSessions,60)};
+      data().treatment=t;save(false);
+    }
+    if(method==="GET"||method==="PUT") return ok(nativeTreatment());
+  }
+  if(path==="/api/v1/treatment/events"&&method==="POST") {
+    const date=String(input?.date??"");
+    if(!dayOk(date)) throw invalid("INVALID_TREATMENT_DATE","日付を確認してください");
+    const kind=String(input?.kind??"") as TreatEvent["kind"];
+    if(!["infusion","oral_start","radiation","surgery","visit_only","other"].includes(kind)) throw invalid("TREATMENT_INVALID","治療の内容を確認してください");
+    const t=data().treatment??(data().treatment=clone(DEMO_TREATMENT));
+    t.events.push({id:crypto.randomUUID(),date,kind,label:optText(input?.label,60),courseNo:optInt(input?.courseNo,99)});save(false);
+    return ok(nativeTreatment());
+  }
+  const m=path.match(/^\/api\/v1\/treatment\/events\/([^/]+)$/);
+  if(m&&method==="DELETE") {
+    const t=data().treatment??(data().treatment=clone(DEMO_TREATMENT));
+    const i=t.events.findIndex(e=>e.id===m[1]); if(i<0) throw missing("TREATMENT_EVENT_NOT_FOUND");
+    t.events.splice(i,1);save(false);return ok(nativeTreatment());
+  }
+  return null;
 }
 export function nativeClinicianNotes() {return clone(data().notes).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));}
 const fixedDay=fixture.intervisit.intervisit.period.to;
@@ -111,6 +161,7 @@ function dateOfVisit(value:unknown) {
 export function nativeRecordApi(url:URL,method:string,input?:any):{handled:boolean;data?:unknown} {
   const path=url.pathname;
   const ok=(data:unknown)=>({handled:true,data});
+  const treat=nativeTreatmentApi(path,method,input); if(treat) return treat;
   if(path==="/api/v1/next-visit") {
     if(method==="PUT") {data().visit=dateOfVisit(input?.date); save(false);}
     if(method==="GET"||method==="PUT") return ok({visit:data().visit});

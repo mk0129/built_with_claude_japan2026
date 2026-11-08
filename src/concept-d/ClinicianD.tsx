@@ -1,3 +1,4 @@
+import { treatmentLine } from "@/lib/treatment"
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import type { ClinicianLive } from "./live"
 import type { ClinicianRecord, LiveConcern, LiveLibraryItem } from "./record"
@@ -3497,6 +3498,8 @@ function LiveSummary({
   // 質問を「解決」に（診察で答えたらその場で消す。数字も減る）。原文は変えない
   const [resolving, setResolving] = useState<string | null>(null)
   const swipeStart = useRef<{ id: string; x: number; y: number } | null>(null)
+  // 患者が登録した「がん種 · 今の治療 · 何日目」（登録がなければ出さない）
+  const treatmentText = record.treatment ? treatmentLine(record.treatment.profile, record.treatment.events, record.treatment.today) : null
   const resolveQuestion = async (id: string) => {
     setResolving(id)
     // 行が左へ消える動き（220ms）を見せてから一覧から外す。API 呼び出しと並行
@@ -3524,6 +3527,12 @@ function LiveSummary({
               期間を変更
             </button>
           </p>
+          {treatmentText && (
+            <p className="cd-treatment-line" data-treatment-line>
+              <b>治療</b>
+              {treatmentText}
+            </p>
+          )}
         </div>
       </div>
       {periodEdit && draft && (

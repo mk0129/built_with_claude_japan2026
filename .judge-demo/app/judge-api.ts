@@ -2,7 +2,7 @@ import fixture from "./fixtures/consultation.json";
 import { ApiError } from "./judge-errors";
 import { addDeliveries, endJudgeSession, getJudgeSession, isJudgeActive, requestJudgeExtension, setFeedbackStatus } from "./judge-store";
 import { patientApi, patientLearningChanges, rememberNativeDeliveries } from "./judge-patient-api";
-import { nativeRecordApi, nativeClinicianHealth, nativeClinicianNotes, nativeResolveNote, nativeTemplates, nativeCreateTemplate, hasNativeRecordChanges } from "./judge-native-records";
+import { nativeRecordApi, nativeClinicianHealth, nativeClinicianNotes, nativeResolveNote, nativeTemplates, nativeCreateTemplate, nativeTreatment, hasNativeRecordChanges } from "./judge-native-records";
 import { nativePeriodPayload } from "./judge-native-period";
 import { studioApi, studioPublishedForVisit } from "./judge-studio";
 import { recommendMaterials } from "@/lib/recommend";
@@ -85,6 +85,7 @@ export async function api<T = unknown>(path: string, init:Options = {}):Promise<
     return {id:t.id,templates:[...copy(fixture.templates).templates,...nativeTemplates()]} as T;
   }
   if (endpoint==="health" && method==="GET") return caseDates(nativeClinicianHealth()) as T;
+  if (endpoint==="treatment" && method==="GET") return nativeTreatment() as T;
   if (endpoint==="intervisit" && method==="GET") {
     const data=await nativePeriodPayload(url.searchParams.get("from"),url.searchParams.get("to"));
     if (!isJudgeActive(getJudgeSession()) || getJudgeSession()?.id!==session.id) throw forbidden();
