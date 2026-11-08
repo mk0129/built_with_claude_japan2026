@@ -17,6 +17,9 @@ export default async function Landing() {
           <Link href="/login" className="primary-button au-primary" data-entry-patient>
             患者の方はこちら
           </Link>
+          <Link href="/signup" className="au-switch-link au-entry-signup" data-entry-signup>
+            はじめての方の登録（メールアドレスだけ）
+          </Link>
           <Link href="/staff/login" className="au-secondary" data-entry-staff>
             医療者の方はこちら
             <small>病院・診療所のアカウントでログイン</small>
