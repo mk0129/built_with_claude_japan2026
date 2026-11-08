@@ -17,6 +17,8 @@ import { DEFAULT_ANCHORS, SEVERITY_ANCHORS, SYMPTOM_ALIASES, TREATMENTS } from "
 import { SlideArt, slideArtKey } from "./SlideArt"
 import { speakText, stopSpeaking, speechSupported } from "./speech"
 import {
+  isEditorialFigure,
+  primaryFigure,
   saveProgress,
   useAttempt,
   useLearnView,
@@ -870,6 +872,8 @@ export function DPrototype({
       ? slideAt.seq
       : Math.min(Math.max(1, learnView?.progress.lastSlideSeq ?? 1), Math.max(1, totalSlides))
   const currentSlide = learnView?.slides.find((slide) => slide.seq === currentSeq) ?? null
+  // 拡大表示の対象: 表示中のページの医学図解（同じページに挿絵があっても図解を優先）
+  const zoomFigure = primaryFigure(currentSlide?.figures)
   const goSlide = (seq: number) => {
     if (!learnView) return
     setSlideAt({ versionId: learnView.versionId, seq })
@@ -1428,17 +1432,13 @@ export function DPrototype({
               <>
                 <DImageSlot
                   kind="medical"
-                  caption={currentSlide?.figures[0]?.caption ?? ""}
-                  image={
-                    currentSlide?.figures[0]
-                      ? { src: currentSlide.figures[0].src, alt: currentSlide.figures[0].altText ?? currentSlide.title }
-                      : undefined
-                  }
+                  caption={zoomFigure?.caption ?? ""}
+                  image={zoomFigure ? { src: zoomFigure.src, alt: zoomFigure.altText ?? currentSlide?.title ?? "" } : undefined}
                 />
-                {(currentSlide?.figures[0]?.longDescription || currentSlide?.figures[0]?.altText) && (
+                {zoomFigure && (zoomFigure.longDescription || zoomFigure.altText) && (
                   <div className="d-alt-copy">
                     <b>画像の代替説明</b>
-                    <p>{currentSlide.figures[0].longDescription ?? currentSlide.figures[0].altText}</p>
+                    <p>{zoomFigure.longDescription ?? zoomFigure.altText}</p>
                   </div>
                 )}
               </>
@@ -4155,7 +4155,10 @@ function DLearning({
   }, [liveSeq, liveSlide])
   if (live) {
     const slide = live.slide
-    const figure = slide?.figures[0]
+    // 届いた図のうち表示する 1 枚: 医学図解（監修済み。図解タブと説明文つき）があればそれ、なければ生活場面の挿絵（装飾として本文の上に出す）
+    const shownFigure = primaryFigure(slide?.figures)
+    const illustration = isEditorialFigure(shownFigure) ? shownFigure : null
+    const figure = shownFigure && !illustration ? shownFigure : null
     const turnPage = (go: () => void) => {
       continueReading.current = audioPlaying
       go()
@@ -4235,10 +4238,17 @@ function DLearning({
                 {audioNotice}
               </p>
             )}
-            {/* 図解がないページ: 主題に合った挿絵（装飾）と本文。医学図解は医療者の承認後にだけ届く */}
+            {/* 図解がないページ: 登録済みの挿絵（生活場面の装飾。医学的な内容は描かない）か、主題に合った線画と本文。医学図解は医療者の承認後にだけ届く */}
             {!figure ? (
               <div className="d-learning-plain">
-                <SlideArt art={art} tone={live.seq} />
+                {illustration ? (
+                  <figure className="d-slide-illustration" data-slide-illustration>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={illustration.src} alt={illustration.altText ?? ""} width={illustration.width ?? undefined} height={illustration.height ?? undefined} decoding="async" />
+                  </figure>
+                ) : (
+                  <SlideArt art={art} tone={live.seq} />
+                )}
                 {slide.proposition && slide.bodyMd && slide.bodyMd !== slide.proposition ? (
                   <p className="d-learning-body">{slide.bodyMd}</p>
                 ) : null}

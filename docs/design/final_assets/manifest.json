@@ -183,42 +183,84 @@
       "key": "乳房の手術の種類と選び方",
       "file": "thumb_surgery_choice.webp",
       "priority": "医療者の教材ライブラリに映る",
-      "source": "DEMO_MATERIALS"
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-surgery_choice",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
     },
     {
       "kind": "thumbnail",
       "key": "手術後の生活と気をつけること",
       "file": "thumb_after_surgery.webp",
       "priority": "医療者の教材ライブラリに映る",
-      "source": "DEMO_MATERIALS"
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-after_surgery",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
     },
     {
       "kind": "thumbnail",
       "key": "薬物療法の種類（化学療法・ホルモン療法・分子標的）",
       "file": "thumb_drug_therapy.webp",
       "priority": "医療者の教材ライブラリに映る",
-      "source": "DEMO_MATERIALS"
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-drug_therapy",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
     },
     {
       "kind": "thumbnail",
       "key": "放射線治療の進め方と皮膚のケア",
       "file": "thumb_radiation.webp",
       "priority": "医療者の教材ライブラリに映る",
-      "source": "DEMO_MATERIALS"
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-radiation",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
     },
     {
       "kind": "thumbnail",
       "key": "さくら総合病院 外来化学療法室のご案内",
       "file": "thumb_sakura_chemo_room.webp",
       "priority": "医療者の教材ライブラリに映る",
-      "source": "DEMO_MATERIALS"
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-sakura_chemo_room",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
     },
     {
       "kind": "thumbnail",
       "key": "さくら総合病院 術後リンパ浮腫外来",
       "file": "thumb_sakura_lymph.webp",
       "priority": "医療者の教材ライブラリに映る",
-      "source": "DEMO_MATERIALS"
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-sakura_lymph",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
     },
     {
       "kind": "thumbnail",
@@ -254,6 +296,314 @@
       "file": "thumb_family_talk.webp",
       "priority": "登録済み（既存）",
       "source": "教材 v1.1（DB に未登録）"
+    },
+    {
+      "kind": "thumbnail",
+      "key": "大腸がんの診断と病期",
+      "file": "thumb_colorectal_staging.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-colorectal_staging",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "肺がんの検査と遺伝子・バイオマーカー検査",
+      "file": "thumb_lung_biomarker.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-lung_biomarker",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "セカンドオピニオンの受け方",
+      "file": "thumb_second_opinion.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-second_opinion",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "手術前の準備（禁煙・口腔ケア・体力づくり）",
+      "file": "thumb_prehab.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-prehab",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "胃・大腸の手術のあとの食事",
+      "file": "thumb_post_surgery_diet.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-post_surgery_diet",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "免疫チェックポイント阻害薬の治療と注意する症状",
+      "file": "thumb_immunotherapy.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-immunotherapy",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "飲み薬の抗がん剤を安全に続けるために",
+      "file": "thumb_oral_anticancer.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-oral_anticancer",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "手術の前後に行う薬物療法の目的",
+      "file": "thumb_perioperative_therapy.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-perioperative_therapy",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "放射線治療の種類と部位ごとの副作用",
+      "file": "thumb_radiation_types.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-radiation_types",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "痛みをやわらげる放射線治療（緩和照射）",
+      "file": "thumb_palliative_radiation.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-palliative_radiation",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "発熱したときの対応（白血球が減っている時期）",
+      "file": "thumb_fever_response.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-fever_response",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "手足のしびれ（末梢神経障害）とのつきあい方",
+      "file": "thumb_neuropathy.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-neuropathy",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "口内炎・味覚の変化と食事の工夫",
+      "file": "thumb_mouth_taste.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-mouth_taste",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "脱毛と外見のケア（アピアランスケア）",
+      "file": "thumb_appearance_care.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-appearance_care",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "家族や子どもに病気をどう伝えるか",
+      "file": "thumb_family_children.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-family_children",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "thumbnail",
+      "key": "緩和ケアは早い時期から",
+      "file": "thumb_palliative_care.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "DEMO_MATERIALS",
+      "delivered": {
+        "id": "THUMB-palliative_care",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 1600,
+        "height": 1200
+      }
+    },
+    {
+      "kind": "cover",
+      "key": "術前セット",
+      "file": "cover_preop_set.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "SEED_TEMPLATES（patientSetName と同名）",
+      "delivered": {
+        "id": "COVER-preop_set",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 800,
+        "height": 1000
+      }
+    },
+    {
+      "kind": "cover",
+      "key": "化学療法開始時セット",
+      "file": "cover_chemo_start_set.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "SEED_TEMPLATES（patientSetName と同名）",
+      "delivered": {
+        "id": "COVER-chemo_start_set",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 800,
+        "height": 1000
+      }
+    },
+    {
+      "kind": "cover",
+      "key": "さくら総合病院 化学療法オリエンテーション",
+      "file": "cover_sakura_chemo_orientation.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "SEED_TEMPLATES（patientSetName と同名）",
+      "delivered": {
+        "id": "COVER-sakura_chemo_orientation",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 800,
+        "height": 1000
+      }
+    },
+    {
+      "kind": "cover",
+      "key": "術前準備セット",
+      "file": "cover_prehab_set.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "SEED_TEMPLATES（patientSetName と同名）",
+      "delivered": {
+        "id": "COVER-prehab_set",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 800,
+        "height": 1000
+      }
+    },
+    {
+      "kind": "cover",
+      "key": "免疫療法開始時セット",
+      "file": "cover_immunotherapy_set.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "SEED_TEMPLATES（patientSetName と同名）",
+      "delivered": {
+        "id": "COVER-immunotherapy_set",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 800,
+        "height": 1000
+      }
+    },
+    {
+      "kind": "cover",
+      "key": "化学療法の副作用対策セット",
+      "file": "cover_side_effect_care_set.webp",
+      "priority": "2026-11-08 一括制作（教材一覧・医療者ライブラリ・セット）",
+      "source": "SEED_TEMPLATES（patientSetName と同名）",
+      "delivered": {
+        "id": "COVER-side_effect_care_set",
+        "pack": "shiori_教材イラスト全57点.zip",
+        "date": "2026-11-08",
+        "width": 800,
+        "height": 1000
+      }
     }
   ]
 }

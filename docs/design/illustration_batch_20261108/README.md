@@ -104,6 +104,16 @@ Must not show: anatomy, tumours, surgery, needles, blood, pills in detail, brand
 | COVER-immunotherapy_set | 免疫療法開始時セット |  | リクライニングチェアと本とひざ掛け | `COVER-immunotherapy_set.png` |
 | COVER-side_effect_care_set | 化学療法の副作用対策セット |  | やわらかい帽子・手袋・歯ブラシ・体温計が並ぶ棚 | `COVER-side_effect_care_set.png` |
 
+## 登録済み（2026-11-08）
+57 点すべてを審査用デモに組み込んだ。配信ファイルは納品物の `delivery/public/`（透過・色・縮小時の余白を調整済み）を同じ相対パスで `public/` に置いたもので、
+下の取り込みスクリプトは通していない（白の再透過・縮小版の再生成を避けるため）。登録先と検証:
+- 台帳: [delivery_manifest.json](delivery_manifest.json)（57 ID・79 ファイル・SHA-256・寸法・alt・配置先）。
+- サムネイル 22・表紙 6: `src/concept-d/thumbnails.ts`（`THUMBNAILS`・`SET_COVERS`）。`docs/design/final_assets/manifest.json` にも追記（`node scripts/assets/validate-images.mjs` の対象）。
+- 本文挿絵 29: `src/server/db/seed-figures.ts`（editorial・納品済み → seed で approved。再実行しても重複しない）。公開デモは `npx tsx scripts/judge/sync-patient-figures.mts` で `.judge-demo/app/fixtures/patient-figures.json` に同期（`--check` で差分確認）。
+- 検証: `node scripts/assets/validate-illustration-batch.mjs [--dist .judge-demo/dist] [--live <url>] [--report <json>]`（欠落・SHA-256・寸法・二重登録・大文字小文字違い・別教材への登録、公開 URL の実応答）、
+  `node scripts/review/illustration-walkthrough.mjs <url> <出力>`（患者 390px・医療者 1024px で審査員と同じ入口から操作し DOM で照合、代表画面を撮る）、
+  `node scripts/review/illustration-verification-table.mjs`（検証表）。結果は `docs/review/illustration_integration_20261108/`。
+
 ## 受け取ってからの手順
 1. 画像を 1 つのフォルダに置く（`id.png`）。
 2. `npx tsx scripts/assets/import-illustrations.mts <フォルダ>` を実行する。サムネイル・カバーは `public/thumbnails/`・`public/covers/` に WebP で書き出し、挿絵は `public/assets/editorial/` に PNG で置く。`docs/design/illustration_batch_20261108/generated/` に登録用の断片（`thumbnails.registry.txt`・`seed-figures.entries.txt`・`patient-figures.additions.json`）を出力する。
