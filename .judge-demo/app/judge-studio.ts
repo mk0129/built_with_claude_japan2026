@@ -3,6 +3,53 @@ import { useStudio, type Draft, type Outline, type MustCandidate, type StudioLiv
 import type { MaterialApi } from "@/concept-d/record";
 import replay from "./fixtures/studio-replay.json";
 import { SOURCE_DOCX } from "./fixtures/studio-source";
+import { SAMPLE_SOURCE_TEXT, SAMPLE_SOURCE_TITLE } from "./fixtures/studio-source-text";
+import { getJudgeSession } from "./judge-store";
+
+/**
+ * 公開デモで実際に Claude を呼ぶモード（任意）。
+ * Vercel の小さなサーバー関数 /api/studio（鍵はサーバーにだけ）に、合言葉と原資料の本文を送って
+ * 構成案と下書きを作る。切り替えと原資料はこの端末のセッションの間だけ保持する。
+ */
+type LiveState = { passcode: string; model: string };
+type LiveSource = { title: string; text: string; filename: string; size: number; charCount: number };
+const LIVE_KEY = "shiori:judge:studio-live";
+const LIVE_SOURCE_ID = "judge-src";
+function liveState(): LiveState | null {
+  try { const raw = sessionStorage.getItem(LIVE_KEY); return raw ? (JSON.parse(raw) as LiveState) : null; } catch { return null; }
+}
+function setLiveState(v: LiveState | null) {
+  try { if (v) sessionStorage.setItem(LIVE_KEY, JSON.stringify(v)); else sessionStorage.removeItem(LIVE_KEY); } catch {}
+}
+let availability: Promise<{ configured: boolean; model: string }> | null = null;
+/** サーバー関数が設定済みか（鍵・合言葉の有無だけ。値は返らない）。静的配信だけのときは 404 → 使えない */
+function liveAvailable() {
+  availability ??= fetch("/api/studio", { method: "GET", cache: "no-store" })
+    .then(async (r) => (r.ok ? ((await r.json()) as { configured: boolean; model: string }) : { configured: false, model: "" }))
+    .catch(() => ({ configured: false, model: "" }));
+  return availability;
+}
+async function liveCall<T>(body: Record<string, unknown>): Promise<T> {
+  const st = liveState();
+  if (!st) throw new Error("合言葉を入れてください");
+  const r = await fetch("/api/studio", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...body, passcode: st.passcode }) });
+  const data = (await r.json().catch(() => ({}))) as { error?: { message?: string } } & T;
+  if (!r.ok) throw new Error(data.error?.message ?? `Claude の呼び出しに失敗しました（${r.status}）`);
+  return data;
+}
+type GeneratedMaterial = { title: string; summary: string; primaryDomain: string; learningObjectives: string[]; slides: { title: string; proposition: string; body: string; detail: string; sourceRefs: { sourceId: string; section: string; quote: string }[] }[]; questions: { stem: string; options: string[]; correctIndex: number; explanation: string; relatedSlide: number; sourceRefs: { sourceId: string; section: string; quote: string }[] }[] };
+/** 実際に生成した下書きを、審査用デモの教材（ID は固定）として保存できる形に */
+function draftFromGenerated(m: GeneratedMaterial, source: LiveSource, must: { id: string; text: string; kind: string; sourceRef: { sourceId: string; section?: string; quote?: string }; status: string }[]): Draft {
+  return {
+    version: { id: JUDGE_STUDIO_DRAFT, status: "draft", summary: m.summary, learningObjectives: [...m.learningObjectives], mustCover: must.map((c) => ({ id: c.id, text: c.text, kind: c.kind as MustCandidate["kind"], sourceRef: c.sourceRef, status: c.status, confirmed: c.status === "required" })), reviewComment: null },
+    material: { id: materialId, title: m.title, primaryDomain: m.primaryDomain, scope: "org", tags: [] },
+    slides: m.slides.map((sl, i) => ({ seq: i + 1, title: sl.title, proposition: sl.proposition, bodyMd: sl.body, detailMd: sl.detail, sourceRefs: sl.sourceRefs })),
+    questions: m.questions.map((q, i) => ({ seq: i + 1, stem: q.stem, options: [q.options[0] ?? "", q.options[1] ?? "", q.options[2] ?? ""] as [string, string, string], correctIndex: q.correctIndex, explanation: q.explanation, relatedSlideSeq: q.relatedSlide, sourceRefs: q.sourceRefs })),
+    sources: [{ id: LIVE_SOURCE_ID, title: source.title, perm: { rightsHolder: "公開デモの原資料", allowPublish: true, allowShare: false, allowDerive: true } }],
+    creatorName: "佐藤 一郎（架空）", role: { canEdit: true, canApprove: true },
+    approvalBlock: "承認待ちに提出されていません", preCheck: { mustCover: { safetyUnconfirmed: [], unconfirmed: 0 } },
+  } as Draft;
+}
 
 export const JUDGE_STUDIO_DRAFT = "bb64ff87-e91b-4ec5-813d-0f95a6f0cb7c";
 const materialId = "e9db6eb4-f3cb-4a26-8873-4d1083489987";
@@ -82,7 +129,10 @@ export async function studioApi(path:string, init:ApiInit = {}, visitId:string):
   const method=(init.method??(init.json===undefined?"GET":"POST")).toUpperCase();
   const suffix=pathname.slice("/api/v1/studio/".length);
   const d=read(visitId);
-  if(suffix==="config" && method==="GET") return output({claudeConfigured:false,model:replayModel});
+  if(suffix==="config" && method==="GET") {
+    const lv=liveState(); const avail=await liveAvailable();
+    return output({claudeConfigured:!!lv,model:lv?lv.model:replayModel,demoClaude:{available:avail.configured,live:!!lv}});
+  }
   if(suffix==="sources" && method==="GET") return output({sources:d.sources});
   if(suffix==="materials" && method==="GET") return output({materials:[d.material]});
   const [collection,id,action] = suffix.split("/");
@@ -130,6 +180,28 @@ export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:strin
   const [requested,setRequested]=useState(()=>new URLSearchParams(window.location.search).get("draft")===JUDGE_STUDIO_DRAFT);
   const [sourcePresent,setSourcePresent]=useState(false);
   const [chosen,setChosen]=useState<typeof fixedSource|null>(null);
+  // 実際に Claude で作るモード（公開デモ・合言葉あり）
+  const [liveMode,setLiveMode]=useState<LiveState|null>(()=>liveState());
+  const [liveSource,setLiveSource]=useState<LiveSource|null>(null);
+  // 登録（upload）の直後に同じ操作で構成案を依頼するため、state の反映を待たずに参照できる ref も持つ
+  const liveSourceRef=useRef<LiveSource|null>(null);
+  const setSource=(v:LiveSource|null)=>{liveSourceRef.current=v;setLiveSource(v);};
+  const [liveBusy,setLiveBusy]=useState<string|null>(null);
+  const [liveOutline,setLiveOutline]=useState<{outlines:Outline[];mustCoverCandidates:Omit<MustCandidate,"id">[]}|null>(null);
+  const [liveDraftReady,setLiveDraftReady]=useState(false);
+  const [liveAvail,setLiveAvail]=useState(false);
+  useEffect(()=>{ if(enabled) void liveAvailable().then(a=>setLiveAvail(a.configured)); },[enabled]);
+  const visitId=getJudgeSession()?.id??"";
+  const liveJob=(mode:"outline"|"generate",payload:unknown,versionId:string|null)=>({id:"judge-live-"+mode,mode,status:"succeeded" as const,progress:null,errorCode:null,errorMessage:null,generator:"claude" as const,model:liveMode?.model??"claude",outputPayload:payload,outputVersionId:versionId});
+  const liveOutlineJob=liveMode&&liveOutline?liveJob("outline",liveOutline,null):null;
+  const liveDraftJob=liveMode&&liveDraftReady?liveJob("generate",null,JUDGE_STUDIO_DRAFT):null;
+  const readTextFile=async(file:File)=>{
+    const ok=/\.(txt|md|markdown)$/i.test(file.name)||file.type.startsWith("text/");
+    if(!ok){notify("公開デモで実際に生成できる原資料は TXT / Markdown だけです（PDF・Word は本番サーバーで読み取ります）。「サンプル原資料を使う」も選べます");return null;}
+    const text=(await file.text()).slice(0,20000);
+    if(text.trim().length<50){notify("原資料の本文が短すぎます（50 文字以上）");return null;}
+    return text;
+  };
   const setForSidebar=useRef(false);
   const live=useStudio(orgId,enabled&&requested,notify);
   useEffect(()=>{
@@ -152,7 +224,7 @@ export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:strin
               };
               fill(fields[1],"さくら総合病院（架空）");
               fill(fields[2] as HTMLTextAreaElement,"架空の院内資料のため、教材化と患者への公開を確認済み（デモ）");
-              notify("資料を選びました。デモ環境ではファイルの本文は解析せず、記録済みのClaude出力で構成案を再生します。");
+              notify(liveState()?"資料を選びました。確認にチェックして「Claudeに構成案を依頼」へ":"資料を選びました。デモ環境ではファイルの本文は解析せず、記録済みのClaude出力で構成案を再生します。");
             },0);
           });
         }
@@ -175,8 +247,82 @@ export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:strin
     setForSidebar.current=false;
   },[live.openedFromUrl]);
   const recordedOnly=()=>{notify("AI処理の許可と、個人情報を含まないことの確認が必要です。デモ環境では記録済みのClaude出力を使用します。");};
+  if(liveMode){
+    const outlines=liveOutline?.outlines??[];
+    const candidates:MustCandidate[]=(liveOutline?.mustCoverCandidates??[]).map((c,i)=>({...c,id:"mc"+(i+1)}));
+    const generate=async(body:Record<string,unknown>,must:Parameters<typeof draftFromGenerated>[2])=>{
+      const src=liveSourceRef.current;
+      if(!src){notify("原資料を選んでください");return null;}
+      setLiveBusy("draft");
+      try{
+        const r=await liveCall<{material:GeneratedMaterial;model:string}>({mode:"generate",source:{title:src.title,text:src.text},...body,mustCover:must});
+        save(visitId,draftFromGenerated(r.material,src,must));
+        setLiveDraftReady(true);
+        await live.reloadDraft();
+        return liveJob("generate",null,JUDGE_STUDIO_DRAFT);
+      }catch(e){notify(e instanceof Error?e.message:"Claude の呼び出しに失敗しました");return null;}
+      finally{setLiveBusy(null);}
+    };
+    return {
+      ...live,
+      config:live.config?{...live.config,claudeConfigured:true,model:liveMode.model,demoClaude:{available:true,live:true}}:null,
+      busy:liveBusy??live.busy,
+      sourceId:liveSource?LIVE_SOURCE_ID:null,
+      sourceInfo:liveSource?{title:liveSource.title,filename:liveSource.filename,size:liveSource.size,charCount:liveSource.charCount,warnings:[]}:null,
+      outlineJob:liveOutlineJob,draftJob:liveDraftJob,outlines,candidates,
+      upload:async(file,meta)=>{
+        if(!meta.piiAttestedNone||!meta.perm.allowAi){notify("AI処理の許可と、個人情報を含まないことの確認が必要です");return null;}
+        const text=await readTextFile(file); if(!text)return null;
+        setSource({title:meta.title||file.name.replace(/\.[^.]+$/,""),text,filename:file.name,size:file.size,charCount:text.length});
+        return LIVE_SOURCE_ID;
+      },
+      updatePermissions:async()=>null,
+      removeSource:()=>{setSource(null);setLiveOutline(null);},
+      requestOutlines:async()=>{
+        const src=liveSourceRef.current;
+        if(!src){notify("原資料を選んでください");return null;}
+        setLiveBusy("outline");
+        try{
+          const r=await liveCall<{outline:{outlines:Outline[];mustCoverCandidates:Omit<MustCandidate,"id">[]};model:string}>({mode:"outline",source:{title:src.title,text:src.text}});
+          setLiveOutline(r.outline);
+          return liveJob("outline",r.outline,null);
+        }catch(e){notify(e instanceof Error?e.message:"Claude の呼び出しに失敗しました");return null;}
+        finally{setLiveBusy(null);}
+      },
+      requestFreeform:async(brief)=>generate({brief},[]),
+      requestDraft:async(outlineIndex,must)=>generate({outline:outlines[outlineIndex]??outlines[0]},must),
+      demoClaude:{
+        enable:async()=>true,
+        disable:()=>{setLiveState(null);setLiveMode(null);setLiveOutline(null);setSource(null);setLiveDraftReady(false);notify("記録済みの出力の再生に戻しました");},
+        // サンプル原資料は、画面のファイル入力に実際のファイルとして入れる（本番と同じ手順: 作成元・根拠を入れて「Claudeに構成案を依頼」で登録→依頼）
+        useSample:()=>{
+          const input=document.querySelector<HTMLInputElement>(".cd-studio [data-source-file]");
+          if(!input){notify("手順 1（原資料と方針）で押してください");return;}
+          const dt=new DataTransfer();
+          dt.items.add(new File([SAMPLE_SOURCE_TEXT],"hormone_therapy_demo.txt",{type:"text/plain"}));
+          input.files=dt.files;
+          input.dispatchEvent(new Event("change",{bubbles:true}));
+          notify(`サンプル原資料（架空・${SAMPLE_SOURCE_TITLE}）を選びました。確認にチェックして「Claudeに構成案を依頼」へ`);
+        },
+      },
+    };
+  }
   return {
     ...live, sourceId:sourcePresent?sourceId:null,sourceInfo:sourcePresent?(chosen??fixedSource):null,
+    config:live.config?{...live.config,demoClaude:{available:liveAvail,live:false}}:null,
+    demoClaude:liveAvail?{
+      enable:async(passcode:string)=>{
+        try{
+          const r=await fetch("/api/studio",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({mode:"ping",passcode})});
+          const data=(await r.json().catch(()=>({})))as{ok?:boolean;model?:string;error?:{message?:string}};
+          if(!r.ok||!data.ok){notify(data.error?.message??"合言葉が違います");return false;}
+          const st={passcode,model:data.model??"claude"};setLiveState(st);setLiveMode(st);
+          notify(`これ以降、この端末では実際に Claude（${st.model}）で構成案と下書きを作ります`);
+          return true;
+        }catch{notify("サーバーに接続できませんでした");return false;}
+      },
+      disable:()=>{},
+    }:null,
     outlineJob:requested?outlineJob:null,draftJob:requested?draftJob:null,
     outlines:requested?replay.outline.outlines as Outline[]:[],
     candidates:requested?replay.outline.mustCoverCandidates.map((c,i)=>({...c,id:"mc"+(i+1)})) as MustCandidate[]:[],
