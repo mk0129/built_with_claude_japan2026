@@ -28,7 +28,7 @@ let memory:Records|undefined;
 function data():Records {
   if (memory) return memory;
   try { const raw=sessionStorage.getItem(key); if(raw) memory=JSON.parse(raw); } catch {}
-  memory ??= {records:clone(fixture.health.records),notes:clone(fixture.patient.visitNotes) as Note[],settings:clone(fixture.health.symptoms),visit:null,changed:false};
+  memory ??= {records:clone(fixture.health.records),notes:clone(fixture.patient.visitNotes) as Note[],settings:clone(fixture.health.symptoms),visit:{date:"2026-11-18",updatedAt:"2026-11-04T10:00:00.000Z"},changed:false};
   return memory;
 }
 function save(changed = true) {

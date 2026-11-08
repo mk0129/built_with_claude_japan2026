@@ -9,6 +9,7 @@ import { MONEY_THEME, MONEY_TITLES, SIMULATOR_MATERIAL, SIMULATOR_NAME } from ".
 import { VITAL_FLAG_NOTE, vitalFlag } from "@/lib/recommend"
 import { daysUntil, visitDateLabel, type PatientVisit } from "./visit"
 import type { PatientTreatment } from "./treatment"
+import type { PatientReviewAcks } from "./reviews"
 import { CANCER_TYPES, DEFAULT_EVENT_KIND, EVENT_KINDS, EVENT_KIND_LABEL, MODALITIES, MODALITY_LABEL, treatmentStatus, visitDateLabel as treatDateLabel, type EventKind, type Modality } from "@/lib/treatment"
 import type { PatientLive } from "./live"
 import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes, type VisitNote } from "./health"
@@ -672,6 +673,7 @@ export function DPrototype({
   notesLive,
   visit,
   treatment,
+  reviewAcks,
   viewport,
   notify,
   healthRecords,
@@ -697,6 +699,8 @@ export function DPrototype({
   visit?: PatientVisit
   /** 本番: 治療の記録（がん種・現在の治療・外来の日の出来事）。Figma の架空データ表示では undefined */
   treatment?: PatientTreatment
+  /** 本番: 「もう一度確認したいこと」の既読（理解した） */
+  reviewAcks?: PatientReviewAcks
   viewport: DViewport
   notify: (message?: string) => void
   healthRecords: HealthRecord[]
@@ -1032,6 +1036,7 @@ export function DPrototype({
             setPage("category")
           }}
           onOpenMoney={() => setPage("money")}
+          onOpenSimulator={() => setPage("simulator")}
           onOpen={openLesson}
         />
       )
@@ -1254,6 +1259,7 @@ export function DPrototype({
       return (
         <DHistory
           lessons={visibleLessons}
+          reviewAcks={reviewAcks}
           onOpen={openLesson}
           onCategory={(category) => {
             setSelectedCategory(category)
@@ -1315,7 +1321,8 @@ export function DPrototype({
     )
   }
 
-  const fullScreen = ["learn", "quiz", "explanation", "result"].includes(page)
+  // 2026-11: 学習中も上のヘッダーと下のタブは常に出す（どの画面にいても同じ場所から移動できる）
+  const fullScreen = false
   // 本番: 学習領域ごとの公開教材数と学習状況（学習済みの割合）
   const categories: DCategoryInfo[] = learning
     ? dCategories.map((category) => {
@@ -2248,6 +2255,9 @@ function DSymptomManager({
   )
 }
 
+/** バイタルを重ねるときの色（症状の色とは別） */
+const VITAL_SERIES_COLORS = ["#a4583f", "#2f6672", "#6c5a86", "#3f7250", "#3f5f86", "#9a6a1e"]
+
 /** 患者側の経過グラフで使うバイタルの指標（在宅経過表と同じ固定の表示範囲） */
 const patientVitalMetrics: { key: keyof HealthRecord["vitals"]; label: string; unit: string; min: number; max: number; step?: number }[] = [
   { key: "temperature", label: "体温", unit: "℃", min: 35, max: 40 },
@@ -2479,6 +2489,15 @@ function DHealthHistory({
   const metric = patientVitalMetrics.find((m) => m.key === vitalKey) ?? patientVitalMetrics[0]
   const vitalValues = vitalValuesOf(vitalKey)
   const vitalsRecorded = vitalValues.filter((v) => v !== null).length
+  // すべてのバイタルを重ねる: 各指標を目安の範囲（min〜max）で 0〜100 に合わせて同じ高さに描く（医療者の「バイタル統合」と同じ考え方）
+  const [vitalFocus, setVitalFocus] = useState<"all" | keyof HealthRecord["vitals"]>("all")
+  const vitalSeriesAll = patientVitalMetrics
+    .map((m, index) => {
+      const raw = vitalValuesOf(m.key)
+      return { id: String(m.key), name: m.label, unit: m.unit, color: VITAL_SERIES_COLORS[index % VITAL_SERIES_COLORS.length], raw, values: raw.map((v) => (v === null ? null : Math.round(((Math.min(m.max, Math.max(m.min, v)) - m.min) / (m.max - m.min)) * 100))) }
+    })
+    .filter((sv) => sv.raw.some((v) => v !== null))
+  const latestOf = (sv: (typeof vitalSeriesAll)[number]) => [...sv.raw].reverse().find((v) => v !== null)
   const vitalTicks = (() => {
     const span = metric.max - metric.min
     const step = span >= 100 ? 40 : span >= 60 ? 20 : span >= 20 ? 5 : 1
@@ -2653,6 +2672,64 @@ function DHealthHistory({
         )
       ) : (
         <>
+          <section className="d-health-chart" data-vitals-chart>
+            <div className="d-chart-head">
+              <h2>バイタルサイン</h2>
+              <span>{vitalFocus === "all" ? "すべて重ねて表示" : `${metric.label}の実際の値`}</span>
+            </div>
+            {vitalSeriesAll.length === 0 ? (
+              <p className="d-chart-empty">この期間にバイタルの記録はありません。</p>
+            ) : vitalFocus === "all" ? (
+              <DMultiLineChart
+                days={days}
+                series={vitalSeriesAll.map(({ id, name, color, values }) => ({ id, name, color, values }))}
+                focus={null}
+                yTicks={[0, 50, 100]}
+                tickLabel={(v) => (v === 0 ? "低" : v === 100 ? "高" : "")}
+                ariaLabel={`バイタルの推移（直近${periodDays}日・${vitalSeriesAll.length}項目を重ねて表示）`}
+              />
+            ) : vitalsRecorded === 0 ? (
+              <p className="d-chart-empty">この期間に{metric.label}の記録はありません。</p>
+            ) : (
+              <DDayLineChart
+                days={days}
+                values={vitalValues}
+                yMin={metric.min}
+                yMax={metric.max}
+                yTicks={vitalTicks}
+                tickLabel={(v) => `${v}${metric.unit}`}
+                ariaLabel={`${metric.label}の推移（直近${periodDays}日のうち${vitalsRecorded}日に記録）`}
+              />
+            )}
+            {vitalSeriesAll.length > 0 && (
+              <div className="d-series-legend" role="group" aria-label="表示するバイタル">
+                <button className={vitalFocus === "all" ? "active" : ""} aria-pressed={vitalFocus === "all"} onClick={() => setVitalFocus("all")} data-vital-select="all">
+                  すべて
+                </button>
+                {vitalSeriesAll.map((sv) => {
+                  const latest = latestOf(sv)
+                  return (
+                    <button
+                      key={sv.id}
+                      className={vitalFocus === sv.id ? "active" : ""}
+                      aria-pressed={vitalFocus === sv.id}
+                      onClick={() => {
+                        const next = vitalFocus === sv.id ? "all" : (sv.id as keyof HealthRecord["vitals"])
+                        setVitalFocus(next)
+                        if (next !== "all") setVitalKey(next)
+                      }}
+                      data-vital-select={sv.id}
+                    >
+                      <i style={{ background: sv.color }} />
+                      {sv.name}
+                      {latest !== undefined && latest !== null && <small>{latest}{sv.unit}</small>}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+            {vitalFocus === "all" && vitalSeriesAll.length > 0 && <p>各項目の目安の範囲を同じ高さに合わせて重ねています。項目を選ぶと実際の値で表示します。</p>}
+          </section>
           <section className="d-health-chart" data-symptom-chart>
             <div className="d-chart-head">
               <h2>症状</h2>
@@ -2690,31 +2767,6 @@ function DHealthHistory({
               </>
             )}
             <p>記録のある日どうしを線で結んでいます（間に記録のない日があるところは破線）。記録がない日を「症状なし」とは扱いません。</p>
-          </section>
-          <section className="d-health-chart" data-vitals-chart>
-            <div className="d-chart-head">
-              <h2>バイタルサイン</h2>
-              <select value={vitalKey} onChange={(event) => setVitalKey(event.target.value as keyof HealthRecord["vitals"])} aria-label="推移を見る項目">
-                {patientVitalMetrics.map((m) => (
-                  <option key={m.key} value={m.key}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {vitalsRecorded === 0 ? (
-              <p className="d-chart-empty">この期間に{metric.label}の記録はありません。</p>
-            ) : (
-              <DDayLineChart
-                days={days}
-                values={vitalValues}
-                yMin={metric.min}
-                yMax={metric.max}
-                yTicks={vitalTicks}
-                tickLabel={(v) => `${v}${metric.unit}`}
-                ariaLabel={`${metric.label}の推移（直近${periodDays}日のうち${vitalsRecorded}日に記録）`}
-              />
-            )}
           </section>
         </>
       )}
@@ -3679,6 +3731,7 @@ function DLibrary({
   onCategory,
   onOpen,
   onOpenMoney,
+  onOpenSimulator,
 }: {
   lessons: DLesson[]
   sourceFilter: string
@@ -3692,6 +3745,8 @@ function DLibrary({
   onOpen: (lesson: DLesson) => void
   /** 「仕事とお金のこと」（制度と医療費の目安）。ホームには置かず、探す画面から開く */
   onOpenMoney?: () => void
+  /** 本番: 医療費シミュレーターを直接開く（教材とは別の道具なので別のカードに） */
+  onOpenSimulator?: () => void
 }) {
   const categories = useContext(CategoriesContext)
   return (
@@ -3733,19 +3788,31 @@ function DLibrary({
               <Icon name="arrow" />
             </button>
           ))}
+          {onOpenMoney && (
+            <button className="d-theme-card" data-money-card onClick={onOpenMoney}>
+              <span className="d-category-icon">
+                <Icon name="wallet" />
+              </span>
+              <span>
+                <b>{MONEY_THEME}</b>
+                <small>制度と手続きの教材</small>
+              </span>
+              <Icon name="arrow" />
+            </button>
+          )}
+          {onOpenSimulator && (
+            <button className="d-theme-card d-theme-card-tool" data-simulator-card onClick={onOpenSimulator}>
+              <span className="d-category-icon">
+                <Icon name="clipboard" />
+              </span>
+              <span>
+                <b>医療費シミュレーター</b>
+                <small>月の自己負担の目安を試算</small>
+              </span>
+              <Icon name="arrow" />
+            </button>
+          )}
         </div>
-        {onOpenMoney && (
-          <button className="d-theme-card" data-money-card onClick={onOpenMoney}>
-            <span className="d-category-icon">
-              <Icon name="wallet" />
-            </span>
-            <span>
-              <b>{MONEY_THEME}</b>
-              <small>制度と医療費の目安</small>
-            </span>
-            <Icon name="arrow" />
-          </button>
-        )}
       </section>
       <section className="d-all-lessons">
         <div className="d-section-head">
@@ -4749,15 +4816,21 @@ function DHistory({
   onOpen,
   onCategory,
   onReview,
+  reviewAcks,
 }: {
   lessons: DLesson[]
   onOpen: (lesson: DLesson) => void
   onCategory: (category: string) => void
   /** 本番: 理解確認で誤答・「わからない」だった教材の復習（該当の設問の解説を開く） */
   onReview?: (lesson: DLesson) => void
+  /** 本番: 「理解した」の既読。付けると一覧から消え、あらためて理解確認で間違えたら戻る */
+  reviewAcks?: PatientReviewAcks
 }) {
   const categories = useContext(CategoriesContext)
-  const toReview = lessons.filter((lesson) => (lesson.nWrong ?? 0) + (lesson.nUnknown ?? 0) > 0)
+  const [showAcked, setShowAcked] = useState(false)
+  const needsReview = lessons.filter((lesson) => (lesson.nWrong ?? 0) + (lesson.nUnknown ?? 0) > 0)
+  const acked = reviewAcks ? needsReview.filter((lesson) => reviewAcks.isAcked(String(lesson.id), lesson.completedAtIso ?? null)) : []
+  const toReview = needsReview.filter((lesson) => !acked.includes(lesson))
   return (
     <div className="d-history">
       <h1>これまでの学び</h1>
@@ -4771,18 +4844,46 @@ function DHistory({
           </div>
           <div className="d-review-list">
             {toReview.map((lesson) => (
-              <button key={lesson.id} className="d-review-item" data-review-item onClick={() => (onReview ? onReview(lesson) : onOpen(lesson))}>
-                <span className="d-review-badge">
-                  {(lesson.nWrong ?? 0) > 0 ? `不正解 ${lesson.nWrong}` : ""}
-                  {(lesson.nWrong ?? 0) > 0 && (lesson.nUnknown ?? 0) > 0 ? " · " : ""}
-                  {(lesson.nUnknown ?? 0) > 0 ? `わからない ${lesson.nUnknown}` : ""}
-                </span>
-                <b>{lesson.title}</b>
-                <small>{lesson.category}</small>
-                <Icon name="arrow" size={16} />
-              </button>
+              <div key={lesson.id} className="d-review-row" data-review-row>
+                <button className="d-review-item" data-review-item onClick={() => (onReview ? onReview(lesson) : onOpen(lesson))}>
+                  <span className="d-review-badge">
+                    {(lesson.nWrong ?? 0) > 0 ? `不正解 ${lesson.nWrong}` : ""}
+                    {(lesson.nWrong ?? 0) > 0 && (lesson.nUnknown ?? 0) > 0 ? " · " : ""}
+                    {(lesson.nUnknown ?? 0) > 0 ? `わからない ${lesson.nUnknown}` : ""}
+                  </span>
+                  <b>{lesson.title}</b>
+                  <small>{lesson.category}</small>
+                  <Icon name="arrow" size={16} />
+                </button>
+                {reviewAcks && (
+                  <button className="d-review-ack" data-review-ack onClick={() => void reviewAcks.ack(String(lesson.id), lesson.completedAtIso ?? null)}>
+                    <Icon name="check" size={14} />
+                    理解した
+                  </button>
+                )}
+              </div>
             ))}
           </div>
+          {reviewAcks && <p className="d-review-note">「理解した」を押すと一覧から消えます。あらためて理解確認で間違えたら、また表示されます。</p>}
+        </section>
+      )}
+      {reviewAcks && acked.length > 0 && (
+        <section className="d-review-acked" data-review-acked>
+          <button className="d-review-acked-toggle" onClick={() => setShowAcked(!showAcked)} aria-expanded={showAcked}>
+            理解したと記録した教材（{acked.length}件）{showAcked ? "を閉じる" : "を見る"}
+          </button>
+          {showAcked && (
+            <ul>
+              {acked.map((lesson) => (
+                <li key={lesson.id}>
+                  <span>{lesson.title}</span>
+                  <button onClick={() => void reviewAcks.unack(String(lesson.id))} data-review-unack>
+                    戻す
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       )}
       <div className="d-history-summary">

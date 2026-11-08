@@ -1047,9 +1047,9 @@
 .cd-library-candidates .cd-library-group-title::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--blue-dark); align-self: center; }
 
 /* 教材の行のサムネイル（48px。画像は白地に乗算で線画だけを見せる） */
-.cd-material-thumb { flex: 0 0 48px; width: 48px; height: 48px; display: grid; place-items: center; overflow: hidden; border-radius: 10px; background: #fff; border: 1px solid var(--area-line, var(--line)); }
+.cd-material-thumb { flex: 0 0 52px; width: 52px; height: 52px; display: grid; place-items: center; overflow: hidden; border-radius: 10px; background: transparent; border: 0; }
 .cd-material-thumb img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; }
-.cd-material-thumb.empty { background: var(--area-bg, #f1f5f5); border-style: dashed; }
+.cd-material-thumb.empty { background: transparent; }
 .cd-material-row.now .cd-material-thumb { opacity: .7; }
 
 /* 患者ホーム: 今日の教材の枠が静かに呼吸する（次にやることを目で追える。reduced-motion では止める） */
@@ -1062,3 +1062,102 @@
   .d-jn-now-card:not(.done) { animation: none; }
   .d-jn-now-card:not(.done) .primary-button::after { display: none; }
 }
+
+/* ---------- 動きの追加（操作の結果を目で追えるものだけ） ---------- */
+/* 医療者: 要点の帯から飛んだ先が 1 秒だけ淡く光る */
+@keyframes cd-jump-flash { 0% { box-shadow: 0 0 0 0 rgba(47, 102, 114, .45); } 100% { box-shadow: 0 0 0 10px rgba(47, 102, 114, 0); } }
+.cd-jump-target { animation: cd-jump-flash 1s ease-out; }
+/* 医療者: スタジオの手順が変わると本文が右から滑り込む */
+@keyframes cd-step-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+.cd-step-enter { animation: cd-step-in 220ms ease-out; }
+/* 患者: 体調の段階を選ぶと選んだ目盛りが一度だけ弾む */
+@keyframes d-pick { 0% { transform: scale(1); } 45% { transform: scale(1.08); } 100% { transform: scale(1); } }
+.d-severity-scale button.active, .d-severity-scale button[aria-pressed="true"] { animation: d-pick 220ms ease-out; }
+/* 患者: 学習の進み具合の棒は滑らかに伸びる */
+.d-progress-line i { transition: width 400ms ease; }
+/* 患者: 理解確認の判定は少し弾んで現れる */
+@keyframes d-verdict-in { 0% { opacity: 0; transform: translateY(6px) scale(.98); } 60% { transform: translateY(0) scale(1.02); } 100% { opacity: 1; transform: none; } }
+.d-answer-result { animation: d-verdict-in 260ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .cd-jump-target, .cd-step-enter, .d-severity-scale button.active, .d-severity-scale button[aria-pressed="true"], .d-answer-result { animation: none; }
+  .d-progress-line i { transition: none; }
+}
+
+/* セット: 自分のセットを作る導線・施設セットの削除 */
+.cd-sets-title .cd-text-back { margin-left: auto; min-height: 30px; font-size: 11.5px; }
+.cd-set-hint { margin: 0 0 8px; padding: 8px 12px; border-radius: 10px; background: #eef5f0; color: #2f6a41; font-size: 12px; line-height: 1.6; }
+.cd-set-delete { flex: 0 0 auto; width: 32px; height: 32px; border: 0; border-radius: 8px; background: none; color: var(--muted); font-size: 16px; }
+.cd-set-delete:hover { background: #f6ecec; color: #a0523f; }
+.cd-set-delete-confirm { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; }
+.cd-danger-text { min-height: 32px; padding: 0 10px; border: 1px solid #e3b9b2; border-radius: 8px; background: #fff; color: #a0523f; font-size: 12px; font-weight: 700; }
+/* 教材を探す: 道具のカード（医療費シミュレーター） */
+.d-theme-card.d-theme-card-tool { --area: #3f5f86; --area-bg: #eaeff6; --area-line: #d0dae8; }
+/* バイタルの凡例に直近の値 */
+.d-series-legend button small { margin-left: 4px; color: inherit; opacity: .8; font-size: 11px; }
+
+/* 学習記録: 「理解した」で一覧から外す */
+.d-review-row { display: flex; align-items: stretch; gap: 8px; }
+.d-review-row .d-review-item { flex: 1; min-width: 0; }
+.d-review-ack { flex: 0 0 auto; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 64px; padding: 0 10px; border: 1px solid #bcd3c3; border-radius: 12px; background: #fff; color: #2f6a41; font-size: 12px; font-weight: 700; }
+.d-review-note { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.d-review-acked { margin: -8px 0 20px; }
+.d-review-acked-toggle { min-height: 36px; padding: 0 4px; border: 0; background: none; color: var(--muted); font-size: 12.5px; text-decoration: underline; text-underline-offset: 3px; }
+.d-review-acked ul { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.d-review-acked li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; font-size: 13px; color: var(--muted); }
+.d-review-acked li button { min-height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 12px; }
+
+/* ---------- 教材スタジオ v3: 1 列・説明文なし・入力と確認だけ ---------- */
+.cd-source-v2 { display: flex; flex-direction: column; gap: 10px; }
+.cd-source-v2 .cd-step-heading { margin-bottom: 2px; }
+.cd-source-panel, .cd-terms-panel, .cd-approach-v2 { padding: 14px 16px; }
+.cd-upload.cd-upload-compact { min-height: 0; padding: 14px; display: flex; flex-direction: row; align-items: center; gap: 10px; }
+.cd-upload.cd-upload-compact b { font-size: 13.5px; }
+.cd-upload.cd-upload-compact small { margin-left: auto; color: var(--muted); font-size: 11px; }
+.cd-form-grid-v2 { margin-top: 12px; }
+.cd-form-grid-v2 label { font-size: 12px; }
+.cd-form-grid-v2 input, .cd-form-grid-v2 textarea { font-size: 13px; }
+.cd-form-grid-v2 textarea { min-height: 0; }
+.cd-terms-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.cd-terms-row > b { margin-right: 4px; font-size: 12.5px; }
+.cd-perm-pill { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; padding: 0 12px 0 8px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); font-size: 12px; cursor: pointer; }
+.cd-perm-pill input { position: absolute; opacity: 0; width: 0; height: 0; }
+.cd-perm-pill svg { opacity: .25; }
+.cd-perm-pill.on { border-color: var(--blue-dark); background: var(--blue-dark); color: #fff; }
+.cd-perm-pill.on svg { opacity: 1; }
+.cd-attest-row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 10px; }
+.cd-attest-row .cd-license-check { margin: 0; }
+.cd-attest-row .cd-license-check b { font-size: 12.5px; }
+.cd-terms-panel .cd-permission-warning { margin: 8px 0 0; }
+.cd-approach-v2 { margin-top: 10px; }
+.cd-approach-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.cd-approach-row > b { margin-right: 4px; font-size: 12.5px; }
+.cd-approach-row button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); font-size: 12.5px; }
+.cd-approach-row button small { padding: 1px 6px; border-radius: 999px; background: #edf1f1; color: var(--muted); font-size: 10px; }
+.cd-approach-row button.active { border-color: var(--blue-dark); background: var(--blue-dark); color: #fff; font-weight: 700; }
+.cd-approach-row button.active small { background: rgba(255,255,255,.2); color: #fff; }
+.cd-approach-v2 .cd-manual-brief { margin-top: 12px; }
+/* 構成案: 1 枚の情報を減らす */
+.cd-proposal-v2 .cd-proposal-grid h3 { min-height: 0; margin: 8px 0 4px; font-size: 13.5px; line-height: 1.45; }
+.cd-proposal-top { display: flex; align-items: center; gap: 8px; }
+.cd-proposal-top small { margin-left: auto; color: var(--muted); font-size: 10.5px; }
+.cd-proposal-goal { margin: 0 0 4px; font-size: 11.5px; line-height: 1.55; color: #34494d; }
+.cd-proposal-target { display: block; margin-bottom: 8px; color: var(--muted); font-size: 10.5px; }
+.cd-proposal-v2 .cd-proposal-expanded ol { margin: 4px 0 6px; padding-left: 18px; font-size: 11px; }
+/* 必須事項: 1 列・行は「チェック・文・出典」だけ */
+.cd-must-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.cd-must-list-v2 { display: flex; flex-direction: column; gap: 8px; }
+.cd-must-row { padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.cd-must-row.safety { border-color: #e3b9b2; background: #fdf6f4; }
+.cd-must-row.checked { border-color: #bcd3c3; background: #f3f9f5; }
+.cd-must-row > label { display: flex; gap: 10px; align-items: flex-start; }
+.cd-must-row > label > input { width: 20px; height: 20px; margin-top: 2px; flex: 0 0 20px; }
+.cd-must-row > label > span { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.cd-must-row textarea { width: 100%; min-height: 0; padding: 6px 8px; border: 1px solid transparent; border-radius: 8px; background: transparent; font-size: 12.5px; line-height: 1.55; resize: vertical; }
+.cd-must-row textarea:focus { border-color: var(--line); background: #fff; }
+.cd-must-row small { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 10.5px; }
+.cd-must-source { min-height: 24px; padding: 0 6px; border: 0; background: none; color: var(--blue-dark); font-size: 10.5px; text-decoration: underline; text-underline-offset: 2px; }
+.cd-must-row blockquote { margin: 8px 0 0 30px; padding: 8px 10px; border-left: 3px solid var(--line); background: #fafbfb; font-size: 11px; }
+.cd-must-row blockquote b { display: block; margin-bottom: 2px; font-size: 10.5px; color: var(--muted); }
+.cd-must-row blockquote p { margin: 0; }
+/* 学習中: 「次へ」「理解を確認する」の帯は、下のタブのすぐ上に留まる（.d-main の padding-bottom 108px − タブ 78px = 30px） */
+.d-main .d-learning-actions { position: sticky; bottom: -30px; z-index: 3; margin-top: 8px; padding: 8px 0 10px; background: linear-gradient(180deg, rgba(255,255,255,0), #fff 30%); }

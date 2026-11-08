@@ -17,7 +17,8 @@ type SavedAnswer = {id:string;questionId:string;seq:number;selectedIndex:number|
 type Attempt = {id:string;versionId:string;completedAt:string|null;answers:SavedAnswer[]};
 type DeliveredLesson = {item:Item; lesson:Lesson};
 type Receipt = {id:string;createdAt:string;items:Delivery[]};
-type PatientState = {progress:Record<string,Progress>;attempts:Attempt[];receipts:Receipt[];deliveredLessons:Record<string,DeliveredLesson>};
+type ReviewAck = {materialId:string;attemptCompletedAt:string|null;ackedAt:string};
+type PatientState = {progress:Record<string,Progress>;attempts:Attempt[];receipts:Receipt[];deliveredLessons:Record<string,DeliveredLesson>;reviewAcks?:ReviewAck[]};
 const lessons:Record<string,Lesson>=lessonsJson;
 const figures:Record<string,Record<string,Figure[]>>=figuresJson;
 const storageKey="shiori:judge:patient-native:v1";
@@ -206,6 +207,18 @@ export function patientApi(url:URL,method:string,input?:unknown):{handled:boolea
   const body=(input && typeof input==="object"?input:{}) as Record<string,unknown>;
   const share=nativeShareApi(url,method,body);if(share.handled)return share;
   const path=url.pathname;
+  if(path==="/api/v1/learn/reviews") {
+    const st=state(); st.reviewAcks??=[];
+    if(method==="POST") {
+      const materialId=String(input && typeof input==="object" && "materialId" in input ? (input as {materialId?:unknown}).materialId ?? "" : "");
+      if(!materialId) throw bad("REVIEW_ACK_INVALID");
+      const completedAt=input && typeof input==="object" && "completedAt" in input ? (input as {completedAt?:unknown}).completedAt : null;
+      st.reviewAcks=[...st.reviewAcks.filter(a=>a.materialId!==materialId),{materialId,attemptCompletedAt:completedAt?String(completedAt):null,ackedAt:caseNow()}];save();
+    }
+    return ok({acks:st.reviewAcks});
+  }
+  const unack=path.match(/^\/api\/v1\/learn\/reviews\/([^/]+)$/);
+  if(unack && method==="DELETE") { const st=state(); st.reviewAcks=(st.reviewAcks??[]).filter(a=>a.materialId!==unack[1]); save(); return ok({acks:st.reviewAcks}); }
   if(path==="/api/v1/library" && method==="GET")return ok(library());
   const lesson=path.match(/^\/api\/v1\/learn\/([^/]+)(?:\/(progress|attempts))?$/);
   if(lesson){

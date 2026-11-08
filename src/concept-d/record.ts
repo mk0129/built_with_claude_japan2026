@@ -448,6 +448,20 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
       fail(sid, e);
     }
   }, [sid, fail]);
+  const deleteTemplate = useCallback(
+    async (templateId: string) => {
+      if (!sid) return false;
+      try {
+        const d = await api<{ templates: TemplateApi[] }>(`/api/v1/consultations/${sid}/templates/${templateId}`, { method: "DELETE" });
+        setTpl({ sid, items: d.templates });
+        return true;
+      } catch (e) {
+        fail(sid, e);
+        return false;
+      }
+    },
+    [sid, fail],
+  );
   // 施設のセットを作る（選択中の教材から）。成功したら一覧を差し替える
   const createTemplate = useCallback(
     async (name: string, materialIds: string[]) => {
@@ -572,6 +586,7 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     templates: sid && tpl?.sid === sid ? tpl.items : null,
     treatment: sid && treat?.sid === sid ? treat.data : null,
     createTemplate,
+    deleteTemplate,
     loadTemplates,
     reload,
     prescribe,
