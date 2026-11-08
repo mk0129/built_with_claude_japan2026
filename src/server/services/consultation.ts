@@ -13,6 +13,7 @@ import { listQuestionsForClinician } from "./questions";
 import { listLatestAnswers, objectivesByVersion } from "./learning-record";
 import { listVisitNotesForClinician } from "./notes";
 import { clearIntervisitCache } from "./intervisit-ai";
+import { listAnswerExplanations } from "./answerExplanations";
 
 export type ConsultationView = {
   id: string;
@@ -274,7 +275,11 @@ export async function getPatientSummary(ctx: ConsultationContext, db: Db = getDb
       completedAt: i.completedAt,
     })),
     // Phase 2 Step 2: 教材ごとの最新の挑戦の回答（完了・途中を問わない）。誤答と「わからない」を区別し、回答日時と教材を付ける
-    answers: await listLatestAnswers(ctx.patientId, db),
+    // 医療者が診察で「説明した」と印を付けた設問は explainedAt を持つ（画面は一覧から外す。正答率は変えない）
+    answers: await (async () => {
+      const explained = new Map((await listAnswerExplanations(ctx.patientId, db)).map((e) => [`${e.attemptId}:${e.questionId}`, e.explainedAt]));
+      return (await listLatestAnswers(ctx.patientId, db)).map((a) => ({ ...a, explainedAt: explained.get(`${a.attemptId}:${a.questionId}`) ?? null }));
+    })(),
     // Phase 2 Step 3: 診察ノートの質問（教材に紐づかないものを含む）。学習後の質問（questions）と画面で統合して表示する
     visitNotes: await listVisitNotesForClinician(ctx.patientId, db),
     patientName: u.name,

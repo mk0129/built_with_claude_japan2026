@@ -60,6 +60,8 @@ export type SummaryApi = {
     stem: string;
     isUnknown: boolean;
     isCorrect: boolean;
+    /** 医療者が診察で「説明した」と印を付けた日時（付いていれば一覧から外す） */
+    explainedAt?: string | null;
     selectedText: string | null;
     correctText: string;
     explanation: string;
@@ -133,6 +135,7 @@ export function toConcerns(s: SummaryApi) {
       correct: a.correctText,
       explanation: a.explanation,
       materialId: a.materialId,
+      resolved: !!a.explainedAt,
       materialTitle: a.materialTitle,
       materialStatus: status.get(a.materialId) ?? "",
     }));
@@ -531,6 +534,23 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     [sid, reload, view, loadRecommendations],
   );
 
+  /** 誤答・「わからない」に「説明した」の印を付ける／外す（一覧から外すだけ。採点には触れない） */
+  const setCheckExplained = useCallback(
+    async (checkId: string, explained: boolean) => {
+      if (!sid) return false;
+      const [attemptId, questionId] = checkId.split(":");
+      try {
+        await api(`/api/v1/consultations/${sid}/checks`, { json: { attemptId, questionId, explained } });
+        void reload();
+        return true;
+      } catch (e) {
+        fail(sid, e);
+        return false;
+      }
+    },
+    [sid, fail, reload],
+  );
+
   /** 質問の確認状態（任意。診療記録ではない） */
   const setQuestionStatus = useCallback(
     async (questionId: string, status: "reviewed" | "resolved" | "unread") => {
@@ -591,5 +611,6 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     reload,
     prescribe,
     setQuestionStatus,
+    setCheckExplained,
   };
 }

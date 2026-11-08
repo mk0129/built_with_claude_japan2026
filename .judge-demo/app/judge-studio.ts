@@ -121,7 +121,9 @@ export function studioLessonForVisit(visitId:string, id:string) {
 }
 
 const output = (data:unknown)=>({handled:true,data});
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- 審査用デモの shim（本番の型に縛らない）
 type ApiInit = RequestInit & {json?: any};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- 審査用デモの shim（本番の型に縛らない）
 export async function studioApi(path:string, init:ApiInit = {}, visitId:string):Promise<{handled:boolean,data?:any}> {
   const {pathname}=new URL(path,"https://shiori.invalid");
   if(!pathname.startsWith("/api/v1/studio/"))return {handled:false};
@@ -147,7 +149,9 @@ export async function studioApi(path:string, init:ApiInit = {}, visitId:string):
     d.material.primaryDomain=b.primaryDomain;
     d.version.summary=b.summary;
     d.version.learningObjectives=b.learningObjectives;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- 審査用デモの shim（本番の型に縛らない）
     d.slides=b.slides.map((s:any,i:number)=>({seq:i+1,title:s.title,proposition:s.proposition,bodyMd:s.body,detailMd:s.detail,sourceRefs:s.sourceRefs}));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- 審査用デモの shim（本番の型に縛らない）
     d.questions=b.questions.map((q:any,i:number)=>({seq:i+1,stem:q.stem,options:q.options,correctIndex:q.correctIndex,explanation:q.explanation,relatedSlideSeq:q.relatedSlide,sourceRefs:q.sourceRefs}));
     save(visitId,d);
     return output({saved:true});
@@ -179,6 +183,9 @@ void SOURCE_DOCX;
 export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:string)=>void): StudioLive {
   const [requested,setRequested]=useState(()=>new URLSearchParams(window.location.search).get("draft")===JUDGE_STUDIO_DRAFT);
   const [sourcePresent,setSourcePresent]=useState(false);
+  // 再生モードでも「読み取り → 構成 → 下書き」の進み具合を短く見せる（記録済み出力なので待ち時間はほぼない）
+  const [replayBusy,setReplayBusy]=useState<"outline"|"draft"|null>(null);
+  const pause=(ms:number)=>new Promise<void>((r)=>window.setTimeout(r,ms));
   const [chosen,setChosen]=useState<typeof fixedSource|null>(null);
   // 実際に Claude で作るモード（公開デモ・合言葉あり）
   const [liveMode,setLiveMode]=useState<LiveState|null>(()=>liveState());
@@ -216,6 +223,29 @@ export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:strin
     }catch(e){notify(e instanceof Error?e.message:"ファイルを読み取れませんでした");return null;}
     finally{setLiveBusy(null);}
   };
+  // 審査用デモ: 作成元・利用許諾の根拠が空なら例文を入れる（手元のファイルでもサンプルでも、確認のチェックだけで進められるように）
+  const autofillSourceMeta=()=>{
+    const fields=document.querySelectorAll<HTMLInputElement|HTMLTextAreaElement>(".cd-studio .cd-form-grid input, .cd-studio .cd-form-grid textarea");
+    const fill=(field:HTMLInputElement|HTMLTextAreaElement|undefined,value:string)=>{
+      if(!field||field.value)return;
+      const proto=field instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;
+      Object.getOwnPropertyDescriptor(proto,"value")?.set?.call(field,value);
+      field.dispatchEvent(new Event("input",{bubbles:true}));
+    };
+    fill(fields[1],"さくら総合病院（架空）");
+    fill(fields[2] as HTMLTextAreaElement,"架空の院内資料のため、教材化と患者への公開を確認済み（デモ）");
+  };
+  // サンプル原資料（架空）を、画面のファイル入力に実際のファイルとして入れる（本番と同じ手順で進められる。ライブ・再生の両方）
+  const useSample=()=>{
+    const input=document.querySelector<HTMLInputElement>(".cd-studio [data-source-file]");
+    if(!input){notify("手順 1（原資料）で押してください");return;}
+    const dt=new DataTransfer();
+    dt.items.add(new File([SAMPLE_SOURCE_TEXT],"hormone_therapy_demo.txt",{type:"text/plain"}));
+    input.files=dt.files;
+    input.dispatchEvent(new Event("change",{bubbles:true}));
+    window.setTimeout(autofillSourceMeta,0);
+    notify(liveState()?`サンプル原資料（架空・${SAMPLE_SOURCE_TITLE}）を選びました。確認にチェックして「Claudeで教材を作る」へ`:`サンプル原資料（架空・${SAMPLE_SOURCE_TITLE}）を選びました。確認にチェックして「Claudeで教材を作る」へ（記録済みの出力を再生します）`);
+  };
   const setForSidebar=useRef(false);
   const live=useStudio(orgId,enabled&&requested,notify);
   useEffect(()=>{
@@ -229,25 +259,15 @@ export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:strin
           input.dataset.judgeHooked="1";
           input.addEventListener("change",()=>{
             window.setTimeout(()=>{
-              const fields=document.querySelectorAll<HTMLInputElement|HTMLTextAreaElement>(".cd-studio .cd-form-grid input, .cd-studio .cd-form-grid textarea");
-              const fill=(field:HTMLInputElement|HTMLTextAreaElement|undefined,value:string)=>{
-                if(!field||field.value)return;
-                const proto=field instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;
-                Object.getOwnPropertyDescriptor(proto,"value")?.set?.call(field,value);
-                field.dispatchEvent(new Event("input",{bubbles:true}));
-              };
-              fill(fields[1],"さくら総合病院（架空）");
-              fill(fields[2] as HTMLTextAreaElement,"架空の院内資料のため、教材化と患者への公開を確認済み（デモ）");
-              notify(liveState()?"資料を選びました。確認にチェックして「Claudeに構成案を依頼」へ":"資料を選びました。デモ環境ではファイルの本文は解析せず、記録済みのClaude出力で構成案を再生します。");
+              autofillSourceMeta();
+              notify(liveState()?"資料を選びました。確認にチェックして「Claudeで教材を作る」へ":"資料を選びました。デモ環境ではファイルの本文は解析せず、記録済みのClaude出力で教材を再生します。");
             },0);
           });
         }
         return;
       }
       if(!el?.closest(".cd-sidebar") || el.textContent?.trim()!=="教材スタジオ" || requested)return;
-      const url=new URL(window.location.href);
-      url.searchParams.set("draft",JUDGE_STUDIO_DRAFT);
-      history.replaceState(history.state,"",url);
+      // 2026-11: 手順 1（原資料）から始める。記録済みの下書きは「Claudeで教材を作る」を押したあとに手順 2 で開く
       setForSidebar.current=true;
       setRequested(true);
     };
@@ -272,7 +292,7 @@ export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:strin
         const r=await liveCall<{material:GeneratedMaterial;model:string}>({mode:"generate",source:{title:src.title,text:src.text},...body,mustCover:must});
         save(visitId,draftFromGenerated(r.material,src,must));
         setLiveDraftReady(true);
-        await live.reloadDraft();
+        await live.openDraft(JUDGE_STUDIO_DRAFT);
         return liveJob("generate",null,JUDGE_STUDIO_DRAFT);
       }catch(e){notify(e instanceof Error?e.message:"Claude の呼び出しに失敗しました");return null;}
       finally{setLiveBusy(null);}
@@ -305,25 +325,18 @@ export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:strin
         finally{setLiveBusy(null);}
       },
       requestFreeform:async(brief)=>generate({brief},[]),
-      requestDraft:async(outlineIndex,must)=>generate({outline:outlines[outlineIndex]??outlines[0]},must),
+      // 登録→構成案→下書きを 1 回の操作で続けるので、state 反映前でも直前の構成案ジョブから案を取る
+      requestDraft:async(outlineIndex,must,fromJob)=>{const o=(fromJob?.outputPayload as {outlines?:Outline[]}|null)?.outlines??outlines;return generate({outline:o[outlineIndex]??o[0]},must);},
       demoClaude:{
         enable:async()=>true,
         disable:()=>{setLiveState(null);setLiveMode(null);setLiveOutline(null);setSource(null);setLiveDraftReady(false);notify("記録済みの出力の再生に戻しました");},
-        // サンプル原資料は、画面のファイル入力に実際のファイルとして入れる（本番と同じ手順: 作成元・根拠を入れて「Claudeに構成案を依頼」で登録→依頼）
-        useSample:()=>{
-          const input=document.querySelector<HTMLInputElement>(".cd-studio [data-source-file]");
-          if(!input){notify("手順 1（原資料と方針）で押してください");return;}
-          const dt=new DataTransfer();
-          dt.items.add(new File([SAMPLE_SOURCE_TEXT],"hormone_therapy_demo.txt",{type:"text/plain"}));
-          input.files=dt.files;
-          input.dispatchEvent(new Event("change",{bubbles:true}));
-          notify(`サンプル原資料（架空・${SAMPLE_SOURCE_TITLE}）を選びました。確認にチェックして「Claudeに構成案を依頼」へ`);
-        },
+        // サンプル原資料は、画面のファイル入力に実際のファイルとして入れる（本番と同じ手順: 作成元・根拠を入れて「Claudeで教材を作る」で登録→構成→下書きまで続ける）
+        useSample,
       },
     };
   }
   return {
-    ...live, sourceId:sourcePresent?sourceId:null,sourceInfo:sourcePresent?(chosen??fixedSource):null,
+    ...live, sourceId:sourcePresent?sourceId:null,sourceInfo:sourcePresent?(chosen??fixedSource):null,busy:replayBusy??live.busy,
     config:live.config?{...live.config,demoClaude:{available:liveAvail,live:false}}:null,
     demoClaude:liveAvail?{
       enable:async(passcode:string)=>{
@@ -337,7 +350,8 @@ export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:strin
         }catch{notify("サーバーに接続できませんでした");return false;}
       },
       disable:()=>{},
-    }:null,
+      useSample,
+    }:{enable:async()=>{notify("この環境では実際の Claude は使えません（記録済みの出力を再生します）");return false;},disable:()=>{},useSample},
     outlineJob:requested?outlineJob:null,draftJob:requested?draftJob:null,
     outlines:requested?replay.outline.outlines as Outline[]:[],
     candidates:requested?replay.outline.mustCoverCandidates.map((c,i)=>({...c,id:"mc"+(i+1)})) as MustCandidate[]:[],
@@ -351,8 +365,9 @@ export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:strin
     },
     updatePermissions:async()=>{recordedOnly();return null;},
     removeSource:()=>{setSourcePresent(false);},
-    requestOutlines:async()=>sourcePresent?outlineJob:null,
+    // 登録と同じ操作で続けて呼ばれるので、state 反映前は渡された sourceId で判断する
+    requestOutlines:async(sid)=>{if(!sourcePresent&&!sid)return null;setReplayBusy("outline");await pause(1400);setReplayBusy(null);return outlineJob;},
     requestFreeform:async()=>{recordedOnly();return null;},
-    requestDraft:async()=>{const d=await live.reloadDraft();return d?draftJob:null;},
+    requestDraft:async()=>{setReplayBusy("draft");await pause(1800);const d=await live.openDraft(JUDGE_STUDIO_DRAFT);setReplayBusy(null);return d?draftJob:null;},
   };
 }

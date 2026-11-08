@@ -726,3 +726,22 @@ export const patientReviewAcks = pgTable(
   },
   (t) => [index("patient_review_acks_patient_idx").on(t.patientId, t.materialId)],
 );
+
+/**
+ * 医療者が診察で「説明した」と印を付けた誤答・「わからない」。
+ * 診察サマリーの「理解を確認したいこと」から外すための印で、採点・学習の記録そのものには触れない（正答率も変わらない）。
+ * 有効な診察セッションの中でだけ付け外しできる
+ */
+export const answerExplanations = pgTable(
+  "answer_explanations",
+  {
+    id: id(),
+    patientId: userRef("patient_id").notNull(),
+    attemptId: uuid("attempt_id").notNull(),
+    questionId: uuid("question_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    clinicianId: userRef("clinician_id").notNull(),
+    explainedAt: ts("explained_at").notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("answer_explanations_uq").on(t.patientId, t.attemptId, t.questionId)],
+);

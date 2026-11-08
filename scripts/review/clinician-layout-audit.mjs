@@ -90,6 +90,8 @@ async function connect(page) {
   await page.getByRole("button", { name: "QRコードと6桁コードを表示する" }).click();
   await page.waitForTimeout(500);
   await page.goto(`${BASE}/?fresh=${Date.now()}#doctor`);
+  // 2026-11: 最初は共有前。デモ用の開始ボタンで架空患者の共有を始める
+  { const start = page.locator("[data-demo-start]"); if (await start.count()) await start.first().click(); }
   await page.getByRole("button", { name: /患者の承認まで自動で進める/ }).click();
   await page.getByRole("heading", { name: "診察サマリー" }).waitFor({ timeout: 15_000 });
 }

@@ -37,16 +37,13 @@ test("デモの通し: 教材の作成・承認 → 処方 → 学習・「わ�
   await s.locator(".cd-form-grid textarea").fill("院内作成の架空資料。患者向け教材化と AI 処理を許可（デモ）");
   await s.locator(".cd-license-check input").nth(0).check();
   await s.locator(".cd-license-check input").nth(1).check();
-  // 作成方針は原資料と同じ画面（既定: Claudeが3つの構成案を提案）。4 手順
-  await expect(s.locator(".cd-stepper button")).toHaveCount(4);
-  await s.getByRole("button", { name: "Claudeに構成案を依頼" }).click();
-  await expect(s.getByRole("heading", { name: "Claudeの構成案を比較" })).toBeVisible({ timeout: 60_000 });
-  await expect(s.locator(".cd-proposal-grid article")).not.toHaveCount(0);
-  // 必須事項（構成案と同じ画面）: 未確認があれば進めない → すべて確認
-  await expect(s.getByRole("button", { name: "確認した内容で下書きを作成" })).toBeDisabled();
-  for (const c of await s.locator("[data-must-item] input[type=checkbox]").all()) await c.check();
-  await s.getByRole("button", { name: "確認した内容で下書きを作成" }).click();
-  await expect(s.locator("[data-studio-editor]")).toBeVisible({ timeout: 60_000 });
+  // 3 手順。「Claudeで教材を作る」1 回で 登録 → 構成案 → 必須事項をすべて含めた下書き まで進み、編集画面が開く
+  await expect(s.locator(".cd-stepper button")).toHaveCount(3);
+  await s.getByRole("button", { name: "Claudeで教材を作る" }).click();
+  await expect(s.locator("[data-studio-busy]")).toBeVisible({ timeout: 10_000 });
+  await expect(s.locator("[data-studio-editor]")).toBeVisible({ timeout: 120_000 });
+  // Claude が拾った「必ず含める内容」は編集画面に一覧として残る（チェック作業はない）
+  await expect(s.locator("[data-must-summary] li")).not.toHaveCount(0);
   // 本文の編集（自動保存）
   const heading = s.locator("[data-studio-editor] input").first();
   await heading.fill("ホルモン療法を続けるために（デモ）");

@@ -10,7 +10,7 @@ type Settings = { active: string[]; hidden: string[]; customNames: Record<string
 type TemplateLite = { id:string; name:string; description:string|null; scope:"common"|"org"; materials:{id:string;title:string;primaryDomain:string}[] };
 type TreatProfile = { cancerType:string|null; modality:"infusion"|"oral"|"radiation"|"surgery"|"observation"|"none"; treatmentName:string|null; startDate:string|null; cycleDays:number|null; plannedSessions:number|null };
 type TreatEvent = { id:string; date:string; kind:"infusion"|"oral_start"|"radiation"|"surgery"|"visit_only"|"other"; label:string|null; courseNo:number|null };
-type Records = { records: ApiRecord[]; notes: Note[]; settings: Settings; visit: {date:string; updatedAt:string}|null; changed: boolean; templates?: TemplateLite[]; treatment?: {profile:TreatProfile; events:TreatEvent[]} };
+type Records = { records: ApiRecord[]; notes: Note[]; settings: Settings; visit: {date:string; updatedAt:string}|null; changed: boolean; templates?: TemplateLite[]; treatment?: {profile:TreatProfile; events:TreatEvent[]}; explained?: {attemptId:string;questionId:string;explainedAt:string}[] };
 /** 架空症例（佐藤 花子）の治療の記録の初期値: 乳がん・術後の点滴の薬物療法。症例日 11/4 時点で第 2 コースの 21 日目 */
 const DEMO_TREATMENT:{profile:TreatProfile;events:TreatEvent[]}={
   profile:{cancerType:"乳がん",modality:"infusion",treatmentName:"術後の化学療法（架空）",startDate:"2026-09-24",cycleDays:21,plannedSessions:null},
@@ -44,6 +44,13 @@ export function nativeResolveNote(id:string,resolved:boolean) {
   if(i<0) return false;
   state.notes[i]={...state.notes[i],resolvedAt:resolved?now():null};save();return true;
 }
+/** 医療者が診察で「説明した」と印を付けた設問（審査用デモ。この端末のセッションの間だけ。採点は変えない） */
+export function nativeExplainedAnswers() {return clone(data().explained??[]);}
+export function nativeExplainAnswer(attemptId:string,questionId:string,explained:boolean) {
+  const state=data();const list=(state.explained??[]).filter(e=>!(e.attemptId===attemptId&&e.questionId===questionId));
+  if(explained) list.push({attemptId,questionId,explainedAt:now()});
+  state.explained=list;save();return true;
+}
 /** 医療者が作った施設のセット（審査用デモ。この端末のセッションの間だけ） */
 export function nativeTemplates():TemplateLite[] {return clone(data().templates??[]);}
 export function nativeCreateTemplate(input:{name?:unknown;materialIds?:unknown}|undefined, resolve:(id:string)=>{id:string;title:string;primaryDomain:string}|null):TemplateLite {
@@ -64,6 +71,7 @@ export function nativeTreatment() {
 const dayOk=(v:unknown)=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T00:00:00Z"));
 const optText=(v:unknown,max:number)=>{ if(v===null||v===undefined) return null; if(typeof v!=="string"||v.trim().length>max) throw invalid("TREATMENT_INVALID",`${max}文字以内で入力してください`); return v.trim()||null; };
 const optInt=(v:unknown,max:number)=>{ if(v===null||v===undefined||v==="") return null; const n=Number(v); if(!Number.isInteger(n)||n<1||n>max) throw invalid("TREATMENT_INVALID",`1〜${max} の整数で入力してください`); return n; };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- 審査用デモの shim（本番の型に縛らない）
 export function nativeTreatmentApi(path:string,method:string,input?:any):{handled:boolean;data?:unknown}|null {
   const ok=(d:unknown)=>({handled:true,data:d});
   if(path==="/api/v1/treatment") {
@@ -158,6 +166,7 @@ function dateOfVisit(value:unknown) {
   if(typeof value!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(value)||!Number.isFinite(t)||new Date(t).toISOString().slice(0,10)!==value||t<today-366*864e5||t>today+731*864e5) throw invalid("INVALID_VISIT_DATE","日付を確認してください（今日の1年前から2年後まで）");
   return {date:value,updatedAt:new Date().toISOString()};
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- 審査用デモの shim（本番の型に縛らない）
 export function nativeRecordApi(url:URL,method:string,input?:any):{handled:boolean;data?:unknown} {
   const path=url.pathname;
   const ok=(data:unknown)=>({handled:true,data});

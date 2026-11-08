@@ -3,7 +3,7 @@ import { demoLogin, expect, newPage, shareByPatientCode } from "./helpers";
 
 /**
  * 2026-11: 教材ライブラリで選んだ教材を、自分の施設のセットとして名前を付けて保存できる。
- * 保存したセットはすぐ一覧に出て、次からは「セットを選択に追加」で 1 回で選べる。架空患者 鈴木 美咲。
+ * 保存したセットはすぐ一覧に出て、次からは「まとめて追加」で 1 回で選べる。架空患者 鈴木 美咲。
  */
 test("医療者: 選択中の教材をセットとして保存 → セットの一覧に出る", async ({ browser }) => {
   const patient = await newPage(browser, { width: 390, height: 844 });

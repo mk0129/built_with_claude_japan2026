@@ -184,7 +184,7 @@ test("在宅経過表・バイタル統合グラフ・外来間サマリー（�
   await expect(s.locator("[data-day-entries]")).toContainText("20:30 2 / 4（中くらい）");
   await s.locator(".cd-course-detail").getByRole("button", { name: "閉じる" }).click();
   // 9. 5 系列のバイタル統合グラフ（1 つの描画領域、凡例で表示切替、カーソルで実測値・単位・日時）
-  await s.getByRole("button", { name: "バイタル統合" }).click();
+  await s.getByRole("button", { name: "バイタル推移" }).click();
   await expect(s.locator(".cd-vital-plot svg")).toHaveCount(1);
   await expect(s.locator(".cd-vital-legend button")).toHaveCount(5);
   await expect(s.locator(".cd-vital-plot g.metric")).toHaveCount(5);

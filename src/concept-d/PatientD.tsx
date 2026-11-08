@@ -158,9 +158,24 @@ export function Icon({ name, size = 20 }: { name: string; size?: number }) {
     ),
     scalpel: (
       <>
-        <path d="M4 20 15 9" />
-        <path d="M13 7l4-4 4 4-4 4" />
-        <path d="M5 13c3 0 6 3 6 6" />
+        <path d="M3 21 11.5 12.5" />
+        <path d="M11.5 12.5 19.6 4.4a2.3 2.3 0 0 1 3.2 3.2L14.7 15.7a4 4 0 0 1-4.6.6z" />
+        <path d="M9 14l1 1" />
+      </>
+    ),
+    radiation: (
+      <>
+        <circle cx="12" cy="12" r="1.6" />
+        <path d="M12 9.6V3.5a8.5 8.5 0 0 1 7.4 4.3l-5.3 3.1" />
+        <path d="M14.1 13.2l5.3 3.1A8.5 8.5 0 0 1 12 20.5v-6.1" />
+        <path d="M9.9 10.9 4.6 7.8a8.5 8.5 0 0 0 0 8.5l5.3-3.1" />
+      </>
+    ),
+    yen: (
+      <>
+        <path d="M6.5 3.5 12 11l5.5-7.5" />
+        <path d="M12 11v9.5" />
+        <path d="M7.5 13.5h9M7.5 17h9" />
       </>
     ),
     pill: (
@@ -383,11 +398,29 @@ const dCategories = [
   { name: "検査・診断", count: 5, icon: "clipboard", progress: 50 },
   { name: "手術", count: 6, icon: "scalpel", progress: 40 },
   { name: "薬物療法", count: 8, icon: "pill", progress: 10 },
-  { name: "放射線療法", count: 4, icon: "sun", progress: 0 },
+  { name: "放射線療法", count: 4, icon: "radiation", progress: 0 },
   { name: "副作用・支持療法", count: 12, icon: "leaf", progress: 20 },
   { name: "日常生活・相談支援", count: 9, icon: "chat", progress: 35 },
 ]
 /** 学習領域ごとの配色クラス（CSS の .d-area-1〜6） */
+/** 領域カードの名前を、意味の切れ目で 2 行にする（自動の折り返しで「副作用・支持療\n法」のように切れないため） */
+const CARD_BREAKS: Record<string, [string, string]> = {
+  "副作用・支持療法": ["副作用・", "支持療法"],
+  "日常生活・相談支援": ["日常生活・", "相談支援"],
+  "仕事とお金のこと": ["仕事と", "お金のこと"],
+  "医療費シミュレーター": ["医療費", "シミュレーター"],
+}
+function cardLabel(name: string) {
+  const parts = CARD_BREAKS[name]
+  if (!parts) return name
+  return (
+    <>
+      {parts[0]}
+      <br />
+      {parts[1]}
+    </>
+  )
+}
 export const areaTone = (name: string) => `d-area-${Math.max(0, dCategories.findIndex((c) => c.name === name)) + 1}`
 
 /** 学習領域の一覧。本番は DB の教材数・学習状況から作ったものを Provider で渡す（なければ Figma の架空の値） */
@@ -1036,7 +1069,7 @@ export function DPrototype({
             setPage("category")
           }}
           onOpenMoney={() => setPage("money")}
-          onOpenSimulator={() => setPage("simulator")}
+          onOpenSimulator={() => openSimulator("library")}
           onOpen={openLesson}
         />
       )
@@ -3782,7 +3815,7 @@ function DLibrary({
                 <Icon name={category.icon} />
               </span>
               <span>
-                <b>{category.name}</b>
+                <b>{cardLabel(category.name)}</b>
                 <small>公開教材 {category.count}件</small>
               </span>
               <Icon name="arrow" />
@@ -3794,7 +3827,7 @@ function DLibrary({
                 <Icon name="wallet" />
               </span>
               <span>
-                <b>{MONEY_THEME}</b>
+                <b>{cardLabel(MONEY_THEME)}</b>
                 <small>制度と手続きの教材</small>
               </span>
               <Icon name="arrow" />
@@ -3803,10 +3836,10 @@ function DLibrary({
           {onOpenSimulator && (
             <button className="d-theme-card d-theme-card-tool" data-simulator-card onClick={onOpenSimulator}>
               <span className="d-category-icon">
-                <Icon name="clipboard" />
+                <Icon name="yen" />
               </span>
               <span>
-                <b>医療費シミュレーター</b>
+                <b>{cardLabel("医療費シミュレーター")}</b>
                 <small>月の自己負担の目安を試算</small>
               </span>
               <Icon name="arrow" />

@@ -112,3 +112,5 @@ button,a{touch-action:manipulation}button{cursor:pointer}
 .j-demo-connect b{display:block;font-size:13px;margin-bottom:2px}.j-demo-connect p{margin:0;font-size:12px;line-height:1.6}.j-demo-connect code{padding:1px 6px;border-radius:6px;background:#fff;font-size:14px;font-weight:700;letter-spacing:.1em;color:#315e68}
 .j-demo-connect .j-primary{flex:0 0 auto;min-height:42px;padding:10px 16px;font-size:13px}
 @media(max-width:700px){.j-demo-connect{flex-direction:column;align-items:stretch}}
+
+.j-reset { padding: 0 4px; border: 0; background: none; color: #2f6672; font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }

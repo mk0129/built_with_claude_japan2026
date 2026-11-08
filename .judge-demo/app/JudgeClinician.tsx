@@ -4,7 +4,7 @@ import { useClinicianLive, type ClinicianOrg } from "@/concept-d/live";
 import { useClinicianRecord } from "@/concept-d/record";
 import { useJudgeStudio } from "./judge-studio";
 import fixture from "./fixtures/consultation.json";
-import { getJudgeSession, isJudgeActive, subscribeJudgeSession } from "./judge-store";
+import { getJudgeSession, isJudgeActive, startJudgeSession, subscribeJudgeSession } from "./judge-store";
 import { getNativePatientGrant } from "./judge-patient-share";
 import { api } from "./judge-api";
 
@@ -30,6 +30,7 @@ export function JudgeClinician({onEnd}: {onEnd:()=>void}) {
     if(grant?.grantId===claim && !grant.claimed){
       void live.claimCode(grant.code);
     }else if(!grant || grant.grantId!==claim){
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- URL の claim を読んだ結果の案内（初回だけ）
       setNotice({text:"コードを発行したデモのタブで「医師側」に切り替え、6桁コードを入力してください。",tone:"error"});
     }
   },[live.claimCode]);
@@ -56,7 +57,16 @@ export function JudgeClinician({onEnd}: {onEnd:()=>void}) {
     finally{ setConnecting(false); }
   };
   const showDemoConnect=!!grant && (live.state==="request"||live.state==="none"||live.state==="waiting");
+  // 共有前（コードの発行もまだ）: 本来は患者側でコードを発行して入力する。1 台で見るときのためにデモ用の開始ボタンを置く
+  const showDemoStart=!grant && !isJudgeActive(session) && (live.state==="request"||live.state==="none");
   return <div className="cd-app-stage">
+    {showDemoStart && <div className="j-demo-connect" role="note" data-demo-start-note>
+      <div>
+        <b>まだ患者から共有されていません</b>
+        <p>本来の流れは、患者側の「一時共有」で発行した 6 桁コードを、この画面に入力して患者が承認するまでです。1 台の端末で確認するときは、下のボタンで架空患者（佐藤 花子）の共有が始まった状態にできます。</p>
+      </div>
+      <button className="j-primary" onClick={()=>{startJudgeSession();notify("デモ: 架空患者の共有を開始しました");}} data-demo-start>デモ: 架空患者の共有を開始する</button>
+    </div>}
     {showDemoConnect && <div className="j-demo-connect" role="note" data-demo-connect>
       <div>
         <b>審査用デモの近道</b>

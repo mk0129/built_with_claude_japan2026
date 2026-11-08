@@ -135,7 +135,8 @@ test("処方 → 患者が学習・「わからない」と誤答 → 再読み�
   await expect(unknown).toContainText(`関連教材：${MATERIAL}`);
   await expect(unknown).toContainText(/回答/);
   // 理解度（合計の正答率を押すと領域別。点数で断定しない）と学習履歴の根拠
-  await s.locator("[data-understanding] .cd-score-main").click();
+  // 正答率は見出し行の右の大きな表示（押すと理解の節に移動して領域別が開く）
+  await s.locator("[data-understanding]").click();
   await expect(s.locator(".cd-area-compact")).toContainText("検査・診断");
   await expect(s.locator(".cd-area-compact .cd-area-line").filter({ hasText: "検査・診断" })).toContainText("0 / 2");
   await openAi(s);

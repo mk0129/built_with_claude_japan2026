@@ -140,9 +140,9 @@ test("開発用 /d/dev: 一時共有中 → 診察サマリー・質問・理解
   await page.getByRole("button", { name: "関連教材の候補を見る" }).click();
   await page.getByRole("button", { name: /選択中/ }).click();
   await page.locator(".cd-sidebar").getByRole("button", { name: "在宅経過" }).click();
-  for (const v of ["バイタル統合", "症状グラフ", "経過表"]) await page.getByRole("button", { name: v }).click();
+  for (const v of ["バイタル推移", "症状推移", "経過表"]) await page.getByRole("button", { name: v }).click();
   await page.locator(".cd-sidebar").getByRole("button", { name: "教材スタジオ" }).click();
-  await expect(page.locator(".cd-stepper button")).toHaveCount(4);
+  await expect(page.locator(".cd-stepper button")).toHaveCount(3);
   await page.locator(".cd-sidebar").getByRole("button", { name: "共有を終了" }).click();
   await expect(page.getByText("患者一覧はありません")).toBeVisible();
   await ctx.close();
