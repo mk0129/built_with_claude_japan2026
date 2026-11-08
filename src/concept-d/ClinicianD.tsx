@@ -633,6 +633,7 @@ export default function ClinicianD({
                     setWorkspace("visit")
                     setVisitPage("review")
                   }}
+                  onOpenStudio={() => setWorkspace("studio")}
                 />
               )}
               {workspace === "studio" && (
@@ -3119,7 +3120,7 @@ function Summary({
     return (
       <div className="cd-content cd-summary">
       {/* 開発用プロトタイプ（実データなし）: この診察サマリーは Figma 時点の旧レイアウト。最新の画面は実データ（/staff で患者と共有）と公開デモで表示される */}
-      {!record && (
+      {!record?.summary && (
         <p className="cd-studio-env" data-proto-summary-note role="note">
           <CIcon name="alert" size={14} />
           開発用プロトタイプの診察サマリーは旧レイアウトです。最新の診察サマリー（診察の順に 1 体調 → 2 質問 → 3 理解 → 4 処方）は、医療者ログイン（/staff）で患者と共有したときと公開デモで表示されます。
@@ -4169,6 +4170,7 @@ function PrescriptionLibrary({
   onBack,
   standalone = false,
   record,
+  onOpenStudio,
 }: {
   selected: (number | string)[]
   setSelected: (ids: (number | string)[]) => void
@@ -4177,6 +4179,8 @@ function PrescriptionLibrary({
   standalone?: boolean
   /** 本番: 公開・承認済みの教材（共通＋自施設）と、この診察での処方状況 */
   record?: ClinicianRecord
+  /** 見つからないときに教材スタジオへ（本番の作業画面だけ） */
+  onOpenStudio?: () => void
 }) {
   const [query, setQuery] = useState("")
   const [area, setArea] = useState("すべて")
@@ -4237,10 +4241,6 @@ function PrescriptionLibrary({
     ) : item.prescribedBefore ? (
       <span className="cd-rx-status before" data-rx-status="before">
         以前に処方
-      </span>
-    ) : record ? (
-      <span className="cd-rx-status new" data-rx-status="new">
-        未処方
       </span>
     ) : null
   return (
@@ -4316,7 +4316,6 @@ function PrescriptionLibrary({
             この診察で処方済み
           </span>
           <span className="before">以前に処方</span>
-          <span className="new">未処方</span>
         </p>
       )}
 
@@ -4366,6 +4365,11 @@ function PrescriptionLibrary({
           <CIcon name="search" size={34} />
           <h2>一致する承認済み教材がありません</h2>
           <p>検索語や領域を変えてください。</p>
+          {onOpenStudio && (
+            <button className="cd-secondary" onClick={onOpenStudio} data-open-studio>
+              教材スタジオで作る
+            </button>
+          )}
         </div>
       )}
 
@@ -5046,10 +5050,28 @@ function SourceStep({
               <label>
                 作成元（許諾元）<em className="cd-required">必須</em>
                 <input value={live.meta.rightsHolder} placeholder="例: さくら総合病院 乳腺外科（院内資料）" disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, rightsHolder: event.target.value })} />
+                {!live.uploaded && (
+                  <span className="cd-quick-fill" data-quick-rights>
+                    {["当院の院内資料", "学会・公的機関の資料", "出版社の資料（許諾あり）"].map((t) => (
+                      <button key={t} type="button" onClick={() => live.setMeta({ ...live.meta, rightsHolder: t })}>
+                        {t}
+                      </button>
+                    ))}
+                  </span>
+                )}
               </label>
               <label className="wide">
                 利用許諾の根拠（確認した内容）<em className="cd-required">必須</em>
                 <textarea value={live.meta.evidenceNote} placeholder="例: 院内作成資料のため、教材化と患者への公開を部門で確認済み" disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, evidenceNote: event.target.value })} />
+                {!live.uploaded && (
+                  <span className="cd-quick-fill" data-quick-evidence>
+                    {["院内作成のため、教材化と患者への公開を部門で確認済み", "著作権者から教材化と患者への公開の許諾を得ている", "公開ライセンス（CC BY など）で二次利用が認められている"].map((t) => (
+                      <button key={t} type="button" onClick={() => live.setMeta({ ...live.meta, evidenceNote: t })}>
+                        {t}
+                      </button>
+                    ))}
+                  </span>
+                )}
               </label>
             </div>
           ) : (
@@ -5407,7 +5429,14 @@ function MustCoverStep({
           <section className="cd-panel">
             <div className="cd-panel-head">
               <h3>必須事項の候補</h3>
-              <Badge tone="amber">未確認 {live.candidates.filter((c) => !live.checked[c.id]).length}件</Badge>
+              <span className="cd-must-head-actions">
+                <Badge tone="amber">未確認 {live.candidates.filter((c) => !live.checked[c.id]).length}件</Badge>
+                {live.candidates.some((c) => !live.checked[c.id]) && (
+                  <button type="button" className="cd-text-back" onClick={() => live.setChecked(Object.fromEntries(live.candidates.map((c) => [c.id, true])))} data-must-check-all>
+                    すべて確認済みにする
+                  </button>
+                )}
+              </span>
             </div>
             <div className="cd-must-list">
               {live.candidates.length === 0 && <p>Claudeから必須事項の候補はありませんでした。</p>}
