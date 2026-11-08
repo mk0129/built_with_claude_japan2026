@@ -796,3 +796,6 @@
 .cd-question-resolve:hover { background: #eef5f0; }
 .cd-question-list article.resolving { opacity: .5; }
 .cd-resolved-list li .cd-text-back { display: inline-flex; min-height: 28px; margin: 0 0 0 8px; padding: 0 6px; font-size: 11px; }
+
+/* 処方の確認: 左の「選択した教材」を右の高さに引き伸ばさない */
+.cd-review-layout { align-items: start; }

@@ -834,9 +834,9 @@ function SessionGate({
               <div>
                 <h2>QRコードを読み取る</h2>
                 <ol className="cd-steps-numbered" data-scan-steps>
-                  <li><span aria-hidden="true">1</span>この医療者アカウントでログインしたスマートフォン・タブレットの標準カメラで、患者のQRコードを読み取る</li>
-                  <li><span aria-hidden="true">2</span>開いたshioriの画面で申請が送られる</li>
-                  <li><span aria-hidden="true">3</span>このパソコンの画面も自動で「患者の承認を待っています」に切り替わります</li>
+                  <li><span aria-hidden="true">1</span>ログイン済みのスマートフォンの標準カメラで、患者の QR を読み取る</li>
+                  <li><span aria-hidden="true">2</span>開いた shiori の画面から申請が送られる</li>
+                  <li><span aria-hidden="true">3</span>この画面が「患者の承認を待っています」に切り替わる</li>
                 </ol>
               </div>
             </div>
@@ -853,7 +853,7 @@ function SessionGate({
                   placeholder="000000"
                 />
               </label>
-              <p>コードは発行から5分間・1回限り有効です。入力しただけでは共有されません。患者が申請者を確認して承認すると、診察サマリーが開きます。</p>
+              <p>5分間・1回限り。患者が申請者を確認して承認したときに共有が始まります。</p>
             </div>
             <button
               className="cd-primary"
@@ -1106,7 +1106,7 @@ function VisitWorkspace({
         prescription={prescription}
         onAddToPrescription={(id) => {
           if (!prescription.includes(id)) setPrescription([...prescription, id])
-          notify("処方候補に追加しました")
+          notify("処方に追加しました")
         }}
       />
     )
@@ -3903,7 +3903,7 @@ function LiveSummary({
                       ) : (
                         <button className={added ? "selected" : ""} disabled={added || !onAddToPrescription} onClick={() => onAddToPrescription?.(item.materialId)} data-reco-add>
                           <CIcon name={added ? "check" : "plus"} size={14} />
-                          {added ? "追加済み" : "候補に追加"}
+                          {added ? "追加済み" : "処方に追加"}
                         </button>
                       )}
                     </li>
