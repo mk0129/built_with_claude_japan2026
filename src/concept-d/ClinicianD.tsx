@@ -476,8 +476,9 @@ export default function ClinicianD({
                   <CIcon name="visit" />
                   診察
                   {record ? (
-                    record.questions.length + record.checks.length > 0 && (
-                      <i>{record.questions.length + record.checks.length}</i>
+                    // 未解決の質問の数（患者が「聞けた」にすると減る。医療者側では変えない）
+                    record.questions.filter((q) => !q.resolved).length > 0 && (
+                      <i title="未解決の質問">{record.questions.filter((q) => !q.resolved).length}</i>
                     )
                   ) : (
                   clinicalScenario !== "clear" && (
@@ -3453,7 +3454,15 @@ function LiveSummary({
     ? (["temperature", "systolic", "pulse", "spo2"] as const).map((k) => {
         const m = iv.vitals.metrics[k]
         const last = m?.values[m.values.length - 1] ?? null
-        const row = { key: k, label: m?.label ?? k, unit: m?.unit ?? "", last, min: m?.min ?? null, max: m?.max ?? null, count: m?.count ?? 0, flag: last ? vitalFlag(k, last.value) : 0, display: last ? `${last.value}` : "—" }
+        // 最も悪かった記録: 目安の段階が高いもの → 同じなら体温・血圧・脈拍は高い方、SpO₂ は低い方
+        const worst = (m?.values ?? []).reduce<{ at: string; value: number } | null>((w, v) => {
+          if (!w) return v
+          const fw = vitalFlag(k, w.value)
+          const fv = vitalFlag(k, v.value)
+          if (fv !== fw) return fv > fw ? v : w
+          return k === "spo2" ? (v.value < w.value ? v : w) : v.value > w.value ? v : w
+        }, null)
+        const row = { key: k, label: m?.label ?? k, unit: m?.unit ?? "", last, worst: worst && last && worst.at !== last.at && worst.value !== last.value ? worst : null, count: m?.count ?? 0, flag: last ? vitalFlag(k, last.value) : 0, display: last ? `${last.value}` : "—" }
         if (k !== "systolic") return row
         const d = iv.vitals.metrics.diastolic
         const dLast = d?.values[d.values.length - 1] ?? null
@@ -3462,8 +3471,7 @@ function LiveSummary({
           label: "血圧",
           display: last ? `${last.value}/${dLast ? dLast.value : "–"}` : "—",
           flag: Math.max(row.flag, dLast ? vitalFlag("diastolic", dLast.value) : 0),
-          min: null,
-          max: null,
+          worst: null,
         }
       })
     : []
@@ -3478,7 +3486,6 @@ function LiveSummary({
   const unknownCount = summary.answers.filter((a) => a.isUnknown).length
   const wrongCount = answered - correct - unknownCount
   const reco = record.recommendations
-  const recoKind = reco ? (reco.generator === "claude" ? "Claude" : reco.generator === "rule" ? "ルールベース" : "開発用の擬似生成") : null
   // 要点の帯: 1 画面目で「強い・悪化した症状」「未解決の質問」「つまずいた設問」「推薦」の数を示し、押すとその欄へ
   const worsened = symptoms.filter((sym) => {
     const t = symptomTrend(sym)
@@ -3508,10 +3515,6 @@ function LiveSummary({
             </button>
           </p>
         </div>
-        <p className="cd-zero-doc">
-          <CIcon name="shield" />
-          閲覧だけで終了できます。診療記録は電子カルテへ。
-        </p>
       </div>
       {periodEdit && draft && (
         <div className="cd-period-editor">
@@ -3567,7 +3570,7 @@ function LiveSummary({
       <section className="cd-panel cd-so" data-so>
         <div className="cd-panel-head">
           <div>
-            <h2>在宅での体調 <small>患者本人の記録</small></h2>
+            <h2>在宅での体調</h2>
           </div>
           {onOpenCourse && (
             <button className="cd-so-course" onClick={onOpenCourse}>
@@ -3635,7 +3638,7 @@ function LiveSummary({
                       <small>{v.label}</small>
                       <b>{v.display}</b>
                       <em>{v.unit}</em>
-                      <span>{v.last ? `${mdOf(v.last.at)}${v.count > 1 && v.min && v.max ? ` · ${v.min.value}〜${v.max.value}` : ""}` : "記録なし"}</span>
+                      <span>{v.last ? `${mdOf(v.last.at)}${v.worst ? ` · 最も悪い ${v.worst.value}（${mdOf(v.worst.at)}）` : ""}` : "記録なし"}</span>
                     </li>
                   ))}
                 </ul>
@@ -3781,7 +3784,7 @@ function LiveSummary({
               <span>
                 <CIcon name="studio" size={18} />
                 <b>AI外来間サマリー</b>
-                <small>要約の各文から根拠の記録・統合タイムライン（Claude による要約は検証済みの文だけ表示）</small>
+                <small>要約・根拠・タイムライン</small>
               </span>
               <span>{aiOpen ? "閉じる" : "開く"}</span>
             </button>
@@ -3797,7 +3800,7 @@ function LiveSummary({
               <small>
                 {pct === null ? "回答なし（0%とは表示しません）" : `${answered}問中 ${correct}問正答 · 不正解 ${wrongCount} · わからない ${unknownCount}`}
               </small>
-              {answered > 0 && <span className="cd-score-hint">{understandingOpen ? "内訳を閉じる" : "押すと領域別・つまずいた設問"}</span>}
+              {answered > 0 && <span className="cd-score-hint">{understandingOpen ? "内訳を閉じる" : "領域別・つまずいた設問"}</span>}
             </button>
             {understandingOpen && (
               <div className="cd-score-detail" data-understanding-detail>
@@ -3844,7 +3847,6 @@ function LiveSummary({
                 <p className="cd-eyebrow">AI 情報処方リコメンド</p>
                 <h2>今回の外来で処方を検討したい教材</h2>
               </div>
-              {recoKind && <Badge tone={reco?.generator === "claude" ? "blue" : "gray"}>{recoKind}</Badge>}
             </div>
             {!reco && record.recommendationsLoading && <p className="cd-so-loading">候補を整理しています…</p>}
             {reco && reco.items.length === 0 && <p className="cd-so-none">{reco.note ?? "候補はありません"}</p>}
@@ -3876,7 +3878,6 @@ function LiveSummary({
                 })}
               </ol>
             )}
-            <p className="cd-reco-note">{reco?.generator === "claude" ? "質問・症状・理解確認から Claude が候補を絞っています。採用は医療者が判断します。" : "質問・症状・理解確認から承認済み教材を並べています。採用は医療者が判断します。"}</p>
             <div className="cd-reco-actions">
               <button className="cd-primary" onClick={onPrescribe}>
                 {prescription.length ? `選択中 ${prescription.length}件を確認` : "教材ライブラリで選ぶ"}
