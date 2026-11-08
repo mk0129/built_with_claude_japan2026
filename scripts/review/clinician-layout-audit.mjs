@@ -26,7 +26,7 @@ const AUDIT = `(() => {
   const label = (e) => (e.getAttribute('aria-label') || e.textContent || e.className || e.tagName).toString().trim().replace(/\\\\s+/g, ' ').slice(0, 40);
   const inHScroll = (e) => { for (let p = e.parentElement; p && p !== root; p = p.parentElement) { const o = getComputedStyle(p).overflowX; if (o === 'auto' || o === 'scroll') return true; } return false; };
   const hit = (e) => { const r = e.getBoundingClientRect(); const t = document.elementFromPoint(r.left + r.width / 2, r.top + Math.min(r.height / 2, 20)); return !!t && (t === e || e.contains(t)); };
-  const overlay = (e) => !!e.closest('.cd-sidebar, .cd-app-header, .j-topbar, .cd-toast');
+  const overlay = (e) => !!e.closest('.cd-sidebar, .cd-app-header, .j-topbar, .cd-toast, .cd-wizard-sticky, .cd-select-tray');
   const all = [...root.querySelectorAll('*')].filter(vis);
   for (const e of all) {
     if (inHScroll(e)) continue;

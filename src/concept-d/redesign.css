@@ -799,3 +799,117 @@
 
 /* 処方の確認: 左の「選択した教材」を右の高さに引き伸ばさない */
 .cd-review-layout { align-items: start; }
+
+/* ---------- 教材ライブラリ v2: 1 行表示・選択トレイ・セットの折りたたみ（忙しい外来で一覧を素早く見渡す） ---------- */
+.cd-library-v2.has-tray { padding-bottom: 92px; }
+.cd-library-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.cd-library-head > div { flex: 0 0 auto; }
+.cd-library-head h1 { margin: 0; }
+.cd-library-search { flex: 1 1 260px; display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--muted); }
+.cd-library-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 13px; }
+.cd-library-v2 .cd-template-sets { margin: 12px 0 8px; }
+.cd-template-rows { display: grid; gap: 6px; }
+.cd-template-row { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.cd-template-main { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.cd-template-main > b { font-size: 13.5px; }
+.cd-template-main > b small { margin-left: 2px; color: var(--muted); font-weight: 500; font-size: 11.5px; }
+.cd-template-badge { padding: 1px 7px; border-radius: 8px; background: #eef3f3; color: var(--blue-dark); font-size: 10.5px; font-weight: 700; }
+.cd-template-main details { flex: 1 1 100%; font-size: 12px; }
+.cd-template-main details summary { cursor: pointer; color: var(--blue-dark); font-size: 11.5px; font-weight: 700; list-style: none; }
+.cd-template-main details summary::before { content: "▸ "; }
+.cd-template-main details[open] summary::before { content: "▾ "; }
+.cd-template-main details p { margin: 4px 0; color: var(--muted); font-size: 11.5px; }
+.cd-template-main details ul { margin: 4px 0 0; padding-left: 16px; color: #4c6467; }
+.cd-template-main details li.added { color: #2f6a41; }
+.cd-template-row > button { flex: 0 0 auto; min-height: 36px; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px; border: 1px solid var(--blue); border-radius: 9px; background: #fff; color: var(--blue-dark); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.cd-template-row > button.selected, .cd-template-row > button:disabled { border-color: #bcd3c3; color: #2f6a41; background: #eef5f0; }
+.cd-library-v2 .cd-area-chips { margin-top: 10px; }
+.cd-library-v2 .cd-library-status-legend { margin: 4px 0 8px; }
+.cd-library-v2 .cd-library-group-title { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 6px; font-size: 14px; }
+.cd-library-v2 .cd-library-group-title small { color: var(--muted); font-size: 11px; font-weight: 500; }
+.cd-library-grid.cd-library-rows, .cd-1180 .cd-library-grid.cd-library-rows, .cd-820 .cd-library-grid.cd-library-rows, .cd-device .cd-library-grid.cd-library-rows { display: grid; grid-template-columns: 1fr; gap: 6px; }
+.cd-material-row { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.cd-material-row.selected { border-color: #9fc2aa; background: #f3f9f5; }
+.cd-material-row.now { background: #fafcfb; }
+.cd-material-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.cd-material-text > b { font-size: 14px; line-height: 1.4; }
+.cd-material-text > small { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; color: var(--muted); font-size: 11.5px; }
+.cd-material-text .cd-rx-status { margin: 0; }
+.cd-material-goal { flex: 1 1 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cd-material-row > button { flex: 0 0 auto; min-height: 36px; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px; border: 1px solid var(--blue); border-radius: 9px; background: #fff; color: var(--blue-dark); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.cd-material-row > button.selected { border-color: #9fc2aa; background: #eef5f0; color: #2f6a41; }
+.cd-material-row > button:disabled { opacity: .7; }
+.cd-select-tray { position: sticky; bottom: 0; z-index: 6; display: flex; align-items: center; gap: 12px; margin: 14px -4px 0; padding: 10px 14px; border: 1px solid #bcd3c3; border-radius: 14px; background: #f3f9f5; box-shadow: 0 -6px 18px rgba(38, 63, 67, .08); }
+.cd-select-tray-list { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.cd-select-tray-list > b { font-size: 13px; color: #2f6a41; margin-right: 4px; }
+.cd-select-chip { display: inline-flex; align-items: center; gap: 2px; max-width: 260px; padding: 0 2px 0 10px; border: 1px solid #bcd3c3; border-radius: 999px; background: #fff; font-size: 12px; }
+.cd-select-chip > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cd-select-chip > button { width: 28px; height: 28px; border: 0; background: none; color: #2f6a41; font-size: 16px; line-height: 1; }
+.cd-select-tray > .cd-primary { flex: 0 0 auto; }
+
+/* ---------- 教材スタジオ v2: 見出しを 1 行に、手順をピル状に、前へ／次へを画面下に固定（忙しい医療者が迷わない） ---------- */
+.cd-studio-title { align-items: center; margin-bottom: 10px; }
+.cd-studio-title h1 { margin: 0; }
+.cd-studio .cd-draft-status > span { font-size: 11px; }
+.cd-stepper-v2, .cd-studio .cd-stepper { display: flex; gap: 4px; margin: 0 0 14px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
+.cd-stepper-v2 button { flex: 0 1 auto; min-height: 32px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px 0 4px; border: 0; border-radius: 999px; background: none; color: #869496; font-size: 11.5px; white-space: nowrap; }
+.cd-stepper-v2 button > span { width: 24px; height: 24px; flex: 0 0 24px; font-size: 11px; }
+.cd-stepper-v2 button.active { flex: 1 0 auto; background: var(--blue-dark); color: #fff; font-weight: 700; font-size: 12.5px; }
+.cd-stepper-v2 button.active > span { background: rgba(255,255,255,.22); color: #fff; }
+.cd-stepper-v2 button.done { color: #2f6a41; }
+.cd-stepper-v2 button.done > span { background: #e4f0e7; color: #2f6a41; }
+.cd-stepper-v2 button:disabled:not(.active) { color: #b4bdbf; }
+.cd-stepper-v2 button:not(.active):not(:disabled):hover { background: #f1f5f5; }
+.cd-stepper-v2 button > b { font-weight: inherit; }
+/* 820px: 進行中の手順名だけを文字で出し、他は番号（またはチェック）だけにして 1 行に収める */
+.cd-device.cd-820 .cd-stepper-v2 button { flex-direction: row; text-align: left; padding-right: 4px; }
+.cd-device.cd-820 .cd-stepper-v2 button.active { padding-right: 12px; }
+.cd-device.cd-820 .cd-stepper-v2 button:not(.active) > b { display: none; }
+.cd-device.cd-820 .cd-stepper-v2 button:not(.active) > span { margin: 0 2px; }
+.cd-studio .cd-step-heading { margin-bottom: 12px; }
+.cd-studio .cd-step-heading h2 { margin: 0; font-size: 17px; }
+.cd-studio .cd-studio-body { min-height: 0; padding-bottom: 8px; }
+.cd-wizard-sticky { position: sticky; bottom: 0; z-index: 6; margin: 10px -4px 0; padding: 10px 14px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.96); box-shadow: 0 -6px 18px rgba(38, 63, 67, .08); backdrop-filter: blur(6px); }
+.cd-wizard-sticky > div > span { font-size: 11px; }
+.cd-wizard-sticky .cd-secondary, .cd-wizard-sticky .cd-primary { min-height: 36px; }
+
+/* ---------- 医療者側の領域色: 患者側（.d-area-1..6）と同じ 6 色を、教材の行・チップ・推薦・確認画面・領域別の内訳に ---------- */
+.cd-area-1 { --area: #2f6672; --area-bg: #eaf1f2; --area-line: #cfdfe1; }
+.cd-area-2 { --area: #a4583f; --area-bg: #f9eee9; --area-line: #ecd3cb; }
+.cd-area-3 { --area: #6c5a86; --area-bg: #f0edf5; --area-line: #dbd4e6; }
+.cd-area-4 { --area: #9a6a1e; --area-bg: #faf3e3; --area-line: #ecdcb8; }
+.cd-area-5 { --area: #3f7250; --area-bg: #eaf3ed; --area-line: #cfe1d4; }
+.cd-area-6 { --area: #3f5f86; --area-bg: #eaeff6; --area-line: #d0dae8; }
+/* 教材の行: 箱全体を領域色で淡く染め、選択中は領域色の枠にする */
+.cd-material-row[class*="cd-area-"] { background: var(--area-bg); border-color: var(--area-line); }
+.cd-material-row[class*="cd-area-"].selected { border-color: var(--area); box-shadow: inset 0 0 0 1px var(--area); }
+.cd-material-row[class*="cd-area-"] .cd-material-text > small { color: var(--area); opacity: .9; }
+.cd-material-row[class*="cd-area-"] .cd-material-text .cd-rx-status { opacity: 1; }
+.cd-material-row[class*="cd-area-"] > button { border-color: var(--area-line); color: var(--area); background: #fff; }
+.cd-material-row[class*="cd-area-"] > button.selected { border-color: var(--area); background: var(--area); color: #fff; }
+.cd-material-row[class*="cd-area-"] > button:disabled { border-color: var(--area-line); background: #fff; color: var(--area); opacity: .8; }
+/* グループ見出し: 領域色の点＋文字 */
+.cd-library-group[class*="cd-area-"] .cd-library-group-title { color: var(--area); }
+.cd-library-group[class*="cd-area-"] .cd-library-group-title::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--area); align-self: center; }
+/* 領域チップ: 選ぶと領域色で塗る。未選択は点だけ */
+.cd-area-chips button[class*="cd-area-"]::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--area); }
+.cd-area-chips button[class*="cd-area-"].active { border-color: var(--area); background: var(--area); color: #fff; }
+.cd-area-chips button[class*="cd-area-"].active::before { background: rgba(255,255,255,.85); }
+/* 選択トレイのチップ */
+.cd-select-chip[class*="cd-area-"] { background: var(--area-bg); border-color: var(--area-line); color: var(--area); }
+.cd-select-chip[class*="cd-area-"] > button { color: var(--area); }
+/* 診察サマリーの推薦 */
+.cd-reco-list li[class*="cd-area-"] { background: var(--area-bg); border-color: var(--area-line); }
+.cd-reco-list li[class*="cd-area-"] .cd-reco-no { background: var(--area); }
+.cd-reco-list li[class*="cd-area-"] > button { border-color: var(--area-line); color: var(--area); background: #fff; }
+.cd-reco-list li[class*="cd-area-"] > button.selected, .cd-reco-list li[class*="cd-area-"] > button:disabled { background: var(--area); border-color: var(--area); color: #fff; }
+/* 情報処方の確認画面の一覧 */
+.cd-selected-materials > div[class*="cd-area-"] > span { background: var(--area); color: #fff; }
+.cd-selected-materials > div[class*="cd-area-"] small { color: var(--area); }
+/* 理解確認の領域別 */
+.cd-area-line[class*="cd-area-"] > span:first-child > b { display: inline-flex; align-items: center; gap: 5px; color: var(--area); }
+.cd-area-line[class*="cd-area-"] > span:first-child > b::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--area); }
+/* 情報処方の確認画面: 一覧の文字が 9px/7px と小さすぎたので読める大きさに */
+.cd-selected-materials b { font-size: 13px; }
+.cd-selected-materials small { font-size: 11px; }
+.cd-selected-materials > div > span { width: 24px; height: 24px; flex: 0 0 24px; font-size: 11px; }

@@ -3840,7 +3840,7 @@ function LiveSummary({
                 <h3>領域別</h3>
                 <div className="cd-area-compact">
                   {record.areas.map((area) => (
-                    <div key={String(area[0])} className="cd-area-line">
+                    <div key={String(area[0])} className={`cd-area-line ${cdAreaTone(String(area[0]))}`}>
                       <span>
                         <b>{area[0]}</b>
                         <small>学習 {area[1]}</small>
@@ -3889,7 +3889,7 @@ function LiveSummary({
                   const added = prescription.includes(item.materialId)
                   const nowPrescribed = record.library?.find((l) => l.id === item.materialId)?.prescribedNow
                   return (
-                    <li key={item.materialId} data-reco-item={item.materialId}>
+                    <li key={item.materialId} data-reco-item={item.materialId} className={cdAreaTone(record.library?.find((l) => l.id === item.materialId)?.area)}>
                       <span className="cd-reco-no">{index + 1}</span>
                       <div>
                         <b>{item.title}</b>
@@ -4194,9 +4194,26 @@ function PrescriptionLibrary({
         ? selected.filter((item) => item !== id)
         : [...selected, id],
     )
+  // 選択トレイ（画面下に固定）: 何を選んでいるかが常に見え、外すのも確認へ進むのもここから
+  const selectedCards = selected.map((id) => items.find((item) => item.id === id)).filter((x): x is LibraryCard => !!x)
+  const rowStatus = (item: LibraryCard) =>
+    item.prescribedNow ? (
+      <span className="cd-rx-status now" data-rx-status="now">
+        <CIcon name="check" size={11} />
+        処方済み
+      </span>
+    ) : item.prescribedBefore ? (
+      <span className="cd-rx-status before" data-rx-status="before">
+        以前に処方
+      </span>
+    ) : record ? (
+      <span className="cd-rx-status new" data-rx-status="new">
+        未処方
+      </span>
+    ) : null
   return (
-    <div className="cd-content cd-library">
-      <div className="cd-page-head">
+    <div className={`cd-content cd-library cd-library-v2${selected.length ? " has-tray" : ""}`}>
+      <div className="cd-page-head cd-library-head">
         {!standalone && (
           <button className="cd-back" onClick={onBack}>
             ← 戻る
@@ -4204,74 +4221,60 @@ function PrescriptionLibrary({
         )}
         <div>
           <h1>{standalone ? "教材ライブラリ" : "情報処方を作成"}</h1>
-          <p>公開・承認済みの教材だけを表示</p>
         </div>
-        <button
-          className="cd-primary"
-          disabled={selected.length === 0}
-          onClick={onReview}
-        >
+        <label className="cd-library-search">
+          <CIcon name="search" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="教材名・学習目標で検索" />
+        </label>
+        <button className="cd-primary" disabled={selected.length === 0} onClick={onReview}>
           選択中 {selected.length}件
           <CIcon name="arrow" />
         </button>
       </div>
+
       {record && templateSets.length > 0 && (
         <section className="cd-template-sets" data-template-sets>
-          <div className="cd-template-head">
-            <h2>セットから選ぶ</h2>
-            <p>まとめて選択に追加（確定前に確認できます）</p>
-          </div>
-          <div className="cd-template-list">
+          <h2 className="cd-library-group-title">
+            セット<small>まとめて追加</small>
+          </h2>
+          <div className="cd-template-rows">
             {templateSets.map(({ t, cards, addable, pending }) => (
-              <article key={t.id} data-template={t.id} data-template-name={t.name}>
-                <div>
-                  <Badge tone={t.scope === "org" ? "purple" : "blue"}>{t.scope === "org" ? "施設のセット" : "共通のセット"}</Badge>
-                  <h3>
-                    {t.name}（{cards.length}件）
-                  </h3>
-                  {t.description && <p>{t.description}</p>}
-                  <ul>
-                    {cards.map((c) => (
-                      <li key={c.id} className={selected.includes(c.id) || c.prescribedNow ? "added" : ""}>
-                        {(selected.includes(c.id) || c.prescribedNow) && <CIcon name="check" size={12} />}
-                        {c.title}
-                        {c.prescribedNow ? "（この診察で処方済み）" : ""}
-                      </li>
-                    ))}
-                  </ul>
+              <article key={t.id} data-template={t.id} data-template-name={t.name} className="cd-template-row">
+                <div className="cd-template-main">
+                  <b>
+                    {t.name}
+                    <small>（{cards.length}件）</small>
+                  </b>
+                  <span className="cd-template-badge">{t.scope === "org" ? "施設" : "共通"}</span>
+                  <details>
+                    <summary>内容</summary>
+                    {t.description && <p>{t.description}</p>}
+                    <ul>
+                      {cards.map((c) => (
+                        <li key={c.id} className={selected.includes(c.id) || c.prescribedNow ? "added" : ""}>
+                          {(selected.includes(c.id) || c.prescribedNow) && <CIcon name="check" size={12} />}
+                          {c.title}
+                          {c.prescribedNow ? "（この診察で処方済み）" : ""}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
                 </div>
-                <button
-                  className={pending.length === 0 ? "selected" : ""}
-                  disabled={pending.length === 0}
-                  onClick={() => setSelected([...selected, ...pending])}
-                >
+                <button className={pending.length === 0 ? "selected" : ""} disabled={pending.length === 0} onClick={() => setSelected([...selected, ...pending])}>
                   <CIcon name={pending.length === 0 ? "check" : "plus"} />
-                  {pending.length === 0
-                    ? addable.length === 0
-                      ? "この診察で処方済み"
-                      : "選択に追加済み"
-                    : `セットを選択に追加（${pending.length}件）`}
+                  {pending.length === 0 ? (addable.length === 0 ? "この診察で処方済み" : "選択に追加済み") : `セットを選択に追加（${pending.length}件）`}
                 </button>
               </article>
             ))}
           </div>
         </section>
       )}
-      <div className="cd-library-tools">
-        <label>
-          <CIcon name="search" />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={record ? "教材名・学習目標で検索" : "教材名・対象者・学習目標で検索"}
-          />
-        </label>
-      </div>
+
       <div className="cd-area-chips" role="tablist" aria-label="学習領域">
         {["すべて", "検査・診断", "手術", "薬物療法", "放射線療法", "副作用・支持療法", "日常生活・相談支援"].map((name) => {
           const count = name === "すべて" ? items.length : items.filter((item) => item.area === name).length
           return (
-            <button key={name} role="tab" aria-selected={area === name} className={area === name ? "active" : ""} onClick={() => setArea(name)} data-area-chip={name}>
+            <button key={name} role="tab" aria-selected={area === name} className={`${cdAreaTone(name)}${area === name ? " active" : ""}`} onClick={() => setArea(name)} data-area-chip={name}>
               {name}
               <small>{count}</small>
             </button>
@@ -4284,95 +4287,47 @@ function PrescriptionLibrary({
             <CIcon name="check" size={12} />
             この診察で処方済み
           </span>
-          <span className="before">以前に処方（再処方できます）</span>
+          <span className="before">以前に処方</span>
           <span className="new">未処方</span>
         </p>
       )}
+
       {(area === "すべて" ? ["検査・診断", "手術", "薬物療法", "放射線療法", "副作用・支持療法", "日常生活・相談支援"] : [area]).map((group) => {
         const list = results.filter((item) => item.area === group)
         if (list.length === 0) return null
         return (
-          <section key={group} className="cd-library-group" data-library-group={group}>
+          <section key={group} className={`cd-library-group ${cdAreaTone(group)}`} data-library-group={group}>
             {area === "すべて" && (
               <h2 className="cd-library-group-title">
                 {group}
                 <small>{list.length}件</small>
               </h2>
             )}
-            <div className="cd-library-grid">
+            <div className="cd-library-grid cd-library-rows">
               {list.map((item) => (
-          <article
-            key={item.id}
-            className={selected.includes(item.id) ? "selected" : ""}
-          >
-            {item.thumbnail ? (
-              <div className="cd-material-image">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.thumbnail.src} alt={item.thumbnail.alt} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />
-              </div>
-            ) : null}
-            <div className="cd-material-body">
-              <div>
-                <Badge tone={item.scope === "施設内教材" ? "purple" : "blue"}>
-                  {item.scope}
-                </Badge>
-                <span>
-                  <CIcon name="clock" size={14} />
-                  {item.time}分
-                </span>
-              </div>
-              <h2>
-                {item.prescribedNow ? (
-                  <span className="cd-rx-status now" data-rx-status="now">
-                    <CIcon name="check" size={11} />
-                    処方済み
-                  </span>
-                ) : item.prescribedBefore ? (
-                  <span className="cd-rx-status before" data-rx-status="before">
-                    以前に処方
-                  </span>
-                ) : record ? (
-                  <span className="cd-rx-status new" data-rx-status="new">
-                    未処方
-                  </span>
-                ) : null}
-                {item.title}
-              </h2>
-              <dl>
-                {known(item.target) && (
-                  <>
-                    <dt>対象者</dt>
-                    <dd>{item.target}</dd>
-                  </>
-                )}
-                {known(item.goal) && (
-                  <>
-                    <dt>学習目標</dt>
-                    <dd>{item.goal}</dd>
-                  </>
-                )}
-              </dl>
-              {item.prescribedNow ? (
-                // 同じ診察では同じ教材を重複して処方しない
-                <button className="selected" disabled>
-                  <CIcon name="check" />
-                  この診察で処方済み
-                </button>
-              ) : (
-              <button
-                className={selected.includes(item.id) ? "selected" : ""}
-                onClick={() => toggle(item.id)}
-              >
-                <CIcon name={selected.includes(item.id) ? "check" : "plus"} />
-                {selected.includes(item.id)
-                  ? "選択済み"
-                  : item.prescribedBefore
-                    ? "再処方に追加"
-                    : "処方に追加"}
-              </button>
-              )}
-            </div>
-          </article>
+                <article key={item.id} className={`cd-material-row ${cdAreaTone(item.area)}${selected.includes(item.id) ? " selected" : ""}${item.prescribedNow ? " now" : ""}`}>
+                  <div className="cd-material-text">
+                    <b>{item.title}</b>
+                    <small>
+                      {rowStatus(item)}
+                      <span>{item.time}分</span>
+                      {item.scope === "施設内教材" && <span>施設内教材</span>}
+                      {known(item.goal) && <span className="cd-material-goal">{item.goal}</span>}
+                    </small>
+                  </div>
+                  {item.prescribedNow ? (
+                    // 同じ診察では同じ教材を重複して処方しない
+                    <button className="selected" disabled>
+                      <CIcon name="check" />
+                      この診察で処方済み
+                    </button>
+                  ) : (
+                    <button className={selected.includes(item.id) ? "selected" : ""} onClick={() => toggle(item.id)} aria-pressed={selected.includes(item.id)}>
+                      <CIcon name={selected.includes(item.id) ? "check" : "plus"} />
+                      {selected.includes(item.id) ? "選択済み" : item.prescribedBefore ? "再処方に追加" : "処方に追加"}
+                    </button>
+                  )}
+                </article>
               ))}
             </div>
           </section>
@@ -4382,7 +4337,27 @@ function PrescriptionLibrary({
         <div className="cd-empty-results">
           <CIcon name="search" size={34} />
           <h2>一致する承認済み教材がありません</h2>
-          <p>検索語やカテゴリーを変更してください。</p>
+          <p>検索語や領域を変えてください。</p>
+        </div>
+      )}
+
+      {selected.length > 0 && (
+        <div className="cd-select-tray" data-select-tray role="region" aria-label="選択中の教材">
+          <div className="cd-select-tray-list">
+            <b>選択中 {selected.length}件</b>
+            {selectedCards.map((c) => (
+              <span key={c.id} className={`cd-select-chip ${cdAreaTone(c.area)}`} title={c.title}>
+                <span>{c.title}</span>
+                <button aria-label={`${c.title}を外す`} onClick={() => toggle(c.id)}>
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <button className="cd-primary" onClick={onReview} data-tray-review>
+            確認へ
+            <CIcon name="arrow" />
+          </button>
         </div>
       )}
     </div>
@@ -4424,7 +4399,7 @@ function PrescriptionReview({
             {items
               .filter((item) => selected.includes(item.id))
               .map((item, index) => (
-                <div key={item.id}>
+                <div key={item.id} className={cdAreaTone(item.area)}>
                   <span>{index + 1}</span>
                   <div>
                     <b>{item.title}</b>
@@ -4515,6 +4490,13 @@ function PrescriptionSent({
       </div>
     </div>
   )
+}
+
+/** 学習領域の色。患者側（d-area-1..6）と同じ順・同じ色で、医療者側でも領域ごとに箱全体を淡く染める */
+const AREA_NAMES = ["検査・診断", "手術", "薬物療法", "放射線療法", "副作用・支持療法", "日常生活・相談支援"]
+const cdAreaTone = (name: string | undefined) => {
+  const i = name ? AREA_NAMES.indexOf(name) : -1
+  return i >= 0 ? `cd-area-${i + 1}` : ""
 }
 
 const stepNames = [
@@ -4656,11 +4638,9 @@ function Studio({
             : "デモ環境: Claude API は設定されていません。構成案と下書きは記録済みの出力、または開発用の擬似生成です。"}
         </p>
       )}
-      <div className="cd-title-row">
+      <div className="cd-title-row cd-studio-title">
         <div>
-          <p className="cd-eyebrow">Claude 教材スタジオ</p>
           <h1>教材スタジオ</h1>
-          <p>原資料から、患者向け教材を作成・確認・承認します。</p>
         </div>
         <div className="cd-draft-status">
           <Badge
@@ -4693,7 +4673,7 @@ function Studio({
           </span>
         </div>
       </div>
-      <div className="cd-stepper">
+      <div className="cd-stepper cd-stepper-v2" aria-label="作成の手順">
         {stepNames.map((name, index) => (
           <button
             key={name}
@@ -4706,7 +4686,7 @@ function Studio({
             <span>
               {step > index + 1 ? <CIcon name="check" size={14} /> : index + 1}
             </span>
-            {name}
+            <b>{name}</b>
           </button>
         ))}
       </div>
@@ -4862,7 +4842,7 @@ function Studio({
       </div>
       )}
       {step < 7 && (
-        <div className="cd-wizard-actions">
+        <div className="cd-wizard-actions cd-wizard-sticky" data-wizard-actions>
           <button
             className="cd-secondary"
             disabled={step === 1}
@@ -4934,9 +4914,7 @@ function SourceStep({
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
-        <Badge>手順 1</Badge>
         <h2>原資料を登録</h2>
-        <p>利用許諾を確認し、AI処理できる資料だけを登録します。</p>
       </div>
       <div className="cd-source-layout">
         <section className="cd-panel">
@@ -5140,9 +5118,7 @@ function ApproachStep({
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
-        <Badge>手順 2</Badge>
         <h2>教材の作成方針</h2>
-        <p>原資料をどのように患者向け教材へ構成するか選びます。</p>
       </div>
       <div className="cd-approach-grid">
         <button
@@ -5261,9 +5237,7 @@ function ProposalStep({
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
-        <Badge>手順 3</Badge>
         <h2>Claudeの構成案を比較</h2>
-        <p>提案は下書きです。採用と医学的な判断は医療者が行います。</p>
         {replayOnly && (
           <p className="cd-replay-note" data-replay-only>
             撮影用デモ環境のため、記録済みの案 1 で下書きを作成します。
@@ -5360,9 +5334,7 @@ function MustCoverStep({
     return (
       <div className="cd-studio-step">
         <div className="cd-step-heading">
-          <Badge>手順 4</Badge>
           <h2>必ず含める内容を確認</h2>
-          <p>患者が学ぶべき医学的内容を選択し、原資料と照合します。</p>
         </div>
         <div className="cd-must-layout">
           <section className="cd-panel">
@@ -5423,9 +5395,7 @@ function MustCoverStep({
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
-        <Badge>手順 4</Badge>
         <h2>必ず含める内容を確認</h2>
-        <p>患者が学ぶべき医学的内容を選択し、原資料と照合します。</p>
       </div>
       <div className="cd-must-layout">
         <section className="cd-panel">
@@ -5514,9 +5484,7 @@ function EditStep({
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
-        <Badge>手順 5</Badge>
         <h2>教材と確認問題を編集</h2>
-        <p>1画面1主題で本文・図解・確認問題を編集します。</p>
       </div>
       <div className="cd-editor">
         <aside>
@@ -5706,9 +5674,7 @@ function LiveEditStep({ draft, save, page, setPage }: { draft: Draft; save: (d: 
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
-        <Badge>手順 5</Badge>
         <h2>教材と確認問題を編集</h2>
-        <p>1画面1主題で本文・図解・確認問題を編集します。{!editable && "（承認待ち・公開後は編集できません）"}</p>
       </div>
       <div className="cd-editor">
         <aside>
@@ -5874,9 +5840,7 @@ function PreviewStep({
     return (
       <div className="cd-studio-step">
         <div className="cd-step-heading">
-          <Badge>手順 6</Badge>
           <h2>患者表示をプレビュー</h2>
-          <p>患者さんと同じ学習画面で確認します。</p>
         </div>
         <div className="cd-preview-layout">
           <section className="cd-preview-info">
@@ -5925,9 +5889,7 @@ function PreviewStep({
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
-        <Badge>手順 6</Badge>
         <h2>患者表示をプレビュー</h2>
-        <p>患者さんと同じ学習画面で確認します。</p>
       </div>
       <div className="cd-preview-layout">
         <section className="cd-preview-info">
@@ -6023,9 +5985,7 @@ function ApprovalStep({
   return (
     <div className="cd-studio-step">
       <div className="cd-step-heading">
-        <Badge>手順 7</Badge>
         <h2>医学的承認と公開</h2>
-        <p>公開前の最終確認です。承認前の教材は患者に表示されません。</p>
       </div>
       <div className="cd-approval-layout">
         <section className="cd-panel">
