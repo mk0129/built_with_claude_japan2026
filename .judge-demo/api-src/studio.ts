@@ -9,12 +9,15 @@
 import { timingSafeEqual } from "node:crypto";
 import { callClaudeStructured, claudeConfigured, ClaudeError } from "../../src/server/services/claude";
 import { MaterialSchema, OutlineSchema, SYSTEM, materialPrompt, outlinePrompt, type MustCoverInputItem } from "../../src/server/services/ai-prompts";
+import { detectKind, detectPii, extractText } from "../../src/server/services/extract";
 
 type Req = { method?: string; body?: unknown; headers: Record<string, string | string[] | undefined> };
 type Res = { status: (code: number) => Res; json: (body: unknown) => void; setHeader: (k: string, v: string) => void };
 
 const SOURCE_ID = "judge-src";
 const MAX_SOURCE_CHARS = 20000;
+/** 公開デモの関数に送れるファイルの上限（Vercel の本文上限 4.5MB の内側。本番は 15MB） */
+const MAX_FILE_BYTES = 3.5 * 1024 * 1024;
 const counter: { day: string; count: number } = { day: "", count: 0 };
 
 const fail = (res: Res, status: number, code: string, message: string) => res.status(status).json({ error: { code, message } });
@@ -59,6 +62,33 @@ export default async function handler(req: Req, res: Res) {
   if (!passcode || !sameSecret(passcode, pass)) return fail(res, 401, "BAD_PASSCODE", "合言葉が違います");
   const mode = body.mode;
   if (mode === "ping") return res.status(200).json({ ok: true, model: process.env.CLAUDE_MODEL || "claude-sonnet-5-5" });
+  if (mode === "extract") {
+    // PDF / Word / PowerPoint / テキストから本文を取り出す（本番と同じ抽出。OCR はしない。Claude は呼ばない）
+    const filename = cleanText(body.filename, 200) || "source";
+    const mime = cleanText(body.mime, 100);
+    const kind = detectKind(filename, mime);
+    if (!kind) return fail(res, 400, "UNSUPPORTED_FILE", "PDF・Word（.docx）・PowerPoint（.pptx）・テキストに対応しています");
+    const b64 = typeof body.contentBase64 === "string" ? body.contentBase64 : "";
+    if (!b64 || b64.length > (MAX_FILE_BYTES * 4) / 3 + 1024) return fail(res, 413, "FILE_TOO_LARGE", "公開デモでは 3.5MB までのファイルに対応しています（本番は 15MB）");
+    let buf: Buffer;
+    try {
+      buf = Buffer.from(b64, "base64");
+    } catch {
+      return fail(res, 400, "BAD_FILE", "ファイルを読み取れませんでした");
+    }
+    if (buf.length === 0 || buf.length > MAX_FILE_BYTES) return fail(res, 413, "FILE_TOO_LARGE", "公開デモでは 3.5MB までのファイルに対応しています（本番は 15MB）");
+    try {
+      const ex = await extractText(buf, kind);
+      const full = ex.text.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").trim();
+      const text = full.slice(0, MAX_SOURCE_CHARS);
+      const warnings = [...ex.warnings];
+      if (full.length > MAX_SOURCE_CHARS) warnings.push(`本文が長いため先頭 ${MAX_SOURCE_CHARS.toLocaleString()} 文字だけを使います`);
+      const pii = detectPii(full);
+      return res.status(200).json({ kind, text, charCount: full.length, pages: ex.meta.pages ?? null, warnings, piiHints: pii });
+    } catch {
+      return fail(res, 400, "EXTRACT_FAILED", "ファイルから本文を取り出せませんでした（画像だけの PDF や保護された PDF は読み取れません）");
+    }
+  }
 
   // 1 日の回数上限（インスタンス内の目安。鍵側の上限と併用する）
   const today = new Date().toISOString().slice(0, 10);

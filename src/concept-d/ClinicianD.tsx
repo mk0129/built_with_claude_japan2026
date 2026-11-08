@@ -4799,7 +4799,7 @@ function Studio({
           <CIcon name="studio" size={14} />
           {live.config.demoClaude.live ? (
             <>
-              <b>Claude で実際に生成します</b>（{live.config.model}）。原資料は TXT / Markdown か
+              <b>Claude で実際に生成します</b>（{live.config.model}）。原資料は PDF / Word / PowerPoint / TXT（3.5MB まで）か
               {live.demoClaude.useSample && (
                 <button type="button" onClick={live.demoClaude.useSample} data-demo-claude-sample>
                   サンプル原資料を使う

@@ -195,12 +195,26 @@ export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:strin
   const liveJob=(mode:"outline"|"generate",payload:unknown,versionId:string|null)=>({id:"judge-live-"+mode,mode,status:"succeeded" as const,progress:null,errorCode:null,errorMessage:null,generator:"claude" as const,model:liveMode?.model??"claude",outputPayload:payload,outputVersionId:versionId});
   const liveOutlineJob=liveMode&&liveOutline?liveJob("outline",liveOutline,null):null;
   const liveDraftJob=liveMode&&liveDraftReady?liveJob("generate",null,JUDGE_STUDIO_DRAFT):null;
-  const readTextFile=async(file:File)=>{
-    const ok=/\.(txt|md|markdown)$/i.test(file.name)||file.type.startsWith("text/");
-    if(!ok){notify("公開デモで実際に生成できる原資料は TXT / Markdown だけです（PDF・Word は本番サーバーで読み取ります）。「サンプル原資料を使う」も選べます");return null;}
-    const text=(await file.text()).slice(0,20000);
-    if(text.trim().length<50){notify("原資料の本文が短すぎます（50 文字以上）");return null;}
-    return text;
+  // 原資料の本文: TXT / Markdown はブラウザで読み、PDF / Word / PowerPoint はサーバー関数で本番と同じ抽出をする（OCR なし）
+  const readSourceText=async(file:File):Promise<{text:string;warnings:string[]}|null>=>{
+    const isText=/\.(txt|md|markdown)$/i.test(file.name)||file.type.startsWith("text/");
+    if(isText){
+      const text=(await file.text()).slice(0,20000);
+      if(text.trim().length<50){notify("原資料の本文が短すぎます（50 文字以上）");return null;}
+      return {text,warnings:[]};
+    }
+    if(!/\.(pdf|docx|pptx)$/i.test(file.name)){notify("PDF・Word（.docx）・PowerPoint（.pptx）・テキストに対応しています");return null;}
+    if(file.size>3.5*1024*1024){notify("公開デモでは 3.5MB までのファイルに対応しています（本番は 15MB）");return null;}
+    setLiveBusy("upload");
+    try{
+      const contentBase64=await new Promise<string>((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(",")[1]??"");r.onerror=()=>reject(r.error);r.readAsDataURL(file);});
+      const ex=await liveCall<{text:string;charCount:number;warnings:string[];piiHints:string[]}>({mode:"extract",filename:file.name,mime:file.type,contentBase64});
+      if(ex.text.trim().length<50){notify("本文をほとんど取り出せませんでした（画像だけの PDF は読み取れません）");return null;}
+      const warnings=[...ex.warnings];
+      if(ex.piiHints.length)warnings.push("個人情報らしい記述が含まれている可能性があります: "+ex.piiHints.join("、"));
+      return {text:ex.text,warnings};
+    }catch(e){notify(e instanceof Error?e.message:"ファイルを読み取れませんでした");return null;}
+    finally{setLiveBusy(null);}
   };
   const setForSidebar=useRef(false);
   const live=useStudio(orgId,enabled&&requested,notify);
@@ -272,8 +286,9 @@ export function useJudgeStudio(orgId:string|null,enabled:boolean,notify:(s:strin
       outlineJob:liveOutlineJob,draftJob:liveDraftJob,outlines,candidates,
       upload:async(file,meta)=>{
         if(!meta.piiAttestedNone||!meta.perm.allowAi){notify("AI処理の許可と、個人情報を含まないことの確認が必要です");return null;}
-        const text=await readTextFile(file); if(!text)return null;
-        setSource({title:meta.title||file.name.replace(/\.[^.]+$/,""),text,filename:file.name,size:file.size,charCount:text.length});
+        const read=await readSourceText(file); if(!read)return null;
+        setSource({title:meta.title||file.name.replace(/\.[^.]+$/,""),text:read.text,filename:file.name,size:file.size,charCount:read.text.length});
+        if(read.warnings.length)notify(read.warnings.join(" / "));
         return LIVE_SOURCE_ID;
       },
       updatePermissions:async()=>null,
