@@ -289,6 +289,9 @@ export type TemplateApi = {
   materials: { id: string; title: string; primaryDomain: string }[];
 };
 
+import type { TreatmentEvent, TreatmentProfile } from "@/lib/treatment";
+export type TreatmentApi = { profile: TreatmentProfile; events: TreatmentEvent[]; today: string };
+
 type SymptomSettings = { active: string[]; hidden: string[]; customNames: Record<string, string> };
 
 export function useClinicianRecord(sessionId: string | null, active: boolean, notify: (message: string) => void) {
@@ -418,6 +421,22 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     },
     [sid, fail],
   );
+  // 治療の記録（患者が登録したがん種・現在の治療・外来の日の出来事）。読み取りのみ。共有が変わるたびに読み直す
+  const [treat, setTreat] = useState<{ sid: string; data: TreatmentApi } | null>(null);
+  const loadTreatment = useCallback(async () => {
+    if (!sid) return;
+    try {
+      const d = await api<TreatmentApi>(`/api/v1/consultations/${sid}/treatment`);
+      setTreat({ sid, data: d });
+    } catch (e) {
+      fail(sid, e);
+    }
+  }, [sid, fail]);
+  useEffect(() => {
+    // 共有が変わったら読み直す（別の共有の値は treatment の getter で sid を照合して出さない）
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (sid) void loadTreatment();
+  }, [sid, loadTreatment]);
   // 処方テンプレート（セット）の読み取り（既存 API。読み取りのみ）
   const [tpl, setTpl] = useState<{ sid: string; items: TemplateApi[] } | null>(null);
   const loadTemplates = useCallback(async () => {
@@ -551,6 +570,7 @@ export function useClinicianRecord(sessionId: string | null, active: boolean, no
     loadRecommendations,
     /** 処方テンプレート（セット）。未読み込みは null */
     templates: sid && tpl?.sid === sid ? tpl.items : null,
+    treatment: sid && treat?.sid === sid ? treat.data : null,
     createTemplate,
     loadTemplates,
     reload,

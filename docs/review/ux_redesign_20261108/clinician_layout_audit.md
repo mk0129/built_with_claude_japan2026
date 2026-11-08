@@ -6,8 +6,8 @@
 
 | 画面 | 横スクロール | はみ出し | 重なり | 小さいボタン | 見切れ | 囲いの入れ子（最大） | 説明文の文字数 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 診察（初期表示） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1033 |
-| 診察（AI 外来間サマリーを開く） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1331 |
+| 診察（初期表示） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1092 |
+| 診察（AI 外来間サマリーを開く） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1390 |
 | 在宅経過（初期表示） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-avatar） | 200 |
 | 在宅経過（症状のグラフ） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-avatar） | 229 |
 | 教材ライブラリ（初期表示） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-share-chip） | 206 |
@@ -17,8 +17,8 @@
 
 | 画面 | 横スクロール | はみ出し | 重なり | 小さいボタン | 見切れ | 囲いの入れ子（最大） | 説明文の文字数 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 診察（初期表示） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1033 |
-| 診察（AI 外来間サマリーを開く） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1331 |
+| 診察（初期表示） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1092 |
+| 診察（AI 外来間サマリーを開く） | なし | 0 | 0 | 0 | 0 | 3（cd-panel > ARTICLE > cd-question-number） | 1390 |
 | 在宅経過（初期表示） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-avatar） | 200 |
 | 在宅経過（症状のグラフ） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-avatar） | 229 |
 | 教材ライブラリ（初期表示） | なし | 0 | 0 | 0 | 0 | 2（cd-app-header > cd-share-chip） | 206 |

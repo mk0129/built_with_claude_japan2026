@@ -678,3 +678,34 @@ export const patientNextVisits = pgTable("patient_next_visits", {
   visitDate: text("visit_date").notNull(),
   updatedAt: ts("updated_at").notNull().defaultNow(),
 });
+
+/**
+ * 治療の記録（患者が自分で登録する。診療記録ではなく、患者が自分の治療の「今どこか」を知るためのもの）。
+ * プロフィール: がん種・現在の治療の種類・開始日など（患者 1 人に 1 件）。
+ * 出来事: 外来の日ごとに「治療をしたか・何をしたか」。点滴なら直近の点滴日を Day 1、内服なら開始（再開）日から、
+ * 放射線なら回数、手術なら手術日からの日数を数える。日付は "YYYY-MM-DD"（Asia/Tokyo の暦日）。
+ */
+export const patientTreatmentProfiles = pgTable("patient_treatment_profiles", {
+  patientId: userRef("patient_id").primaryKey(),
+  cancerType: text("cancer_type"),
+  modality: text("modality").notNull().default("none"),
+  treatmentName: text("treatment_name"),
+  startDate: text("start_date"),
+  cycleDays: integer("cycle_days"),
+  plannedSessions: integer("planned_sessions"),
+  updatedAt: ts("updated_at").notNull().defaultNow(),
+});
+
+export const patientTreatmentEvents = pgTable(
+  "patient_treatment_events",
+  {
+    id: id(),
+    patientId: userRef("patient_id").notNull(),
+    eventDate: text("event_date").notNull(),
+    kind: text("kind").notNull(),
+    label: text("label"),
+    courseNo: integer("course_no"),
+    createdAt: ts("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("patient_treatment_events_patient_idx").on(t.patientId, t.eventDate)],
+);

@@ -974,3 +974,53 @@
 .cd-approach-compact .cd-approach-grid button > span svg { width: 18px; height: 18px; }
 .cd-approach-compact .cd-approach-grid h3 { font-size: 12.5px; }
 .cd-approach-compact .cd-approach-grid p { font-size: 10.5px; }
+
+/* ---------- 治療の記録（患者）: ホーム上段のカードと記録ページ。患者が登録した日付と種類だけから日数を出す ---------- */
+.d-treat-card { width: 100%; display: flex; align-items: center; gap: 12px; margin: 0; padding: 10px 12px; border: 1px solid #d6e3e4; border-radius: 14px; background: #eef4f4; color: var(--ink); text-align: left; }
+.d-treat-card.empty { background: #fff; border-style: dashed; }
+.d-treat-card.loading { min-height: 56px; background: #f3f6f6; border-color: transparent; }
+.d-treat-card > span:nth-child(2) { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.d-treat-card b { font-size: 15px; line-height: 1.4; }
+.d-treat-card small { color: var(--muted); font-size: 12px; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.d-treat-mark { width: 40px; height: 40px; flex: 0 0 40px; display: grid; place-items: center; border-radius: 12px; background: #fff; color: #2f6672; }
+.d-treat-card.empty .d-treat-mark { background: #eef4f4; }
+.d-treat { display: flex; flex-direction: column; gap: 14px; padding: 12px 16px 24px; }
+.d-treat-head { display: flex; align-items: center; gap: 10px; }
+.d-treat-head h1 { margin: 0; font-size: 20px; }
+.d-treat-back { min-height: 36px; padding: 0 8px 0 0; border: 0; background: none; color: #2f6672; font-size: 14px; font-weight: 700; }
+.d-treat-now { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 16px 16px 14px; border-radius: 16px; background: #eef4f4; border: 1px solid #d6e3e4; }
+.d-treat-now > b { font-size: 22px; line-height: 1.3; color: #1f4b55; padding-right: 56px; }
+.d-treat-now > small { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.d-treat-edit { position: absolute; top: 12px; right: 12px; min-height: 32px; padding: 0 10px; border: 1px solid #c9dadc; border-radius: 9px; background: #fff; color: #2f6672; font-size: 12.5px; font-weight: 700; }
+.d-treat-form { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: #fff; }
+.d-treat-form h2 { margin: 4px 0 0; font-size: 14px; }
+.d-treat-form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; }
+.d-treat-form input, .d-treat-form select { min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; font-size: 16px; font-weight: 400; color: var(--ink); }
+.d-treat-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.d-treat-chips button { min-height: 38px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); font-size: 14px; }
+.d-treat-chips button.active { border-color: #2f6672; background: #2f6672; color: #fff; font-weight: 700; }
+.d-treat-list { display: flex; flex-direction: column; gap: 6px; }
+.d-treat-list button { min-height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); font-size: 15px; text-align: left; }
+.d-treat-list button.active { border-color: #2f6672; background: #eef4f4; font-weight: 700; }
+.d-treat-list button.active::after { content: "✓"; float: right; color: #2f6672; }
+.d-treat-actions { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.d-treat-actions .primary-button { flex: 1; }
+.d-treat-cancel { min-height: 44px; padding: 0 12px; border: 0; background: none; color: var(--muted); font-size: 14px; }
+.d-treat-note { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.d-treat-events { display: flex; flex-direction: column; gap: 10px; }
+.d-treat-events-head { display: flex; align-items: center; justify-content: space-between; }
+.d-treat-events-head h2 { margin: 0; font-size: 15px; }
+.d-treat-add { min-height: 36px; padding: 0 12px; border: 1px solid #2f6672; border-radius: 10px; background: #fff; color: #2f6672; font-size: 13px; font-weight: 700; }
+.d-treat-empty { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.d-treat-timeline { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.d-treat-timeline li { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 6px 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.d-treat-timeline li.quiet { background: #fafbfb; color: var(--muted); }
+.d-treat-date { flex: 0 0 92px; font-size: 13px; font-weight: 700; color: #2f6672; }
+.d-treat-timeline li.quiet .d-treat-date { color: var(--muted); }
+.d-treat-what { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.d-treat-what b { font-size: 14px; }
+.d-treat-what small { color: var(--muted); font-size: 12px; }
+.d-treat-timeline li > button { width: 36px; height: 36px; border: 0; background: none; color: var(--muted); font-size: 18px; }
+/* 医療者: 診察サマリーの見出し下に 1 行 */
+.cd-treatment-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 4px 0 0; font-size: 11.5px; color: #34494d; }
+.cd-treatment-line b { color: var(--blue-dark); font-size: 11px; }

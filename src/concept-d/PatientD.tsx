@@ -8,6 +8,8 @@ import { CostSimulator } from "./CostSimulator"
 import { MONEY_THEME, MONEY_TITLES, SIMULATOR_MATERIAL, SIMULATOR_NAME } from "./socialSupport"
 import { VITAL_FLAG_NOTE, vitalFlag } from "@/lib/recommend"
 import { daysUntil, visitDateLabel, type PatientVisit } from "./visit"
+import type { PatientTreatment } from "./treatment"
+import { CANCER_TYPES, DEFAULT_EVENT_KIND, EVENT_KINDS, EVENT_KIND_LABEL, MODALITIES, MODALITY_LABEL, treatmentStatus, visitDateLabel as treatDateLabel, type EventKind, type Modality } from "@/lib/treatment"
 import type { PatientLive } from "./live"
 import { toLocalInput, type HealthInput, type PatientHealth, type PatientNotes, type VisitNote } from "./health"
 import { DEFAULT_ANCHORS, SEVERITY_ANCHORS, SYMPTOM_ALIASES, TREATMENTS } from "./symptomGuide"
@@ -32,8 +34,8 @@ import {
   type HealthRecord,
 } from "./healthData"
 
-type DPage = "home" | "set" | "money" | "simulator" | "prescriptions" | "library" | "category" | "search" | "detail" | "learn" | "quiz" | "explanation" | "result" | "history" | "health" | "notes" | "share"
-const D_PAGES: readonly DPage[] = ["home", "set", "money", "simulator", "prescriptions", "library", "category", "search", "detail", "learn", "quiz", "explanation", "result", "history", "health", "notes", "share"]
+type DPage = "home" | "set" | "money" | "simulator" | "prescriptions" | "library" | "category" | "search" | "detail" | "learn" | "quiz" | "explanation" | "result" | "history" | "health" | "notes" | "share" | "treatment"
+const D_PAGES: readonly DPage[] = ["home", "set", "money", "simulator", "prescriptions", "library", "category", "search", "detail", "learn", "quiz", "explanation", "result", "history", "health", "notes", "share", "treatment"]
 export type DViewport = "390" | "430" | "tablet"
 
 export function Icon({ name, size = 20 }: { name: string; size?: number }) {
@@ -669,6 +671,7 @@ export function DPrototype({
   health,
   notesLive,
   visit,
+  treatment,
   viewport,
   notify,
   healthRecords,
@@ -692,6 +695,8 @@ export function DPrototype({
   notesLive?: PatientNotes
   /** 本番: 次回の診察日（患者が登録した日付）。なければ表示しない */
   visit?: PatientVisit
+  /** 本番: 治療の記録（がん種・現在の治療・外来の日の出来事）。Figma の架空データ表示では undefined */
+  treatment?: PatientTreatment
   viewport: DViewport
   notify: (message?: string) => void
   healthRecords: HealthRecord[]
@@ -936,6 +941,7 @@ export function DPrototype({
           }}
           setPage={setPage}
           visit={visit}
+          treatment={treatment}
           recentNotes={
             unresolvedNotes
               ? [...unresolvedNotes].reverse().map((note) => ({ id: note.id, body: note.body }))
@@ -1279,6 +1285,7 @@ export function DPrototype({
           notify={notify}
         />
       )
+    if (page === "treatment" && treatment) return <DTreatmentPage treatment={treatment} visitDate={visit?.date ?? null} onBack={() => setPage("home")} />
     if (page === "notes")
       return (
         <DNotes
@@ -2758,6 +2765,7 @@ function DHome({
   onOpenSet,
   setPage,
   visit,
+  treatment,
   recentNotes,
   onAddNote,
 }: {
@@ -2771,6 +2779,7 @@ function DHome({
   setPage: (page: DPage) => void
   /** 本番: 次回の診察日（患者が登録した日付のみ）。Figma の架空データ表示では undefined */
   visit?: PatientVisit
+  treatment?: PatientTreatment
   /** 未解決の質問（新しい順）。ホームでは件数だけ出す */
   recentNotes: { id: string; body: string }[]
   /** ホームから質問を保存。保存できたときだけ true（入力欄を空にする） */
@@ -2831,6 +2840,7 @@ function DHome({
           </button>
         )}
         <DVisitCard visit={visit} />
+        {treatment && <DTreatmentCard treatment={treatment} onOpen={() => setPage("treatment")} />}
         <button className={`d-home-health-card d-home-health-top${recordedToday ? " done" : ""}`} data-home-health onClick={() => setPage("health")}>
           <span className="d-health-mark">
             <Icon name={recordedToday ? "check" : "pulse"} size={18} />
@@ -3228,6 +3238,231 @@ function DMoneyTheme({
  * ホーム最上部: 次回の診察日と残り日数。患者が登録した日付だけを表示し、未登録なら「次回診察日を登録」。
  * 共有した日や処方日を診察日として扱わない。日数は Asia/Tokyo の暦日で数える（当日・過ぎた日も区別）。
  */
+/** ホーム上段: 治療の「今どこか」（点滴から N 日目など）。押すと治療の記録へ */
+function DTreatmentCard({ treatment, onOpen }: { treatment: PatientTreatment; onOpen: () => void }) {
+  if (!treatment.loaded) return <div className="d-treat-card loading" aria-hidden />
+  const st = treatmentStatus(treatment.profile, treatment.events, treatment.today)
+  const set = treatment.profile.modality !== "none" || !!treatment.profile.cancerType
+  const sub = [treatment.profile.cancerType, treatment.profile.modality !== "none" ? MODALITY_LABEL[treatment.profile.modality] : null].filter(Boolean).join(" · ")
+  return (
+    <button className={`d-treat-card${set ? "" : " empty"}`} data-home-treatment onClick={onOpen}>
+      <span className="d-treat-mark">
+        <Icon name="calendar" size={18} />
+      </span>
+      <span>
+        <b>{st.headline ?? (set ? sub : "治療の記録を登録する")}</b>
+        <small>{st.headline ? [sub, st.detail].filter(Boolean).join(" · ") : set ? "外来の日の治療を記録すると日数が出ます" : "がん種と今の治療を選ぶと「治療から何日目」が出ます"}</small>
+      </span>
+      <Icon name="arrow" />
+    </button>
+  )
+}
+
+/** 治療の記録: がん種・今の治療と、外来の日ごとの出来事。患者が登録したものだけを表示する */
+function DTreatmentPage({ treatment, visitDate, onBack }: { treatment: PatientTreatment; visitDate: string | null; onBack: () => void }) {
+  const { profile, events, today } = treatment
+  const [cancerType, setCancerType] = useState(profile.cancerType ?? "")
+  const [modality, setModality] = useState<Modality>(profile.modality)
+  const [treatmentName, setTreatmentName] = useState(profile.treatmentName ?? "")
+  const [startDate, setStartDate] = useState(profile.startDate ?? "")
+  const [cycleDays, setCycleDays] = useState(profile.cycleDays ? String(profile.cycleDays) : "")
+  const [plannedSessions, setPlannedSessions] = useState(profile.plannedSessions ? String(profile.plannedSessions) : "")
+  const [editingProfile, setEditingProfile] = useState(profile.modality === "none" && !profile.cancerType)
+  const [busy, setBusy] = useState(false)
+  // 外来の日の記録: 次回の診察日が過ぎていてその日の記録がなければ、その日を既定にする
+  const suggested = visitDate && visitDate <= today && !events.some((e) => e.date === visitDate) ? visitDate : today
+  const lastCourse = events.filter((e) => e.kind === "infusion").reduce((m, e) => Math.max(m, e.courseNo ?? 0), 0)
+  const [date, setDate] = useState(suggested)
+  const [kind, setKind] = useState<EventKind>(DEFAULT_EVENT_KIND[profile.modality])
+  const [courseNo, setCourseNo] = useState(lastCourse ? String(lastCourse + 1) : "")
+  const [label, setLabel] = useState("")
+  const [adding, setAdding] = useState(false)
+  const st = treatmentStatus(profile, events, today)
+  const saveProfile = async () => {
+    setBusy(true)
+    const ok = await treatment.saveProfile({
+      cancerType: cancerType.trim() || null,
+      modality,
+      treatmentName: treatmentName.trim() || null,
+      startDate: startDate || null,
+      cycleDays: cycleDays ? Number(cycleDays) : null,
+      plannedSessions: plannedSessions ? Number(plannedSessions) : null,
+    })
+    setBusy(false)
+    if (ok) {
+      setEditingProfile(false)
+      setKind(DEFAULT_EVENT_KIND[modality])
+    }
+  }
+  const addEvent = async () => {
+    setBusy(true)
+    const ok = await treatment.addEvent({ date, kind, label: label.trim() || null, courseNo: kind === "infusion" && courseNo ? Number(courseNo) : null })
+    setBusy(false)
+    if (ok) {
+      setAdding(false)
+      setLabel("")
+      if (kind === "infusion" && courseNo) setCourseNo(String(Number(courseNo) + 1))
+    }
+  }
+  const kindsFor = (m: Modality): EventKind[] =>
+    m === "infusion" ? ["infusion", "visit_only", "other"] : m === "oral" ? ["oral_start", "visit_only", "other"] : m === "radiation" ? ["radiation", "visit_only", "other"] : m === "surgery" ? ["surgery", "visit_only", "other"] : EVENT_KINDS
+  return (
+    <div className="d-treat" data-treatment-page>
+      <div className="d-treat-head">
+        <button className="d-treat-back" onClick={onBack}>
+          ← ホーム
+        </button>
+        <h1>治療の記録</h1>
+      </div>
+
+      {/* 今どこか */}
+      <section className="d-treat-now" data-treatment-status>
+        {st.headline ? (
+          <>
+            <b>{st.headline}</b>
+            <small>{[profile.cancerType, profile.modality !== "none" ? MODALITY_LABEL[profile.modality] : null, st.detail].filter(Boolean).join(" · ")}</small>
+          </>
+        ) : (
+          <>
+            <b>{profile.modality !== "none" || profile.cancerType ? [profile.cancerType, profile.modality !== "none" ? MODALITY_LABEL[profile.modality] : null].filter(Boolean).join(" · ") : "まだ登録がありません"}</b>
+            <small>{profile.modality === "none" ? "がん種と今の治療を選んでください" : "外来の日の治療を記録すると「何日目」が出ます"}</small>
+          </>
+        )}
+        {!editingProfile && (
+          <button className="d-treat-edit" onClick={() => setEditingProfile(true)} data-treatment-edit>
+            変更
+          </button>
+        )}
+      </section>
+
+      {editingProfile && (
+        <section className="d-treat-form" data-treatment-form>
+          <h2>がん種</h2>
+          <div className="d-treat-chips">
+            {CANCER_TYPES.map((name) => (
+              <button key={name} className={cancerType === name ? "active" : ""} onClick={() => setCancerType(name)} aria-pressed={cancerType === name}>
+                {name}
+              </button>
+            ))}
+          </div>
+          <h2>今の治療</h2>
+          <div className="d-treat-list" role="radiogroup" aria-label="今の治療">
+            {MODALITIES.filter((m) => m !== "none").map((m) => (
+              <button key={m} role="radio" aria-checked={modality === m} className={modality === m ? "active" : ""} onClick={() => setModality(m)} data-modality={m}>
+                {MODALITY_LABEL[m]}
+              </button>
+            ))}
+          </div>
+          <label>
+            治療の名前（任意）
+            <input value={treatmentName} onChange={(e) => setTreatmentName(e.target.value)} placeholder="例: ホルモン療法、EC療法" maxLength={60} />
+          </label>
+          <label>
+            {modality === "infusion" ? "最初の点滴の日（任意）" : modality === "oral" ? "内服を始めた日" : modality === "surgery" ? "手術の日" : modality === "radiation" ? "放射線を始めた日（任意）" : "開始日（任意）"}
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+          </label>
+          {modality === "infusion" && (
+            <label>
+              点滴の間隔（任意）
+              <select value={cycleDays} onChange={(e) => setCycleDays(e.target.value)}>
+                <option value="">決まっていない・わからない</option>
+                <option value="7">1週間ごと</option>
+                <option value="14">2週間ごと</option>
+                <option value="21">3週間ごと</option>
+                <option value="28">4週間ごと</option>
+              </select>
+            </label>
+          )}
+          {modality === "radiation" && (
+            <label>
+              予定の回数（任意）
+              <input type="number" inputMode="numeric" min={1} max={60} value={plannedSessions} onChange={(e) => setPlannedSessions(e.target.value)} placeholder="例: 25" />
+            </label>
+          )}
+          <div className="d-treat-actions">
+            <button className="primary-button" disabled={busy || modality === "none"} onClick={() => void saveProfile()} data-treatment-save>
+              保存する
+            </button>
+            {(profile.modality !== "none" || profile.cancerType) && (
+              <button className="d-treat-cancel" disabled={busy} onClick={() => setEditingProfile(false)}>
+                やめる
+              </button>
+            )}
+          </div>
+          <p className="d-treat-note">ここに書いた内容は、あなたが共有している間だけ医療者に表示されます。</p>
+        </section>
+      )}
+
+      {/* 外来の日の記録 */}
+      {profile.modality !== "none" && (
+        <section className="d-treat-events" data-treatment-events>
+          <div className="d-treat-events-head">
+            <h2>外来の日の記録</h2>
+            {!adding && (
+              <button className="d-treat-add" onClick={() => setAdding(true)} data-treatment-add>
+                ＋ 記録する
+              </button>
+            )}
+          </div>
+          {adding && (
+            <div className="d-treat-form" data-treatment-event-form>
+              <label>
+                日付
+                <input type="date" value={date} max={today} onChange={(e) => setDate(e.target.value)} />
+              </label>
+              <div className="d-treat-list" role="radiogroup" aria-label="その日にしたこと">
+                {kindsFor(profile.modality).map((k) => (
+                  <button key={k} role="radio" aria-checked={kind === k} className={kind === k ? "active" : ""} onClick={() => setKind(k)} data-event-kind={k}>
+                    {EVENT_KIND_LABEL[k]}
+                  </button>
+                ))}
+              </div>
+              {kind === "infusion" && (
+                <label>
+                  何コース目（任意）
+                  <input type="number" inputMode="numeric" min={1} max={99} value={courseNo} onChange={(e) => setCourseNo(e.target.value)} />
+                </label>
+              )}
+              {kind !== "visit_only" && (
+                <label>
+                  薬や治療の名前（任意）
+                  <input value={label} onChange={(e) => setLabel(e.target.value)} maxLength={60} placeholder="例: パクリタキセル" />
+                </label>
+              )}
+              <div className="d-treat-actions">
+                <button className="primary-button" disabled={busy || !date} onClick={() => void addEvent()} data-treatment-event-save>
+                  保存する
+                </button>
+                <button className="d-treat-cancel" disabled={busy} onClick={() => setAdding(false)}>
+                  やめる
+                </button>
+              </div>
+            </div>
+          )}
+          {events.length === 0 ? (
+            <p className="d-treat-empty">まだ記録はありません。外来に行った日に、治療をしたかどうかを残しておくと日数が自動で出ます。</p>
+          ) : (
+            <ul className="d-treat-timeline">
+              {events.map((e) => (
+                <li key={e.id} className={e.kind === "visit_only" ? "quiet" : ""} data-treatment-event={e.id}>
+                  <span className="d-treat-date">{treatDateLabel(e.date)}</span>
+                  <span className="d-treat-what">
+                    <b>{EVENT_KIND_LABEL[e.kind]}</b>
+                    {(e.courseNo || e.label) && <small>{[e.courseNo ? `第${e.courseNo}コース` : null, e.label].filter(Boolean).join(" · ")}</small>}
+                  </span>
+                  <button aria-label="この記録を削除" disabled={busy} onClick={() => void treatment.deleteEvent(e.id)} data-treatment-event-delete>
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+    </div>
+  )
+}
+
 function DVisitCard({ visit }: { visit?: PatientVisit }) {
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState("")
