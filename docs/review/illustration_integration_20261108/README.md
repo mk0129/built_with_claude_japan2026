@@ -4,7 +4,7 @@ Codex 制作の教材イラスト全 57 点（本文挿絵 29・教材サムネ�
 提出ブランチへ通常 push → 公開デモへ反映 → 公開 URL で患者側・医療者側の表示を確認した記録。扱うデータはすべて架空。
 
 - 公開 URL: https://shiori-judge-demo.vercel.app/
-- 公開確認済み SHA: 配信用マージコミット `dccddb85aeae7c15a89806bd5fa3fad992f9af5e`（`feat/submission-ux`。親 `7088e4e` と `4238350`、ツリーは提出ブランチと同一）／提出ブランチ `feat/submission-ux-redesign-20261108` のコミット `42383500c4f9d06b0b47ce62a36b86ffc0483af8`（画像・コード・検証スクリプト）。この記録（docs/review）は後続のコミットで追加し、同じ手順で再配信する（SHA は最終報告に記載）
+- 公開確認済み SHA: 配信用マージコミット `dccddb85aeae7c15a89806bd5fa3fad992f9af5e`（`feat/submission-ux`。親 `7088e4e` と `4238350`、ツリーは提出ブランチ `4238350` と同一。最初の公開確認）、およびその後の `e1a8ddc277d56fd2a96679afd8c1b29bb77a8e4f`（提出ブランチ `7c6b3ae` と同じツリー。本記録を含む。§4-5 で再確認）／提出ブランチ `feat/submission-ux-redesign-20261108` のコミット `42383500c4f9d06b0b47ce62a36b86ffc0483af8`（画像・コード・検証スクリプト）と `f5550cded0e6bba9de12412e4aba60fc4609cda8`（この記録）
 - 開始時: ワークツリーの HEAD `c184218`（提出ブランチの祖先）→ 作業前に提出ブランチ最新 `d65e20f` へ fast-forward。配信中だった SHA `7088e4ed8ffd3a2262157af430988a8430b1e13f`（ツリーは `dc55198`）
 - 素材: `~/Developer/shiori-illustration-library-57-20261108/`（配置の正本 `配置一覧.csv`・`制作台帳.json`、配信用 `delivery/public/`）
 - 成果物（このフォルダ）: `verification_table.md` / `.csv`（57 ID の検証表）、`shots/`（公開版で撮った代表スクリーンショット）、`walkthrough.json`（公開 URL の DOM 照合）、`batch-live.json`（79 ファイルの公開 URL 照合）。同じ内容を `~/Developer/shiori-illustration-integration-20261108/` にも複製。
@@ -53,6 +53,7 @@ Codex 制作の教材イラスト全 57 点（本文挿絵 29・教材サムネ�
 2. 配信用: `git commit-tree HEAD^{tree} -p origin/feat/submission-ux -p HEAD`（マージコミット `dccddb85…`。ツリー `1a3c1a8d…` は提出ブランチ HEAD と同一）→ `git push origin publish-submission-ux:feat/submission-ux`（`7088e4e..dccddb8`、通常 push）。Vercel の自動ビルドで約 2 分 30 秒後に `judge-release.json` の `commit` が `dccddb85…` になった。
 3. `node .judge-demo/tools/verify-live.mjs https://shiori-judge-demo.vercel.app dccddb85aeae7c15a89806bd5fa3fad992f9af5e .judge-demo/dist` → 合格（公開ページ・バンドルがローカルの審査用ビルドと一致）。`curl https://shiori-judge-demo.vercel.app/api/studio` → `{"configured":true,"model":"claude-sonnet-5-5"}`。
 4. `node scripts/assets/validate-illustration-batch.mjs --live https://shiori-judge-demo.vercel.app --report batch-live.json` → 57 ID 合格、79 ファイルすべて HTTP 200・`image/*`・画像としてデコード可・寸法と SHA-256 が納品物と一致（`batch-live.json`）。配信前の同じ確認では 79 ファイルすべて HTTP 404 で不合格になることを確認済み（HTML の代替応答や古いキャッシュを「見かけ上の成功」にしない）。
+5. その後の再配信（親セッションによる。いずれも `4238350` を祖先に含む）: 20:01 に `193fe3d`（教材 30 本の改稿・Claude 生成の品質改善）、続いて `e1a8ddc`（提出ブランチ `7c6b3ae` と同じツリー。この記録 `f5550cd` を含む）。これらの改稿は画像の登録先（`thumbnails.ts`・`seed-figures.ts`・`patient-figures.json`・`public/`）に触れておらず、改稿後の `lessons.json` でも 30 教材の題名と 29 か所のページ見出しは台帳と一致（差分 0）。`e1a8ddc` の配信に対して `verify-live.mjs` 合格、79 ファイル照合 79／79 一致（`batch-live-e1a8ddc.json`）、公開 URL の通し操作 30 項目 OK（`walkthrough-e1a8ddc.json`）を再確認した。
 
 ## 5. 患者側・医療者側の操作結果（公開 URL）
 `node scripts/review/illustration-walkthrough.mjs https://shiori-judge-demo.vercel.app`（新しいブラウザーコンテキスト・sessionStorage 空・Chromium）で 30 項目すべて OK、ページエラーなし（`walkthrough.json`）。
