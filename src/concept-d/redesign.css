@@ -814,13 +814,10 @@
 .cd-template-main > b { font-size: 13.5px; }
 .cd-template-main > b small { margin-left: 2px; color: var(--muted); font-weight: 500; font-size: 11.5px; }
 .cd-template-badge { padding: 1px 7px; border-radius: 8px; background: #eef3f3; color: var(--blue-dark); font-size: 10.5px; font-weight: 700; }
-.cd-template-main details { flex: 1 1 100%; font-size: 12px; }
-.cd-template-main details summary { cursor: pointer; color: var(--blue-dark); font-size: 11.5px; font-weight: 700; list-style: none; }
-.cd-template-main details summary::before { content: "▸ "; }
-.cd-template-main details[open] summary::before { content: "▾ "; }
-.cd-template-main details p { margin: 4px 0; color: var(--muted); font-size: 11.5px; }
-.cd-template-main details ul { margin: 4px 0 0; padding-left: 16px; color: #4c6467; }
-.cd-template-main details li.added { color: #2f6a41; }
+.cd-template-titles { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 2px 0; margin: 0; padding: 0; list-style: none; color: #4c6467; font-size: 11.5px; line-height: 1.5; }
+.cd-template-titles li { display: inline-flex; align-items: center; gap: 3px; }
+.cd-template-titles li + li::before { content: "・"; margin: 0 3px; color: #a8b4b6; }
+.cd-template-titles li.added { color: #2f6a41; }
 .cd-template-row > button { flex: 0 0 auto; min-height: 36px; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px; border: 1px solid var(--blue); border-radius: 9px; background: #fff; color: var(--blue-dark); font-size: 12px; font-weight: 700; white-space: nowrap; }
 .cd-template-row > button.selected, .cd-template-row > button:disabled { border-color: #bcd3c3; color: #2f6a41; background: #eef5f0; }
 .cd-library-v2 .cd-area-chips { margin-top: 10px; }
@@ -913,3 +910,28 @@
 .cd-selected-materials b { font-size: 13px; }
 .cd-selected-materials small { font-size: 11px; }
 .cd-selected-materials > div > span { width: 24px; height: 24px; flex: 0 0 24px; font-size: 11px; }
+
+/* ---------- 動き: 状態が変わったことを伝える 150〜250ms の小さなものだけ。装飾の動きは付けない。reduced-motion では止める ---------- */
+@keyframes cd-slide-out-left { to { opacity: 0; transform: translateX(-48px); } }
+@keyframes cd-rise-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes cd-pop { 0% { transform: scale(1); } 40% { transform: scale(1.22); } 100% { transform: scale(1); } }
+@keyframes cd-flash { 0% { background: #e4f0e7; color: #2f6a41; } 100% { background: transparent; color: inherit; } }
+/* 質問を解決: 行が左へ消える（スワイプと同じ向き） */
+[data-questions] article.resolving { animation: cd-slide-out-left 220ms ease-in forwards; pointer-events: none; }
+/* 要点の帯・サイドバーの数字: 変わった瞬間だけ少し弾む */
+.cd-points button b.cd-pop, .cd-sidebar i.cd-pop { display: inline-block; animation: cd-pop 240ms ease-out; }
+/* 選択トレイとチップ: 下から出る・追加した名前が現れる */
+.cd-select-tray { animation: cd-rise-in 200ms ease-out; }
+.cd-select-chip { animation: cd-rise-in 160ms ease-out; }
+/* 教材の行・推薦の行: 選択の切り替えは色と枠だけを滑らかに */
+.cd-material-row, .cd-material-row > button, .cd-reco-list li > button, .cd-template-row > button { transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease; }
+/* 手順バー: 進行中の帯が次の手順へ滑る */
+.cd-stepper-v2 button { transition: flex-grow 220ms ease, background-color 220ms ease, color 220ms ease; }
+.cd-stepper-v2 button > span { transition: background-color 220ms ease, color 220ms ease; }
+/* 自動保存: 保存のたびに一瞬だけ緑で知らせる */
+.cd-saved-flash { padding: 1px 6px; border-radius: 6px; animation: cd-flash 900ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  [data-questions] article.resolving, .cd-points button b.cd-pop, .cd-sidebar i.cd-pop, .cd-select-tray, .cd-select-chip, .cd-saved-flash { animation: none; }
+  [data-questions] article.resolving { opacity: .4; }
+  .cd-material-row, .cd-material-row > button, .cd-reco-list li > button, .cd-template-row > button, .cd-stepper-v2 button, .cd-stepper-v2 button > span { transition: none; }
+}

@@ -478,7 +478,7 @@ export default function ClinicianD({
                   {record ? (
                     // 未解決の質問の数（患者が「聞けた」にすると減る。医療者側では変えない）
                     record.questions.filter((q) => !q.resolved).length > 0 && (
-                      <i title="未解決の質問">{record.questions.filter((q) => !q.resolved).length}</i>
+                      <i title="未解決の質問" key={record.questions.filter((q) => !q.resolved).length} className="cd-pop">{record.questions.filter((q) => !q.resolved).length}</i>
                     )
                   ) : (
                   clinicalScenario !== "clear" && (
@@ -3499,7 +3499,8 @@ function LiveSummary({
   const swipeStart = useRef<{ id: string; x: number; y: number } | null>(null)
   const resolveQuestion = async (id: string) => {
     setResolving(id)
-    await record.setQuestionStatus(id, "resolved")
+    // 行が左へ消える動き（220ms）を見せてから一覧から外す。API 呼び出しと並行
+    await Promise.all([record.setQuestionStatus(id, "resolved"), new Promise((r) => setTimeout(r, 220))])
     setResolving(null)
   }
   return (
@@ -3553,15 +3554,15 @@ function LiveSummary({
       {iv && (
         <div className="cd-points" data-points role="navigation" aria-label="この診察の要点">
           <button className={worsened.length ? "warn" : ""} onClick={() => jump("[data-so]")} data-point="symptoms">
-            <b>{worsened.length}</b>
+            <b key={worsened.length} className="cd-pop">{worsened.length}</b>
             強い・悪化した症状
           </button>
           <button className={questionsOpen.length ? "warn" : ""} onClick={() => jump("[data-questions]")} data-point="questions">
-            <b>{questionsOpen.length}</b>
+            <b key={questionsOpen.length} className="cd-pop">{questionsOpen.length}</b>
             未解決の質問
           </button>
           <button className={wrongCount + unknownCount ? "warn" : ""} onClick={() => jump("[data-checks]")} data-point="checks">
-            <b>{wrongCount + unknownCount}</b>
+            <b key={wrongCount + unknownCount} className="cd-pop">{wrongCount + unknownCount}</b>
             つまずいた設問
           </button>
           <button onClick={() => jump("[data-understanding]")} data-point="understanding">
@@ -4246,19 +4247,15 @@ function PrescriptionLibrary({
                     <small>（{cards.length}件）</small>
                   </b>
                   <span className="cd-template-badge">{t.scope === "org" ? "施設" : "共通"}</span>
-                  <details>
-                    <summary>内容</summary>
-                    {t.description && <p>{t.description}</p>}
-                    <ul>
-                      {cards.map((c) => (
-                        <li key={c.id} className={selected.includes(c.id) || c.prescribedNow ? "added" : ""}>
-                          {(selected.includes(c.id) || c.prescribedNow) && <CIcon name="check" size={12} />}
-                          {c.title}
-                          {c.prescribedNow ? "（この診察で処方済み）" : ""}
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
+                  {/* 内容はクリックなしで見える 1 行（選択済み・処方済みはチェック付き） */}
+                  <ul className="cd-template-titles" title={t.description || undefined}>
+                    {cards.map((c) => (
+                      <li key={c.id} className={selected.includes(c.id) || c.prescribedNow ? "added" : ""}>
+                        {(selected.includes(c.id) || c.prescribedNow) && <CIcon name="check" size={11} />}
+                        {c.title}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
                 <button className={pending.length === 0 ? "selected" : ""} disabled={pending.length === 0} onClick={() => setSelected([...selected, ...pending])}>
                   <CIcon name={pending.length === 0 ? "check" : "plus"} />
@@ -4662,7 +4659,7 @@ function Studio({
                   ? "差し戻し"
                   : "編集中"}
           </Badge>
-          <span>
+          <span key={live?.savedAt?.getTime() ?? 0} className={live?.savedAt ? "cd-saved-flash" : ""}>
             {live
               ? live.savedAt
                 ? `自動保存 ${live.savedAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`
