@@ -708,6 +708,11 @@ export function DPrototype({
 }) {
   // 画面・教材・領域は URL に持つ（再読み込みで同じ画面に戻る）
   const [page, setPage] = useUrlState<DPage>("view", "home", D_PAGES)
+  // 画面を切り替えたら先頭から表示する（前の画面のスクロール位置を引きずらない）
+  const pageMainRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    pageMainRef.current?.scrollTo({ top: 0 })
+  }, [page])
   const [scenario, setScenario] = useState(2)
   // 教材は URL に持つ（Figma の架空データは番号、本番は教材 ID）
   const [selectedId, setSelectedId] = useUrlState<string>("lesson", "1")
@@ -1367,7 +1372,7 @@ export function DPrototype({
         {!fullScreen && (
           <DHeader sharing={sharing} onShare={() => setPage("share")} />
         )}
-        <main className={`d-main ${fullScreen ? "full" : ""}`}>
+        <main className={`d-main ${fullScreen ? "full" : ""}`} ref={pageMainRef}>
           {renderPage()}
         </main>
         {!fullScreen && (
