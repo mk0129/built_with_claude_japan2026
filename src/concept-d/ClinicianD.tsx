@@ -4163,6 +4163,26 @@ function ConcernDetail({
   )
 }
 
+/** 教材の行のサムネイル（患者側と同じ小さな PNG。なければ原寸の画像、なければ領域色の空枠） */
+function MaterialThumb({ item }: { item: LibraryCard }) {
+  const src = item.thumbnail?.src
+  if (!src) return <span className="cd-material-thumb empty" aria-hidden />
+  const small = src.replace(/^\/thumbnails\/([^/]+)\.webp$/, "/thumbnails/small/$1.png")
+  return (
+    <span className="cd-material-thumb">
+      <img
+        src={small}
+        alt=""
+        loading="lazy"
+        onError={(event) => {
+          if (small !== src && event.currentTarget.src.endsWith(small)) event.currentTarget.src = src
+          else event.currentTarget.style.visibility = "hidden"
+        }}
+      />
+    </span>
+  )
+}
+
 function PrescriptionLibrary({
   selected,
   setSelected,
@@ -4279,6 +4299,7 @@ function PrescriptionLibrary({
           <div className="cd-library-grid cd-library-rows">
             {candidates.map(({ item, reason }) => (
               <article key={`cand-${item.id}`} className={`cd-material-row ${cdAreaTone(item.area)}${selected.includes(item.id) ? " selected" : ""}`} data-candidate-row>
+                <MaterialThumb item={item} />
                 <div className="cd-material-text">
                   <b>{item.title}</b>
                   <small>
@@ -4367,6 +4388,7 @@ function PrescriptionLibrary({
             <div className="cd-library-grid cd-library-rows">
               {list.map((item) => (
                 <article key={item.id} className={`cd-material-row ${cdAreaTone(item.area)}${selected.includes(item.id) ? " selected" : ""}${item.prescribedNow ? " now" : ""}`}>
+                  <MaterialThumb item={item} />
                   <div className="cd-material-text">
                     <b>{item.title}</b>
                     <small>
