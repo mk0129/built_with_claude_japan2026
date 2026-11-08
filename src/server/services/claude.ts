@@ -77,7 +77,11 @@ function classifyInner(e: unknown): ClaudeError {
     if (s === 429) return new ClaudeError("RATE_LIMIT", "Claude API の利用上限に達しました。少し待ってから再試行してください。", rid);
     if (s === 529) return new ClaudeError("OVERLOADED", "Claude API が混み合っています。少し待ってから再試行してください。", rid);
     if (s && s >= 500) return new ClaudeError("SERVER_ERROR", `Claude API でエラーが発生しました（${s}）。再試行してください。`, rid);
-    if (s === 400 || s === 413 || s === 422) return new ClaudeError("BAD_REQUEST", `Claude API がリクエストを受け付けませんでした（${s}）。資料の長さや設定を確認してください。`, rid);
+    if (s === 400 || s === 413 || s === 422) {
+      // 設定ミスの切り分け用に API の検証メッセージだけをサーバーログに残す（原資料や鍵は含まれない）
+      console.warn(`[claude] ${s}: ${e.message.slice(0, 300)}`);
+      return new ClaudeError("BAD_REQUEST", `Claude API がリクエストを受け付けませんでした（${s}）。資料の長さや設定を確認してください。`, rid);
+    }
     return new ClaudeError("API_ERROR", `Claude API エラー（${s ?? "不明"}）`, rid);
   }
   return new ClaudeError("API_ERROR", "Claude API の呼び出しに失敗しました。");
@@ -111,7 +115,11 @@ export async function callClaudeStructured<S extends z.ZodType>(args: {
   console.info(`[claude] call ${g.__shioriClaudeCalls}/${Number.isFinite(maxCalls) ? maxCalls : "∞"} schema=${args.schemaName}`);
 
   const client = new Anthropic({ timeout: Number(process.env.CLAUDE_TIMEOUT_MS || 300_000), maxRetries: Number(process.env.CLAUDE_MAX_RETRIES ?? 2) });
-  const effort = process.env.CLAUDE_EFFORT as "low" | "medium" | "high" | undefined;
+  // 思考の深さ。Claude 5.5 系は既定で適応的な思考が有効で、思考トークンも max_tokens に数えられる。
+  // 構造化出力の下書きでは high だと規則の確認に思考を使い切ることがあった（2026-11-08: 構成案が 32,000 トークンの思考だけで上限に到達）ため、既定は medium。
+  const effort = (process.env.CLAUDE_EFFORT as "low" | "medium" | "high" | undefined) || "medium";
+  // CLAUDE_THINKING=off: 思考を使わない（Claude Sonnet 5.5 では thinking: {type: "between_tools"} が「思考なし」の指定。ツールを使わない構造化出力ではそのまま思考なしになる）
+  const thinkingParam = process.env.CLAUDE_THINKING === "off" ? { thinking: { type: "between_tools" as const } } : {};
   let msg;
   let requestId: string | null = null;
   try {
@@ -123,6 +131,7 @@ export async function callClaudeStructured<S extends z.ZodType>(args: {
       system: args.system,
       messages: [{ role: "user", content: args.user }],
       output_config: { format: betaZodOutputFormat(args.schema), ...(effort ? { effort } : {}) },
+      ...(thinkingParam as object),
     });
     msg = await stream.finalMessage();
     requestId = stream.request_id ?? null;
@@ -130,7 +139,13 @@ export async function callClaudeStructured<S extends z.ZodType>(args: {
     throw classifyClaudeError(e);
   }
   if (msg.stop_reason === "refusal") throw new ClaudeError("REFUSAL", "Claude が生成を辞退しました。資料の内容を確認してください。", requestId);
-  if (msg.stop_reason === "max_tokens") throw new ClaudeError("MAX_TOKENS", "出力が上限に達しました。資料を短くするか再試行してください。", requestId);
+  if (msg.stop_reason === "max_tokens") {
+    // 原因の切り分け用（本文は出さない）: 思考ブロックで上限に達したのか、本文が長すぎたのか
+    const kinds = msg.content.map((b) => b.type).join(",");
+    const textChars = msg.content.reduce((n, b) => n + (b.type === "text" ? (b as { text: string }).text.length : 0), 0);
+    console.warn(`[claude] max_tokens: output_tokens=${msg.usage.output_tokens} blocks=${kinds || "(none)"} textChars=${textChars}`);
+    throw new ClaudeError("MAX_TOKENS", `出力が上限に達しました（出力 ${msg.usage.output_tokens} トークン）。資料を短くするか再試行してください。`, requestId);
+  }
   if (!msg.parsed_output) throw new ClaudeError("PARSE_FAILED", "Claude の出力を読み取れませんでした。", requestId);
   const fallbackUsed = msg.content.some((b) => b.type === "fallback");
   return {
