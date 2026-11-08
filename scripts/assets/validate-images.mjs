@@ -24,7 +24,10 @@ const LINE = [0x31, 0x5e, 0x68];
 
 // ---- 正しいキー（コードから読む） ----
 const src = (f) => readFileSync(f, "utf8");
-const seedTitles = [...src("src/server/db/seed-data.ts").matchAll(/\{ title: "([^"]+)", primaryDomain/g)].map((m) => m[1]);
+// DEMO_MATERIALS は seed-data.ts の 10 本に、seed-content-social.ts（社会制度 4 本）と seed-content-more.ts（2026-11-08 追加の 16 本）を展開したもの
+const seedTitles = ["src/server/db/seed-data.ts", "src/server/db/seed-content-social.ts", "src/server/db/seed-content-more.ts"].flatMap((f) =>
+  [...src(f).matchAll(/\{ title: "([^"]+)", primaryDomain/g)].map((m) => m[1]),
+);
 const social = src("src/concept-d/socialSupport.ts");
 const moneyTitles = JSON.parse(social.match(/MONEY_TITLES = (\[[^\]]+\])/)[1]);
 const moneyTheme = social.match(/MONEY_THEME = "([^"]+)"/)[1];

@@ -105,6 +105,10 @@
 .d-slide-art svg { width: 84px; height: 84px; position: relative; z-index: 1; }
 .d-slide-art.compact { height: 92px; }
 .d-slide-art.compact svg { width: 60px; height: 60px; }
+/* 登録済みの挿絵（生活場面の装飾。透過 PNG 1200×900）。枠や点線は付けず、本文より目立たない高さに抑える */
+.d-slide-illustration { margin: 0; width: 100%; display: grid; place-items: center; }
+.d-slide-illustration img { display: block; width: 100%; height: auto; max-height: 252px; object-fit: contain; }
+.d-learning.large .d-slide-illustration img { max-height: 220px; }
 .d-audio-notice { margin: -8px 0 12px; padding: 8px 10px; border-radius: 9px; background: #fbf6ea; color: #6b5a3a; font-size: 12px; line-height: 1.6; }
 .d-learning .d-disclosure b { font-size: 14px; }
 .d-learning .d-detail-copy { font-size: 14px; white-space: pre-line; }
@@ -810,6 +814,9 @@
 .cd-library-v2 .cd-template-sets { margin: 12px 0 8px; }
 .cd-template-rows { display: grid; gap: 6px; }
 .cd-template-row { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+/* セットの表紙（患者側と同じ public/covers の縦長の線画。4:5 の小さな枠に全体を表示） */
+.cd-template-cover { flex: 0 0 40px; width: 40px; height: 50px; display: grid; place-items: center; overflow: hidden; border-radius: 6px; border: 1px solid var(--line); background: #fff; }
+.cd-template-cover img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
 .cd-template-main { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
 .cd-template-main > b { font-size: 13.5px; }
 .cd-template-main > b small { margin-left: 2px; color: var(--muted); font-weight: 500; font-size: 11.5px; }

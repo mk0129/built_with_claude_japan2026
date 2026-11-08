@@ -4,7 +4,8 @@ import type { ClinicianLive } from "./live"
 import type { ClinicianRecord, LiveConcern, LiveLibraryItem } from "./record"
 import { SAFETY_KINDS, type Draft, type MustCandidate, type StudioLive } from "./studio"
 import { DDraftPreview } from "./PatientD"
-import { areaOf } from "./learning"
+import { areaOf, patientSetName } from "./learning"
+import { setCoverFor } from "./thumbnails"
 import { ShioriLogo } from "./ShioriLogo"
 import { VITAL_FLAG_NOTE, vitalFlag } from "@/lib/recommend"
 import {
@@ -4211,6 +4212,24 @@ function ConcernDetail({
   )
 }
 
+/** セットの行の表紙（患者側のセット詳細と同じ public/covers の画像。患者向けのセット名で引く。登録がなければ何も出さない） */
+function SetCoverThumb({ name }: { name: string }) {
+  const cover = setCoverFor(patientSetName(name))
+  if (!cover) return null
+  return (
+    <span className="cd-template-cover" aria-hidden="true">
+      <img
+        src={cover.src}
+        alt=""
+        loading="lazy"
+        onError={(event) => {
+          event.currentTarget.style.visibility = "hidden"
+        }}
+      />
+    </span>
+  )
+}
+
 /** 教材の行のサムネイル（患者側と同じ小さな PNG。なければ原寸の画像、なければ領域色の空枠） */
 function MaterialThumb({ item }: { item: LibraryCard }) {
   const src = item.thumbnail?.src
@@ -4404,6 +4423,7 @@ function PrescriptionLibrary({
           <div className="cd-template-rows">
             {templateSets.map(({ t, cards, addable, pending }) => (
               <article key={t.id} data-template={t.id} data-template-name={t.name} className="cd-template-row">
+                <SetCoverThumb name={t.name} />
                 <div className="cd-template-main">
                   <b>
                     {t.name}

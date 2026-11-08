@@ -216,8 +216,14 @@ export type Slide = {
   bodyMd: string;
   detailMd: string | null;
   voiceText: string;
-  figures: { src: string; altText: string | null; caption: string | null; longDescription: string | null; width: number | null; height: number | null }[];
+  /** 承認済みの図だけが届く。type: medical = 監修済みの医学図解（図解タブ・説明文つき）、editorial = 生活場面の挿絵（装飾） */
+  figures: { src: string; altText: string | null; caption: string | null; longDescription: string | null; width: number | null; height: number | null; type?: "medical" | "editorial" }[];
 };
+export type SlideFigure = Slide["figures"][number];
+/** ページに出す図: 医学図解があればそれ（同じページに挿絵があっても図解を優先）。なければ先頭の挿絵 */
+export const primaryFigure = (figures: SlideFigure[] | undefined): SlideFigure | null =>
+  figures?.find((f) => f.type === "medical") ?? figures?.[0] ?? null;
+export const isEditorialFigure = (figure: SlideFigure | null): figure is SlideFigure => figure?.type === "editorial";
 export type LearnView = {
   versionId: string;
   title: string;

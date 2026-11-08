@@ -10,7 +10,8 @@ export { getNativePatientGrant } from "./judge-patient-share";
 
 type Lesson = {title:string; slides:{seq:number;title:string;body:string;proposition?:string;detail?:string}[];
   questions:{seq:number;stem:string;options:string[];correctIndex:number;explanation:string;relatedSlide:number}[]};
-type Figure = {src:string;altText:string;caption:string;longDescription:string;width:number;height:number};
+// type: medical = 監修済みの医学図解（図解タブ・説明文つき）、editorial = 生活場面の挿絵（装飾。本文の横に出すだけ）
+type Figure = {src:string;altText:string;caption:string|null;longDescription:string|null;width:number;height:number;type?:"medical"|"editorial"};
 type Progress = {phase:LibraryApiItem["phase"];lastSlideSeq:number};
 type Item = LibraryApiItem;
 type SavedAnswer = {id:string;questionId:string;seq:number;selectedIndex:number|null;at:string};
