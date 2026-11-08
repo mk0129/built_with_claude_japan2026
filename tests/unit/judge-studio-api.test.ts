@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import handler from "../../.judge-demo/api/studio";
+import handler from "../../.judge-demo/api-src/studio";
 
 /**
  * 公開デモのサーバー関数: 合言葉がないと呼べない、鍵が未設定なら 503、短すぎる原資料は 400、

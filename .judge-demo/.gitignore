@@ -1,3 +1,4 @@
 /dist/
 /node_modules/
 /.vercel/
+/api/_bundle/

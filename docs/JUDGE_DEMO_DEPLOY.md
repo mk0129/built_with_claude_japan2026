@@ -30,6 +30,6 @@ node .judge-demo/tools/verify-live.mjs https://shiori-judge-demo.vercel.app "$(g
 | `CLAUDE_MODEL`（任意） | 既定 `claude-sonnet-5-5` |
 | `JUDGE_STUDIO_DAILY_CAP`（任意） | 1 日の生成回数の上限（既定 30。サーバー関数のインスタンス内の目安） |
 
-実装は `.judge-demo/api/studio.ts`（Vercel の関数。`maxDuration` 300 秒）。プロンプトと出力スキーマは本番と同じ `src/server/services/ai-prompts.ts` を使い、DB と個人情報は扱いません。原資料は TXT / Markdown（20,000 文字まで）か、画面の「サンプル原資料を使う」。PDF / Word の読み取りは本番サーバーだけです。
+実装は `.judge-demo/api-src/studio.ts`（ビルド時に `tools/build-api.mjs` が依存ごと `api/_bundle/studio.cjs` に束ね、`api/studio.js` がそれを読み込む。Vercel の関数。`maxDuration` 300 秒）。プロンプトと出力スキーマは本番と同じ `src/server/services/ai-prompts.ts` を使い、DB と個人情報は扱いません。原資料は TXT / Markdown（20,000 文字まで）か、画面の「サンプル原資料を使う」。PDF / Word の読み取りは本番サーバーだけです。
 
 使い方: 医師側 → 教材スタジオ → 上の帯の「合言葉を入れて実際に Claude で作る」→ 合言葉 → 以後その端末のセッションでは Claude を呼びます（帯の「記録の再生に戻す」で戻せます）。鍵が未設定のときはこのボタン自体が出ません。
