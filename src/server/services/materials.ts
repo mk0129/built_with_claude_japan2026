@@ -132,6 +132,20 @@ export async function createTemplateForClinician(
   return { id: row.id, templates: await listTemplates(ctx.orgId, db) };
 }
 
+/** 自施設のセットを削除する（共通セット・他施設のセットは消せない: 404） */
+export async function deleteTemplateForClinician(ctx: ConsultationContext, templateId: string, db: Db = getDb()) {
+  const deleted = await db
+    .delete(prescriptionTemplates)
+    .where(and(eq(prescriptionTemplates.id, templateId), eq(prescriptionTemplates.scope, "org"), eq(prescriptionTemplates.ownerOrgId, ctx.orgId)))
+    .returning({ id: prescriptionTemplates.id });
+  if (deleted.length !== 1) throw notFound("TEMPLATE_NOT_FOUND");
+  await audit(
+    { actorUserId: ctx.clinician.userId, orgId: ctx.orgId, action: "template.delete", resourceType: "prescription_template", resourceId: templateId, consultationSessionId: ctx.sessionId, outcome: "ok" },
+    db,
+  );
+  return { templates: await listTemplates(ctx.orgId, db) };
+}
+
 /** 版の本文（スライド・設問）。正解は含めて返すので、患者向け API では correctIndex を落とすこと */
 export async function getVersionContent(versionId: string, db: Db = getDb()) {
   const [v] = await db

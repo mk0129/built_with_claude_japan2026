@@ -3502,7 +3502,16 @@ function LiveSummary({
     return t.last.severity >= 3 || (sym.count > 1 && t.last.severity > t.first.severity)
   })
   const rootRef = useRef<HTMLDivElement>(null)
-  const jump = (selector: string) => rootRef.current?.querySelector(selector)?.scrollIntoView({ behavior: "smooth", block: "start" })
+  const jump = (selector: string) => {
+    const el = rootRef.current?.querySelector<HTMLElement>(selector)
+    if (!el) return
+    el.scrollIntoView({ behavior: "smooth", block: "start" })
+    // 移動先を 1 秒だけ淡く光らせる（reduced-motion では CSS 側で止まる）
+    el.classList.remove("cd-jump-target")
+    void el.offsetWidth
+    el.classList.add("cd-jump-target")
+    window.setTimeout(() => el.classList.remove("cd-jump-target"), 1100)
+  }
   // 質問を「解決」に（診察で答えたらその場で消す。数字も減る）。原文は変えない
   const [resolving, setResolving] = useState<string | null>(null)
   const swipeStart = useRef<{ id: string; x: number; y: number } | null>(null)
@@ -4247,6 +4256,8 @@ function PrescriptionLibrary({
   const [setForm, setSetForm] = useState<"closed" | "open" | "saving">("closed")
   const [setName, setSetName] = useState("")
   const [savedSet, setSavedSet] = useState<string | null>(null)
+  const [setHint, setSetHint] = useState(false)
+  const [deletingSet, setDeletingSet] = useState<string | null>(null)
   const saveSet = async () => {
     if (!record?.createTemplate) return
     const name = setName.trim()
@@ -4321,9 +4332,28 @@ function PrescriptionLibrary({
 
       {record && templateSets.length > 0 && (
         <section className="cd-template-sets" data-template-sets>
-          <h2 className="cd-library-group-title">
+          <h2 className="cd-library-group-title cd-sets-title">
             セット<small>まとめて追加</small>
+            {record && (
+              <button
+                type="button"
+                className="cd-text-back"
+                data-new-set
+                onClick={() => {
+                  setSavedSet(null)
+                  if (selected.length > 0) setSetForm("open")
+                  else setSetHint(true)
+                }}
+              >
+                ＋ 自分のセットを作る
+              </button>
+            )}
           </h2>
+          {setHint && selected.length === 0 && (
+            <p className="cd-set-hint" data-set-hint role="status">
+              下の一覧で教材を選ぶと、画面下に「セットとして保存」が出ます。名前を付けて保存すると、この施設のセットになります。
+            </p>
+          )}
           <div className="cd-template-rows">
             {templateSets.map(({ t, cards, addable, pending }) => (
               <article key={t.id} data-template={t.id} data-template-name={t.name} className="cd-template-row">
@@ -4347,6 +4377,22 @@ function PrescriptionLibrary({
                   <CIcon name={pending.length === 0 ? "check" : "plus"} />
                   {pending.length === 0 ? (addable.length === 0 ? "この診察で処方済み" : "選択に追加済み") : `セットを選択に追加（${pending.length}件）`}
                 </button>
+                {t.scope === "org" && record && (
+                  deletingSet === t.id ? (
+                    <span className="cd-set-delete-confirm" data-set-delete-confirm>
+                      <button type="button" className="cd-danger-text" onClick={() => void record.deleteTemplate(t.id).then(() => setDeletingSet(null))}>
+                        削除する
+                      </button>
+                      <button type="button" className="cd-text-back" onClick={() => setDeletingSet(null)}>
+                        やめる
+                      </button>
+                    </span>
+                  ) : (
+                    <button type="button" className="cd-set-delete" aria-label={`セット「${t.name}」を削除`} title="このセットを削除（教材は消えません）" onClick={() => setDeletingSet(t.id)} data-set-delete>
+                      ×
+                    </button>
+                  )
+                )}
               </article>
             ))}
           </div>
@@ -4750,8 +4796,8 @@ function Studio({
         <p className="cd-studio-env" data-studio-env role="note">
           <CIcon name="alert" size={14} />
           {live?.outlineJob?.generator === "replay" || live?.draftJob?.generator === "replay"
-            ? `デモ環境: 記録済みのClaude出力（${live.draftJob?.model ?? live.outlineJob?.model}）を再生しています。今回はClaudeを呼び出していません。`
-            : "デモ環境: Claude API は設定されていません。構成案と下書きは記録済みの出力、または開発用の擬似生成です。"}
+            ? `デモ環境: 記録済みのClaude出力を再生します（${live.draftJob?.model ?? live.outlineJob?.model}）`
+            : "デモ環境: Claude API 未設定のため、記録済みの出力か開発用の擬似生成を使います"}
         </p>
       )}
       <div className="cd-title-row cd-studio-title">
@@ -4817,7 +4863,7 @@ function Studio({
           </div>
         </div>
       ) : (
-      <div className="cd-studio-body">
+      <div className="cd-studio-body cd-step-enter" key={`${step}-${previewing ? "p" : "e"}`}>
         {live && live.busy && (
           <p className="cd-studio-busy" data-studio-busy>
             {live.busy === "upload"
@@ -5031,107 +5077,108 @@ function SourceStep({
   }
 }) {
   const fileRef = useRef<HTMLInputElement>(null)
+  const [protoPerm, setProtoPerm] = useState({ allowDerive: true, allowPublish: true, allowShare: false })
+  const perm = live ? live.perm : protoPerm
+  const setPerm = live ? live.setPerm : setProtoPerm
+  const locked = !!live?.uploaded
   return (
-    <div className="cd-studio-step">
+    <div className="cd-studio-step cd-source-v2">
       <div className="cd-step-heading">
         <h2>原資料を登録</h2>
       </div>
-      <div className="cd-source-layout">
-        <section className="cd-panel">
-          {live && (
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".pdf,.txt,.md,.docx,.pptx"
-              style={{ display: "none" }}
-              data-source-file
-              onChange={(event) => {
-                const f = event.target.files?.[0] ?? null
-                live.setFile(f)
-                if (f && !live.meta.title) live.setMeta({ ...live.meta, title: f.name.replace(/\.[^.]+$/, "") })
-              }}
-            />
-          )}
-          {live && sourceReady ? (
-            <div className="cd-file-ready">
-              <span>
-                <CIcon name="file" size={28} />
-              </span>
-              <div>
-                <b>{live.uploaded?.filename ?? live.file?.name}</b>
-                <small>
-                  {(((live.uploaded?.size ?? live.file?.size ?? 0) / 1024 / 1024) || 0).toFixed(1)}MB ·{" "}
-                  {live.uploaded ? `${live.uploaded.charCount}文字を読み取り済み` : "登録前（「次へ進む」で登録）"}
+      {/* 1 列: 資料 → 利用条件。説明文は置かず、入力と確認だけ */}
+      <section className="cd-panel cd-source-panel">
+        {live && (
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".pdf,.txt,.md,.docx,.pptx"
+            style={{ display: "none" }}
+            data-source-file
+            onChange={(event) => {
+              const f = event.target.files?.[0] ?? null
+              live.setFile(f)
+              if (f && !live.meta.title) live.setMeta({ ...live.meta, title: f.name.replace(/\.[^.]+$/, "") })
+            }}
+          />
+        )}
+        {live && sourceReady ? (
+          <div className="cd-file-ready">
+            <span>
+              <CIcon name="file" size={24} />
+            </span>
+            <div>
+              <b>{live.uploaded?.filename ?? live.file?.name}</b>
+              <small>
+                {(((live.uploaded?.size ?? live.file?.size ?? 0) / 1024 / 1024) || 0).toFixed(1)}MB · {live.uploaded ? `${live.uploaded.charCount}文字を読み取り済み` : "登録前"}
+              </small>
+              {live.uploaded?.warnings.map((w) => (
+                <small key={w} style={{ color: "#a0523f" }}>
+                  {w}
                 </small>
-                {live.uploaded?.warnings.map((w) => (
-                  <small key={w} style={{ color: "#a0523f" }}>
-                    {w}
-                  </small>
-                ))}
-              </div>
-              <button onClick={live.remove}>削除</button>
+              ))}
             </div>
-          ) : live ? (
-            <button className="cd-upload" onClick={() => fileRef.current?.click()}>
-              <CIcon name="upload" size={32} />
-              <b>PDF・Word などの資料を登録</b>
-              <span>クリックして手元のファイルを選ぶ</span>
-              <small>PDF / Word / PowerPoint / TXT · 最大15MB · 患者個人情報を含まない資料だけ</small>
-            </button>
-          ) : !sourceReady ? (
-            <button className="cd-upload" onClick={() => setSourceReady(true)}>
-              <CIcon name="upload" size={32} />
-              <b>PDF・テキスト資料を登録</b>
-              <span>クリックしてサンプル資料を登録</span>
-              <small>PDF / TXT · 最大20MB</small>
-            </button>
-          ) : (
-            <div className="cd-file-ready">
-              <span>
-                <CIcon name="file" size={28} />
-              </span>
-              <div>
-                <b>乳がん術後リハビリテーション指針.pdf</b>
-                <small>2.4MB · 38ページ · 読み取り完了</small>
-              </div>
-              <button onClick={() => setSourceReady(false)}>削除</button>
+            <button onClick={live.remove}>削除</button>
+          </div>
+        ) : live ? (
+          <button className="cd-upload cd-upload-compact" onClick={() => fileRef.current?.click()}>
+            <CIcon name="upload" size={22} />
+            <b>資料を選ぶ</b>
+            <small>PDF / Word / PowerPoint / TXT · 15MBまで</small>
+          </button>
+        ) : !sourceReady ? (
+          <button className="cd-upload cd-upload-compact" onClick={() => setSourceReady(true)}>
+            <CIcon name="upload" size={22} />
+            <b>資料を選ぶ</b>
+            <small>PDF / TXT · 20MBまで（開発用: サンプル資料）</small>
+          </button>
+        ) : (
+          <div className="cd-file-ready">
+            <span>
+              <CIcon name="file" size={24} />
+            </span>
+            <div>
+              <b>乳がん術後リハビリテーション指針.pdf</b>
+              <small>2.4MB · 38ページ</small>
             </div>
-          )}
-          {live ? (
-            <div className="cd-form-grid">
-              <label>
-                資料名
-                <input value={live.meta.title} disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, title: event.target.value })} />
-              </label>
-              <label>
-                作成元（許諾元）<em className="cd-required">必須</em>
-                <input value={live.meta.rightsHolder} placeholder="例: さくら総合病院 乳腺外科（院内資料）" disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, rightsHolder: event.target.value })} />
-                {!live.uploaded && (
-                  <span className="cd-quick-fill" data-quick-rights>
-                    {["当院の院内資料", "学会・公的機関の資料", "出版社の資料（許諾あり）"].map((t) => (
-                      <button key={t} type="button" onClick={() => live.setMeta({ ...live.meta, rightsHolder: t })}>
-                        {t}
-                      </button>
-                    ))}
-                  </span>
-                )}
-              </label>
-              <label className="wide">
-                利用許諾の根拠（確認した内容）<em className="cd-required">必須</em>
-                <textarea value={live.meta.evidenceNote} placeholder="例: 院内作成資料のため、教材化と患者への公開を部門で確認済み" disabled={!!live.uploaded} onChange={(event) => live.setMeta({ ...live.meta, evidenceNote: event.target.value })} />
-                {!live.uploaded && (
-                  <span className="cd-quick-fill" data-quick-evidence>
-                    {["院内作成のため、教材化と患者への公開を部門で確認済み", "著作権者から教材化と患者への公開の許諾を得ている", "公開ライセンス（CC BY など）で二次利用が認められている"].map((t) => (
-                      <button key={t} type="button" onClick={() => live.setMeta({ ...live.meta, evidenceNote: t })}>
-                        {t}
-                      </button>
-                    ))}
-                  </span>
-                )}
-              </label>
-            </div>
-          ) : (
-          <div className="cd-form-grid">
+            <button onClick={() => setSourceReady(false)}>削除</button>
+          </div>
+        )}
+        {live ? (
+          <div className="cd-form-grid cd-form-grid-v2">
+            <label>
+              資料名
+              <input value={live.meta.title} disabled={locked} onChange={(event) => live.setMeta({ ...live.meta, title: event.target.value })} />
+            </label>
+            <label>
+              作成元<em className="cd-required">必須</em>
+              <input value={live.meta.rightsHolder} placeholder="例: さくら総合病院 乳腺外科" disabled={locked} onChange={(event) => live.setMeta({ ...live.meta, rightsHolder: event.target.value })} />
+              {!locked && (
+                <span className="cd-quick-fill" data-quick-rights>
+                  {["当院の院内資料", "学会・公的機関の資料", "出版社の資料（許諾あり）"].map((t) => (
+                    <button key={t} type="button" onClick={() => live.setMeta({ ...live.meta, rightsHolder: t })}>
+                      {t}
+                    </button>
+                  ))}
+                </span>
+              )}
+            </label>
+            <label className="wide">
+              利用許諾の根拠<em className="cd-required">必須</em>
+              <textarea rows={2} value={live.meta.evidenceNote} placeholder="確認した内容を 1 行で（下の候補からも選べます）" disabled={locked} onChange={(event) => live.setMeta({ ...live.meta, evidenceNote: event.target.value })} />
+              {!locked && (
+                <span className="cd-quick-fill" data-quick-evidence>
+                  {["院内作成のため、教材化と患者への公開を部門で確認済み", "著作権者から教材化と患者への公開の許諾を得ている", "公開ライセンス（CC BY など）で二次利用が認められている"].map((t) => (
+                    <button key={t} type="button" onClick={() => live.setMeta({ ...live.meta, evidenceNote: t })}>
+                      {t}
+                    </button>
+                  ))}
+                </span>
+              )}
+            </label>
+          </div>
+        ) : (
+          <div className="cd-form-grid cd-form-grid-v2">
             <label>
               資料名
               <input defaultValue="乳がん術後リハビリテーション指針" />
@@ -5141,53 +5188,42 @@ function SourceStep({
               <input defaultValue="日本乳腺ケア学会" />
             </label>
             <label className="wide">
-              資料の説明
-              <textarea defaultValue="乳房手術後の上肢運動と生活上の注意に関する医療者向け資料" />
+              利用許諾の根拠
+              <textarea rows={2} defaultValue="学会から教材化と患者への公開の許諾を得ている" />
             </label>
           </div>
-          )}
-        </section>
-        <aside className="cd-panel cd-permissions">
-          <h3>利用条件</h3>
-          <ToggleRow
-            label="AI処理"
-            description="Claudeによる解析・構成案生成"
-            value={aiAllowed}
-            setValue={setAiAllowed}
-            critical
-          />
-          {live ? (
-            <>
-              <ToggleRow label="内容の改変" description="患者向けへの要約・編集" value={live.perm.allowDerive} setValue={(v) => live.setPerm({ ...live.perm, allowDerive: v })} />
-              <ToggleRow label="Web公開" description="shioriで患者へ公開" value={live.perm.allowPublish} setValue={(v) => live.setPerm({ ...live.perm, allowPublish: v })} />
-              <ToggleRow label="施設外共有" description="共通教材として他施設で利用" value={live.perm.allowShare} setValue={(v) => live.setPerm({ ...live.perm, allowShare: v })} />
-            </>
-          ) : (
-            <>
-          <ToggleRow label="内容の改変" description="患者向けへの要約・編集" />
-          <ToggleRow label="Web公開" description="shioriで患者へ公開" />
-          <ToggleRow
-            label="施設外共有"
-            description="共通教材として他施設で利用"
-            defaultValue={false}
-          />
-            </>
-          )}
-          {!aiAllowed && (
-            <p className="cd-permission-warning">
-              <CIcon name="alert" />
-              AI処理不可の資料はClaudeによる教材生成へ進めません。
-            </p>
-          )}
+        )}
+      </section>
+
+      <section className="cd-panel cd-terms-panel">
+        <div className="cd-terms-row" role="group" aria-label="利用条件">
+          <b>利用条件</b>
+          {(
+            [
+              { key: "ai", label: "AI処理", value: aiAllowed, set: setAiAllowed },
+              { key: "derive", label: "患者向けに編集", value: perm.allowDerive, set: (v: boolean) => setPerm({ ...perm, allowDerive: v }) },
+              { key: "publish", label: "患者へ公開", value: perm.allowPublish, set: (v: boolean) => setPerm({ ...perm, allowPublish: v }) },
+              { key: "share", label: "他施設と共有", value: perm.allowShare, set: (v: boolean) => setPerm({ ...perm, allowShare: v }) },
+            ] as const
+          ).map((t) => (
+            <label key={t.key} className={`cd-perm-pill${t.value ? " on" : ""}`} data-perm={t.key}>
+              <input type="checkbox" checked={t.value} onChange={(event) => t.set(event.target.checked)} />
+              <CIcon name="check" size={12} />
+              {t.label}
+            </label>
+          ))}
+        </div>
+        {!aiAllowed && (
+          <p className="cd-permission-warning">
+            <CIcon name="alert" />
+            AI処理を許可しない資料からは教材を作れません
+          </p>
+        )}
+        <div className="cd-attest-row">
           <label className="cd-license-check">
-            <input
-              type="checkbox"
-              checked={licenseChecked}
-              onChange={(event) => setLicenseChecked(event.target.checked)}
-            />
+            <input type="checkbox" checked={licenseChecked} onChange={(event) => setLicenseChecked(event.target.checked)} />
             <span>
-              <b>利用許諾を確認しました</b>
-              <small>登録者が資料の利用条件を確認します</small>
+              <b>利用許諾を確認した</b>
             </span>
           </label>
           {live && (
@@ -5195,51 +5231,13 @@ function SourceStep({
             <label className="cd-license-check">
               <input type="checkbox" checked={live.pii} onChange={(event) => live.setPii(event.target.checked)} />
               <span>
-                <b>患者個人情報を含みません</b>
-                <small>含む資料はClaudeに送信しません</small>
+                <b>患者の個人情報を含まない</b>
               </span>
             </label>
           )}
-        </aside>
-      </div>
+        </div>
+      </section>
     </div>
-  )
-}
-
-function ToggleRow({
-  label,
-  description,
-  value,
-  setValue,
-  defaultValue = true,
-  critical = false,
-}: {
-  label: string
-  description: string
-  value?: boolean
-  setValue?: (value: boolean) => void
-  defaultValue?: boolean
-  critical?: boolean
-}) {
-  const [local, setLocal] = useState(defaultValue)
-  const actual = value ?? local
-  const update = setValue ?? setLocal
-  return (
-    <label className="cd-toggle-row">
-      <span>
-        <b>
-          {label}
-          {critical && <em>必須</em>}
-        </b>
-        <small>{description}</small>
-      </span>
-      <input
-        type="checkbox"
-        checked={actual}
-        onChange={(event) => update(event.target.checked)}
-      />
-      <i />
-    </label>
   )
 }
 
@@ -5257,72 +5255,37 @@ function ApproachStep({
   live?: { brief: { theme: string; audience: string; objective: string }; setBrief: (b: { theme: string; audience: string; objective: string }) => void }
 }) {
   return (
-    <div className={compact ? "cd-studio-step cd-approach-compact" : "cd-studio-step"} data-approach>
-      {compact ? (
-        <h3 className="cd-approach-title">作成方針</h3>
-      ) : (
-        <div className="cd-step-heading">
-          <h2>教材の作成方針</h2>
-        </div>
-      )}
-      <div className="cd-approach-grid">
-        <button
-          className={approach === "claude" ? "selected" : ""}
-          onClick={() => setApproach("claude")}
-        >
-          <span>
-            <CIcon name="studio" size={28} />
-          </span>
-          <Badge>おすすめ</Badge>
-          <h3>Claudeが3つの構成案を提案</h3>
-          <p>対象者や情報量の異なる3案を比較し、医療者が最適な案を選びます。</p>
-          <i>{approach === "claude" && <CIcon name="check" />}</i>
+    <section className={`cd-panel cd-approach-v2${compact ? " cd-approach-compact" : ""}`} data-approach>
+      <div className="cd-approach-row" role="radiogroup" aria-label="作成方針">
+        <b>作成方針</b>
+        <button type="button" role="radio" aria-checked={approach === "claude"} className={approach === "claude" ? "active" : ""} onClick={() => setApproach("claude")}>
+          Claudeが3案を提案<small>おすすめ</small>
         </button>
-        <button
-          className={approach === "manual" ? "selected" : ""}
-          onClick={() => setApproach("manual")}
-        >
-          <span>
-            <CIcon name="edit" size={28} />
-          </span>
-          <h3>テーマ・学習目標を指定</h3>
-          <p>医療者がテーマ、対象者、学習目標を指定して構成を作ります。</p>
-          <i>{approach === "manual" && <CIcon name="check" />}</i>
+        <button type="button" role="radio" aria-checked={approach === "manual"} className={approach === "manual" ? "active" : ""} onClick={() => setApproach("manual")}>
+          テーマを指定して作る
         </button>
       </div>
-      {approach === "manual" && live && (
-        <div className="cd-panel cd-manual-brief">
+      {approach === "manual" && (
+        <div className="cd-manual-brief cd-form-grid cd-form-grid-v2">
           <label>
             テーマ
-            <input value={live.brief.theme} onChange={(event) => live.setBrief({ ...live.brief, theme: event.target.value })} />
+            {live ? <input value={live.brief.theme} onChange={(event) => live.setBrief({ ...live.brief, theme: event.target.value })} /> : <input defaultValue="乳房手術後の腕の動かし方" />}
           </label>
           <label>
             対象者
-            <input value={live.brief.audience} onChange={(event) => live.setBrief({ ...live.brief, audience: event.target.value })} />
+            {live ? <input value={live.brief.audience} onChange={(event) => live.setBrief({ ...live.brief, audience: event.target.value })} /> : <input defaultValue="退院後1か月以内の患者" />}
           </label>
           <label className="wide">
             学習目標（1行に1つ・3つまで）
-            <textarea value={live.brief.objective} onChange={(event) => live.setBrief({ ...live.brief, objective: event.target.value })} />
+            {live ? (
+              <textarea rows={2} value={live.brief.objective} onChange={(event) => live.setBrief({ ...live.brief, objective: event.target.value })} />
+            ) : (
+              <textarea rows={2} defaultValue="無理のない腕の動かし方と、医療者へ相談すべき変化を説明できる" />
+            )}
           </label>
         </div>
       )}
-      {approach === "manual" && !live && (
-        <div className="cd-panel cd-manual-brief">
-          <label>
-            テーマ
-            <input defaultValue="乳房手術後の腕の動かし方" />
-          </label>
-          <label>
-            対象者
-            <input defaultValue="退院後1か月以内の患者" />
-          </label>
-          <label className="wide">
-            学習目標
-            <textarea defaultValue="無理のない腕の動かし方と、医療者へ相談すべき変化を説明できる" />
-          </label>
-        </div>
-      )}
-    </div>
+    </section>
   )
 }
 
@@ -5380,64 +5343,43 @@ function ProposalStep({
       }))
     : proposals.map((p) => ({ ...p, slideTitles: ["手術後の腕の変化", "無理のない動かし方", "傷を守る生活の工夫", "医療機関へ相談する目安"], refs: "原資料 p.12–18, p.26", rationale: "" }))
   return (
-    <div className="cd-studio-step">
+    <div className="cd-studio-step cd-proposal-v2">
       <div className="cd-step-heading">
         <h2>Claudeの構成案を比較</h2>
         {replayOnly && (
           <p className="cd-replay-note" data-replay-only>
-            撮影用デモ環境のため、記録済みの案 1 で下書きを作成します。
+            デモ環境: 記録済みの案 1 で進みます
           </p>
         )}
       </div>
       <div className="cd-proposal-grid">
         {items.map((item, index) => (
-          <article
-            key={item.title}
-            className={selected === index + 1 ? "selected" : ""}
-          >
-            <div className="cd-proposal-number">案 {index + 1}</div>
-            <Badge
-              tone={index === 0 ? "blue" : index === 1 ? "purple" : "amber"}
-            >
-              {item.focus}
-            </Badge>
+          <article key={item.title} className={selected === index + 1 ? "selected" : ""}>
+            <div className="cd-proposal-top">
+              <span className="cd-proposal-number">案 {index + 1}</span>
+              <Badge tone={index === 0 ? "blue" : index === 1 ? "purple" : "amber"}>{item.focus}</Badge>
+              <small>{item.pages}</small>
+            </div>
             <h3>{item.title}</h3>
-            <dl>
-              <dt>対象者</dt>
-              <dd>{item.target}</dd>
-              <dt>学習目標</dt>
-              <dd>{item.goal}</dd>
-            </dl>
-            <p>{item.pages}</p>
-            <button
-              className="cd-proposal-detail"
-              onClick={() =>
-                setExpanded(expanded === index + 1 ? null : index + 1)
-              }
-            >
-              {expanded === index + 1 ? "詳細を閉じる" : "詳細を見る"}
+            <p className="cd-proposal-goal">{item.goal}</p>
+            <small className="cd-proposal-target">対象: {item.target}</small>
+            <button className="cd-proposal-detail" onClick={() => setExpanded(expanded === index + 1 ? null : index + 1)}>
+              {expanded === index + 1 ? "画面構成を閉じる" : "画面構成を見る"}
             </button>
             {expanded === index + 1 && (
               <div className="cd-proposal-expanded">
-                <b>画面構成</b>
                 <ol>
                   {item.slideTitles.map((t) => (
                     <li key={t}>{t}</li>
                   ))}
                 </ol>
                 {item.rationale && <small>{item.rationale}</small>}
-                <small>主な出典：{live ? `${live.sourceTitle}${item.refs ? `（${item.refs}）` : ""}` : item.refs}</small>
+                <small>出典：{live ? `${live.sourceTitle}${item.refs ? `（${item.refs}）` : ""}` : item.refs}</small>
               </div>
             )}
-            <button
-              className={
-                selected === index + 1 ? "cd-selected-button" : "cd-primary"
-              }
-              disabled={replayOnly && index > 0}
-              onClick={() => setSelected(index + 1)}
-            >
+            <button className={selected === index + 1 ? "cd-selected-button" : "cd-primary"} disabled={replayOnly && index > 0} onClick={() => setSelected(index + 1)}>
               <CIcon name={selected === index + 1 ? "check" : "plus"} />
-              {selected === index + 1 ? "この案を選択中" : replayOnly ? "デモでは選べません" : "この案を選ぶ"}
+              {selected === index + 1 ? "この案で進める" : replayOnly ? "デモでは選べません" : "この案を選ぶ"}
             </button>
           </article>
         ))}
@@ -5474,144 +5416,70 @@ function MustCoverStep({
     meta: { title: string; rightsHolder: string; registrant: string; license: string }
   }
 }) {
-  if (live) {
-    const kindLabel: Record<string, string> = { emergency: "すぐに連絡・受診", visit: "受診・連絡の目安", prohibition: "してはいけないこと", caution: "注意", fact: "前提となる事実" }
-    return (
-      <div className="cd-studio-step">
-        <div className="cd-step-heading">
-          <h2>必ず含める内容を確認</h2>
-        </div>
-        <div className="cd-must-layout">
-          <section className="cd-panel">
-            <div className="cd-panel-head">
-              <h3>必須事項の候補</h3>
-              <span className="cd-must-head-actions">
-                <Badge tone="amber">未確認 {live.candidates.filter((c) => !live.checked[c.id]).length}件</Badge>
-                {live.candidates.some((c) => !live.checked[c.id]) && (
-                  <button type="button" className="cd-text-back" onClick={() => live.setChecked(Object.fromEntries(live.candidates.map((c) => [c.id, true])))} data-must-check-all>
-                    すべて確認済みにする
-                  </button>
-                )}
-              </span>
-            </div>
-            <div className="cd-must-list">
-              {live.candidates.length === 0 && <p>Claudeから必須事項の候補はありませんでした。</p>}
-              {live.candidates.map((c, index) => {
-                const safety = SAFETY_KINDS.includes(c.kind)
-                return (
-                  <div key={c.id} className={safety ? "safety" : ""} data-must-item>
-                    <label>
-                      <input type="checkbox" checked={!!live.checked[c.id]} onChange={() => live.setChecked({ ...live.checked, [c.id]: !live.checked[c.id] })} />
-                      <span>
-                        {safety && <Badge tone="red">安全上重要</Badge>}
-                        <textarea value={live.text[c.id] ?? c.text} onChange={(event) => live.setText({ ...live.text, [c.id]: event.target.value })} />
-                        <small>
-                          {kindLabel[c.kind]} · {c.sourceRef.section || "原資料"}
-                        </small>
-                      </span>
-                    </label>
-                    <button onClick={() => setSourceShown(sourceShown === index ? null : index)}>
-                      <CIcon name="eye" />
-                      原文と照合
-                    </button>
-                    {sourceShown === index && (
-                      <blockquote>
-                        <b>{live.meta.title}{c.sourceRef.section ? ` · ${c.sourceRef.section}` : ""}</b>
-                        <p>{c.sourceRef.quote || "（引用なし）"}</p>
-                      </blockquote>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </section>
-          <aside className="cd-panel cd-metadata-separation">
-            <h3>教材内容に含めない情報</h3>
-            <p>資料管理用のメタデータは、患者向け本文と分けて保持します。</p>
-            <dl>
-              <dt>原資料</dt>
-              <dd>{live.meta.title}</dd>
-              <dt>作成元（許諾元）</dt>
-              <dd>{live.meta.rightsHolder || "未登録"}</dd>
-              <dt>登録者</dt>
-              <dd>{live.meta.registrant || "—"}</dd>
-              <dt>利用許諾</dt>
-              <dd>{live.meta.license}</dd>
-            </dl>
-            <p>チェックした項目は「この教材で必須」、外した項目は「医療者の確認が必要」として下書きに渡します。</p>
-          </aside>
-        </div>
-      </div>
-    )
-  }
+  const kindLabel: Record<string, string> = { emergency: "すぐに連絡・受診", visit: "受診・連絡の目安", prohibition: "してはいけないこと", caution: "注意", fact: "前提となる事実" }
+  const rows = live
+    ? live.candidates.map((c) => ({
+        key: c.id,
+        safety: SAFETY_KINDS.includes(c.kind),
+        checked: !!live.checked[c.id],
+        toggle: () => live.setChecked({ ...live.checked, [c.id]: !live.checked[c.id] }),
+        text: live.text[c.id] ?? c.text,
+        setText: (v: string) => live.setText({ ...live.text, [c.id]: v }),
+        meta: `${kindLabel[c.kind] ?? ""}${c.sourceRef.section ? ` · ${c.sourceRef.section}` : ""}`,
+        quoteTitle: `${live.meta.title}${c.sourceRef.section ? ` · ${c.sourceRef.section}` : ""}`,
+        quote: c.sourceRef.quote || "（引用なし）",
+      }))
+    : mustItems.map((item, index) => ({
+        key: String(index),
+        safety: index === 3,
+        checked: checked[index],
+        toggle: () => setChecked(checked.map((value, itemIndex) => (itemIndex === index ? !value : value))),
+        text: item,
+        setText: () => {},
+        meta: `医学的内容 · 原資料 p.${12 + index * 4}`,
+        quoteTitle: `原資料 p.${12 + index * 4}`,
+        quote: "術後の上肢運動は疼痛および創部の状態を観察し、個々の術式と回復過程に応じて段階的に行う。",
+      }))
+  const unchecked = rows.filter((r) => !r.checked).length
+  const checkAll = () => (live ? live.setChecked(Object.fromEntries(live.candidates.map((c) => [c.id, true]))) : setChecked(checked.map(() => true)))
   return (
-    <div className="cd-studio-step">
-      <div className="cd-step-heading">
+    <div className="cd-studio-step cd-must-v2">
+      <div className="cd-step-heading cd-must-heading">
         <h2>必ず含める内容を確認</h2>
+        <span className="cd-must-head-actions">
+          <Badge tone={unchecked ? "amber" : "green"}>{unchecked ? `未確認 ${unchecked}件` : "すべて確認済み"}</Badge>
+          {unchecked > 0 && (
+            <button type="button" className="cd-text-back" onClick={checkAll} data-must-check-all>
+              すべて確認済みにする
+            </button>
+          )}
+        </span>
       </div>
-      <div className="cd-must-layout">
-        <section className="cd-panel">
-          <div className="cd-panel-head">
-            <h3>必須事項の候補</h3>
-            <Badge tone="amber">
-              未確認 {checked.filter((item) => !item).length}件
-            </Badge>
+      <div className="cd-must-list cd-must-list-v2">
+        {rows.length === 0 && <p>Claudeから必須事項の候補はありませんでした。</p>}
+        {rows.map((r, index) => (
+          <div key={r.key} className={`cd-must-row${r.safety ? " safety" : ""}${r.checked ? " checked" : ""}`} data-must-item>
+            <label>
+              <input type="checkbox" checked={r.checked} onChange={r.toggle} />
+              <span>
+                {r.safety && <Badge tone="red">安全上重要</Badge>}
+                <textarea rows={2} value={r.text} onChange={(event) => r.setText(event.target.value)} readOnly={!live} />
+                <small>
+                  {r.meta}
+                  <button type="button" className="cd-must-source" onClick={() => setSourceShown(sourceShown === index ? null : index)}>
+                    {sourceShown === index ? "原文を閉じる" : "原文"}
+                  </button>
+                </small>
+              </span>
+            </label>
+            {sourceShown === index && (
+              <blockquote>
+                <b>{r.quoteTitle}</b>
+                <p>{r.quote}</p>
+              </blockquote>
+            )}
           </div>
-          <div className="cd-must-list">
-            {mustItems.map((item, index) => (
-              <div key={item} className={index === 3 ? "safety" : ""}>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={checked[index]}
-                    onChange={() =>
-                      setChecked(
-                        checked.map((value, itemIndex) =>
-                          itemIndex === index ? !value : value,
-                        ),
-                      )
-                    }
-                  />
-                  <span>
-                    {index === 3 && <Badge tone="red">安全上重要</Badge>}
-                    <textarea defaultValue={item} />
-                    <small>医学的内容 · 原資料 p.{12 + index * 4}</small>
-                  </span>
-                </label>
-                <button
-                  onClick={() =>
-                    setSourceShown(sourceShown === index ? null : index)
-                  }
-                >
-                  <CIcon name="eye" />
-                  原文と照合
-                </button>
-                {sourceShown === index && (
-                  <blockquote>
-                    <b>原資料 p.{12 + index * 4}</b>
-                    <p>
-                      術後の上肢運動は疼痛および創部の状態を観察し、個々の術式と回復過程に応じて段階的に行う。
-                    </p>
-                  </blockquote>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-        <aside className="cd-panel cd-metadata-separation">
-          <h3>教材内容に含めない情報</h3>
-          <p>資料管理用のメタデータは、患者向け本文と分けて保持します。</p>
-          <dl>
-            <dt>原資料作成者</dt>
-            <dd>日本乳腺ケア学会</dd>
-            <dt>発行年</dt>
-            <dd>2025年</dd>
-            <dt>登録者</dt>
-            <dd>山田医師</dd>
-            <dt>利用許諾</dt>
-            <dd>施設内公開・改変可</dd>
-          </dl>
-        </aside>
+        ))}
       </div>
     </div>
   )

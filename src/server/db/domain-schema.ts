@@ -709,3 +709,20 @@ export const patientTreatmentEvents = pgTable(
   },
   (t) => [index("patient_treatment_events_patient_idx").on(t.patientId, t.eventDate)],
 );
+
+/**
+ * 「もう一度確認したいこと」の既読（患者が「理解した」と記録したもの）。
+ * 教材ごとに、理解したと記録した時点の理解確認の完了日時を持つ。同じ完了日時の間は一覧に出さず、
+ * あらためて理解確認を受けて（完了日時が変わって）また間違えたら一覧に戻る。採点そのものには触れない。
+ */
+export const patientReviewAcks = pgTable(
+  "patient_review_acks",
+  {
+    id: id(),
+    patientId: userRef("patient_id").notNull(),
+    materialId: uuid("material_id").notNull(),
+    attemptCompletedAt: ts("attempt_completed_at"),
+    ackedAt: ts("acked_at").notNull().defaultNow(),
+  },
+  (t) => [index("patient_review_acks_patient_idx").on(t.patientId, t.materialId)],
+);

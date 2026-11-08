@@ -88,6 +88,8 @@ export type LiveLesson = {
   nUnknown: number
   /** 学習を終えた日（「11月1日」。未完了は null）。ホームの歩みに表示する */
   completedAt: string | null
+  /** 最新の理解確認の完了日時（ISO）。「理解した」の既読と突き合わせる */
+  completedAtIso: string | null
 };
 
 export function toLesson(i: LibraryApiItem): LiveLesson {
@@ -117,6 +119,7 @@ export function toLesson(i: LibraryApiItem): LiveLesson {
     nWrong: i.nWrong,
     nUnknown: i.nUnknown,
     completedAt: i.completedAt ? shortDate(i.completedAt) : null,
+    completedAtIso: i.completedAt,
   };
 }
 

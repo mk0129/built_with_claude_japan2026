@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { GET as templatesGet, POST as templatesPost } from "@/app/api/v1/consultations/[id]/templates/route";
+import { DELETE as templateDelete } from "@/app/api/v1/consultations/[id]/templates/[templateId]/route";
 import { POST as endRoute } from "@/app/api/v1/consultations/[id]/end/route";
 import { DR_KOBAYASHI, DR_YAMADA, PATIENT_B, loginHeaders, setupDb, startSession, type Seeded } from "../helpers";
 
@@ -10,9 +11,9 @@ import { DR_KOBAYASHI, DR_YAMADA, PATIENT_B, loginHeaders, setupDb, startSession
 let seeded: Seeded;
 const mat = (title: string) => seeded.materials.get(title)!;
 const ctx = (id: string) => ({ params: Promise.resolve({ id }) });
-const req = (headers: Headers, json?: unknown) =>
+const req = (headers: Headers, json?: unknown, method?: string) =>
   new Request("http://localhost:3000/x", {
-    method: json === undefined ? "GET" : "POST",
+    method: method ?? (json === undefined ? "GET" : "POST"),
     headers: { ...Object.fromEntries(headers.entries()), "content-type": "application/json" },
     body: json === undefined ? undefined : JSON.stringify(json),
   });
@@ -44,6 +45,14 @@ describe("施設のセットの作成", () => {
     const { sessionId: sid2 } = await startSession(seeded, PATIENT_B, DR_KOBAYASHI, "hidamari-medical");
     const other = await body(await templatesGet(req(await loginHeaders(DR_KOBAYASHI)), ctx(sid2)));
     expect(other.json.templates.some((t: { id: string }) => t.id === created.json.id)).toBe(false);
+
+    // 削除: 他施設からは 404、共通セットは 404、自施設のセットは消える
+    const ctx2 = (id: string, templateId: string) => ({ params: Promise.resolve({ id, templateId }) });
+    expect((await templateDelete(req(await loginHeaders(DR_KOBAYASHI), undefined, "DELETE"), ctx2(sid2, created.json.id))).status).toBe(404);
+    const common = listed.json.templates.find((t: { scope: string }) => t.scope === "common");
+    expect((await templateDelete(req(h, undefined, "DELETE"), ctx2(sid, common.id))).status).toBe(404);
+    const afterDelete = await body(await templateDelete(req(h, undefined, "DELETE"), ctx2(sid, created.json.id)));
+    expect(afterDelete.json.templates.some((t: { id: string }) => t.id === created.json.id)).toBe(false);
 
     // 共有を終えたあとは作れない
     await endRoute(req(h, {}), ctx(sid));
