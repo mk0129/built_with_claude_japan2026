@@ -6,6 +6,7 @@ import { badRequest, conflict, forbidden, notFound } from "@/server/authz/errors
 import type { Principal } from "@/server/authz/principal";
 import { audit } from "./audit";
 import { balanceAnswerPositions } from "./quiz-balance";
+import { checkMaterialQuality, formatIssue } from "@/lib/material-quality";
 import { replayFile } from "@/server/demo";
 import { ClaudeError, callClaudeStructured, claudeMode, classifyClaudeError, type ClaudeResult } from "./claude";
 import { assertAiAllowedForSources, requireStudioMembership } from "./sources";
@@ -47,6 +48,12 @@ export function validateMaterial(out: MaterialOutput, sources: { id: string; ext
   };
   out.slides.forEach((s, i) => check(s.sourceRefs, `画面 ${i + 1}`));
   out.questions.forEach((q, i) => check(q.sourceRefs, `問 ${i + 1}`));
+  // 規約（docs/design/materials_style_guide_20261108.md）の機械チェック。形式の誤りは errors、文章量・設問の作りは「品質:」付きの warnings として医療者に見せる
+  const covered = new Set(["SLIDE_COUNT", "Q_COUNT", "Q_OPTIONS", "Q_UNKNOWN_OPTION", "Q_CORRECT_INDEX", "Q_RELATED_SLIDE"]);
+  for (const i of checkMaterialQuality({ title: out.title, slides: out.slides, questions: out.questions })) {
+    if (covered.has(i.code)) continue;
+    (i.level === "error" ? errors : warnings).push(`品質: ${formatIssue(i)}`);
+  }
   return { errors, warnings };
 }
 
