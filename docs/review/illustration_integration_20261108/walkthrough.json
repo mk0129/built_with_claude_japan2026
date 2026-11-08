@@ -1,0 +1,1668 @@
+{
+ "checkedAt": "2026-11-08T10:57:46.422Z",
+ "address": "https://shiori-judge-demo.vercel.app",
+ "liveCommit": "dccddb85aeae7c15a89806bd5fa3fad992f9af5e",
+ "ok": true,
+ "results": [
+  {
+   "name": "患者: ホームの「今」のカードが「化学療法中の副作用とセルフケア」",
+   "ok": true
+  },
+  {
+   "name": "患者: 教材詳細（副作用とセルフケア）のサムネイル",
+   "ok": true,
+   "detail": {
+    "src": "/thumbnails/thumb_symptom_check.webp",
+    "natural": [
+     1600,
+     1200
+    ],
+    "complete": true,
+    "alt": "自宅で体調を記録する線画",
+    "rect": [
+     20,
+     201,
+     350,
+     263
+    ]
+   }
+  },
+  {
+   "name": "患者: 学習画面を 1 ページ目から開始",
+   "ok": true,
+   "detail": "1 / 6"
+  },
+  {
+   "name": "患者: 化学療法中の副作用とセルフケア 1 ページ「副作用の出方は人それぞれ」に EDI-SE-01",
+   "ok": true,
+   "detail": {
+    "heading": "副作用の出方は人それぞれ",
+    "src": "/assets/editorial/edi_se_01.png",
+    "natural": [
+     1200,
+     900
+    ],
+    "complete": true,
+    "alt": "ソファでブランケットをかけて休む女性のイラスト",
+    "rect": [
+     40,
+     418,
+     310,
+     233
+    ],
+    "slideArt": 0,
+    "medicalTabs": 0
+   }
+  },
+  {
+   "name": "患者: 化学療法中の副作用とセルフケア 2 ページ「吐き気・食欲が落ちたとき」に EDI-SE-02",
+   "ok": true,
+   "detail": {
+    "heading": "吐き気・食欲が落ちたとき",
+    "src": "/assets/editorial/edi_se_02.png",
+    "natural": [
+     1200,
+     900
+    ],
+    "complete": true,
+    "alt": "テーブルで小さな器から少しずつ食べる女性のイラスト",
+    "rect": [
+     40,
+     418,
+     310,
+     233
+    ],
+    "slideArt": 0,
+    "medicalTabs": 0
+   }
+  },
+  {
+   "name": "患者: 化学療法中の副作用とセルフケア 3 ページ「だるさと、仕事や家事」に EDI-SE-03",
+   "ok": true,
+   "detail": {
+    "heading": "だるさと、仕事や家事",
+    "src": "/assets/editorial/edi_se_03.png",
+    "natural": [
+     1200,
+     900
+    ],
+    "complete": true,
+    "alt": "椅子に座って洗濯物を畳む女性のイラスト",
+    "rect": [
+     40,
+     380,
+     310,
+     233
+    ],
+    "slideArt": 0,
+    "medicalTabs": 0
+   }
+  },
+  {
+   "name": "患者: 化学療法中の副作用とセルフケア 4 ページ「感染を防ぐ工夫」に EDI-SE-04",
+   "ok": true,
+   "detail": {
+    "heading": "感染を防ぐ工夫",
+    "src": "/assets/editorial/edi_se_04.png",
+    "natural": [
+     1200,
+     900
+    ],
+    "complete": true,
+    "alt": "洗面台でていねいに手を洗う女性のイラスト",
+    "rect": [
+     40,
+     380,
+     310,
+     233
+    ],
+    "slideArt": 0,
+    "medicalTabs": 0
+   }
+  },
+  {
+   "name": "患者: 化学療法中の副作用とセルフケア 5 ページ「すぐに連絡するサイン」に EDI-SE-05",
+   "ok": true,
+   "detail": {
+    "heading": "すぐに連絡するサイン",
+    "src": "/assets/editorial/edi_se_05.png",
+    "natural": [
+     1200,
+     900
+    ],
+    "complete": true,
+    "alt": "体温計を手にスマートフォンを見る女性と、電話を受ける医療者のイラスト",
+    "rect": [
+     40,
+     380,
+     310,
+     233
+    ],
+    "slideArt": 0,
+    "medicalTabs": 0
+   }
+  },
+  {
+   "name": "患者: 6 ページ目は登録なし（線画の代替・挿絵なし）",
+   "ok": true,
+   "detail": {
+    "counter": "6 / 6",
+    "slideArt": 1,
+    "illustration": 0,
+    "heading": "まとめ"
+   }
+  },
+  {
+   "name": "患者: 理解確認の「← 戻る」で前の画面に戻る",
+   "ok": true,
+   "detail": "view=learn"
+  },
+  {
+   "name": "患者: 解説の「…のページへ戻る」で、関連ページの挿絵が再び表示される",
+   "ok": true,
+   "detail": {
+    "label": "関連する説明を読み直す\n「すぐに連絡するサイン」のページへ戻る",
+    "src": "/assets/editorial/edi_se_05.png",
+    "natural": [
+     1200,
+     900
+    ],
+    "complete": true,
+    "alt": "体温計を手にスマートフォンを見る女性と、電話を受ける医療者のイラスト",
+    "rect": [
+     40,
+     380,
+     310,
+     233
+    ]
+   }
+  },
+  {
+   "name": "患者: 理解確認を最後まで通した",
+   "ok": true,
+   "detail": {
+    "answered": 4,
+    "snippet": "回答を記録しました わからない 「わからない」を記録しました あなたの回答 わからない 解説 働き方は職場と相談できます。病院のがん相談支援センターでも仕事の相"
+   }
+  },
+  {
+   "name": "患者: 教材一覧の 22 教材すべてに新しいサムネイル（縮小版 192×144）",
+   "ok": true,
+   "detail": "22/22、カード 30 件"
+  },
+  {
+   "name": "患者: 検索「しびれ」の結果に「手足のしびれ」のサムネイル",
+   "ok": true,
+   "detail": [
+    {
+     "title": "手足のしびれ（末梢神経障害）とのつきあい方",
+     "src": "/thumbnails/small/thumb_neuropathy.png"
+    }
+   ]
+  },
+  {
+   "name": "患者: 教材詳細（手足のしびれ）の原寸サムネイル（帯の切り抜き）",
+   "ok": true,
+   "detail": {
+    "src": "/thumbnails/thumb_neuropathy.webp",
+    "natural": [
+     1600,
+     1200
+    ],
+    "complete": true,
+    "alt": "厚手の手袋とスリッパの線画",
+    "rect": [
+     26,
+     207,
+     338,
+     112
+    ],
+    "band": 1
+   }
+  },
+  {
+   "name": "患者: セット詳細「化学療法開始時セット」の表紙",
+   "ok": true,
+   "detail": {
+    "setName": "化学療法開始時セット",
+    "src": "/covers/cover_chemo_start_set.webp",
+    "natural": [
+     800,
+     1000
+    ],
+    "complete": true,
+    "alt": "手帳とカレンダーとお茶の線画",
+    "rect": [
+     21,
+     210,
+     102,
+     128
+    ]
+   }
+  },
+  {
+   "name": "患者: セット詳細の教材カードのサムネイル",
+   "ok": true,
+   "detail": [
+    {
+     "src": "/thumbnails/small/thumb_drug_therapy.png",
+     "natural": [
+      192,
+      144
+     ]
+    },
+    {
+     "src": "/thumbnails/small/thumb_symptom_check.png",
+     "natural": [
+      192,
+      144
+     ]
+    }
+   ]
+  },
+  {
+   "name": "患者: 残りの挿絵 24 点も各教材の 1 ページ目に表示（DOM 照合）",
+   "ok": true,
+   "detail": "24/24"
+  },
+  {
+   "name": "sweep",
+   "ok": true,
+   "detail": [
+    {
+     "id": "EDI-OLD-01",
+     "title": "サブタイプと治療方針のつながり",
+     "seq": 1,
+     "ok": true,
+     "heading": "サブタイプとは",
+     "src": "/assets/editorial/edi_old_01.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "診察室で用紙を見ながら医療者の説明を聞く女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-OLD-02",
+     "title": "乳房の手術の種類と選び方",
+     "seq": 1,
+     "ok": true,
+     "heading": "手術の2つの方法",
+     "src": "/assets/editorial/edi_old_02.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "テーブルで家族と向かい合って話す女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-OLD-03",
+     "title": "手術後の生活と気をつけること",
+     "seq": 1,
+     "ok": true,
+     "heading": "傷のケア",
+     "src": "/assets/editorial/edi_old_03.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "洗面所でゆっくり腕を上げて身支度をする女性のイラスト",
+     "rect": [
+      40,
+      351,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-OLD-04",
+     "title": "薬物療法の種類（化学療法・ホルモン療法・分子標的）",
+     "seq": 1,
+     "ok": true,
+     "heading": "薬物療法の3つの種類",
+     "src": "/assets/editorial/edi_old_04.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "壁のカレンダーを見ながら手帳に書く女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-OLD-05",
+     "title": "放射線治療の進め方と皮膚のケア",
+     "seq": 1,
+     "ok": true,
+     "heading": "治療の進め方",
+     "src": "/assets/editorial/edi_old_05.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "玄関でカーディガンを羽織る女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-OLD-06",
+     "title": "こころのケアと相談先",
+     "seq": 1,
+     "ok": true,
+     "heading": "不安や落ち込みは自然な反応",
+     "src": "/assets/editorial/edi_old_06.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "窓辺の椅子でノートを手に外を眺める女性のイラスト",
+     "rect": [
+      40,
+      418,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-OLD-07",
+     "title": "さくら総合病院 外来化学療法室のご案内",
+     "seq": 1,
+     "ok": true,
+     "heading": "当日の流れ",
+     "src": "/assets/editorial/edi_old_07.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "明るい待合スペースでひざ掛けをして本を読む女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-OLD-08",
+     "title": "さくら総合病院 術後リンパ浮腫外来",
+     "seq": 1,
+     "ok": true,
+     "heading": "リンパ浮腫外来とは",
+     "src": "/assets/editorial/edi_old_08.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "受付カウンターで案内を受ける女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-01",
+     "title": "大腸がんの診断と病期",
+     "seq": 1,
+     "ok": true,
+     "heading": "検査で調べていること",
+     "src": "/assets/editorial/edi_new_01.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "診察室でモニターの前で医療者の説明を聞く男性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-02",
+     "title": "肺がんの検査と遺伝子・バイオマーカー検査",
+     "seq": 1,
+     "ok": true,
+     "heading": "組織型を調べる",
+     "src": "/assets/editorial/edi_new_02.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "窓辺で深呼吸をする年配の男性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-03",
+     "title": "セカンドオピニオンの受け方",
+     "seq": 1,
+     "ok": true,
+     "heading": "セカンドオピニオンとは",
+     "src": "/assets/editorial/edi_new_03.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "封筒と資料を手に病院の入口へ向かう女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-04",
+     "title": "手術前の準備（禁煙・口腔ケア・体力づくり）",
+     "seq": 1,
+     "ok": true,
+     "heading": "禁煙は早いほどよい",
+     "src": "/assets/editorial/edi_new_04.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "朝の公園を歩く男性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-05",
+     "title": "胃・大腸の手術のあとの食事",
+     "seq": 1,
+     "ok": true,
+     "heading": "少量ずつ、ゆっくり、よく噛む",
+     "src": "/assets/editorial/edi_new_05.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "小さな器に盛った食事を箸でゆっくり食べる男性のイラスト",
+     "rect": [
+      40,
+      418,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-06",
+     "title": "免疫チェックポイント阻害薬の治療と注意する症状",
+     "seq": 1,
+     "ok": true,
+     "heading": "免疫の働きを使う薬",
+     "src": "/assets/editorial/edi_new_06.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "点滴室のリクライニングチェアで本を読む女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-07",
+     "title": "飲み薬の抗がん剤を安全に続けるために",
+     "seq": 1,
+     "ok": true,
+     "heading": "飲み方は「決められたとおり」",
+     "src": "/assets/editorial/edi_new_07.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "テーブルでピルケースと手帳を前にする年配の女性のイラスト",
+     "rect": [
+      40,
+      418,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-08",
+     "title": "手術の前後に行う薬物療法の目的",
+     "seq": 1,
+     "ok": true,
+     "heading": "手術の前に行う薬物療法",
+     "src": "/assets/editorial/edi_new_08.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "診察室で予定表を見ながら医療者と確認する女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-09",
+     "title": "放射線治療の種類と部位ごとの副作用",
+     "seq": 1,
+     "ok": true,
+     "heading": "放射線治療の種類",
+     "src": "/assets/editorial/edi_new_09.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "明るい廊下でスタッフに案内される女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-10",
+     "title": "痛みをやわらげる放射線治療（緩和照射）",
+     "seq": 1,
+     "ok": true,
+     "heading": "症状をやわらげる放射線治療",
+     "src": "/assets/editorial/edi_new_10.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "ベッドの縁に腰かけて伸びをする年配の男性のイラスト",
+     "rect": [
+      40,
+      418,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-11",
+     "title": "発熱したときの対応（白血球が減っている時期）",
+     "seq": 1,
+     "ok": true,
+     "heading": "なぜ発熱に注意するのか",
+     "src": "/assets/editorial/edi_new_11.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "体温計を見ながらスマートフォンに手を伸ばす女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-12",
+     "title": "手足のしびれ（末梢神経障害）とのつきあい方",
+     "seq": 1,
+     "ok": true,
+     "heading": "しびれの出方",
+     "src": "/assets/editorial/edi_new_12.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "台所で厚手の手袋をして鍋を持つ女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-13",
+     "title": "口内炎・味覚の変化と食事の工夫",
+     "seq": 1,
+     "ok": true,
+     "heading": "口の中のケア",
+     "src": "/assets/editorial/edi_new_13.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "洗面台で歯ブラシを手に取る女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-14",
+     "title": "脱毛と外見のケア（アピアランスケア）",
+     "seq": 1,
+     "ok": true,
+     "heading": "脱毛の時期と経過",
+     "src": "/assets/editorial/edi_new_14.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "鏡の前でやわらかい帽子を整える女性のイラスト",
+     "rect": [
+      40,
+      409,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-15",
+     "title": "家族や子どもに病気をどう伝えるか",
+     "seq": 1,
+     "ok": true,
+     "heading": "伝え方に正解はない",
+     "src": "/assets/editorial/edi_new_15.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "ソファで子どもと並んで絵本を開く女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    },
+    {
+     "id": "EDI-NEW-16",
+     "title": "緩和ケアは早い時期から",
+     "seq": 1,
+     "ok": true,
+     "heading": "緩和ケアとは",
+     "src": "/assets/editorial/edi_new_16.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "椅子に座って看護師と同じ目の高さで話す女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ]
+    }
+   ]
+  },
+  {
+   "name": "pages",
+   "ok": true,
+   "detail": [
+    {
+     "seq": 1,
+     "id": "EDI-SE-01",
+     "heading": "副作用の出方は人それぞれ",
+     "src": "/assets/editorial/edi_se_01.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "ソファでブランケットをかけて休む女性のイラスト",
+     "rect": [
+      40,
+      418,
+      310,
+      233
+     ],
+     "ok": true
+    },
+    {
+     "seq": 2,
+     "id": "EDI-SE-02",
+     "heading": "吐き気・食欲が落ちたとき",
+     "src": "/assets/editorial/edi_se_02.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "テーブルで小さな器から少しずつ食べる女性のイラスト",
+     "rect": [
+      40,
+      418,
+      310,
+      233
+     ],
+     "ok": true
+    },
+    {
+     "seq": 3,
+     "id": "EDI-SE-03",
+     "heading": "だるさと、仕事や家事",
+     "src": "/assets/editorial/edi_se_03.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "椅子に座って洗濯物を畳む女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ],
+     "ok": true
+    },
+    {
+     "seq": 4,
+     "id": "EDI-SE-04",
+     "heading": "感染を防ぐ工夫",
+     "src": "/assets/editorial/edi_se_04.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "洗面台でていねいに手を洗う女性のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ],
+     "ok": true
+    },
+    {
+     "seq": 5,
+     "id": "EDI-SE-05",
+     "heading": "すぐに連絡するサイン",
+     "src": "/assets/editorial/edi_se_05.png",
+     "natural": [
+      1200,
+      900
+     ],
+     "complete": true,
+     "alt": "体温計を手にスマートフォンを見る女性と、電話を受ける医療者のイラスト",
+     "rect": [
+      40,
+      380,
+      310,
+      233
+     ],
+     "ok": true
+    }
+   ]
+  },
+  {
+   "name": "library",
+   "ok": true,
+   "detail": [
+    {
+     "id": "THUMB-colorectal_staging",
+     "title": "大腸がんの診断と病期",
+     "ok": true,
+     "card": {
+      "title": "大腸がんの診断と病期",
+      "src": "/thumbnails/small/thumb_colorectal_staging.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "机の上の開いた手帳とマグカップの線画"
+     }
+    },
+    {
+     "id": "THUMB-lung_biomarker",
+     "title": "肺がんの検査と遺伝子・バイオマーカー検査",
+     "ok": true,
+     "card": {
+      "title": "肺がんの検査と遺伝子・バイオマーカー検査",
+      "src": "/thumbnails/small/thumb_lung_biomarker.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "窓辺の椅子と観葉植物の線画"
+     }
+    },
+    {
+     "id": "THUMB-second_opinion",
+     "title": "セカンドオピニオンの受け方",
+     "ok": true,
+     "card": {
+      "title": "セカンドオピニオンの受け方",
+      "src": "/thumbnails/small/thumb_second_opinion.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "封筒と一輪の花の線画"
+     }
+    },
+    {
+     "id": "THUMB-prehab",
+     "title": "手術前の準備（禁煙・口腔ケア・体力づくり）",
+     "ok": true,
+     "card": {
+      "title": "手術前の準備（禁煙・口腔ケア・体力づくり）",
+      "src": "/thumbnails/small/thumb_prehab.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "歩きやすい靴とタオルの線画"
+     }
+    },
+    {
+     "id": "THUMB-post_surgery_diet",
+     "title": "胃・大腸の手術のあとの食事",
+     "ok": true,
+     "card": {
+      "title": "胃・大腸の手術のあとの食事",
+      "src": "/thumbnails/small/thumb_post_surgery_diet.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "小さな器とれんげの線画"
+     }
+    },
+    {
+     "id": "THUMB-immunotherapy",
+     "title": "免疫チェックポイント阻害薬の治療と注意する症状",
+     "ok": true,
+     "card": {
+      "title": "免疫チェックポイント阻害薬の治療と注意する症状",
+      "src": "/thumbnails/small/thumb_immunotherapy.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "リクライニングチェアと本の線画"
+     }
+    },
+    {
+     "id": "THUMB-oral_anticancer",
+     "title": "飲み薬の抗がん剤を安全に続けるために",
+     "ok": true,
+     "card": {
+      "title": "飲み薬の抗がん剤を安全に続けるために",
+      "src": "/thumbnails/small/thumb_oral_anticancer.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "ピルケースと手帳の線画"
+     }
+    },
+    {
+     "id": "THUMB-perioperative_therapy",
+     "title": "手術の前後に行う薬物療法の目的",
+     "ok": true,
+     "card": {
+      "title": "手術の前後に行う薬物療法の目的",
+      "src": "/thumbnails/small/thumb_perioperative_therapy.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "カレンダーとペンの線画"
+     }
+    },
+    {
+     "id": "THUMB-radiation_types",
+     "title": "放射線治療の種類と部位ごとの副作用",
+     "ok": true,
+     "card": {
+      "title": "放射線治療の種類と部位ごとの副作用",
+      "src": "/thumbnails/small/thumb_radiation_types.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "玄関のカーディガンと小さなバッグの線画"
+     }
+    },
+    {
+     "id": "THUMB-palliative_radiation",
+     "title": "痛みをやわらげる放射線治療（緩和照射）",
+     "ok": true,
+     "card": {
+      "title": "痛みをやわらげる放射線治療（緩和照射）",
+      "src": "/thumbnails/small/thumb_palliative_radiation.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "ベッドサイドのランプと水の線画"
+     }
+    },
+    {
+     "id": "THUMB-fever_response",
+     "title": "発熱したときの対応（白血球が減っている時期）",
+     "ok": true,
+     "card": {
+      "title": "発熱したときの対応（白血球が減っている時期）",
+      "src": "/thumbnails/small/thumb_fever_response.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "体温計とスマートフォンの線画"
+     }
+    },
+    {
+     "id": "THUMB-neuropathy",
+     "title": "手足のしびれ（末梢神経障害）とのつきあい方",
+     "ok": true,
+     "card": {
+      "title": "手足のしびれ（末梢神経障害）とのつきあい方",
+      "src": "/thumbnails/small/thumb_neuropathy.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "厚手の手袋とスリッパの線画"
+     }
+    },
+    {
+     "id": "THUMB-mouth_taste",
+     "title": "口内炎・味覚の変化と食事の工夫",
+     "ok": true,
+     "card": {
+      "title": "口内炎・味覚の変化と食事の工夫",
+      "src": "/thumbnails/small/thumb_mouth_taste.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "歯ブラシとコップの線画"
+     }
+    },
+    {
+     "id": "THUMB-appearance_care",
+     "title": "脱毛と外見のケア（アピアランスケア）",
+     "ok": true,
+     "card": {
+      "title": "脱毛と外見のケア（アピアランスケア）",
+      "src": "/thumbnails/small/thumb_appearance_care.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "帽子とスカーフの線画"
+     }
+    },
+    {
+     "id": "THUMB-family_children",
+     "title": "家族や子どもに病気をどう伝えるか",
+     "ok": true,
+     "card": {
+      "title": "家族や子どもに病気をどう伝えるか",
+      "src": "/thumbnails/small/thumb_family_children.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "ソファと絵本の線画"
+     }
+    },
+    {
+     "id": "THUMB-palliative_care",
+     "title": "緩和ケアは早い時期から",
+     "ok": true,
+     "card": {
+      "title": "緩和ケアは早い時期から",
+      "src": "/thumbnails/small/thumb_palliative_care.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "向かい合う椅子と小さなテーブルの線画"
+     }
+    },
+    {
+     "id": "THUMB-surgery_choice",
+     "title": "乳房の手術の種類と選び方",
+     "ok": true,
+     "card": {
+      "title": "乳房の手術の種類と選び方",
+      "src": "/thumbnails/small/thumb_surgery_choice.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "テーブルの上の二つのカップとノートの線画"
+     }
+    },
+    {
+     "id": "THUMB-after_surgery",
+     "title": "手術後の生活と気をつけること",
+     "ok": true,
+     "card": {
+      "title": "手術後の生活と気をつけること",
+      "src": "/thumbnails/small/thumb_after_surgery.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "タオルとハンドクリームの線画"
+     }
+    },
+    {
+     "id": "THUMB-drug_therapy",
+     "title": "薬物療法の種類（化学療法・ホルモン療法・分子標的）",
+     "ok": true,
+     "card": {
+      "title": "薬物療法の種類（化学療法・ホルモン療法・分子標的）",
+      "src": "/thumbnails/small/thumb_drug_therapy.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "手帳と鉛筆とお茶の線画"
+     }
+    },
+    {
+     "id": "THUMB-radiation",
+     "title": "放射線治療の進め方と皮膚のケア",
+     "ok": true,
+     "card": {
+      "title": "放射線治療の進め方と皮膚のケア",
+      "src": "/thumbnails/small/thumb_radiation.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "保湿クリームとやわらかい衣類の線画"
+     }
+    },
+    {
+     "id": "THUMB-sakura_chemo_room",
+     "title": "さくら総合病院 外来化学療法室のご案内",
+     "ok": true,
+     "card": {
+      "title": "さくら総合病院 外来化学療法室のご案内",
+      "src": "/thumbnails/small/thumb_sakura_chemo_room.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "待合の椅子と観葉植物の線画"
+     }
+    },
+    {
+     "id": "THUMB-sakura_lymph",
+     "title": "さくら総合病院 術後リンパ浮腫外来",
+     "ok": true,
+     "card": {
+      "title": "さくら総合病院 術後リンパ浮腫外来",
+      "src": "/thumbnails/small/thumb_sakura_lymph.png",
+      "natural": [
+       192,
+       144
+      ],
+      "alt": "受付カウンターの小さな植物の線画"
+     }
+    }
+   ]
+  },
+  {
+   "name": "医療者: ライブラリの 22 教材すべてに新しい絵（候補と一覧の行）",
+   "ok": true,
+   "detail": "22/22、行 30 件"
+  },
+  {
+   "name": "医療者: セット選択の 6 セットすべてに新しい表紙",
+   "ok": true,
+   "detail": "6/6、セット 8 件"
+  },
+  {
+   "name": "医療者: 「手足のしびれ」を 1 件処方",
+   "ok": true
+  },
+  {
+   "name": "患者（同じタブ）: 新しく届いた教材が表示される",
+   "ok": true,
+   "detail": "こんにちは、佐藤さん 11月8日 日曜日 佐藤 医師と一時共有中 残り60分 · タップして管理 次の診察まで あと10日 11月18日（水） 変更 点滴から 21日目 乳がん · 点滴の薬物療法 · 第2コース · 10月15日に点滴 今"
+  },
+  {
+   "name": "患者（同じタブ）: 届いた教材の詳細に原寸サムネイル",
+   "ok": true,
+   "detail": {
+    "src": "/thumbnails/thumb_neuropathy.webp",
+    "natural": [
+     1600,
+     1200
+    ],
+    "complete": true,
+    "alt": "厚手の手袋とスリッパの線画",
+    "rect": [
+     323,
+     231,
+     378,
+     112
+    ]
+   }
+  },
+  {
+   "name": "患者（同じタブ）: 届いた教材の 1 ページ目に EDI-NEW-12",
+   "ok": true,
+   "detail": {
+    "src": "/assets/editorial/edi_new_12.png",
+    "natural": [
+     1200,
+     900
+    ],
+    "complete": true,
+    "alt": "台所で厚手の手袋をして鍋を持つ女性のイラスト",
+    "rect": [
+     337,
+     404,
+     350,
+     252
+    ]
+   }
+  },
+  {
+   "name": "clinicianLibrary",
+   "ok": true,
+   "detail": [
+    {
+     "id": "THUMB-colorectal_staging",
+     "title": "大腸がんの診断と病期",
+     "ok": true,
+     "hits": [
+      {
+       "title": "大腸がんの診断と病期",
+       "src": "/thumbnails/small/thumb_colorectal_staging.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-lung_biomarker",
+     "title": "肺がんの検査と遺伝子・バイオマーカー検査",
+     "ok": true,
+     "hits": [
+      {
+       "title": "肺がんの検査と遺伝子・バイオマーカー検査",
+       "src": "/thumbnails/small/thumb_lung_biomarker.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-second_opinion",
+     "title": "セカンドオピニオンの受け方",
+     "ok": true,
+     "hits": [
+      {
+       "title": "セカンドオピニオンの受け方",
+       "src": "/thumbnails/small/thumb_second_opinion.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-prehab",
+     "title": "手術前の準備（禁煙・口腔ケア・体力づくり）",
+     "ok": true,
+     "hits": [
+      {
+       "title": "手術前の準備（禁煙・口腔ケア・体力づくり）",
+       "src": "/thumbnails/small/thumb_prehab.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-post_surgery_diet",
+     "title": "胃・大腸の手術のあとの食事",
+     "ok": true,
+     "hits": [
+      {
+       "title": "胃・大腸の手術のあとの食事",
+       "src": "/thumbnails/small/thumb_post_surgery_diet.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-immunotherapy",
+     "title": "免疫チェックポイント阻害薬の治療と注意する症状",
+     "ok": true,
+     "hits": [
+      {
+       "title": "免疫チェックポイント阻害薬の治療と注意する症状",
+       "src": "/thumbnails/small/thumb_immunotherapy.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-oral_anticancer",
+     "title": "飲み薬の抗がん剤を安全に続けるために",
+     "ok": true,
+     "hits": [
+      {
+       "title": "飲み薬の抗がん剤を安全に続けるために",
+       "src": "/thumbnails/small/thumb_oral_anticancer.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-perioperative_therapy",
+     "title": "手術の前後に行う薬物療法の目的",
+     "ok": true,
+     "hits": [
+      {
+       "title": "手術の前後に行う薬物療法の目的",
+       "src": "/thumbnails/small/thumb_perioperative_therapy.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-radiation_types",
+     "title": "放射線治療の種類と部位ごとの副作用",
+     "ok": true,
+     "hits": [
+      {
+       "title": "放射線治療の種類と部位ごとの副作用",
+       "src": "/thumbnails/small/thumb_radiation_types.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-palliative_radiation",
+     "title": "痛みをやわらげる放射線治療（緩和照射）",
+     "ok": true,
+     "hits": [
+      {
+       "title": "痛みをやわらげる放射線治療（緩和照射）",
+       "src": "/thumbnails/small/thumb_palliative_radiation.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-fever_response",
+     "title": "発熱したときの対応（白血球が減っている時期）",
+     "ok": true,
+     "hits": [
+      {
+       "title": "発熱したときの対応（白血球が減っている時期）",
+       "src": "/thumbnails/small/thumb_fever_response.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-neuropathy",
+     "title": "手足のしびれ（末梢神経障害）とのつきあい方",
+     "ok": true,
+     "hits": [
+      {
+       "title": "手足のしびれ（末梢神経障害）とのつきあい方",
+       "src": "/thumbnails/small/thumb_neuropathy.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-mouth_taste",
+     "title": "口内炎・味覚の変化と食事の工夫",
+     "ok": true,
+     "hits": [
+      {
+       "title": "口内炎・味覚の変化と食事の工夫",
+       "src": "/thumbnails/small/thumb_mouth_taste.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-appearance_care",
+     "title": "脱毛と外見のケア（アピアランスケア）",
+     "ok": true,
+     "hits": [
+      {
+       "title": "脱毛と外見のケア（アピアランスケア）",
+       "src": "/thumbnails/small/thumb_appearance_care.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-family_children",
+     "title": "家族や子どもに病気をどう伝えるか",
+     "ok": true,
+     "hits": [
+      {
+       "title": "家族や子どもに病気をどう伝えるか",
+       "src": "/thumbnails/small/thumb_family_children.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-palliative_care",
+     "title": "緩和ケアは早い時期から",
+     "ok": true,
+     "hits": [
+      {
+       "title": "緩和ケアは早い時期から",
+       "src": "/thumbnails/small/thumb_palliative_care.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-surgery_choice",
+     "title": "乳房の手術の種類と選び方",
+     "ok": true,
+     "hits": [
+      {
+       "title": "乳房の手術の種類と選び方",
+       "src": "/thumbnails/small/thumb_surgery_choice.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-after_surgery",
+     "title": "手術後の生活と気をつけること",
+     "ok": true,
+     "hits": [
+      {
+       "title": "手術後の生活と気をつけること",
+       "src": "/thumbnails/small/thumb_after_surgery.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-drug_therapy",
+     "title": "薬物療法の種類（化学療法・ホルモン療法・分子標的）",
+     "ok": true,
+     "hits": [
+      {
+       "title": "薬物療法の種類（化学療法・ホルモン療法・分子標的）",
+       "src": "/thumbnails/small/thumb_drug_therapy.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-radiation",
+     "title": "放射線治療の進め方と皮膚のケア",
+     "ok": true,
+     "hits": [
+      {
+       "title": "放射線治療の進め方と皮膚のケア",
+       "src": "/thumbnails/small/thumb_radiation.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-sakura_chemo_room",
+     "title": "さくら総合病院 外来化学療法室のご案内",
+     "ok": true,
+     "hits": [
+      {
+       "title": "さくら総合病院 外来化学療法室のご案内",
+       "src": "/thumbnails/small/thumb_sakura_chemo_room.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    },
+    {
+     "id": "THUMB-sakura_lymph",
+     "title": "さくら総合病院 術後リンパ浮腫外来",
+     "ok": true,
+     "hits": [
+      {
+       "title": "さくら総合病院 術後リンパ浮腫外来",
+       "src": "/thumbnails/small/thumb_sakura_lymph.png",
+       "natural": [
+        192,
+        144
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "clinicianSets",
+   "ok": true,
+   "detail": [
+    {
+     "id": "COVER-preop_set",
+     "name": "術前セット",
+     "ok": true,
+     "hit": {
+      "name": "術前セット",
+      "src": "/covers/cover_preop_set.webp",
+      "natural": [
+       800,
+       1000
+      ]
+     }
+    },
+    {
+     "id": "COVER-chemo_start_set",
+     "name": "化学療法開始時セット",
+     "ok": true,
+     "hit": {
+      "name": "化学療法開始時セット",
+      "src": "/covers/cover_chemo_start_set.webp",
+      "natural": [
+       800,
+       1000
+      ]
+     }
+    },
+    {
+     "id": "COVER-sakura_chemo_orientation",
+     "name": "さくら総合病院 化学療法オリエンテーション",
+     "ok": true,
+     "hit": {
+      "name": "さくら総合病院 化学療法オリエンテーション",
+      "src": "/covers/cover_sakura_chemo_orientation.webp",
+      "natural": [
+       800,
+       1000
+      ]
+     }
+    },
+    {
+     "id": "COVER-prehab_set",
+     "name": "術前準備セット",
+     "ok": true,
+     "hit": {
+      "name": "術前準備セット",
+      "src": "/covers/cover_prehab_set.webp",
+      "natural": [
+       800,
+       1000
+      ]
+     }
+    },
+    {
+     "id": "COVER-immunotherapy_set",
+     "name": "免疫療法開始時セット",
+     "ok": true,
+     "hit": {
+      "name": "免疫療法開始時セット",
+      "src": "/covers/cover_immunotherapy_set.webp",
+      "natural": [
+       800,
+       1000
+      ]
+     }
+    },
+    {
+     "id": "COVER-side_effect_care_set",
+     "name": "化学療法の副作用対策セット",
+     "ok": true,
+     "hit": {
+      "name": "化学療法の副作用対策セット",
+      "src": "/covers/cover_side_effect_care_set.webp",
+      "natural": [
+       800,
+       1000
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "delivered",
+   "ok": true,
+   "detail": {
+    "id": "EDI-NEW-12",
+    "src": "/assets/editorial/edi_new_12.png",
+    "natural": [
+     1200,
+     900
+    ],
+    "complete": true,
+    "alt": "台所で厚手の手袋をして鍋を持つ女性のイラスト",
+    "rect": [
+     337,
+     404,
+     350,
+     252
+    ]
+   }
+  }
+ ],
+ "errors": []
+}
