@@ -61,7 +61,7 @@ test("仕事とお金のこと（教材の承認後）: 4 教材・セット・�
   await s.page.locator(".cd-sidebar").getByRole("button", { name: "教材ライブラリ" }).click();
   const tpl = s.page.locator('[data-template-name="仕事とお金のこと"]');
   await expect(tpl).toContainText("4件");
-  await tpl.getByRole("button", { name: /セットを選択に追加/ }).click();
+  await tpl.getByRole("button", { name: /まとめて追加/ }).click();
   await s.page.getByRole("button", { name: /選択中 4件/ }).click();
   await s.page.getByRole("button", { name: "4件の情報処方を確定" }).click();
   await s.page.getByRole("button", { name: "診察を終えて共有終了" }).click();

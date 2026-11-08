@@ -918,6 +918,7 @@
 @keyframes cd-flash { 0% { background: #e4f0e7; color: #2f6a41; } 100% { background: transparent; color: inherit; } }
 /* 質問を解決: 行が左へ消える（スワイプと同じ向き） */
 [data-questions] article.resolving { animation: cd-slide-out-left 220ms ease-in forwards; pointer-events: none; }
+[data-checks] .cd-check-list article.resolving { animation: cd-slide-out-left 220ms ease-in forwards; pointer-events: none; }
 /* 要点の帯・サイドバーの数字: 変わった瞬間だけ少し弾む */
 .cd-points button b.cd-pop { display: inline-block; animation: cd-pop 240ms ease-out; }
 /* サイドバーの数字: 丸の中央に。2 桁でも横に広がって中央のまま（display は grid のまま変えない） */
@@ -936,6 +937,7 @@
 @media (prefers-reduced-motion: reduce) {
   [data-questions] article.resolving, .cd-points button b.cd-pop, .cd-sidebar nav button i.cd-pop, .cd-select-tray, .cd-select-chip, .cd-saved-flash { animation: none; }
   [data-questions] article.resolving { opacity: .4; }
+  [data-checks] .cd-check-list article.resolving { animation: none; opacity: .4; }
   .cd-material-row, .cd-material-row > button, .cd-reco-list li > button, .cd-template-row > button, .cd-stepper-v2 button, .cd-stepper-v2 button > span { transition: none; }
 }
 
@@ -1168,3 +1170,84 @@
 .cd-demo-claude button { margin-left: 8px; min-height: 28px; padding: 0 10px; border: 1px solid currentColor; border-radius: 999px; background: #fff; color: inherit; font-size: 11px; font-weight: 700; }
 .cd-demo-claude-form { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .cd-demo-claude-form input { min-height: 28px; width: 130px; padding: 0 8px; border: 1px solid #c9dadc; border-radius: 8px; font-size: 12px; }
+
+/* 教材を探す: テーマのカードにも領域カードと同じ地色。名前は 2 行までで折り返し位置を固定 */
+.d-category-cards > .d-theme-card { background: var(--area-bg); border-color: var(--area-line); }
+.d-category-cards > .d-theme-card .d-category-icon { background: transparent; color: var(--area); }
+.d-category-cards > .d-theme-card .d-category-icon svg { width: 26px; height: 26px; }
+.d-category-cards > .d-theme-card small { color: var(--area); opacity: .85; }
+.d-category-cards b { font-size: 13.5px; line-height: 1.35; word-break: keep-all; }
+
+/* 診察サマリー: 正答率は見出しの右に大きく（患者の理解の度合いが一目で分かる） */
+.cd-summary-v2 .cd-title-row { align-items: flex-start; }
+.cd-score-hero { margin-left: auto; display: inline-flex; flex-direction: column; align-items: flex-end; gap: 0; min-width: 150px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; text-align: right; cursor: pointer; }
+.cd-score-hero > small { color: var(--muted); font-size: 10.5px; }
+.cd-score-hero > b { font-family: 'Zen Old Mincho', serif; font-size: 34px; line-height: 1.1; color: var(--blue-dark); }
+.cd-score-hero > span { color: var(--muted); font-size: 10.5px; }
+.cd-score-hero:hover:not(:disabled) { background: #f6f9f9; }
+.cd-score-hero:disabled { cursor: default; opacity: .7; }
+.cd-device.cd-820 .cd-score-hero { min-width: 120px; padding: 6px 12px; }
+.cd-device.cd-820 .cd-score-hero > b { font-size: 28px; }
+
+/* ===== 教材スタジオ: Claude 実行中の進行バー（段階 + 経過秒 + 通常の所要） ===== */
+.cd-studio-progress { margin: 0 0 14px; padding: 12px 16px 10px; border-radius: 12px; background: #f1f7f8; border: 1px solid #d6e6ea; }
+.cd-studio-progress-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.cd-studio-progress-head b { font-size: 14px; color: #1e4f5c; }
+.cd-studio-progress-head b small { font-weight: 600; color: #4f7f8c; font-size: 12px; margin-left: 4px; }
+.cd-studio-progress-head span { font-size: 12px; color: #4f7f8c; font-variant-numeric: tabular-nums; }
+.cd-studio-progress-bar { position: relative; height: 10px; border-radius: 999px; background: #dbe8eb; overflow: hidden; }
+.cd-studio-progress-bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #2c8a9e, #45b0c4); transition: width 1s linear; position: relative; }
+.cd-studio-progress-bar i::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%); background-size: 200% 100%; animation: cd-progress-shine 1.6s linear infinite; }
+@keyframes cd-progress-shine { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.cd-studio-progress-stages { list-style: none; margin: 10px 0 0; padding: 0; display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: #6b8a93; }
+.cd-studio-progress-stages li { display: inline-flex; align-items: center; gap: 6px; }
+.cd-studio-progress-stages li i { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: #dbe8eb; color: #4f7f8c; font-style: normal; font-size: 11px; font-weight: 700; }
+.cd-studio-progress-stages li.now { color: #1e4f5c; font-weight: 700; }
+.cd-studio-progress-stages li.now i { background: #2c8a9e; color: #fff; animation: cd-progress-pulse 1.2s ease-in-out infinite; }
+.cd-studio-progress-stages li.done { color: #2c8a9e; }
+.cd-studio-progress-stages li.done i { background: #2c8a9e; color: #fff; }
+@keyframes cd-progress-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(44, 138, 158, 0.45); } 50% { box-shadow: 0 0 0 5px rgba(44, 138, 158, 0); } }
+@media (prefers-reduced-motion: reduce) { .cd-studio-progress-bar i, .cd-studio-progress-bar i::after, .cd-studio-progress-stages li.now i { animation: none; transition: none; } }
+
+/* ===== 教材スタジオ: 編集画面に残す「必ず含める内容」の一覧（読むだけ） ===== */
+.cd-must-summary { margin: 0 0 14px; border: 1px solid #e3e9ea; border-radius: 12px; background: #fff; }
+.cd-must-summary summary { cursor: pointer; padding: 10px 14px; font-size: 13px; font-weight: 700; color: #2d5c68; }
+.cd-must-summary ul { margin: 0; padding: 0 14px 12px 32px; font-size: 13px; color: #334; }
+.cd-must-summary li { margin: 4px 0; }
+.cd-must-summary li.safety { color: #8a3a2c; }
+.cd-must-summary li small { margin-left: 6px; color: #7a8a90; font-size: 11px; }
+
+/* ===== 教材ライブラリ: 3 つのゾーン（1 この患者への候補 / 2 セット / 3 教材を探す） ===== */
+.cd-library-v2 .cd-zone { margin: 12px 0 0; padding: 12px 14px 10px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.cd-zone-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.cd-zone-head > div { flex: 1 1 220px; min-width: 0; }
+.cd-zone-head h2 { margin: 0; font-size: 14.5px; color: var(--blue-dark); line-height: 1.3; }
+.cd-zone-head p { margin: 2px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+.cd-zone-badge { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--blue-dark); color: #fff; font-size: 12px; font-weight: 800; }
+.cd-library-v2 .cd-zone-candidates { background: #f2f8fa; border-color: #cfe1e8; }
+.cd-zone-candidates .cd-zone-badge { background: #2c7a90; }
+.cd-library-v2 .cd-zone.cd-template-sets { margin: 12px 0 0; padding: 12px 14px 10px; border: 1px solid #e8dcc0; background: #fbf8f1; }
+.cd-zone-sets .cd-zone-badge { background: #9a7a2c; }
+.cd-zone-sets .cd-zone-head h2 { color: #5e4713; }
+.cd-new-set { flex: 0 0 auto; min-height: 38px; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border: 1.5px solid #9a7a2c; border-radius: 10px; background: #fff; color: #5e4713; font-weight: 800; font-size: 12.5px; white-space: nowrap; }
+.cd-new-set:hover { background: #f5edda; }
+.cd-zone-empty { margin: 0 0 4px; padding: 10px 12px; border: 1px dashed #d8ccaa; border-radius: 10px; color: #6d5a2c; font-size: 12px; background: #fff; }
+.cd-library-v2 .cd-set-hint { margin: 0 0 8px; }
+.cd-library-v2 .cd-template-row { background: #fff; }
+.cd-library-v2 .cd-template-row > button { min-height: 38px; border-color: #9a7a2c; background: #9a7a2c; color: #fff; font-size: 12.5px; }
+.cd-library-v2 .cd-template-row > button:hover { background: #866a24; }
+.cd-library-v2 .cd-template-row > button.selected, .cd-library-v2 .cd-template-row > button:disabled { border-color: #bcd3c3; color: #2f6a41; background: #eef5f0; }
+.cd-zone-browse .cd-zone-head { margin-bottom: 4px; }
+.cd-zone-browse .cd-library-search { flex: 1 1 240px; max-width: 360px; margin-left: auto; }
+.cd-library-v2 .cd-zone-browse .cd-area-chips { margin-top: 6px; }
+.cd-library-v2 .cd-zone-browse .cd-library-group:last-of-type { margin-bottom: 4px; }
+.cd-library-v2 .cd-zone .cd-library-group-title { margin-top: 10px; }
+.cd-library-v2 .cd-zone-candidates .cd-library-group-title, .cd-library-v2 .cd-sets-title { display: none; }
+@media (max-width: 720px) { .cd-zone-browse .cd-library-search { max-width: none; } .cd-new-set { width: 100%; justify-content: center; } }
+
+/* ===== 診察サマリー: 理解確認の設問にも「説明した」（質問の「解決」と同じ並び） ===== */
+.cd-summary-v2 .cd-check-list article { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 6px; }
+.cd-summary-v2 .cd-check-list article > button:first-child { grid-column: 1; }
+.cd-summary-v2 .cd-check-list article > .cd-check-resolve { grid-column: 2; grid-row: 1; align-self: center; margin-right: 8px; }
+.cd-summary-v2 .cd-check-list article > .cd-check-expanded { grid-column: 1 / -1; }
+.cd-summary-v2 .cd-understanding .cd-panel-head h2 { font-size: 14px; }

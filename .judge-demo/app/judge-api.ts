@@ -2,12 +2,13 @@ import fixture from "./fixtures/consultation.json";
 import { ApiError } from "./judge-errors";
 import { addDeliveries, endJudgeSession, getJudgeSession, isJudgeActive, requestJudgeExtension, setFeedbackStatus } from "./judge-store";
 import { patientApi, patientLearningChanges, rememberNativeDeliveries } from "./judge-patient-api";
-import { nativeRecordApi, nativeClinicianHealth, nativeClinicianNotes, nativeResolveNote, nativeTemplates, nativeCreateTemplate, nativeTreatment, hasNativeRecordChanges } from "./judge-native-records";
+import { nativeRecordApi, nativeClinicianHealth, nativeClinicianNotes, nativeResolveNote, nativeTemplates, nativeCreateTemplate, nativeTreatment, hasNativeRecordChanges, nativeExplainAnswer, nativeExplainedAnswers } from "./judge-native-records";
 import { nativePeriodPayload } from "./judge-native-period";
 import { studioApi, studioPublishedForVisit } from "./judge-studio";
 import { recommendMaterials } from "@/lib/recommend";
 export { ApiError, errorText } from "./judge-errors";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- 審査用デモの shim（本番の型に縛らない）
 type Options = RequestInit & { json?: any };
 const copy = <T,>(value:T):T => structuredClone(value);
 const forbidden=()=>new ApiError(403,"NO_ACTIVE_CONSULTATION","この診察の共有は終了しています");
@@ -55,8 +56,10 @@ export async function api<T = unknown>(path: string, init:Options = {}):Promise<
   if (!active) throw forbidden();
   const materials=[...fixture.materials.items,...studioPublishedForVisit(session.id)];
   if (endpoint==="patient" && method==="GET") {
+    const explained=new Map(nativeExplainedAnswers().map(e=>[e.attemptId+":"+e.questionId,e.explainedAt]));
     const answers=[...patientLearningChanges(),...fixture.patient.answers]
-      .sort((a,b)=>b.answeredAt.localeCompare(a.answeredAt));
+      .sort((a,b)=>b.answeredAt.localeCompare(a.answeredAt))
+      .map(a=>({...a,explainedAt:explained.get(a.attemptId+":"+a.questionId)??null}));
     const data=caseDates({...fixture.patient,answers,visitNotes:nativeClinicianNotes()});
     return {...data, questions:data.questions.map(q=>({...q,status:session.feedbackStatus[q.feedbackId]??q.status})),
       currentSet:session.prescriptions.length ? {setId:session.id,createdAt:session.prescriptions[0].prescribedAt,items:copy(session.prescriptions)} : data.currentSet} as T;
@@ -119,6 +122,13 @@ export async function api<T = unknown>(path: string, init:Options = {}):Promise<
   if (endpoint.startsWith("notes/") && method==="POST") {
     const id=endpoint.split("/")[1];
     if (typeof init.json?.resolved!=="boolean" || !nativeResolveNote(id,init.json.resolved)) throw reject("対象の質問を確認してください");
+    return {ok:true} as T;
+  }
+  if (endpoint==="checks" && method==="POST") {
+    const attemptId=init.json?.attemptId,questionId=init.json?.questionId;
+    const all=[...patientLearningChanges(),...fixture.patient.answers];
+    if (typeof attemptId!=="string" || typeof questionId!=="string" || !all.some(a=>a.attemptId===attemptId&&a.questionId===questionId)) throw reject("対象の設問を確認してください");
+    nativeExplainAnswer(attemptId,questionId,init.json?.explained!==false);
     return {ok:true} as T;
   }
   if (endpoint.startsWith("questions/") && method==="POST") {

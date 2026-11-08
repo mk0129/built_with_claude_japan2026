@@ -45,7 +45,7 @@ test("伊藤 涼子: 診断時セットの処方 → 患者ホーム → セッ�
   await staff.locator(".cd-sidebar").getByRole("button", { name: "教材ライブラリ" }).click();
   const tpl = staff.locator('[data-template][data-template-name="初回診断時セット"]');
   await expect(tpl).toContainText("3件");
-  await tpl.getByRole("button", { name: /セットを選択に追加/ }).click();
+  await tpl.getByRole("button", { name: /まとめて追加/ }).click();
   await staff.getByRole("button", { name: /選択中 3件/ }).click();
   await staff.getByRole("button", { name: "3件の情報処方を確定" }).click();
   await staff.getByRole("button", { name: "診察を終えて共有終了" }).click();

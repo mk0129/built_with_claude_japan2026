@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { ShioriLogo } from "@/concept-d/ShioriLogo";
 import { JudgeClinician } from "./JudgeClinician";
 import { JudgePatient } from "./JudgePatient";
-import { getJudgeReceipt, getJudgeSession, isJudgeActive, startJudgeSession, subscribeJudgeSession } from "./judge-store";
+import { getJudgeReceipt, getJudgeSession, isJudgeActive, subscribeJudgeSession } from "./judge-store";
 
 import { getNativePatientGrant } from "./judge-patient-api";
 
@@ -25,8 +25,8 @@ function useRoute(){
   useEffect(()=>{const fn=()=>setV(readView()); window.addEventListener("hashchange",fn);window.addEventListener("popstate",fn);window.addEventListener("judge:navigate",fn);return()=>{window.removeEventListener("hashchange",fn);window.removeEventListener("popstate",fn);window.removeEventListener("judge:navigate",fn);};},[]);
   return v;
 }
+// 2026-11: 最初は共有前の状態から。患者側で発行した共有コードで始めるのが本来の流れで、医師側の画面にデモ用の開始ボタンも置く
 function openConsult(){
-  if(!isJudgeActive() && !getNativePatientGrant()) startJudgeSession();
   go("doctor");
 }
 function openPatient(){
@@ -48,10 +48,11 @@ function Home(){
         </button>
         <button className="j-role" onClick={openConsult} aria-labelledby="clinician-role" aria-describedby="clinician-device">
           <span id="clinician-role">医療者として体験</span>
-          <small id="clinician-device">タブレット推奨 · 架空患者の記録が共有された状態から始まります</small>
+          <small id="clinician-device">タブレット推奨 · 最初は共有前。患者の共有コードか、画面のデモ用ボタンで始めます</small>
         </button>
       </div>
       <p className="j-home-note">どちらから始めても大丈夫です。上部の「患者側」「医師側」でいつでも切り替えられます。扱うデータはすべて架空です。</p>
+      <p className="j-home-note"><button type="button" className="j-reset" onClick={()=>{try{sessionStorage.clear();}catch{} location.replace(location.pathname);}}>最初からやり直す</button>（この端末で進めた共有・記録・教材を消して、共有していない状態に戻します）</p>
     </div>
   </main>;
 }
@@ -62,7 +63,7 @@ function Ended(){
  <div className="j-end-buttons"><Action onClick={()=>go("patient")}>患者の画面を見る</Action><Action secondary onClick={()=>go("home")}>入口へ戻る</Action></div></main>;
 }
 function Help(){
- return <details className="j-help"><summary>操作ガイド</summary><div><b>おすすめの3ステップ</b><ol><li>診察サマリーの上部で、在宅での症状・バイタル（S・O）と患者の質問を確認します。右の「理解確認の正答率」を押すと内訳が開きます。</li><li>「AI 情報処方リコメンド」の候補を「候補に追加」し、「選択中 N件を確認」から処方を確定します。上部の「患者側」で、届いた教材をすぐ確認できます。</li><li>「在宅経過」で、バイタルの色分けと症状グラフ（すべての症状を重ねる）を見ます。</li></ol><p>教材スタジオでは、手元の PDF を選んで手順を進められます（デモ環境では記録済みの Claude 出力を再生します）。</p></div></details>;
+ return <details className="j-help"><summary>操作ガイド</summary><div><b>おすすめの3ステップ</b><ol><li>診察サマリーの上部で、在宅での症状・バイタル（S・O）と患者の質問を確認します。右の「理解確認の正答率」を押すと内訳が開きます。</li><li>「AI 情報処方リコメンド」の候補を「候補に追加」し、「選択中 N件を確認」から処方を確定します。上部の「患者側」で、届いた教材をすぐ確認できます。</li><li>「在宅経過」で、バイタルの色分けと症状推移（すべての症状を重ねる）を見ます。</li></ol><p>教材スタジオでは、手元の PDF を選んで手順を進められます（デモ環境では記録済みの Claude 出力を再生します）。</p></div></details>;
 }
 function App(){
  const v=useRoute();const s=useSyncExternalStore(subscribeJudgeSession,getJudgeSession);
@@ -80,6 +81,6 @@ function App(){
 }
 class Boundary extends React.Component<{children:React.ReactNode},{failed:boolean}> {
  state={failed:false};static getDerivedStateFromError(){return {failed:true};}
- render(){return this.state.failed?<main className="j-panel"><h1>画面を開けませんでした。</h1><p>デモ入口からもう一度お試しください。</p><a href="/">入口へ戻る</a></main>:this.props.children;}
+ render(){return this.state.failed?<main className="j-panel"><h1>画面を開けませんでした。</h1><p>デモ入口からもう一度お試しください。</p><button type="button" className="j-secondary" onClick={()=>location.assign("/")}>入口へ戻る</button></main>:this.props.children;}
 }
 createRoot(document.getElementById("root")!).render(<Boundary><App/></Boundary>);

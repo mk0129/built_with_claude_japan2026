@@ -182,12 +182,15 @@ export function useStudio(orgId: string | null, enabled: boolean, notify: (messa
 
   /** 選んだ構成案と、医療者が確認した必須事項で下書きを作る */
   const requestDraft = useCallback(
-    async (outlineIndex: number, must: { id: string; text: string; kind: MustCandidate["kind"]; sourceRef: MustCandidate["sourceRef"]; status: "required" | "other_material" | "needs_review" }[]) =>
+    async (outlineIndex: number, must: { id: string; text: string; kind: MustCandidate["kind"]; sourceRef: MustCandidate["sourceRef"]; status: "required" | "other_material" | "needs_review" }[], fromJob?: Job | null, sourceIdOverride?: string | null) =>
       run("draft", async () => {
-        if (!sourceId || !outlineJob) throw new Error("構成案がありません");
+        // 登録 → 構成案 → 下書きを 1 回の操作で続けるとき、state の反映前でも呼べるように原資料 ID と構成案ジョブを引数で受け取れる
+        const sid = sourceIdOverride ?? sourceId;
+        const from = fromJob ?? outlineJob;
+        if (!sid || !from) throw new Error("構成案がありません");
         const q = orgId ? `?orgId=${orgId}` : "";
         const { jobId } = await api<{ jobId: string }>(`/api/v1/studio/jobs${q}`, {
-          json: { mode: "generate", sourceIds: [sourceId], fromJobId: outlineJob.id, outlineIndex, mustCover: must },
+          json: { mode: "generate", sourceIds: [sid], fromJobId: from.id, outlineIndex, mustCover: must },
         });
         const j = await waitJob(jobId, setDraftJob);
         if (j.status !== "succeeded" || !j.outputVersionId) throw new Error(j.errorMessage ?? "下書きを作れませんでした");
@@ -264,6 +267,8 @@ export function useStudio(orgId: string | null, enabled: boolean, notify: (messa
     draft,
     saveDraft,
     reloadDraft: () => (draft ? loadDraft(draft.version.id) : null),
+    /** 版 ID を指定して下書きを開く（URL で開いていないときに、作った下書きへ直接進むため） */
+    openDraft: (versionId: string) => loadDraft(versionId),
     openedFromUrl,
     submit: () => transition("submit"),
     approve: (acknowledgeSafety: boolean, note: string | null) => transition("approve", { acknowledgeSafety, note }),
