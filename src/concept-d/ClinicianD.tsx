@@ -4703,6 +4703,8 @@ function Studio({
   const [file, setFile] = useState<File | null>(null)
   // 手順 3: 編集の中で患者の見え方を確認する（プレビュー表示中）
   const [previewing, setPreviewing] = useState(false)
+  // 公開デモ: 実際に Claude で作るための合言葉（入力欄）
+  const [demoCode, setDemoCode] = useState("")
   // 手順が変わったら画面の先頭へ（前の手順のスクロール位置を引きずらない）
   useEffect(() => {
     document.querySelector(".cd-main")?.scrollTo({ top: 0 })
@@ -4792,7 +4794,39 @@ function Studio({
     : []
   return (
     <div className="cd-content cd-studio">
-      {replayEnv && (
+      {live?.config?.demoClaude?.available && live.demoClaude && (
+        <p className={`cd-studio-env cd-demo-claude${live.config.demoClaude.live ? " live" : ""}`} data-demo-claude role="note">
+          <CIcon name="studio" size={14} />
+          {live.config.demoClaude.live ? (
+            <>
+              <b>Claude で実際に生成します</b>（{live.config.model}）。原資料は TXT / Markdown か
+              {live.demoClaude.useSample && (
+                <button type="button" onClick={live.demoClaude.useSample} data-demo-claude-sample>
+                  サンプル原資料を使う
+                </button>
+              )}
+              <button type="button" onClick={live.demoClaude.disable} data-demo-claude-off>
+                記録の再生に戻す
+              </button>
+            </>
+          ) : (
+            <form
+              className="cd-demo-claude-form"
+              onSubmit={(event) => {
+                event.preventDefault()
+                if (demoCode.trim()) void live.demoClaude?.enable(demoCode.trim()).then((ok) => ok && setDemoCode(""))
+              }}
+            >
+              公開デモでも実際に Claude で教材を作れます。
+              <input value={demoCode} onChange={(event) => setDemoCode(event.target.value)} placeholder="合言葉" aria-label="合言葉" data-demo-claude-code />
+              <button type="submit" disabled={!demoCode.trim()} data-demo-claude-on>
+                実際に Claude で作る
+              </button>
+            </form>
+          )}
+        </p>
+      )}
+      {replayEnv && !live?.config?.demoClaude?.live && (
         <p className="cd-studio-env" data-studio-env role="note">
           <CIcon name="alert" size={14} />
           {live?.outlineJob?.generator === "replay" || live?.draftJob?.generator === "replay"

@@ -1161,3 +1161,10 @@
 .cd-must-row blockquote p { margin: 0; }
 /* 学習中: 「次へ」「理解を確認する」の帯は、下のタブのすぐ上に留まる（.d-main の padding-bottom 108px − タブ 78px = 30px） */
 .d-main .d-learning-actions { position: sticky; bottom: -30px; z-index: 3; margin-top: 8px; padding: 8px 0 10px; background: linear-gradient(180deg, rgba(255,255,255,0), #fff 30%); }
+
+/* 公開デモ: 実際に Claude で作る切り替え */
+.cd-demo-claude { background: #eef4f4; border-color: #c9dadc; color: #1f4b55; }
+.cd-demo-claude.live { background: #e4f0e7; border-color: #bcd3c3; color: #2f6a41; }
+.cd-demo-claude button { margin-left: 8px; min-height: 28px; padding: 0 10px; border: 1px solid currentColor; border-radius: 999px; background: #fff; color: inherit; font-size: 11px; font-weight: 700; }
+.cd-demo-claude-form { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.cd-demo-claude-form input { min-height: 28px; width: 130px; padding: 0 8px; border: 1px solid #c9dadc; border-radius: 8px; font-size: 12px; }

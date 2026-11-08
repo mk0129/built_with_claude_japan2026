@@ -27,6 +27,10 @@ export type Draft = {
 
 export const SAFETY_KINDS = ["emergency", "visit", "prohibition"];
 
+/** Claude の設定状況。demoClaude は公開デモだけ: 合言葉を入れると実際に Claude で生成できる */
+export type StudioConfig = { claudeConfigured: boolean; model: string; demoClaude?: { available: boolean; live: boolean } };
+/** 公開デモの「実際に Claude で作る」の切り替え（本番は null） */
+export type DemoClaudeControls = { enable: (passcode: string) => Promise<boolean>; disable: () => void; useSample?: () => void };
 export type StudioLive = ReturnType<typeof useStudio>;
 
 export function useStudio(orgId: string | null, enabled: boolean, notify: (message: string) => void) {
@@ -42,7 +46,7 @@ export function useStudio(orgId: string | null, enabled: boolean, notify: (messa
   const [busy, setBusy] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [allowed, setAllowed] = useState<boolean | null>(null);
-  const [config, setConfig] = useState<{ claudeConfigured: boolean; model: string } | null>(null);
+  const [config, setConfig] = useState<StudioConfig | null>(null);
 
   // 教材制作の権限（教材編集者・承認者）と Claude の設定状況
   useEffect(() => {
@@ -51,7 +55,7 @@ export function useStudio(orgId: string | null, enabled: boolean, notify: (messa
     api(`/api/v1/studio/sources${q}`)
       .then(() => setAllowed(true))
       .catch(() => setAllowed(false));
-    api<{ claudeConfigured: boolean; model: string }>("/api/v1/studio/config")
+    api<StudioConfig>("/api/v1/studio/config")
       .then(setConfig)
       .catch(() => {});
   }, [enabled, orgId]);
@@ -265,5 +269,6 @@ export function useStudio(orgId: string | null, enabled: boolean, notify: (messa
     approve: (acknowledgeSafety: boolean, note: string | null) => transition("approve", { acknowledgeSafety, note }),
     returnToDraft: (comment: string) => transition("return", { comment }),
     retire: () => transition("retire"),
+    demoClaude: null as DemoClaudeControls | null,
   };
 }
